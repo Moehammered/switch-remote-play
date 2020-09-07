@@ -4,40 +4,93 @@
   -s or --server tells nxlink to open a socket nxlink can connect to.
 */
 
-#include <string.h>
-#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/errno.h>
 #include <unistd.h>
 
 #include <switch.h>
 
+#include "configuration.h"
+
+void initialiseSwitch()
+{
+    plInitialize(PlServiceType_User);
+    pcvInitialize();
+
+    romfsInit();
+}
+
+void initialiseNetwork()
+{
+    std::cout << "Creating default socket initialisation" << std::endl;
+    socketInitializeDefault();
+}
+
+void destroyNetwork()
+{
+    std::cout << "destroying default socket initialisation" << std::endl;
+    socketExit();
+}
+
+void speakToServer(std::string message)
+{
+    sockaddr_in serverAddr;
+    unsigned short portNo = 20001;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(portNo);
+    serverAddr.sin_addr.s_addr = inet_addr("192.168.0.19");
+
+    auto clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    if(clientSocket < 0)
+        std::cout << "error occurred trying to create socket" << std::endl;
+
+    auto result = connect(clientSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
+    if(result < 0)
+        std::cout << "failed to connect to server" << std::endl;
+
+    char msgBuffer[256];
+    for(auto& c : msgBuffer)
+        c = 0;
+    
+    result = recv(clientSocket, msgBuffer, 255, 0);
+    if(result < 0)
+        std::cout << "error receiving data from server" << std::endl;
+    else
+    {
+        std::cout << "received " << result << " bytes. (msg: " << msgBuffer << ")" << std::endl;
+    }
+    std::string reply = "Thanks mate. I'm on the switch so no BSOD here, just atmos crash dumps.";
+    result = send(clientSocket, reply.c_str(), reply.length(), 0);
+    if(result < 0)
+        std::cout << "failed to send reply" << std::endl;
+    else
+    {
+        std::cout << "Sent " << reply.length() << " bytes." << std::endl;
+    }
+    
+    close(clientSocket);
+}
+
 int main(int argc, char **argv)
 {
+    using namespace std;
+
     consoleInit(NULL);
+    initialiseNetwork();
+    initialiseSwitch();
+    cout << "console output will now be redirected to the server (nxlink.exe)" << endl;
 
-    // Initialise sockets
-    socketInitializeDefault();
-
-    printf("Hello World!\n");
-
-    // Display arguments sent from nxlink
-    printf("%d arguments\n", argc);
-
-    for (int i=0; i<argc; i++) {
-        printf("argv[%d] = %s\n", i, argv[i]);
-    }
-
-    // the host ip where nxlink was launched
-    printf("nxlink host is %s\n", inet_ntoa(__nxlink_host));
-
-    // redirect stdout & stderr over network to nxlink
     nxlinkStdio();
 
-    // this text should display on nxlink host
-    printf("printf output now goes to nxlink server\n");
+    cout << "entering main loop" << endl;
 
+    speakToServer("gday mate");
     // Main loop
     while(appletMainLoop())
     {
@@ -52,16 +105,18 @@ int main(int argc, char **argv)
         if (kDown & KEY_PLUS) break; // break in order to return to hbmenu
 
         if (kDown & KEY_A) {
-            printf("A Pressed\n");
+            cout << "A pressed" << endl;
         }
         if (kDown & KEY_B) {
-            printf("B Pressed\n");
+            cout << "B pressed" << endl;
         }
 
         consoleUpdate(NULL);
     }
 
-    socketExit();
+    destroyNetwork();
+
+    cout << "exiting application..." << endl;
     consoleExit(NULL);
     return 0;
 }
