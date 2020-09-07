@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "I:/VS/Community 2019/VC/Tools/MSVC/14.26.28801/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        },
+        {
+            "name": "switch",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\mingw-w64\\x86_64-8.1.0-posix-sjlj-rt_v6-rev0\\mingw64\\include",
+                "C:\\mingw-w64\\x86_64-8.1.0-posix-sjlj-rt_v6-rev0\\mingw64\\x86_64-w64-mingw32\\include",
+                "C:\\mingw-w64\\switch\\devkitPro\\libnx\\include",
+                "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\10.2.0\\include",
+                "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
+                "C:\\mingw-w64\\switch\\devkitPro\\portlibs\\switch\\include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__SWITCH__"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "C:/mingw-w64/x86_64-8.1.0-posix-sjlj-rt_v6-rev0/mingw64/bin/g++.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
