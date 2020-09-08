@@ -1,15 +1,18 @@
+/**
+ * Test console application to demonstrate connecting to a client automatically on the network without inputting IP manually.
+ * To test this, run the client application first, then run the server application and the connection will occur.
+*/
+
 #include <iostream>
 #include <string>
 #include <winsock2.h>
+#include <ws2tcpip.h>
 
-int main(int argc, char* argv[])
+using namespace std;
+
+//wait for something to connect to this 'server' application and exchange messages
+void WaitForDirectConnection()
 {
-    using namespace std;
-    cout << "hello server world" << endl;
-
-    WSADATA wsaStateData;
-    WSAStartup(MAKEWORD(2,2), &wsaStateData);
-
     sockaddr_in serverAddr, clientAddr;
 
     int result = 0;
@@ -67,6 +70,53 @@ int main(int argc, char* argv[])
     cout << "Closing server now. Bye bye." << endl;
     closesocket(clientSocket);
     closesocket(serverSocket);
+}
+
+//broadcast a message from this 'server' application to let clients know it's live and ready to get connections
+void BroadcastServer()
+{
+    sockaddr_in broadcastAddr;
+    USHORT portNo = 20001;
+    broadcastAddr.sin_port = htons(portNo);
+    broadcastAddr.sin_family = AF_INET;
+    // need to find a way to automatically get the (wireless)local area network IP and subnet mask to make the broadcast address
+    broadcastAddr.sin_addr.S_un.S_addr = inet_addr("192.168.0.255"); //broadcast addr of my LAN (gateway 192.168.0.1, subnet mask 255.255.255.0)
+    //broadcastAddr.sin_addr.S_un.S_addr = htonl(INADDR_BROADCAST); //broadcast addr for all network IPs (from local network, to ISP network)
+
+    auto broadcastSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    bool socketOption = true;
+    int sizeofOption = sizeof(socketOption);
+    //must setup the socket to explicitly want to broadcast
+    auto result = setsockopt(broadcastSock, SOL_SOCKET, SO_BROADCAST, (char*)&socketOption, sizeofOption);
+    if(result == SOCKET_ERROR)
+        cout << "Failed to set socket option to broadcast: " << WSAGetLastError() << endl;
+
+    string bcsMsg = "testes";
+    cout << "broadcasting..." << endl;
+    result = sendto(broadcastSock, bcsMsg.c_str(), bcsMsg.length(), 0, (const sockaddr*)&broadcastAddr, sizeof(broadcastAddr));
+
+    if(result == SOCKET_ERROR)
+        cout << "Failed to send on broadcast socket: " << WSAGetLastError() << endl;
+    else
+        cout << "broadcasted message" << endl;
+
+    cout << "broadcast finished" << endl;
+
+    closesocket(broadcastSock);
+}
+
+int main(int argc, char* argv[])
+{
+    cout << "hello server world" << endl;
+
+    WSADATA wsaStateData;
+    WSAStartup(MAKEWORD(2,2), &wsaStateData);
+
+    BroadcastServer();
+
+    WaitForDirectConnection();
+
 
     WSACleanup();
 

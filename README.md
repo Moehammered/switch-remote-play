@@ -8,7 +8,10 @@ In-Home-Switching and SkyNX already offer the ability to do so, however there we
 
 ## Planned Features
 
-- Configure stream settings from switch
+- Automatically connect switch and PC stream applications
+- Stream audio from remote connection to the switch
+- Stream input from the switch to remote connection
+- Configure stream settings from switch and update remote connection settings
 - Disconnect / Reconnect stream at will
 - Desktop application to manage stream output
 
