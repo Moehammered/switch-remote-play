@@ -15,7 +15,8 @@
 #include <unistd.h>
 
 #include <switch.h>
-
+#include "ScreenRenderer.h"
+#include "VideoStream.h"
 #include "configuration.h"
 
 void initialiseSwitch()
@@ -81,16 +82,41 @@ int main(int argc, char **argv)
 {
     using namespace std;
 
-    consoleInit(NULL);
+    // consoleInit(NULL);
     initialiseNetwork();
     initialiseSwitch();
-    cout << "console output will now be redirected to the server (nxlink.exe)" << endl;
+    cout << "creating SDL window" << endl;
 
-    nxlinkStdio();
+    ScreenRenderer screen;
+    SDL_Color bgCol;
+    bgCol.r = bgCol.g = bgCol.b = bgCol.a = 255;
+    bool initOK = screen.Initialise(1280, 720);
+    bool streamOK = false;
 
-    cout << "entering main loop" << endl;
-
-    speakToServer("gday mate");
+    string url = "tcp://0.0.0.0:2222";
+    VideoStream stream;
+    if(initOK)
+    {
+        nxlinkStdio();
+        cout << "SDL initialised. Console output will now be redirected to the server (nxlink.exe)" << endl;    
+        cout << "Attempting to create video stream." << endl;
+        stream.Initialise();
+        streamOK = stream.WaitForStream(url);
+        if(streamOK)
+        {
+            cout << "Connection established, ready to stream." << endl;
+        }
+        else
+        {
+            cout << "Connection couldn't be established. From timeout or error." << endl;
+        }
+    }
+    else
+    {
+        consoleInit(NULL);
+    }
+    
+    //speakToServer("gday mate");
     // Main loop
     while(appletMainLoop())
     {
@@ -105,18 +131,49 @@ int main(int argc, char **argv)
         if (kDown & KEY_PLUS) break; // break in order to return to hbmenu
 
         if (kDown & KEY_A) {
-            cout << "A pressed" << endl;
+            cout << "A pressed - making bg colour orange?" << endl;
+            bgCol.r = 255;
+            bgCol.g = 255;
+            bgCol.b = 100;
         }
         if (kDown & KEY_B) {
-            cout << "B pressed" << endl;
+            cout << "B pressed - making bg colour blue" << endl;
+            bgCol.r = 100;
+            bgCol.g = 100;
+            bgCol.b = 255;
         }
+        if(kDown & KEY_X && !streamOK)
+        {
+            streamOK = stream.WaitForStream(url);
+        }
+        if(!initOK)
+            consoleUpdate(NULL);
+        else
+        {
+            screen.ClearScreen(bgCol);
 
-        consoleUpdate(NULL);
+            if(streamOK)
+            {
+                stream.StreamVideo(screen);
+                //blocks here if we proceed, cleanup so we can re-connect properly if we press 'X'
+                streamOK = false;
+                stream.Cleanup();
+            }
+            else
+                screen.PresentScreen();
+        }
     }
 
     destroyNetwork();
 
     cout << "exiting application..." << endl;
-    consoleExit(NULL);
+    if(!initOK)
+        consoleExit(NULL);
+    else
+        SDL_Quit();
+
+    if(streamOK)
+        stream.Cleanup();
+
     return 0;
 }
