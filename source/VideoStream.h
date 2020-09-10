@@ -21,6 +21,8 @@ class VideoStream
 
         void StreamVideo(ScreenRenderer& renderer);
 
+        void StreamVideoQueue(ScreenRenderer& renderer);
+
         void Cleanup();
     private:
         AVFormatContext* streamFormat;

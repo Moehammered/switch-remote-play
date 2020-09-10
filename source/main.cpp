@@ -27,10 +27,11 @@ void initialiseSwitch()
     romfsInit();
 }
 
-void initialiseNetwork()
+void initialiseNetwork(SocketInitConfig& config)
 {
-    std::cout << "Creating default socket initialisation" << std::endl;
-    socketInitializeDefault();
+    // std::cout << "Creating default socket initialisation" << std::endl;
+    // socketInitializeDefault();
+    socketInitialize(&config);
 }
 
 void destroyNetwork()
@@ -78,13 +79,60 @@ void speakToServer(std::string message)
     close(clientSocket);
 }
 
+//callback function that can be given to the app to be called on state changes
+void AppStateHook(AppletHookType hook, void* param)
+{
+    std::cout << "Hook Type: " << hook << std::endl;
+    if(param != nullptr)
+    {
+        SDL_Color* col = (SDL_Color*)param;
+        col->r = 150;
+        col->g = 10;
+        col->b = 10;
+    }
+
+    if(hook == AppletHookType_OnExitRequest)
+        std::cout << "Hook into exit request" << std::endl;
+
+    auto state = appletGetFocusState();
+    std::cout << "App state: " << state << std::endl;
+
+    if(hook == AppletHookType_OnFocusState)
+    {
+        auto state = appletGetFocusState();
+        if(state == AppletFocusState_NotFocusedHomeSleep)
+        {
+            std::cout << "Sleeping now" << std::endl;
+        }
+    }
+}
+
+using namespace std;
+
 int main(int argc, char **argv)
 {
-    using namespace std;
-
     // consoleInit(NULL);
-    initialiseNetwork();
+    SocketInitConfig socketInitConf = {
+        .bsdsockets_version = 1,
+
+        .tcp_tx_buf_size = 0x80000,
+        .tcp_rx_buf_size = 0x100000,
+        .tcp_tx_buf_max_size = 0x300000,
+        .tcp_rx_buf_max_size = 0x500000,
+
+        .udp_tx_buf_size = 0x1400,
+        .udp_rx_buf_size = 0x2500,
+
+        .sb_efficiency = 3,
+
+        // .serialized_out_addrinfos_max_size = 0x1000,
+        // .serialized_out_hostent_max_size = 0x200,
+        // .bypass_nsd = false,
+        // .dns_timeout = 0,
+    };
+    initialiseNetwork(socketInitConf);
     initialiseSwitch();
+
     cout << "creating SDL window" << endl;
 
     ScreenRenderer screen;
@@ -93,23 +141,27 @@ int main(int argc, char **argv)
     bool initOK = screen.Initialise(1280, 720);
     bool streamOK = false;
 
+    //string url = "rtp://0.0.0.0:2222"; //very fast data retrieval - doesn't display correctly (RTP muxer necessary)
+    //string url = "udp://0.0.0.0:2222"; //very fast data retrieval - can't keep up (buffer overflow - guessing it's from sockets?)
     string url = "tcp://0.0.0.0:2222";
     VideoStream stream;
     if(initOK)
     {
         nxlinkStdio();
         cout << "SDL initialised. Console output will now be redirected to the server (nxlink.exe)" << endl;    
-        cout << "Attempting to create video stream." << endl;
+        cout << "Initialising video stream config" << endl;
         stream.Initialise();
-        streamOK = stream.WaitForStream(url);
-        if(streamOK)
-        {
-            cout << "Connection established, ready to stream." << endl;
-        }
-        else
-        {
-            cout << "Connection couldn't be established. From timeout or error." << endl;
-        }
+
+        cout << "Ready to accept a video stream connection. Press 'X' to make the switch wait for a connection." << endl;
+        // streamOK = stream.WaitForStream(url);
+        // if(streamOK)
+        // {
+        //     cout << "Connection established, ready to stream." << endl;
+        // }
+        // else
+        // {
+        //     cout << "Connection couldn't be established. From timeout or error." << endl;
+        // }
     }
     else
     {
@@ -118,6 +170,28 @@ int main(int argc, char **argv)
     
     //speakToServer("gday mate");
     // Main loop
+    const double NANO_TO_SECONDS = 1000000000.0;
+    uint64_t currTime, prevTime;
+    currTime = armTicksToNs(armGetSystemTick());
+    prevTime = currTime;
+    uint64_t deltaTime = 0;
+    int frameCounter = 180;
+    
+    AppletHookCookie cookie;
+    appletHook(&cookie, AppStateHook, (void*)&bgCol);
+
+    AppletFocusState focusState = appletGetFocusState();
+    cout << "Focus State Val: " << focusState << endl;
+    focusState = appletGetFocusState();
+    //suspend home sleep notify will notify the hook when the system changes focus.
+    appletSetFocusHandlingMode(AppletFocusHandlingMode_SuspendHomeSleepNotify);
+    cout << "Focus State after modification Val: " << focusState << endl;
+
+
+    // appletLockExit(); //don't let the applet force close till we cleanup (Will force close if cleanup takes longer than 15s)
+    // auto request = appletRequestToAcquireSleepLock();
+    // cout << "Sleep lock request: " << request << endl;
+    bool useQueue = false;
     while(appletMainLoop())
     {
         //Scan all the inputs. This should be done once for each frame
@@ -133,7 +207,7 @@ int main(int argc, char **argv)
         if (kDown & KEY_A) {
             cout << "A pressed - making bg colour orange?" << endl;
             bgCol.r = 255;
-            bgCol.g = 255;
+            bgCol.g = 200;
             bgCol.b = 100;
         }
         if (kDown & KEY_B) {
@@ -146,21 +220,43 @@ int main(int argc, char **argv)
         {
             streamOK = stream.WaitForStream(url);
         }
+        else if(kDown & KEY_Y && !streamOK)
+        {
+            streamOK = stream.WaitForStream(url);
+            useQueue = true;
+        }
         if(!initOK)
             consoleUpdate(NULL);
         else
         {
-            screen.ClearScreen(bgCol);
-
             if(streamOK)
             {
-                stream.StreamVideo(screen);
-                //blocks here if we proceed, cleanup so we can re-connect properly if we press 'X'
+                if(useQueue)
+                    stream.StreamVideoQueue(screen);
+                else
+                    stream.StreamVideo(screen);
+                //StreamVideo blocks. If we proceed beyond it, cleanup so we can re-connect properly if we press 'X'
                 streamOK = false;
+                useQueue = false;
                 stream.Cleanup();
             }
             else
+            {
+                screen.ClearScreen(bgCol);
                 screen.PresentScreen();
+            }
+        }
+
+        currTime = armTicksToNs(armGetSystemTick());
+        deltaTime = deltaTime + (currTime - prevTime);
+        prevTime = currTime; 
+
+        if(--frameCounter == 0)
+        {
+            frameCounter = 180;
+            auto frameRate = frameCounter / (deltaTime / NANO_TO_SECONDS);
+            cout << "Main Loop FPS: " << frameRate << endl;
+            deltaTime = 0;
         }
     }
 
@@ -175,5 +271,10 @@ int main(int argc, char **argv)
     if(streamOK)
         stream.Cleanup();
 
+    appletUnhook(&cookie);
+    
+    // appletReleaseSleepLock();
+    
+    // appletUnlockExit(); //release lock on application
     return 0;
 }
