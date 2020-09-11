@@ -8,6 +8,7 @@ extern "C"
 
 #include <switch.h>
 #include <iostream>
+#include "Decoder.h"
 #include <vector>
 #include <deque>
 
@@ -28,7 +29,7 @@ bool VideoStream::WaitForStream(std::string url)
     // setting TCP input options
     AVDictionary* opts = 0;
     av_dict_set(&opts, "listen", "1", 0); // 1 means listen for any connection on the URL port, 0 means listen for connections to the URL
-    av_dict_set(&opts, "probesize", "50000", 0);
+    av_dict_set(&opts, "probesize", "5000", 0);
     //av_dict_set(&opts, "timeout", "100", 0);//in Ms??? (sets fine, but doesn't stop the socket from blocking. Think it has to do more with the encoder/server)
     //av_dict_set(&opts, "recv_buffer_size", "1048576", 0);       // set option for size of receive buffer
 
@@ -118,6 +119,79 @@ bool VideoStream::WaitForStream(std::string url)
     av_dict_free(&opts);
 
     return true;
+}
+
+void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, bool useFrameSkip)
+{
+    Decoder decoder;
+    if(!decoder.Initialise(stream->codecpar, useFrameSkip))
+    {
+        std::cout << "Error occurred initialising the decoder." << std::endl;
+        return;
+    }
+
+    AVPacket dataPacket;
+    av_init_packet(&dataPacket);
+    dataPacket.data = NULL;
+    dataPacket.size = 0;
+
+    // values to capture frame rate / time passage of renderer
+    int deltaFrameSample = 300;
+    const double NANO_TO_SECONDS = 1000000000.0;
+    uint64_t currTime, prevTime, deltaTime;
+    currTime = armTicksToNs(armGetSystemTick());
+    prevTime = currTime;
+    deltaTime = 0;
+
+    std::cout << "starting stream read of packets...\n" << std::endl;
+    //read frames from the stream we've connected to and setup
+    while (av_read_frame(streamFormat, &dataPacket) >= 0)
+    {
+        if(decoder.DecodeFramePacket(dataPacket))
+        {
+            //something was decoded, render it
+            auto screenTexture = renderer.GetScreenTexture();
+            auto region = renderer.GetRegion();
+            // render frame data - expecting YUV420 format
+            // (stride values represent space between horizontal lines across screen)
+            auto decodedFrame = decoder.DecodedFrame();
+
+            auto yPlane = decodedFrame.data[0];
+            auto yPlaneStride = decodedFrame.width;
+            auto uPlane = decodedFrame.data[1];
+            auto uPlaneStride = decodedFrame.width/2;
+            auto vPlane = decodedFrame.data[2];
+            auto vPlaneStride = decodedFrame.width/2;
+
+            // std::cout << "Updating SDL texture" << std::endl;
+            SDL_UpdateYUVTexture(screenTexture, &region, 
+                                yPlane, yPlaneStride,
+                                uPlane, uPlaneStride, 
+                                vPlane, vPlaneStride);
+
+            renderer.RenderScreenTexture();
+            
+            dataPacket.data += decodedFrame.pkt_size; //think this is unnecessary
+            dataPacket.size -= decodedFrame.pkt_size; //think this is unnecessary
+        }
+        currTime = armTicksToNs(armGetSystemTick());
+        deltaTime += (currTime - prevTime);
+        prevTime = currTime;
+
+        if(--deltaFrameSample == -1)
+        {
+            deltaFrameSample = 300;
+            auto frameRate = deltaFrameSample / (deltaTime / NANO_TO_SECONDS);
+            //std::cout << "FPS: " << frameRate << ", DeltaTimePassed: " << deltaTime/NANO_TO_SECONDS << std::endl;
+
+            deltaTime = 0;
+        }
+        // std::cout << "cleaning up used packet" << std::endl;
+        av_packet_unref(&dataPacket);
+    }
+
+    decoder.Flush();
+    decoder.Cleanup();
 }
 
 /**
@@ -281,8 +355,8 @@ void VideoStream::StreamVideo(ScreenRenderer& renderer)
             {
                 //send incoming frame packet data to the decoder
                 ret = avcodec_send_packet(decoderContext, &dataPacket);
-                if (ret < 0 && ret == AVERROR_EOF)
-                    ret = 0; //ignore reaching end of file/stream error
+                // if (ret < 0 && ret == AVERROR_EOF)
+                //     ret = 0; //ignore reaching end of file/stream error
                 //retrieve frames processed by the decoder (ret == amount of frames processed?)
                 ret = avcodec_receive_frame(decoderContext, frame);
                 if (ret < 0)

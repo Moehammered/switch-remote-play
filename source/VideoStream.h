@@ -19,6 +19,8 @@ class VideoStream
 
         bool WaitForStream(std::string url);
 
+        void StreamVideoViaDecoder(ScreenRenderer& renderer, bool useFrameSkip);
+
         void StreamVideo(ScreenRenderer& renderer);
 
         void StreamVideoQueue(ScreenRenderer& renderer);

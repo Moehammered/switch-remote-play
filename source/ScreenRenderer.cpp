@@ -4,7 +4,7 @@
 
 using namespace std;
 
-bool ScreenRenderer::Initialise(unsigned short width, unsigned short height)
+bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, bool vSync)
 {
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -23,7 +23,11 @@ bool ScreenRenderer::Initialise(unsigned short width, unsigned short height)
         return false;
     }
     
-    renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    Uint32 renderFlags = SDL_RENDERER_ACCELERATED;
+    if(vSync)
+        renderFlags |= SDL_RENDERER_PRESENTVSYNC;
+
+    renderer = SDL_CreateRenderer(window, 0, renderFlags);
     if (renderer == nullptr)
     {
         cout << "Error trying to create an SDL renderer. SDL ERROR: " << SDL_GetError() << endl;

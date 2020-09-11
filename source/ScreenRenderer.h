@@ -6,7 +6,7 @@
 class ScreenRenderer
 {
     public:
-        bool Initialise(unsigned short width, unsigned short height);
+        bool Initialise(unsigned short width, unsigned short height, bool vSync);
         void ClearScreen(SDL_Color clearColour);
         void RenderScreenTexture();
         void PresentScreen();

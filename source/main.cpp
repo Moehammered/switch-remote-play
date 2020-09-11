@@ -21,9 +21,13 @@
 
 void initialiseSwitch()
 {
-    plInitialize(PlServiceType_User);
+    auto serviceType = PlServiceType_User;
+    std::cout << "Calling plInitialize with value " << serviceType << std::endl;
+    plInitialize(serviceType);
+    std::cout << "Calling pcvInitialize" << std::endl;
     pcvInitialize();
 
+    std::cout << "calling romfsInit" << std::endl;
     romfsInit();
 }
 
@@ -112,7 +116,8 @@ using namespace std;
 int main(int argc, char **argv)
 {
     // consoleInit(NULL);
-    SocketInitConfig socketInitConf = {
+
+    SocketInitConfig socketConfiguration = {
         .bsdsockets_version = 1,
 
         .tcp_tx_buf_size = 0x80000,
@@ -130,29 +135,34 @@ int main(int argc, char **argv)
         // .bypass_nsd = false,
         // .dns_timeout = 0,
     };
-    initialiseNetwork(socketInitConf);
-    initialiseSwitch();
+    initialiseNetwork(socketConfiguration);
+    nxlinkStdio();
+    cout << "initing switch" << endl;
+    //initialiseSwitch(); //crash occurring inside this function but before the stdio calls can be sent over nxlink
 
     cout << "creating SDL window" << endl;
 
     ScreenRenderer screen;
     SDL_Color bgCol;
     bgCol.r = bgCol.g = bgCol.b = bgCol.a = 255;
-    bool initOK = screen.Initialise(1280, 720);
+    bool initOK = screen.Initialise(1280, 720, false);
     bool streamOK = false;
-
+    bool useFrameSkip = false;
     //string url = "rtp://0.0.0.0:2222"; //very fast data retrieval - doesn't display correctly (RTP muxer necessary)
     //string url = "udp://0.0.0.0:2222"; //very fast data retrieval - can't keep up (buffer overflow - guessing it's from sockets?)
     string url = "tcp://0.0.0.0:2222";
     VideoStream stream;
     if(initOK)
     {
-        nxlinkStdio();
         cout << "SDL initialised. Console output will now be redirected to the server (nxlink.exe)" << endl;    
         cout << "Initialising video stream config" << endl;
         stream.Initialise();
 
-        cout << "Ready to accept a video stream connection. Press 'X' to make the switch wait for a connection." << endl;
+        cout << "Ready to accept a video stream connection."<< endl;
+        cout << "Press 'X' for FFMPEG example implementation." << endl;
+        cout << "Press 'Y' for Packet Queuing implementation." << endl;
+        cout << "Press 'R' for decoupled Decoder implementation." << endl;
+        cout << "Press 'L' to toggle frame skip" << endl;
         // streamOK = stream.WaitForStream(url);
         // if(streamOK)
         // {
@@ -191,7 +201,11 @@ int main(int argc, char **argv)
     // appletLockExit(); //don't let the applet force close till we cleanup (Will force close if cleanup takes longer than 15s)
     // auto request = appletRequestToAcquireSleepLock();
     // cout << "Sleep lock request: " << request << endl;
-    bool useQueue = false;
+    int streamTechnique = 0;
+    const int FFMPEG_STREAM_EXAMPLE_IMPL = 0;
+    const int PACKET_QUEUE_IMPL = 1;
+    const int DECODER_IMPL = 2;
+    
     while(appletMainLoop())
     {
         //Scan all the inputs. This should be done once for each frame
@@ -216,14 +230,36 @@ int main(int argc, char **argv)
             bgCol.g = 100;
             bgCol.b = 255;
         }
+        if(kDown & KEY_L)
+        {
+            useFrameSkip = !useFrameSkip;
+            if(useFrameSkip) //set a colour to know if frame skip is on or off
+            {
+                bgCol.r = 220;
+                bgCol.g = 40;
+                bgCol.b = 220;
+            }
+            else
+            {
+                bgCol.r = 40;
+                bgCol.g = 220;
+                bgCol.b = 40;
+            }
+        }
         if(kDown & KEY_X && !streamOK)
         {
             streamOK = stream.WaitForStream(url);
+            streamTechnique = FFMPEG_STREAM_EXAMPLE_IMPL;
         }
         else if(kDown & KEY_Y && !streamOK)
         {
             streamOK = stream.WaitForStream(url);
-            useQueue = true;
+            streamTechnique = PACKET_QUEUE_IMPL;
+        }
+        else if(kDown & KEY_R)
+        {
+            streamOK = stream.WaitForStream(url);
+            streamTechnique = DECODER_IMPL;
         }
         if(!initOK)
             consoleUpdate(NULL);
@@ -231,13 +267,26 @@ int main(int argc, char **argv)
         {
             if(streamOK)
             {
-                if(useQueue)
-                    stream.StreamVideoQueue(screen);
-                else
-                    stream.StreamVideo(screen);
                 //StreamVideo blocks. If we proceed beyond it, cleanup so we can re-connect properly if we press 'X'
+                switch(streamTechnique)
+                {
+                    case FFMPEG_STREAM_EXAMPLE_IMPL:
+                        stream.StreamVideo(screen);
+                    break;
+
+                    case PACKET_QUEUE_IMPL:
+                        stream.StreamVideoQueue(screen);
+                    break;
+
+                    case DECODER_IMPL:
+                        stream.StreamVideoViaDecoder(screen, useFrameSkip);
+                    break;
+
+                    default:
+                        cout << "Unknown stream technique chosen. Killing connection and cleaning up" << endl;
+                    break;
+                }
                 streamOK = false;
-                useQueue = false;
                 stream.Cleanup();
             }
             else
@@ -247,17 +296,17 @@ int main(int argc, char **argv)
             }
         }
 
-        currTime = armTicksToNs(armGetSystemTick());
-        deltaTime = deltaTime + (currTime - prevTime);
-        prevTime = currTime; 
+        // currTime = armTicksToNs(armGetSystemTick());
+        // deltaTime = deltaTime + (currTime - prevTime);
+        // prevTime = currTime; 
 
-        if(--frameCounter == 0)
-        {
-            frameCounter = 180;
-            auto frameRate = frameCounter / (deltaTime / NANO_TO_SECONDS);
-            cout << "Main Loop FPS: " << frameRate << endl;
-            deltaTime = 0;
-        }
+        // if(--frameCounter == 0)
+        // {
+        //     frameCounter = 180;
+        //     auto frameRate = frameCounter / (deltaTime / NANO_TO_SECONDS);
+        //     cout << "Main Loop FPS: " << frameRate << endl;
+        //     deltaTime = 0;
+        // }
     }
 
     destroyNetwork();
