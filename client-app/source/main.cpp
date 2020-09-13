@@ -7,6 +7,45 @@
 #include <string>
 #include <winsock2.h>
 
+void HandshakeSwitch(std::string ip, std::string key)
+{
+    sockaddr_in serverAddr;
+    unsigned short portNo = 20001;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(portNo);
+    serverAddr.sin_addr.s_addr = inet_addr(ip.c_str());
+
+    auto clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    if(clientSocket == INVALID_SOCKET)
+        std::cout << "error occurred trying to create socket" << std::endl;
+
+    auto result = connect(clientSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
+    if(result == SOCKET_ERROR)
+        std::cout << "failed to connect to server" << std::endl;
+
+    // char msgBuffer[256];
+    // for(auto& c : msgBuffer)
+    //     c = 0;
+    
+    // result = recv(clientSocket, msgBuffer, 255, 0);
+    // if(result == SOCKET_ERROR)
+    //     std::cout << "error receiving data from server" << std::endl;
+    // else
+    // {
+    //     std::cout << "received " << result << " bytes. (msg: " << msgBuffer << ")" << std::endl;
+    // }
+    // std::string reply = "Thanks mate. I'm on the switch so no BSOD here, just atmos crash dumps.";
+    result = send(clientSocket, key.c_str(), key.length(), 0);
+    if(result == SOCKET_ERROR)
+        std::cout << "failed to send reply" << std::endl;
+    else
+    {
+        std::cout << "Sent " << key.length() << " bytes." << std::endl;
+    }
+    
+    closesocket(clientSocket);
+}
+
 //connect to the inputted IP under port 20001
 void ConnectDirectly(std::string ip)
 {
@@ -48,7 +87,7 @@ void ConnectDirectly(std::string ip)
 }
 
 //get the client to wait for a broadcast on the network, when finding one it will set the ipFound to the broadcaster
-bool WaitForBroadcast(std::string& ipFound)
+bool WaitForBroadcast(std::string& ipFound, std::string& key)
 {
     using namespace std;
 
@@ -87,6 +126,7 @@ bool WaitForBroadcast(std::string& ipFound)
         cout << "From: " << inet_ntoa(broadcastAddr.sin_addr) << endl;
         cout << "broadcast received. closing." << endl;
         ipFound = inet_ntoa(broadcastAddr.sin_addr);
+        key = dataBuffer;
         success = true;
     }
 
@@ -104,8 +144,12 @@ int main(int argc, char* argv[])
     WSAStartup(MAKEWORD(2,2), &wsaStateData);
 
     string serverIP = "";
-    if(WaitForBroadcast(serverIP))
-        ConnectDirectly(serverIP);
+    string key = "";
+    if(WaitForBroadcast(serverIP, key))
+    {
+        //ConnectDirectly(serverIP);
+        HandshakeSwitch(serverIP, key);
+    }
     //ConnectDirectly("192.168.0.19");
 
     WSACleanup();

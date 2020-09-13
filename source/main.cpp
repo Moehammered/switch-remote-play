@@ -17,6 +17,7 @@
 #include <switch.h>
 #include "ScreenRenderer.h"
 #include "VideoStream.h"
+#include "NetworkBroadcast.h"
 #include "configuration.h"
 
 void initialiseSwitch()
@@ -111,6 +112,23 @@ void AppStateHook(AppletHookType hook, void* param)
     }
 }
 
+bool LookForPC()
+{
+    NetworkBroadcast broadcast;
+    std::string pcIP = "";
+    if(broadcast.FindConnectionIP("switch-0", pcIP))
+    {
+        std::cout << "Found PC IP: " << pcIP << std::endl;
+        return true;
+    }
+    else
+    {
+        std::cout << "Failed to find PC IP." << std::endl;
+        return false;
+    }
+    
+}
+
 using namespace std;
 
 int main(int argc, char **argv)
@@ -163,6 +181,7 @@ int main(int argc, char **argv)
         cout << "Press 'Y' for Packet Queuing implementation." << endl;
         cout << "Press 'R' for decoupled Decoder implementation." << endl;
         cout << "Press 'L' to toggle frame skip" << endl;
+        cout << "Press 'Minus' to find host PC" << endl;
         // streamOK = stream.WaitForStream(url);
         // if(streamOK)
         // {
@@ -261,6 +280,24 @@ int main(int argc, char **argv)
             streamOK = stream.WaitForStream(url);
             streamTechnique = DECODER_IMPL;
         }
+        else if(kDown & KEY_MINUS)
+        {
+            bgCol.r = 40;
+            bgCol.g = 40;
+            bgCol.b = 40;
+            screen.ClearScreen(bgCol);
+            screen.PresentScreen();
+
+            if(LookForPC())
+            {
+                bgCol.r = 255;
+                bgCol.g = 255;
+                bgCol.b = 10;
+                screen.ClearScreen(bgCol);
+                screen.PresentScreen();
+            }
+        }
+
         if(!initOK)
             consoleUpdate(NULL);
         else
