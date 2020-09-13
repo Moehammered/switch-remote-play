@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <sys/errno.h>
 #include <unistd.h>
+#include <sstream>
 
 #include <switch.h>
 #include "ScreenRenderer.h"
@@ -24,12 +25,12 @@ void initialiseSwitch()
 {
     auto serviceType = PlServiceType_User;
     std::cout << "Calling plInitialize with value " << serviceType << std::endl;
-    plInitialize(serviceType);
-    std::cout << "Calling pcvInitialize" << std::endl;
-    pcvInitialize();
+    plInitialize(serviceType); //required to access system resources (font data for example)
+    //std::cout << "Calling pcvInitialize" << std::endl;
+    //pcvInitialize();
 
-    std::cout << "calling romfsInit" << std::endl;
-    romfsInit();
+    //std::cout << "calling romfsInit" << std::endl;
+    //romfsInit();
 }
 
 void initialiseNetwork(SocketInitConfig& config)
@@ -92,8 +93,8 @@ void AppStateHook(AppletHookType hook, void* param)
     {
         SDL_Color* col = (SDL_Color*)param;
         col->r = 150;
-        col->g = 10;
-        col->b = 10;
+        col->g = 190;
+        col->b = 100;
     }
 
     if(hook == AppletHookType_OnExitRequest)
@@ -125,16 +126,13 @@ bool LookForPC()
     {
         std::cout << "Failed to find PC IP." << std::endl;
         return false;
-    }
-    
+    }   
 }
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-    // consoleInit(NULL);
-
     SocketInitConfig socketConfiguration = {
         .bsdsockets_version = 1,
 
@@ -147,50 +145,41 @@ int main(int argc, char **argv)
         .udp_rx_buf_size = 0x2500,
 
         .sb_efficiency = 3,
-
-        // .serialized_out_addrinfos_max_size = 0x1000,
-        // .serialized_out_hostent_max_size = 0x200,
-        // .bypass_nsd = false,
-        // .dns_timeout = 0,
     };
     initialiseNetwork(socketConfiguration);
     nxlinkStdio();
     cout << "initing switch" << endl;
-    //initialiseSwitch(); //crash occurring inside this function but before the stdio calls can be sent over nxlink
+    initialiseSwitch(); //crash occurring inside this function but before the stdio calls can be sent over nxlink
 
     cout << "creating SDL window" << endl;
 
     ScreenRenderer screen;
     SDL_Color bgCol;
     bgCol.r = bgCol.g = bgCol.b = bgCol.a = 255;
-    bool initOK = screen.Initialise(1280, 720, false);
+    bool initOK = screen.Initialise(1280, 720, 32, false);
     bool streamOK = false;
     bool useFrameSkip = false;
     //string url = "rtp://0.0.0.0:2222"; //very fast data retrieval - doesn't display correctly (RTP muxer necessary)
     //string url = "udp://0.0.0.0:2222"; //very fast data retrieval - can't keep up (buffer overflow - guessing it's from sockets?)
     string url = "tcp://0.0.0.0:2222";
     VideoStream stream;
+
+    stringstream defaultMessage;
     if(initOK)
     {
         cout << "SDL initialised. Console output will now be redirected to the server (nxlink.exe)" << endl;    
         cout << "Initialising video stream config" << endl;
         stream.Initialise();
 
-        cout << "Ready to accept a video stream connection."<< endl;
-        cout << "Press 'X' for FFMPEG example implementation." << endl;
-        cout << "Press 'Y' for Packet Queuing implementation." << endl;
-        cout << "Press 'R' for decoupled Decoder implementation." << endl;
-        cout << "Press 'L' to toggle frame skip" << endl;
-        cout << "Press 'Minus' to find host PC" << endl;
-        // streamOK = stream.WaitForStream(url);
-        // if(streamOK)
-        // {
-        //     cout << "Connection established, ready to stream." << endl;
-        // }
-        // else
-        // {
-        //     cout << "Connection couldn't be established. From timeout or error." << endl;
-        // }
+        defaultMessage << "Ready to accept a video stream connection."<< endl;
+        defaultMessage << "Press 'Minus' to find host PC" << endl;
+        defaultMessage << "Press d-pad up or down to cycle stream implementations." << endl;
+        defaultMessage << "Press 'L' to toggle frame skip (for decoupled decoder technique only)" << endl;
+        defaultMessage << endl;
+        defaultMessage << "Press 'R' to start stream connection" << endl;
+        defaultMessage << "(will be unresponsive until a connection to a PC is made)." << endl;
+
+        cout << defaultMessage.str() << endl;
     }
     else
     {
@@ -224,13 +213,21 @@ int main(int argc, char **argv)
     const int FFMPEG_STREAM_EXAMPLE_IMPL = 0;
     const int PACKET_QUEUE_IMPL = 1;
     const int DECODER_IMPL = 2;
+    std::string techniqueStrings[] = {
+        "ffmpeg example code",
+        "packet queuing test",
+        "decoupled decoder test(+frameskip)"
+    };
+    const int techniqueCount = sizeof(techniqueStrings)/sizeof(techniqueStrings[0]);
+    SDL_Color textColour = { 50, 20, 50, 255 };
     
+    stringstream configDisplayString;
+    int framerate = 60;
+
     while(appletMainLoop())
     {
         //Scan all the inputs. This should be done once for each frame
         hidScanInput();
-
-        // Your code goes here
 
         //hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
         u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
@@ -249,53 +246,37 @@ int main(int argc, char **argv)
             bgCol.g = 100;
             bgCol.b = 255;
         }
+        if(kDown & KEY_DUP)
+        {
+            if(--streamTechnique < 0)
+                streamTechnique = techniqueCount-1;
+        }
+        else if(kDown & KEY_DDOWN)
+        {
+            if(++streamTechnique >= techniqueCount)
+                streamTechnique = 0;
+        }
         if(kDown & KEY_L)
         {
             useFrameSkip = !useFrameSkip;
-            if(useFrameSkip) //set a colour to know if frame skip is on or off
-            {
-                bgCol.r = 220;
-                bgCol.g = 40;
-                bgCol.b = 220;
-            }
-            else
-            {
-                bgCol.r = 40;
-                bgCol.g = 220;
-                bgCol.b = 40;
-            }
-        }
-        if(kDown & KEY_X && !streamOK)
-        {
-            streamOK = stream.WaitForStream(url);
-            streamTechnique = FFMPEG_STREAM_EXAMPLE_IMPL;
-        }
-        else if(kDown & KEY_Y && !streamOK)
-        {
-            streamOK = stream.WaitForStream(url);
-            streamTechnique = PACKET_QUEUE_IMPL;
         }
         else if(kDown & KEY_R)
         {
-            streamOK = stream.WaitForStream(url);
-            streamTechnique = DECODER_IMPL;
-        }
-        else if(kDown & KEY_MINUS)
-        {
-            bgCol.r = 40;
-            bgCol.g = 40;
-            bgCol.b = 40;
+            configDisplayString.str(string()); //clear the stream
+            configDisplayString << "Stream implementation technique: " << (streamTechnique < 3 && streamTechnique > -1 ? techniqueStrings[streamTechnique] : "invalid") << endl;
+            configDisplayString << "Framerate: " << framerate << endl;
+            if(streamTechnique == DECODER_IMPL)
+                configDisplayString << "Frameskip enabled? " << (useFrameSkip ? "yes" : "no") << endl;
+
+            configDisplayString << "Waiting for a connection stream from PC" << endl;
+            configDisplayString << "(Application is unresponsive until a connection is established)" << endl;
+
+            //display the status to the user so they're not confused as to why the application no longer responds.
             screen.ClearScreen(bgCol);
+            screen.DrawText(configDisplayString.str(), 100, 100, textColour);
             screen.PresentScreen();
 
-            if(LookForPC())
-            {
-                bgCol.r = 255;
-                bgCol.g = 255;
-                bgCol.b = 10;
-                screen.ClearScreen(bgCol);
-                screen.PresentScreen();
-            }
+            streamOK = stream.WaitForStream(url);
         }
 
         if(!initOK)
@@ -328,27 +309,29 @@ int main(int argc, char **argv)
             }
             else
             {
+                configDisplayString.str(string()); //clear the stream
+                configDisplayString << "Stream implementation technique: " << (streamTechnique < 3 && streamTechnique > -1 ? techniqueStrings[streamTechnique] : "invalid") << endl;
+                configDisplayString << "Target Framerate: " << framerate << endl;
+                if(streamTechnique == DECODER_IMPL)
+                    configDisplayString << "Frameskip enabled? " << (useFrameSkip ? "yes" : "no") << endl;
+                
+                stringstream displayMessage;
+                displayMessage << "Hello there! \\(^_^) Welcome to switch-remote-play!" << endl;
+                displayMessage << defaultMessage.str() << endl;
+                displayMessage << endl;
+                displayMessage << configDisplayString.str() << endl;
+
                 screen.ClearScreen(bgCol);
+                screen.DrawText(displayMessage.str(), 100, 100, textColour);
                 screen.PresentScreen();
             }
         }
-
-        // currTime = armTicksToNs(armGetSystemTick());
-        // deltaTime = deltaTime + (currTime - prevTime);
-        // prevTime = currTime; 
-
-        // if(--frameCounter == 0)
-        // {
-        //     frameCounter = 180;
-        //     auto frameRate = frameCounter / (deltaTime / NANO_TO_SECONDS);
-        //     cout << "Main Loop FPS: " << frameRate << endl;
-        //     deltaTime = 0;
-        // }
     }
 
     destroyNetwork();
 
     cout << "exiting application..." << endl;
+    screen.CleanupFont();
     if(!initOK)
         consoleExit(NULL);
     else
@@ -358,7 +341,9 @@ int main(int argc, char **argv)
         stream.Cleanup();
 
     appletUnhook(&cookie);
-    
+
+    //(if not called, after a few consecutive openings will cause hbloader to close too)
+    plExit(); //close the pl session we made when starting up the app
     // appletReleaseSleepLock();
     
     // appletUnlockExit(); //release lock on application

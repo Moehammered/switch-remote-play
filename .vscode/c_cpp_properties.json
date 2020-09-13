@@ -43,8 +43,6 @@
             "browse": {
                 "path": [
                     "${workspaceFolder}/**",
-                    "C:\\mingw-w64\\x86_64-8.1.0-posix-sjlj-rt_v6-rev0\\mingw64\\include",
-                    "C:\\mingw-w64\\x86_64-8.1.0-posix-sjlj-rt_v6-rev0\\mingw64\\x86_64-w64-mingw32\\include",
                     "C:\\mingw-w64\\switch\\devkitPro\\libnx\\include",
                     "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\10.2.0\\include",
                     "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
