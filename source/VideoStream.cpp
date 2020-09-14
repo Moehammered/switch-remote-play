@@ -9,7 +9,6 @@ extern "C"
 #include <switch.h>
 #include <iostream>
 #include "Decoder.h"
-#include <vector>
 #include <deque>
 
 void VideoStream::Initialise()
@@ -41,6 +40,7 @@ bool VideoStream::WaitForStream(std::string url)
     
     std::cout << "listening for connection now...\n" << std::endl;
     ret = avformat_open_input(&streamFormat, url.c_str(), 0, &opts);
+    
     if (ret < 0)
     {
         char errbuf[100];
@@ -121,15 +121,18 @@ bool VideoStream::WaitForStream(std::string url)
     return true;
 }
 
-void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, bool useFrameSkip)
+void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, StreamConfigData& config, std::mutex& streamMutex)
 {
     Decoder decoder;
-    if(!decoder.Initialise(stream->codecpar, useFrameSkip))
+    streamMutex.lock();
+    auto frameskip = config.useFrameSkip;
+    streamMutex.unlock();
+    if(!decoder.Initialise(stream->codecpar, frameskip))
     {
         std::cout << "Error occurred initialising the decoder." << std::endl;
         return;
     }
-
+    streamMutex.unlock();
     AVPacket dataPacket;
     av_init_packet(&dataPacket);
     dataPacket.data = NULL;
@@ -188,8 +191,16 @@ void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, bool useFrameS
         }
         // std::cout << "cleaning up used packet" << std::endl;
         av_packet_unref(&dataPacket);
-    }
 
+        std::lock_guard<std::mutex> configLock(streamMutex);
+        if(!config.streamOn)
+        {
+            break;
+        }
+    }
+    //try and close the stream
+    avformat_close_input(&streamFormat);
+    streamFormat = nullptr;
     decoder.Flush();
     decoder.Cleanup();
 }

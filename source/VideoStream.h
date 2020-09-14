@@ -9,6 +9,19 @@ extern "C"
 }
 #include <string>
 #include "ScreenRenderer.h"
+#include <thread>
+#include <mutex>
+
+struct StreamConfigData
+{
+    int streamTechnique;
+    int framerate;
+    bool streamOn;
+    bool useFrameSkip;
+    bool quitApp;
+    SDL_Color bgCol;
+    SDL_Color textColour;
+};
 
 class VideoStream
 {
@@ -19,7 +32,7 @@ class VideoStream
 
         bool WaitForStream(std::string url);
 
-        void StreamVideoViaDecoder(ScreenRenderer& renderer, bool useFrameSkip);
+        void StreamVideoViaDecoder(ScreenRenderer& renderer, StreamConfigData& config, std::mutex& streamMutex);
 
         void StreamVideo(ScreenRenderer& renderer);
 

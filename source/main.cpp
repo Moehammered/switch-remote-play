@@ -1,138 +1,87 @@
 ﻿/*
-  run this example from nxlink
-  nxlink <-a switch_ip> nxlink_stdio.nro -s <arguments>
-  -s or --server tells nxlink to open a socket nxlink can connect to.
+  switch-remote-play
+    Remote PC connection focused on allowing PC games to played on the switch
 */
 
 #include <string>
 #include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/errno.h>
-#include <unistd.h>
 #include <sstream>
+#include <thread>
+#include <mutex>
 
 #include <switch.h>
 #include "ScreenRenderer.h"
 #include "VideoStream.h"
-#include "NetworkBroadcast.h"
-#include "configuration.h"
+#include "InputThread.h"
 
-void initialiseSwitch()
+using namespace std;
+
+std::mutex streamOnMutex;
+StreamConfigData sconfig;
+
+int loopCount = 0; //just to have a visual on the screen to make sure the thread is alive
+const int FFMPEG_STREAM_EXAMPLE_IMPL = 0;
+const int PACKET_QUEUE_IMPL = 1;
+const int DECODER_IMPL = 2;
+const std::string techniqueStrings[] = {
+    "ffmpeg example code",
+    "packet queuing test",
+    "decoupled decoder test(+frameskip)"
+};
+const int techniqueCount = sizeof(techniqueStrings)/sizeof(techniqueStrings[0]);
+
+void initialiseSwitch(SocketInitConfig& config)
 {
-    auto serviceType = PlServiceType_User;
-    std::cout << "Calling plInitialize with value " << serviceType << std::endl;
-    plInitialize(serviceType); //required to access system resources (font data for example)
-    //std::cout << "Calling pcvInitialize" << std::endl;
-    //pcvInitialize();
-
-    //std::cout << "calling romfsInit" << std::endl;
-    //romfsInit();
-}
-
-void initialiseNetwork(SocketInitConfig& config)
-{
-    // std::cout << "Creating default socket initialisation" << std::endl;
-    // socketInitializeDefault();
     socketInitialize(&config);
+    nxlinkStdio();
+
+    auto serviceType = PlServiceType_User;
+    cout << "Calling plInitialize with value " << serviceType << endl;
+    plInitialize(serviceType); //required to access system resources (font data for example)
 }
 
 void destroyNetwork()
 {
-    std::cout << "destroying default socket initialisation" << std::endl;
+    cout << "destroying default socket initialisation" << endl;
     socketExit();
 }
 
-void speakToServer(std::string message)
+string BuildDisplayText(stringstream& displayStream, string prependText, StreamConfigData& config)
 {
-    sockaddr_in serverAddr;
-    unsigned short portNo = 20001;
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(portNo);
-    serverAddr.sin_addr.s_addr = inet_addr("192.168.0.19");
+    displayStream.str(string()); //clear the stream
+    auto techniqueStr = (sconfig.streamTechnique < techniqueCount && sconfig.streamTechnique > -1 ? techniqueStrings[sconfig.streamTechnique] : "invalid");
 
-    auto clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-    if(clientSocket < 0)
-        std::cout << "error occurred trying to create socket" << std::endl;
+    displayStream << "Stream implementation technique: " << techniqueStr << endl;
+    displayStream << "Target Framerate: " << sconfig.framerate << endl;
 
-    auto result = connect(clientSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
-    if(result < 0)
-        std::cout << "failed to connect to server" << std::endl;
+    if(sconfig.streamTechnique == DECODER_IMPL)
+        displayStream << "Frameskip enabled? " << (sconfig.useFrameSkip ? "yes" : "no") << endl;
 
-    char msgBuffer[256];
-    for(auto& c : msgBuffer)
-        c = 0;
-    
-    result = recv(clientSocket, msgBuffer, 255, 0);
-    if(result < 0)
-        std::cout << "error receiving data from server" << std::endl;
-    else
+    displayStream << "Loop count: " << loopCount << endl;
+
+    if(config.streamOn)
     {
-        std::cout << "received " << result << " bytes. (msg: " << msgBuffer << ")" << std::endl;
-    }
-    std::string reply = "Thanks mate. I'm on the switch so no BSOD here, just atmos crash dumps.";
-    result = send(clientSocket, reply.c_str(), reply.length(), 0);
-    if(result < 0)
-        std::cout << "failed to send reply" << std::endl;
-    else
-    {
-        std::cout << "Sent " << reply.length() << " bytes." << std::endl;
+        config.bgCol.g = 200;
+        config.bgCol.b = 50;
+        config.bgCol.r = 50;
+        displayStream << endl << "Waiting for connection... (Use 'Home' to quit if frozen for too long)" << endl;
+
+        return displayStream.str();
     }
     
-    close(clientSocket);
+    stringstream displayMessage;
+    displayMessage << "Hello there! \\(^_^) Welcome to switch-remote-play!" << endl;
+    displayMessage << prependText << endl;
+    displayMessage << endl;
+    displayMessage << displayStream.str() << endl;
+
+    return displayMessage.str();
 }
-
-//callback function that can be given to the app to be called on state changes
-void AppStateHook(AppletHookType hook, void* param)
-{
-    std::cout << "Hook Type: " << hook << std::endl;
-    if(param != nullptr)
-    {
-        SDL_Color* col = (SDL_Color*)param;
-        col->r = 150;
-        col->g = 190;
-        col->b = 100;
-    }
-
-    if(hook == AppletHookType_OnExitRequest)
-        std::cout << "Hook into exit request" << std::endl;
-
-    auto state = appletGetFocusState();
-    std::cout << "App state: " << state << std::endl;
-
-    if(hook == AppletHookType_OnFocusState)
-    {
-        auto state = appletGetFocusState();
-        if(state == AppletFocusState_NotFocusedHomeSleep)
-        {
-            std::cout << "Sleeping now" << std::endl;
-        }
-    }
-}
-
-bool LookForPC()
-{
-    NetworkBroadcast broadcast;
-    std::string pcIP = "";
-    if(broadcast.FindConnectionIP("switch-0", pcIP))
-    {
-        std::cout << "Found PC IP: " << pcIP << std::endl;
-        return true;
-    }
-    else
-    {
-        std::cout << "Failed to find PC IP." << std::endl;
-        return false;
-    }   
-}
-
-using namespace std;
 
 int main(int argc, char **argv)
 {
+    string url = "tcp://0.0.0.0:2222";
+
     SocketInitConfig socketConfiguration = {
         .bsdsockets_version = 1,
 
@@ -146,147 +95,89 @@ int main(int argc, char **argv)
 
         .sb_efficiency = 3,
     };
-    initialiseNetwork(socketConfiguration);
-    nxlinkStdio();
-    cout << "initing switch" << endl;
-    initialiseSwitch(); //crash occurring inside this function but before the stdio calls can be sent over nxlink
 
-    cout << "creating SDL window" << endl;
+    initialiseSwitch(socketConfiguration);
+    cout << "Console output will now be redirected to the server (nxlink.exe)" << endl;    
+    cout << "basic switch services initialised" << endl;
+
+    sconfig.bgCol = {255, 255, 255, 255};
+    sconfig.textColour = { 50, 20, 50, 255 };
+    sconfig.framerate = 60;
+    sconfig.quitApp = false;
+    sconfig.streamOn = false;
+    sconfig.streamTechnique = 2;
+    sconfig.useFrameSkip = true;
 
     ScreenRenderer screen;
-    SDL_Color bgCol;
-    bgCol.r = bgCol.g = bgCol.b = bgCol.a = 255;
+    
+    cout << "creating SDL window" << endl;
     bool initOK = screen.Initialise(1280, 720, 32, false);
-    bool streamOK = false;
-    bool useFrameSkip = false;
-    //string url = "rtp://0.0.0.0:2222"; //very fast data retrieval - doesn't display correctly (RTP muxer necessary)
-    //string url = "udp://0.0.0.0:2222"; //very fast data retrieval - can't keep up (buffer overflow - guessing it's from sockets?)
-    string url = "tcp://0.0.0.0:2222";
+    
     VideoStream stream;
 
-    stringstream defaultMessage;
+    string controlsMessage = "/!\\ Initialisation Failed! /!\\";
     if(initOK)
     {
-        cout << "SDL initialised. Console output will now be redirected to the server (nxlink.exe)" << endl;    
         cout << "Initialising video stream config" << endl;
         stream.Initialise();
 
-        defaultMessage << "Ready to accept a video stream connection."<< endl;
-        defaultMessage << "Press 'Minus' to find host PC" << endl;
-        defaultMessage << "Press d-pad up or down to cycle stream implementations." << endl;
-        defaultMessage << "Press 'L' to toggle frame skip (for decoupled decoder technique only)" << endl;
-        defaultMessage << endl;
-        defaultMessage << "Press 'R' to start stream connection" << endl;
-        defaultMessage << "(will be unresponsive until a connection to a PC is made)." << endl;
+        stringstream defaultMessageStream;
+        defaultMessageStream << "Ready to accept a video stream connection."<< endl;
+        // defaultMessageStream << "Press 'Minus' to find host PC" << endl;
+        defaultMessageStream << "Press d-pad up or down to cycle stream implementations." << endl;
+        defaultMessageStream << "Press 'L' to toggle frame skip (for decoupled decoder technique only)" << endl;
+        defaultMessageStream << endl;
+        defaultMessageStream << "Press 'R' to start stream connection" << endl;
+        defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << endl;
 
-        cout << defaultMessage.str() << endl;
+        controlsMessage = defaultMessageStream.str();
+        cout << controlsMessage << endl;
     }
     else
     {
         consoleInit(NULL);
     }
     
-    //speakToServer("gday mate");
-    // Main loop
-    const double NANO_TO_SECONDS = 1000000000.0;
-    uint64_t currTime, prevTime;
-    currTime = armTicksToNs(armGetSystemTick());
-    prevTime = currTime;
-    uint64_t deltaTime = 0;
-    int frameCounter = 180;
-    
-    AppletHookCookie cookie;
-    appletHook(&cookie, AppStateHook, (void*)&bgCol);
-
-    AppletFocusState focusState = appletGetFocusState();
-    cout << "Focus State Val: " << focusState << endl;
-    focusState = appletGetFocusState();
-    //suspend home sleep notify will notify the hook when the system changes focus.
-    appletSetFocusHandlingMode(AppletFocusHandlingMode_SuspendHomeSleepNotify);
-    cout << "Focus State after modification Val: " << focusState << endl;
-
-
-    // appletLockExit(); //don't let the applet force close till we cleanup (Will force close if cleanup takes longer than 15s)
-    // auto request = appletRequestToAcquireSleepLock();
-    // cout << "Sleep lock request: " << request << endl;
-    int streamTechnique = 0;
-    const int FFMPEG_STREAM_EXAMPLE_IMPL = 0;
-    const int PACKET_QUEUE_IMPL = 1;
-    const int DECODER_IMPL = 2;
-    std::string techniqueStrings[] = {
-        "ffmpeg example code",
-        "packet queuing test",
-        "decoupled decoder test(+frameskip)"
-    };
-    const int techniqueCount = sizeof(techniqueStrings)/sizeof(techniqueStrings[0]);
-    SDL_Color textColour = { 50, 20, 50, 255 };
-    
     stringstream configDisplayString;
-    int framerate = 60;
+
+    thread inputThread = StartInputThread(sconfig, streamOnMutex);
 
     while(appletMainLoop())
     {
-        //Scan all the inputs. This should be done once for each frame
-        hidScanInput();
+        loopCount++;
 
-        //hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
-        u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-
-        if (kDown & KEY_PLUS) break; // break in order to return to hbmenu
-
-        if (kDown & KEY_A) {
-            cout << "A pressed - making bg colour orange?" << endl;
-            bgCol.r = 255;
-            bgCol.g = 200;
-            bgCol.b = 100;
-        }
-        if (kDown & KEY_B) {
-            cout << "B pressed - making bg colour blue" << endl;
-            bgCol.r = 100;
-            bgCol.g = 100;
-            bgCol.b = 255;
-        }
-        if(kDown & KEY_DUP)
+        if(initOK)
         {
-            if(--streamTechnique < 0)
-                streamTechnique = techniqueCount-1;
-        }
-        else if(kDown & KEY_DDOWN)
-        {
-            if(++streamTechnique >= techniqueCount)
-                streamTechnique = 0;
-        }
-        if(kDown & KEY_L)
-        {
-            useFrameSkip = !useFrameSkip;
-        }
-        else if(kDown & KEY_R)
-        {
-            configDisplayString.str(string()); //clear the stream
-            configDisplayString << "Stream implementation technique: " << (streamTechnique < 3 && streamTechnique > -1 ? techniqueStrings[streamTechnique] : "invalid") << endl;
-            configDisplayString << "Framerate: " << framerate << endl;
-            if(streamTechnique == DECODER_IMPL)
-                configDisplayString << "Frameskip enabled? " << (useFrameSkip ? "yes" : "no") << endl;
+            { //lock mutex to check if stream has been requested to start
+                lock_guard<mutex> streamGuard(streamOnMutex);
+                
+                if(sconfig.streamOn)
+                {
+                    //display on the screen a connection is pending
+                    auto displayText = BuildDisplayText(configDisplayString, controlsMessage, sconfig);
 
-            configDisplayString << "Waiting for a connection stream from PC" << endl;
-            configDisplayString << "(Application is unresponsive until a connection is established)" << endl;
+                    screen.ClearScreen(sconfig.bgCol);
+                    screen.DrawText(displayText, 100, 100, sconfig.textColour);
+                    screen.PresentScreen();
 
-            //display the status to the user so they're not confused as to why the application no longer responds.
-            screen.ClearScreen(bgCol);
-            screen.DrawText(configDisplayString.str(), 100, 100, textColour);
-            screen.PresentScreen();
-
-            streamOK = stream.WaitForStream(url);
-        }
-
-        if(!initOK)
-            consoleUpdate(NULL);
-        else
-        {
-            if(streamOK)
+                    sconfig.streamOn = stream.WaitForStream(url);
+                }
+            }
+            bool streamActive = false;
+            { //update the config to let it know if the stream failed to connect
+                lock_guard<mutex> streamGuard(streamOnMutex);
+                streamActive = sconfig.streamOn;
+            }
+            
+            if(streamActive)
             {
+                auto technique = 0;
+                { 
+                    lock_guard<mutex> streamGuard(streamOnMutex);
+                    technique = sconfig.streamTechnique;
+                }
                 //StreamVideo blocks. If we proceed beyond it, cleanup so we can re-connect properly if we press 'X'
-                switch(streamTechnique)
+                switch(technique)
                 {
                     case FFMPEG_STREAM_EXAMPLE_IMPL:
                         stream.StreamVideo(screen);
@@ -296,56 +187,64 @@ int main(int argc, char **argv)
                         stream.StreamVideoQueue(screen);
                     break;
 
-                    case DECODER_IMPL:
-                        stream.StreamVideoViaDecoder(screen, useFrameSkip);
+                    case DECODER_IMPL: //this inside will lock after rendering to check the stream state and if it should close the connection
+                        stream.StreamVideoViaDecoder(screen, sconfig, streamOnMutex);
                     break;
 
                     default:
                         cout << "Unknown stream technique chosen. Killing connection and cleaning up" << endl;
                     break;
                 }
-                streamOK = false;
+                
+                {
+                    lock_guard<mutex> lock(streamOnMutex);
+                    sconfig.streamOn = false; //If PC killed the connection, then we need to make sure we know too
+                }
+                cout << "Stream ended" << endl;
                 stream.Cleanup();
+                cout << "Stream cleaned up" << endl;
             }
             else
-            {
-                configDisplayString.str(string()); //clear the stream
-                configDisplayString << "Stream implementation technique: " << (streamTechnique < 3 && streamTechnique > -1 ? techniqueStrings[streamTechnique] : "invalid") << endl;
-                configDisplayString << "Target Framerate: " << framerate << endl;
-                if(streamTechnique == DECODER_IMPL)
-                    configDisplayString << "Frameskip enabled? " << (useFrameSkip ? "yes" : "no") << endl;
-                
-                stringstream displayMessage;
-                displayMessage << "Hello there! \\(^_^) Welcome to switch-remote-play!" << endl;
-                displayMessage << defaultMessage.str() << endl;
-                displayMessage << endl;
-                displayMessage << configDisplayString.str() << endl;
+            { //no stream, so let's display some helpful info
+                lock_guard<mutex> streamGuard(streamOnMutex);
+                auto displayText = BuildDisplayText(configDisplayString, controlsMessage, sconfig);
 
-                screen.ClearScreen(bgCol);
-                screen.DrawText(displayMessage.str(), 100, 100, textColour);
+                screen.ClearScreen(sconfig.bgCol);
+                screen.DrawText(displayText, 100, 100, sconfig.textColour);
                 screen.PresentScreen();
+
+                if(sconfig.quitApp)
+                    break;
             }
         }
+        else
+            consoleUpdate(NULL);
+
+        sleep(1); // no point thrashing the screen to refresh text
     }
 
     destroyNetwork();
 
     cout << "exiting application..." << endl;
     screen.CleanupFont();
+
     if(!initOK)
         consoleExit(NULL);
     else
         SDL_Quit();
 
-    if(streamOK)
-        stream.Cleanup();
+    {
+        lock_guard<mutex> streamGuard(streamOnMutex);
+        if(sconfig.streamOn)
+            stream.Cleanup();
+    }
 
-    appletUnhook(&cookie);
-
-    //(if not called, after a few consecutive openings will cause hbloader to close too)
+    if(inputThread.joinable())
+        inputThread.join();
+    /*
+        if plExit is not called, after consecutively opening the application 
+        it will cause hbloader to close too with error code for 'max sessions' (0x615)
+    */
     plExit(); //close the pl session we made when starting up the app
-    // appletReleaseSleepLock();
-    
-    // appletUnlockExit(); //release lock on application
     return 0;
 }

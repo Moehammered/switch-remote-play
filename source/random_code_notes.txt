@@ -1,0 +1,144 @@
+stopping the application from sleeping and stopping it from exiting (for 15 seconds, then it times out)    
+    
+    // appletLockExit(); //don't let the applet force close till we cleanup (Will force close if cleanup takes longer than 15s)
+    // auto request = appletRequestToAcquireSleepLock();
+    // cout << "Sleep lock request: " << request << endl;
+    // appletReleaseSleepLock();
+    
+    // appletUnlockExit(); //release lock on application
+
+Hooking into applet states to get callbacks
+
+    //callback function that can be given to the app to be called on state changes
+    void AppStateHook(AppletHookType hook, void* param)
+    {
+        std::cout << "Hook Type: " << hook << std::endl;
+        if(param != nullptr)
+        {
+            SDL_Color* col = (SDL_Color*)param;
+            col->r = 150;
+            col->g = 190;
+            col->b = 100;
+        }
+
+        if(hook == AppletHookType_OnExitRequest)
+            std::cout << "Hook into exit request" << std::endl;
+
+        auto state = appletGetFocusState();
+        std::cout << "App state: " << state << std::endl;
+
+        if(hook == AppletHookType_OnFocusState)
+        {
+            auto state = appletGetFocusState();
+            if(state == AppletFocusState_NotFocusedHomeSleep)
+            {
+                std::cout << "Sleeping now" << std::endl;
+            }
+        }
+    }
+
+    AppletHookCookie cookie;
+    appletHook(&cookie, AppStateHook, (void*)&bgCol);
+
+    AppletFocusState focusState = appletGetFocusState();
+    cout << "Focus State Val: " << focusState << endl;
+    focusState = appletGetFocusState();
+    //suspend home sleep notify will notify the hook when the system changes focus.
+    appletSetFocusHandlingMode(AppletFocusHandlingMode_SuspendHomeSleepNotify);
+    cout << "Focus State after modification Val: " << focusState << endl;
+
+    
+    appletUnhook(&cookie);
+
+
+
+
+Networking Broadcaster snippet
+
+    bool LookForPC()
+    {
+        NetworkBroadcast broadcast;
+        std::string pcIP = "";
+        if(broadcast.FindConnectionIP("switch-0", pcIP))
+        {
+            std::cout << "Found PC IP: " << pcIP << std::endl;
+            return true;
+        }
+        else
+        {
+            std::cout << "Failed to find PC IP." << std::endl;
+            return false;
+        }   
+    }
+
+Networking snippet
+
+    #include <netdb.h>
+    #include <arpa/inet.h>
+    #include <netinet/in.h>
+    #include <sys/errno.h>
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/socket.h>
+
+    void speakToServer(std::string message)
+    {
+        sockaddr_in serverAddr;
+        unsigned short portNo = 20001;
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_port = htons(portNo);
+        serverAddr.sin_addr.s_addr = inet_addr("192.168.0.19");
+
+        auto clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+        if(clientSocket < 0)
+            std::cout << "error occurred trying to create socket" << std::endl;
+
+        auto result = connect(clientSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
+        if(result < 0)
+            std::cout << "failed to connect to server" << std::endl;
+
+        char msgBuffer[256];
+        for(auto& c : msgBuffer)
+            c = 0;
+        
+        result = recv(clientSocket, msgBuffer, 255, 0);
+        if(result < 0)
+            std::cout << "error receiving data from server" << std::endl;
+        else
+        {
+            std::cout << "received " << result << " bytes. (msg: " << msgBuffer << ")" << std::endl;
+        }
+        std::string reply = "Thanks mate. I'm on the switch so no BSOD here, just atmos crash dumps.";
+        result = send(clientSocket, reply.c_str(), reply.length(), 0);
+        if(result < 0)
+            std::cout << "failed to send reply" << std::endl;
+        else
+        {
+            std::cout << "Sent " << reply.length() << " bytes." << std::endl;
+        }
+        
+        close(clientSocket);
+    }
+
+Switch initialisations (crashing from pcv, need to revisit it later)
+
+    //std::cout << "Calling pcvInitialize" << std::endl;
+    //pcvInitialize();
+
+    //std::cout << "calling romfsInit" << std::endl;
+    //romfsInit();
+
+ffmpeg / libav snippets and notes
+
+    //string url = "rtp://0.0.0.0:2222"; //very fast data retrieval - doesn't display correctly (RTP muxer necessary)
+    //string url = "udp://0.0.0.0:2222"; //very fast data retrieval - can't keep up (buffer overflow - guessing it's from sockets?)
+
+
+frame rate counter / ticker
+
+    const double NANO_TO_SECONDS = 1000000000.0;
+    uint64_t currTime, prevTime;
+    currTime = armTicksToNs(armGetSystemTick());
+    prevTime = currTime;
+    uint64_t deltaTime = 0;
+    int frameCounter = 180;
