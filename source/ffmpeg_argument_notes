@@ -1,0 +1,50 @@
+//In-Home-Switching stream args
+-y -f rawvideo -pixel_format rgb32 -framerate 300 -video_size {0}x{1} -i pipe: -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v {2}M -minrate {2}M -maxrate {2}M -bufsize 2M tcp://{3}:2222 
+
+
+-y -f gdigrab -pixel_format rgb32 -framerate 300 -video_size 1280x720 -i desktop h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 3M -minrate 3M -maxrate 12M -bufsize 2M tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 3M -minrate 3M -maxrate 12M -bufsize 2M tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -probesize 50M -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -vf mpdecimate -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 3M -minrate 3M -maxrate 7M -bufsize 7M tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 3M -minrate 3M -maxrate 3M -bufsize 3M tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f rtp -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 3M -minrate 3M -maxrate 3M -bufsize 3M rtp://192.168.0.17:2222
+
+.\ffmpeg.exe -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 2M -minrate 2M -maxrate 2M -bufsize 5M tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -probesize 32 -sync ext INPUT -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params nal-hrd=cbr -b:v 2M -minrate 2M -maxrate 2M -bufsize 5M tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf scale=1280x720 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 5M -minrate 5M -maxrate 5M -bufsize 0 tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 10M -minrate 8M -maxrate 10M -bufsize 0 tcp://192.168.0.17:2222
+
+.\ffmpeg.exe -probesize 32 -y -f gdigrab -framerate 60 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 10M -minrate 10M -maxrate 10M -bufsize 2M tcp://192.168.0.17:2222
+
+
+//vsync option helps a lot
+0/passthrough = each frame made is passed along (even frames that are exactly the same as the last one)
+1/cfr = frames will be duplicated and dropped to achieve exactly the requested cfr(cfr means constant framerate. I think this is the default)
+2/vfr = frames are passed through with their timestamp or dropped so as to prevent 2 frames from having the same timestamp (this seems to clamp the framerate)
+drop = passthrough but destroy all timestamps, making the muxer generate new timestamps based on FPS
+-1/auto = Chooses between 1 or 2 based on muxer. (default option)
+
+//-frame_drop_threshold parameter
+need to experiment with this
+
+//desktop duplication API (windows)
+seems GDI can't grab the desktop properly without proper help from the API as the request for the desktop from default windows settings clamps/bottlenecks it
+
+//nice test arg setup even on default clock rates
+.\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 1 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 8M -minrate 8M -maxrate 8M -bufsize 2M tcp://192.168.0.17:2222
+
+//very good performance
+.\ffmpeg.exe -probesize 32 -y -f gdigrab -framerate 60 -vsync drop -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 5M -minrate 5M -maxrate 5M -bufsize 2M tcp://192.168.0.17:2222
+
+//OK performance (forces 60fps)
+.\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 1 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 5M -minrate 5M -maxrate 5M -bufsize 2M tcp://192.168.0.17:2222
+
+
+//OK performance (clamps to 30 fps)
+.\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 5M -minrate 5M -maxrate 5M -bufsize 2M tcp://192.168.0.17:2222

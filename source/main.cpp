@@ -188,7 +188,7 @@ int main(int argc, char **argv)
                     break;
 
                     case DECODER_IMPL: //this inside will lock after rendering to check the stream state and if it should close the connection
-                        stream.StreamVideoViaDecoder(screen, sconfig, streamOnMutex);
+                        stream.StreamVideoViaDecoder(screen, sconfig);
                     break;
 
                     default:

@@ -121,18 +121,15 @@ bool VideoStream::WaitForStream(std::string url)
     return true;
 }
 
-void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, StreamConfigData& config, std::mutex& streamMutex)
+void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, const StreamConfigData& config)
 {
     Decoder decoder;
-    streamMutex.lock();
-    auto frameskip = config.useFrameSkip;
-    streamMutex.unlock();
-    if(!decoder.Initialise(stream->codecpar, frameskip))
+    if(!decoder.Initialise(stream->codecpar, config.useFrameSkip))
     {
         std::cout << "Error occurred initialising the decoder." << std::endl;
         return;
     }
-    streamMutex.unlock();
+    
     AVPacket dataPacket;
     av_init_packet(&dataPacket);
     dataPacket.data = NULL;
@@ -192,11 +189,8 @@ void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, StreamConfigDa
         // std::cout << "cleaning up used packet" << std::endl;
         av_packet_unref(&dataPacket);
 
-        std::lock_guard<std::mutex> configLock(streamMutex);
         if(!config.streamOn)
-        {
             break;
-        }
     }
     //try and close the stream
     avformat_close_input(&streamFormat);

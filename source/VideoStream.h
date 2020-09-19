@@ -32,7 +32,7 @@ class VideoStream
 
         bool WaitForStream(std::string url);
 
-        void StreamVideoViaDecoder(ScreenRenderer& renderer, StreamConfigData& config, std::mutex& streamMutex);
+        void StreamVideoViaDecoder(ScreenRenderer& renderer, const StreamConfigData& config);
 
         void StreamVideo(ScreenRenderer& renderer);
 
