@@ -45,6 +45,5 @@ seems GDI can't grab the desktop properly without proper help from the API as th
 //OK performance (forces 60fps)
 .\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 1 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 5M -minrate 5M -maxrate 5M -bufsize 2M tcp://192.168.0.17:2222
 
-
 //OK performance (clamps to 30 fps)
 .\ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline -x264-params "nal-hrd=cbr" -b:v 5M -minrate 5M -maxrate 5M -bufsize 2M tcp://192.168.0.17:2222

@@ -7,8 +7,23 @@
 #include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include "SwitchStream.h"
 
 using namespace std;
+
+enum STREAM_MODE
+{
+    OK_30_FPS = 0,
+    OK_60_FPS,
+    VG_60_FPS,
+    STREAM_MODE_COUNT
+};
+
+const StreamConfig DEFAULT_CONFIGS[] = {
+    {60, 2, 1920, 1080, 1280, 720, 5000}, //good performance, gets clamped to 30fps (low latency)
+    {60, 1, 1920, 1080, 1280, 720, 5000}, //good performance, tries to stay at 60fps (OK latency)
+    {60, 3, 1920, 1080, 1280, 720, 5000} //can be very good, almost similar to mode 1 (low latency)
+};
 
 //wait for something to connect to this 'server' application and exchange messages
 void WaitForDirectConnection()
@@ -108,15 +123,47 @@ void BroadcastServer()
 
 int main(int argc, char* argv[])
 {
-    cout << "hello server world" << endl;
+    cout << "FFMPEG stream starter" << endl;
 
     WSADATA wsaStateData;
     WSAStartup(MAKEWORD(2,2), &wsaStateData);
 
-    BroadcastServer();
+    //BroadcastServer();
 
-    WaitForDirectConnection();
+    //WaitForDirectConnection();
 
+    std::string choice = "";
+
+    cout << "Choose stream configuration mode: " << endl;
+    cout << "0 - Low latency, clamps to 30fps, good performance" << endl;
+    cout << "1 - OK latency, maintains 60fps, good performance" << endl;
+    cout << "2 - Low Latency, maintains constant fps(30 or 60, it chooses), very good performance" << endl << endl;
+
+    cout << "Which mode would you like? ";
+    int configChoice = 0;
+    do
+    {
+        cin >> configChoice;
+    } while(configChoice < OK_30_FPS || configChoice >= STREAM_MODE_COUNT);
+
+    bool started = false;
+    auto processorInfo = StartStream(DEFAULT_CONFIGS[configChoice], started);
+
+    if(started)
+    {
+        cout << "ffmpeg started..." << endl;
+
+        cout << "To kill stream, please enter 'stop'" << endl;
+
+        while(choice != "stop")
+        {
+            cin >> choice;
+        }
+
+        TerminateProcess(processorInfo.hProcess, 1);
+        CloseHandle(processorInfo.hProcess);
+        CloseHandle(processorInfo.hThread);
+    }
 
     WSACleanup();
 
