@@ -3,6 +3,120 @@
 #include <processthreadsapi.h>
 #include <sstream>
 
+void ReadCommandsFromSwitch(SOCKET& switchSocket)
+{
+    using namespace std;
+
+    int dataSize = sizeof(CommandPayload);
+    cout << "Expected size of command payload: " << dataSize << " bytes" << endl;
+    char* readBuffer = new char[dataSize];
+    CommandPayload* data = (CommandPayload*)readBuffer;
+    int retryCount = 3;
+
+    do
+    {
+        for(int i = 0; i < dataSize; ++i)
+            readBuffer[i] = 0;
+
+        auto result = recv(switchSocket, readBuffer, dataSize, 0);
+        if(result == SOCKET_ERROR)
+        {
+            cout << "Failed to receive data" << endl;
+            --retryCount;
+            data->commandCode = retryCount < 0 ? CommandPayload::Command::SHUTDOWN : CommandPayload::Command::IGNORE_COMMAND;
+        }
+        switch(data->commandCode)
+        {
+            case CommandPayload::Command::CLOSE_STREAM:
+                cout << "Close stream (Not implemented)" << endl;
+                break;
+
+            case CommandPayload::Command::UPDATE_FFMPEG_CONFIG:
+                cout << "Receive ffmpeg config (Not implemented)" << endl;
+                break;
+
+            case CommandPayload::Command::CLOSE_SERVER:
+                cout << "Close server application (Not implemented)" << endl;
+                break;
+
+            case CommandPayload::Command::SHUTDOWN_PC:
+                cout << "Shutdown host PC (Not implemented)" << endl;
+                break;
+
+            case CommandPayload::Command::START_STREAM:
+                cout << "Start stream (Not implemented)" << endl;
+                break;
+        }
+    } while(data->commandCode != CommandPayload::Command::SHUTDOWN);
+}
+
+bool ListenForConnection(const SOCKET listenSock, SOCKET& connectedSocket, sockaddr_in& connectionInfo)
+{
+    using namespace std;
+    cout << "waiting for connection to server..." << endl << endl;
+
+    sockaddr_in clientInfo;
+    int infoSize = sizeof(clientInfo);
+
+    ZeroMemory(&clientInfo, infoSize);
+
+    auto connectionSocket = accept(listenSock, (sockaddr*)&clientInfo, &infoSize);
+    if(connectionSocket == INVALID_SOCKET)
+    {
+        cout << "Failed to accept connection: " << WSAGetLastError() << endl;
+        return false;
+    }
+
+    connectedSocket = connectionSocket;
+    connectionInfo = clientInfo;
+
+    return true;
+}
+
+bool CreateListenerSocket(SOCKET& sock, uint16_t portNo)
+{
+    using namespace std;
+
+    sock = INVALID_SOCKET;
+
+    sockaddr_in serverAddr, clientAddr;
+
+    ZeroMemory(&serverAddr, sizeof(serverAddr));
+    ZeroMemory(&clientAddr, sizeof(clientAddr));
+
+    int result = 0;
+
+    auto serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    if(serverSocket == INVALID_SOCKET)
+    {
+        cout << "Failed to create socket for server: " << WSAGetLastError() << endl;
+        return false;
+    }
+    
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.S_un.S_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(portNo);
+
+    result = bind(serverSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
+    if(result == SOCKET_ERROR)
+    {
+        cout << "Failed to bind socket: " << WSAGetLastError() << endl;
+        closesocket(serverSocket);
+        return false;
+    }
+    
+    result = listen(serverSocket, 1);
+    if(result == SOCKET_ERROR)
+    {
+        cout << "Failed to set the socket into listening mode: " << WSAGetLastError() << endl;
+        closesocket(serverSocket);
+        return false;
+    }
+
+    sock = serverSocket;
+    return true;
+}
+
 // Will listen for the switch to send it a signal to begin the stream
 void ListenForStreamStart() //to be written, first test starting and stopping the stream
 {
@@ -68,7 +182,7 @@ void ListenForStreamStart() //to be written, first test starting and stopping th
 }
 
 // Generate the command line argument string to execute ffmpeg
-std::string CreateCommandLineArg(StreamConfig config)
+std::string CreateCommandLineArg(FFMPEG_Config config)
 {
     using namespace std;
 
@@ -110,7 +224,7 @@ std::string CreateCommandLineArg(StreamConfig config)
 }
 
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
-PROCESS_INFORMATION StartStream(StreamConfig config, bool& started)
+PROCESS_INFORMATION StartStream(FFMPEG_Config config, bool& started)
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
