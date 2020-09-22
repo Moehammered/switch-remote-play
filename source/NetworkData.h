@@ -1,10 +1,7 @@
-#pragma once
+#ifndef __NETWORKDATA_H__
+#define __NETWORKDATA_H__
 
-#include <iostream>
-#include <winsock2.h>
-#include <string>
-#include <thread>
-#include <atomic>
+#include <stdint.h>
 
 enum STREAM_MODE
 {
@@ -56,24 +53,4 @@ const int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);
 const int COMMAND_CODE_SIZE = sizeof(Command);
 const int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
 
-extern FFMPEG_Config receivedConfig;
-
-const FFMPEG_Config DEFAULT_CONFIGS[] = {
-    {60, 1920, 1080, 1280, 720, 5000, 2}, //good performance, gets clamped to 30fps (low latency)
-    {60, 1920, 1080, 1280, 720, 5000, 1}, //good performance, tries to stay at 60fps (OK latency)
-    {60, 1920, 1080, 1280, 720, 5000, 1} //can be very good, almost similar to mode 1 (low latency)
-};
-
-void ListenForStreamStart();
-
-void ReadCommandsFromSwitch(SOCKET& switchSocket);
-
-bool ListenForConnection(const SOCKET listenSock, SOCKET& connectedSocket, sockaddr_in& connectionInfo);
-
-bool CreateListenerSocket(SOCKET& sock, uint16_t portNo);
-
-PROCESS_INFORMATION StartStream(FFMPEG_Config config, bool& started);
-
-std::string CreateCommandLineArg(FFMPEG_Config config);
-
-std::string ConfigToString(FFMPEG_Config config);
+#endif

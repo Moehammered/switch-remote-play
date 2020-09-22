@@ -3,51 +3,103 @@
 #include <processthreadsapi.h>
 #include <sstream>
 
+FFMPEG_Config receivedConfig = DEFAULT_CONFIGS[0];
+
 void ReadCommandsFromSwitch(SOCKET& switchSocket)
 {
     using namespace std;
 
-    int dataSize = sizeof(CommandPayload);
-    cout << "Expected size of command payload: " << dataSize << " bytes" << endl;
-    char* readBuffer = new char[dataSize];
+    cout << "Expected size of command payload: " << COMMAND_PAYLOAD_SIZE << " bytes" << endl;
+    char* readBuffer = new char[COMMAND_PAYLOAD_SIZE];
     CommandPayload* data = (CommandPayload*)readBuffer;
     int retryCount = 3;
 
+    PROCESS_INFORMATION streamProcessInfo;
+    ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
+    bool started = false;
+
     do
     {
-        for(int i = 0; i < dataSize; ++i)
+        for(int i = 0; i < COMMAND_PAYLOAD_SIZE; ++i)
             readBuffer[i] = 0;
 
-        auto result = recv(switchSocket, readBuffer, dataSize, 0);
+        auto result = recv(switchSocket, readBuffer, COMMAND_PAYLOAD_SIZE, 0);
         if(result == SOCKET_ERROR)
         {
             cout << "Failed to receive data" << endl;
             --retryCount;
-            data->commandCode = retryCount < 0 ? CommandPayload::Command::SHUTDOWN : CommandPayload::Command::IGNORE_COMMAND;
+            data->commandCode = retryCount < 0 ? Command::SHUTDOWN : Command::IGNORE_COMMAND;
         }
         switch(data->commandCode)
         {
-            case CommandPayload::Command::CLOSE_STREAM:
-                cout << "Close stream (Not implemented)" << endl;
+            case Command::STOP_STREAM:
+                cout << "Close stream" << endl;
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
                 break;
 
-            case CommandPayload::Command::UPDATE_FFMPEG_CONFIG:
-                cout << "Receive ffmpeg config (Not implemented)" << endl;
+            case Command::UPDATE_FFMPEG_CONFIG:
+                cout << "Receive ffmpeg config" << endl;
+                receivedConfig = data->configData;
+                cout << "Received config:" << endl << endl << ConfigToString(receivedConfig) << endl;
                 break;
 
-            case CommandPayload::Command::CLOSE_SERVER:
-                cout << "Close server application (Not implemented)" << endl;
+            case Command::CLOSE_SERVER:
+                cout << "Close server application" << endl;
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
                 break;
 
-            case CommandPayload::Command::SHUTDOWN_PC:
+            case Command::SHUTDOWN_PC:
                 cout << "Shutdown host PC (Not implemented)" << endl;
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
                 break;
 
-            case CommandPayload::Command::START_STREAM:
-                cout << "Start stream (Not implemented)" << endl;
+            case Command::START_STREAM:
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
+                cout << "Start stream with last received config from switch..." << endl;
+                cout << "FFMPEG Configuration: " << endl << ConfigToString(receivedConfig) << endl;
+                streamProcessInfo = StartStream(receivedConfig, started);
+                break;
+
+            case Command::START_STREAM_LOW_LATENCY_30FPS:
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
+                cout << "Start stream [low latency 30fps]" << endl;
+                cout << "FFMPEG Configuration: " << endl << ConfigToString(DEFAULT_CONFIGS[STREAM_MODE::LOW_LATENCY_30_FPS]) << endl;
+                streamProcessInfo = StartStream(DEFAULT_CONFIGS[STREAM_MODE::LOW_LATENCY_30_FPS], started);
+                break;
+
+            case Command::START_STREAM_LOW_LATENCY_VFPS:
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
+                cout << "Start stream [low latency variable fps]" << endl;
+                cout << "FFMPEG Configuration: " << endl << ConfigToString(DEFAULT_CONFIGS[STREAM_MODE::LOW_LATENCY_V_FPS]) << endl;
+                streamProcessInfo = StartStream(DEFAULT_CONFIGS[STREAM_MODE::LOW_LATENCY_V_FPS], started);
+                break;
+
+            case Command::START_STREAM_OK_LATENCY_60FPS:
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+                CloseHandle(streamProcessInfo.hProcess);
+                CloseHandle(streamProcessInfo.hThread);
+                cout << "Start stream [OK latency 60 fps]" << endl;
+                cout << "FFMPEG Configuration: " << endl << ConfigToString(DEFAULT_CONFIGS[STREAM_MODE::OK_LATENCY_60_FPS]) << endl;
+                streamProcessInfo = StartStream(DEFAULT_CONFIGS[STREAM_MODE::OK_LATENCY_60_FPS], started);
                 break;
         }
-    } while(data->commandCode != CommandPayload::Command::SHUTDOWN);
+    } while(data->commandCode != Command::SHUTDOWN);
+
+    TerminateProcess(streamProcessInfo.hProcess, 1);
+    CloseHandle(streamProcessInfo.hProcess);
+    CloseHandle(streamProcessInfo.hThread);
 }
 
 bool ListenForConnection(const SOCKET listenSock, SOCKET& connectedSocket, sockaddr_in& connectionInfo)
@@ -235,7 +287,7 @@ PROCESS_INFORMATION StartStream(FFMPEG_Config config, bool& started)
 
     auto args = CreateCommandLineArg(config);
 
-    if(!CreateProcess(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+    if(!CreateProcess(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
     {
         //error occured
         std::cout << "Failed to start process. CreateProcess error code: " << GetLastError() << std::endl;
@@ -246,4 +298,41 @@ PROCESS_INFORMATION StartStream(FFMPEG_Config config, bool& started)
         started = true;
 
     return pi;
+}
+
+std::string ConfigToString(FFMPEG_Config config)
+{
+    using namespace std;
+
+    auto vsyncText = "";
+    switch(config.vsyncMode)
+    {
+        case 0:
+            vsyncText = "passthrough"; //each frame is passed to the muxer
+            break;
+        case 1:
+            vsyncText = "constant frame rate"; //constant fps
+            break;
+        case 2:
+            vsyncText = "variable frame rate"; //variable fps (prevent duplicate frames)
+            break;
+        case 3:
+            vsyncText = "drop duplicate frames"; //same as passthrough, but removes timestamps
+            break;
+        case -1:
+            vsyncText = "auto"; //automatically choose between 1 or 2
+            break;
+        default:
+            vsyncText = "UNKNOWN";
+            break;
+    }
+
+    stringstream args;
+    args << "Vsync Mode: " << (int)config.vsyncMode << " (" << vsyncText << ")" << endl;
+    args << "Target Framerate: " << config.desiredFrameRate << " fps" << endl;
+    args << "Video Capture Size(x,y): " << config.videoX << ", " << config.videoY << endl;
+    args << "Stream Scale Size(x,y): " << config.scaleX << ", " << config.scaleY << endl;
+    args << "Target Stream Bitrate: " << config.bitrateKB << " kb/s" << endl;
+
+    return args.str();
 }

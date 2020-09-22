@@ -11,20 +11,6 @@
 
 using namespace std;
 
-enum STREAM_MODE
-{
-    OK_30_FPS = 0,
-    OK_60_FPS,
-    VG_60_FPS,
-    STREAM_MODE_COUNT
-};
-
-const FFMPEG_Config DEFAULT_CONFIGS[] = {
-    {60, 2, 1920, 1080, 1280, 720, 5000}, //good performance, gets clamped to 30fps (low latency)
-    {60, 1, 1920, 1080, 1280, 720, 5000}, //good performance, tries to stay at 60fps (OK latency)
-    {60, 3, 1920, 1080, 1280, 720, 5000} //can be very good, almost similar to mode 1 (low latency)
-};
-
 //wait for something to connect to this 'server' application and exchange messages
 void WaitForDirectConnection()
 {

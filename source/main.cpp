@@ -13,6 +13,7 @@
 #include "ScreenRenderer.h"
 #include "VideoStream.h"
 #include "InputThread.h"
+#include "CommandSender.h"
 
 using namespace std;
 
@@ -20,15 +21,13 @@ std::mutex streamOnMutex;
 StreamConfigData sconfig;
 
 int loopCount = 0; //just to have a visual on the screen to make sure the thread is alive
-const int FFMPEG_STREAM_EXAMPLE_IMPL = 0;
-const int PACKET_QUEUE_IMPL = 1;
-const int DECODER_IMPL = 2;
-const std::string techniqueStrings[] = {
-    "ffmpeg example code",
-    "packet queuing test",
-    "decoupled decoder test(+frameskip)"
+
+const std::string defaultStreamSettings[] = {
+    "Low Latency, 30fps, 5000 kb/s",
+    "OK Latency, 60fps, 5000 kb/s",
+    "Low Latency, variable fps, 5000 kb/s"
 };
-const int techniqueCount = sizeof(techniqueStrings)/sizeof(techniqueStrings[0]);
+const int techniqueCount = sizeof(defaultStreamSettings)/sizeof(defaultStreamSettings[0]);
 
 void initialiseSwitch(SocketInitConfig& config)
 {
@@ -49,13 +48,11 @@ void destroyNetwork()
 string BuildDisplayText(stringstream& displayStream, string prependText, StreamConfigData& config)
 {
     displayStream.str(string()); //clear the stream
-    auto techniqueStr = (sconfig.streamTechnique < techniqueCount && sconfig.streamTechnique > -1 ? techniqueStrings[sconfig.streamTechnique] : "invalid");
+    auto techniqueStr = (sconfig.streamSetting < techniqueCount && sconfig.streamSetting > -1 ? defaultStreamSettings[sconfig.streamSetting] : "invalid");
 
     displayStream << "Stream implementation technique: " << techniqueStr << endl;
     displayStream << "Target Framerate: " << sconfig.framerate << endl;
 
-    if(sconfig.streamTechnique == DECODER_IMPL)
-        displayStream << "Frameskip enabled? " << (sconfig.useFrameSkip ? "yes" : "no") << endl;
 
     displayStream << "Loop count: " << loopCount << endl;
 
@@ -105,7 +102,7 @@ int main(int argc, char **argv)
     sconfig.framerate = 60;
     sconfig.quitApp = false;
     sconfig.streamOn = false;
-    sconfig.streamTechnique = 2;
+    sconfig.streamSetting = STREAM_MODE::LOW_LATENCY_30_FPS;
     sconfig.useFrameSkip = true;
 
     ScreenRenderer screen;
@@ -124,8 +121,8 @@ int main(int argc, char **argv)
         stringstream defaultMessageStream;
         defaultMessageStream << "Ready to accept a video stream connection."<< endl;
         // defaultMessageStream << "Press 'Minus' to find host PC" << endl;
-        defaultMessageStream << "Press d-pad up or down to cycle stream implementations." << endl;
-        defaultMessageStream << "Press 'L' to toggle frame skip (for decoupled decoder technique only)" << endl;
+        defaultMessageStream << "Press d-pad up or down to cycle stream settings." << endl;
+        // defaultMessageStream << "Press 'L' to toggle frame skip (for decoupled decoder technique only)" << endl;
         defaultMessageStream << endl;
         defaultMessageStream << "Press 'R' to start stream connection" << endl;
         defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << endl;
@@ -160,6 +157,9 @@ int main(int argc, char **argv)
                     screen.DrawText(displayText, 100, 100, sconfig.textColour);
                     screen.PresentScreen();
 
+                    auto setting = sconfig.streamSetting;
+                    // auto commandThread = CommandConnectionThreadStart("192.168.0.19", 20001, setting);
+                    RunCommandThread("192.168.0.19", 20001, setting);
                     sconfig.streamOn = stream.WaitForStream(url);
                 }
             }
@@ -171,30 +171,8 @@ int main(int argc, char **argv)
             
             if(streamActive)
             {
-                auto technique = 0;
-                { 
-                    lock_guard<mutex> streamGuard(streamOnMutex);
-                    technique = sconfig.streamTechnique;
-                }
-                //StreamVideo blocks. If we proceed beyond it, cleanup so we can re-connect properly if we press 'X'
-                switch(technique)
-                {
-                    case FFMPEG_STREAM_EXAMPLE_IMPL:
-                        stream.StreamVideo(screen);
-                    break;
-
-                    case PACKET_QUEUE_IMPL:
-                        stream.StreamVideoQueue(screen);
-                    break;
-
-                    case DECODER_IMPL: //this inside will lock after rendering to check the stream state and if it should close the connection
-                        stream.StreamVideoViaDecoder(screen, sconfig);
-                    break;
-
-                    default:
-                        cout << "Unknown stream technique chosen. Killing connection and cleaning up" << endl;
-                    break;
-                }
+                //start stream
+                stream.StreamVideoViaDecoder(screen, sconfig);
                 
                 {
                     lock_guard<mutex> lock(streamOnMutex);

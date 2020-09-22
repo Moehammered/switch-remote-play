@@ -11,10 +11,11 @@ extern "C"
 #include "ScreenRenderer.h"
 #include <thread>
 #include <mutex>
+#include "NetworkData.h"
 
 struct StreamConfigData
 {
-    int streamTechnique;
+    STREAM_MODE streamSetting;
     int framerate;
     bool streamOn;
     bool useFrameSkip;

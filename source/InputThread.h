@@ -6,8 +6,44 @@
 #include <thread>
 #include <mutex>
 #include "VideoStream.h"
+#include "CommandSender.h"
 
 using namespace std;
+
+void RunCommandThread(std::string ip, uint16_t port, STREAM_MODE setting)
+{
+    int commandSocket = -1;
+    if(ConnectTo(ip, 20001, commandSocket))
+    {
+        auto streamCommand = Command::START_STREAM_LOW_LATENCY_30FPS;
+        switch(setting)
+        {
+            default:
+            case STREAM_MODE::LOW_LATENCY_30_FPS:
+                streamCommand = Command::START_STREAM_LOW_LATENCY_30FPS;
+                break;
+
+            case STREAM_MODE::OK_LATENCY_60_FPS:
+                streamCommand = Command::START_STREAM_OK_LATENCY_60FPS;
+                break;
+
+            case STREAM_MODE::LOW_LATENCY_V_FPS:
+                streamCommand = Command::START_STREAM_LOW_LATENCY_VFPS;
+                break;
+        }
+
+        if(SendCode(commandSocket, streamCommand))
+            cout << "Sent command payload" << endl;
+        else
+            cout << "Error sending payload" << endl;
+    }
+    close(commandSocket);
+}
+
+thread CommandConnectionThreadStart(std::string ip, uint16_t port, STREAM_MODE setting)
+{
+    return thread(RunCommandThread, ip, port, setting);
+}
 
 void RunInputThread(StreamConfigData& config, mutex& configMutex)
 {
@@ -47,14 +83,17 @@ void RunInputThread(StreamConfigData& config, mutex& configMutex)
         if(kDown & KEY_DUP)
         {
             lock_guard<mutex> guard(configMutex);
-            if(--config.streamTechnique < 0)
-                config.streamTechnique = 2;
+            auto nextSetting = (int)config.streamSetting - 1;
+            auto topSetting = (int)STREAM_MODE::STREAM_MODE_COUNT - 1;
+            if(nextSetting < 0)
+                config.streamSetting = (STREAM_MODE)topSetting;
         }
         else if(kDown & KEY_DDOWN)
         {
             lock_guard<mutex> guard(configMutex);
-            if(++config.streamTechnique >= 3)
-                config.streamTechnique = 0;
+            auto nextSetting = (int)config.streamSetting + 1;
+            if(nextSetting >= STREAM_MODE::STREAM_MODE_COUNT)
+                config.streamSetting = (STREAM_MODE)0;
         }
         if(kDown & KEY_L)
         {

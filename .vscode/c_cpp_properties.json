@@ -56,7 +56,7 @@
                     "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
                     "C:\\mingw-w64\\switch\\devkitPro\\portlibs\\switch\\include"
                 ],
-                "limitSymbolsToIncludedHeaders": true
+                "limitSymbolsToIncludedHeaders": false
             }
         }
     ],
