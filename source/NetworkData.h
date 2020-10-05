@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-enum STREAM_MODE
+enum STREAM_MODE : int16_t
 {
     LOW_LATENCY_30_FPS = 0,
     OK_LATENCY_60_FPS,

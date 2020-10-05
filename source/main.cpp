@@ -100,6 +100,7 @@ int main(int argc, char **argv)
     sconfig.bgCol = {255, 255, 255, 255};
     sconfig.textColour = { 50, 20, 50, 255 };
     sconfig.framerate = 60;
+    sconfig.streamRequested = false;
     sconfig.quitApp = false;
     sconfig.streamOn = false;
     sconfig.streamSetting = STREAM_MODE::LOW_LATENCY_30_FPS;
@@ -138,6 +139,7 @@ int main(int argc, char **argv)
     stringstream configDisplayString;
 
     thread inputThread = StartInputThread(sconfig, streamOnMutex);
+    thread gamepadThread;
 
     while(appletMainLoop())
     {
@@ -148,7 +150,7 @@ int main(int argc, char **argv)
             { //lock mutex to check if stream has been requested to start
                 lock_guard<mutex> streamGuard(streamOnMutex);
                 
-                if(sconfig.streamOn)
+                if(sconfig.streamRequested)
                 {
                     //display on the screen a connection is pending
                     auto displayText = BuildDisplayText(configDisplayString, controlsMessage, sconfig);
@@ -158,9 +160,11 @@ int main(int argc, char **argv)
                     screen.PresentScreen();
 
                     auto setting = sconfig.streamSetting;
-                    // auto commandThread = CommandConnectionThreadStart("192.168.0.19", 20001, setting);
-                    RunCommandThread("192.168.0.19", 20001, setting);
+                    CommandConnectionThreadStart("192.168.0.19", 20001, setting);
+                    //RunCommandThread("192.168.0.19", 20001, setting);
                     sconfig.streamOn = stream.WaitForStream(url);
+                    //connect gamepad thread now
+                    gamepadThread = StartGamepadThread("192.168.0.19", 20002);
                 }
             }
             bool streamActive = false;
@@ -177,9 +181,12 @@ int main(int argc, char **argv)
                 {
                     lock_guard<mutex> lock(streamOnMutex);
                     sconfig.streamOn = false; //If PC killed the connection, then we need to make sure we know too
+                    sconfig.streamRequested = false;
                 }
                 cout << "Stream ended" << endl;
                 stream.Cleanup();
+                if(gamepadThread.joinable())
+                    gamepadThread.join();
                 cout << "Stream cleaned up" << endl;
             }
             else
@@ -201,8 +208,6 @@ int main(int argc, char **argv)
         sleep(1); // no point thrashing the screen to refresh text
     }
 
-    destroyNetwork();
-
     cout << "exiting application..." << endl;
     screen.CleanupFont();
 
@@ -219,10 +224,15 @@ int main(int argc, char **argv)
 
     if(inputThread.joinable())
         inputThread.join();
+
+    if(gamepadThread.joinable())
+        gamepadThread.join();
     /*
         if plExit is not called, after consecutively opening the application 
         it will cause hbloader to close too with error code for 'max sessions' (0x615)
     */
     plExit(); //close the pl session we made when starting up the app
+    cout << "End of main reached" << endl;
+    destroyNetwork();
     return 0;
 }

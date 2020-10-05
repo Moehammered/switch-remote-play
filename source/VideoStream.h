@@ -17,6 +17,7 @@ struct StreamConfigData
 {
     STREAM_MODE streamSetting;
     int framerate;
+    bool streamRequested;
     bool streamOn;
     bool useFrameSkip;
     bool quitApp;
