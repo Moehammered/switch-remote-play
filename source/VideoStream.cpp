@@ -121,10 +121,10 @@ bool VideoStream::WaitForStream(std::string url)
     return true;
 }
 
-void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, const StreamConfigData& config)
+void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bool& streamOn)
 {
     Decoder decoder;
-    if(!decoder.Initialise(stream->codecpar, config.useFrameSkip))
+    if(!decoder.Initialise(stream->codecpar, false))
     {
         std::cout << "Error occurred initialising the decoder." << std::endl;
         return;
@@ -136,12 +136,12 @@ void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, const StreamCo
     dataPacket.size = 0;
 
     // values to capture frame rate / time passage of renderer
-    int deltaFrameSample = 300;
-    const double NANO_TO_SECONDS = 1000000000.0;
-    uint64_t currTime, prevTime, deltaTime;
-    currTime = armTicksToNs(armGetSystemTick());
-    prevTime = currTime;
-    deltaTime = 0;
+    // int deltaFrameSample = 300;
+    // const double NANO_TO_SECONDS = 1000000000.0;
+    // uint64_t currTime, prevTime, deltaTime;
+    // currTime = armTicksToNs(armGetSystemTick());
+    // prevTime = currTime;
+    // deltaTime = 0;
 
     std::cout << "starting stream read of packets...\n" << std::endl;
     //read frames from the stream we've connected to and setup
@@ -174,22 +174,22 @@ void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, const StreamCo
             dataPacket.data += decodedFrame.pkt_size; //think this is unnecessary
             dataPacket.size -= decodedFrame.pkt_size; //think this is unnecessary
         }
-        currTime = armTicksToNs(armGetSystemTick());
-        deltaTime += (currTime - prevTime);
-        prevTime = currTime;
+        // currTime = armTicksToNs(armGetSystemTick());
+        // deltaTime += (currTime - prevTime);
+        // prevTime = currTime;
 
-        if(--deltaFrameSample == -1)
-        {
-            deltaFrameSample = 300;
-            auto frameRate = deltaFrameSample / (deltaTime / NANO_TO_SECONDS);
-            //std::cout << "FPS: " << frameRate << ", DeltaTimePassed: " << deltaTime/NANO_TO_SECONDS << std::endl;
+        // if(--deltaFrameSample == -1)
+        // {
+        //     deltaFrameSample = 300;
+        //     auto frameRate = deltaFrameSample / (deltaTime / NANO_TO_SECONDS);
+        //     //std::cout << "FPS: " << frameRate << ", DeltaTimePassed: " << deltaTime/NANO_TO_SECONDS << std::endl;
 
-            deltaTime = 0;
-        }
+        //     deltaTime = 0;
+        // }
         // std::cout << "cleaning up used packet" << std::endl;
         av_packet_unref(&dataPacket);
 
-        if(!config.streamOn)
+        if(!streamOn.load(std::memory_order_acquire))
             break;
     }
     //try and close the stream
@@ -223,7 +223,7 @@ void VideoStream::StreamVideoQueue(ScreenRenderer& renderer)
 
     int packetState = 0;
     std::deque<AVPacket> queuedPacks;
-    int decodeQueueLimit = 3;
+    size_t decodeQueueLimit = 3;
     
     while(packetState >= 0) //gather some data packets to render in batch
     {

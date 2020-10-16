@@ -15,6 +15,7 @@ class ScreenRenderer
         void PresentScreen();
         void CleanupFont();
         
+        SDL_Renderer* Renderer();
         SDL_Texture* GetScreenTexture();
         SDL_Rect GetRegion();
 

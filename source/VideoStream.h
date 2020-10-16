@@ -10,20 +10,8 @@ extern "C"
 #include <string>
 #include "ScreenRenderer.h"
 #include <thread>
-#include <mutex>
+#include <atomic>
 #include "NetworkData.h"
-
-struct StreamConfigData
-{
-    STREAM_MODE streamSetting;
-    int framerate;
-    bool streamRequested;
-    bool streamOn;
-    bool useFrameSkip;
-    bool quitApp;
-    SDL_Color bgCol;
-    SDL_Color textColour;
-};
 
 class VideoStream
 {
@@ -34,7 +22,8 @@ class VideoStream
 
         bool WaitForStream(std::string url);
 
-        void StreamVideoViaDecoder(ScreenRenderer& renderer, const StreamConfigData& config);
+        //need to update this to work interatively instead of blocking
+        void StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bool& streamOn);
 
         void StreamVideo(ScreenRenderer& renderer);
 

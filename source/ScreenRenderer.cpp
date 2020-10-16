@@ -82,6 +82,11 @@ void ScreenRenderer::PresentScreen()
     SDL_RenderPresent(renderer);
 }
 
+SDL_Renderer* ScreenRenderer::Renderer()
+{
+    return renderer;
+}
+
 SDL_Texture* ScreenRenderer::GetScreenTexture()
 {
     return screenTexture;

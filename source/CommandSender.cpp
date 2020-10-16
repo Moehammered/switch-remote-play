@@ -24,7 +24,7 @@ bool ConnectTo(std::string ip, uint16_t port, int& connectionSock)
     auto result = connect(clientSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
     if(result < 0)
     {
-        std::cout << "failed to connect to server: " << strerror(errno) << std::endl;
+        std::cout << "failed to connect to server: " << strerror(errno) << "(" << errno << ")" << std::endl;
         close(clientSocket);
         return false;
     }

@@ -177,7 +177,7 @@ int NetworkBroadcast::Listen(int sock, std::string& ip, std::string key)
     }
 
     char* msgBuffer = new char[key.length()+1];
-    for(int i = 0; i < key.length()+1; ++i)
+    for(size_t i = 0; i < key.length()+1; ++i)
         msgBuffer[i] = 0;
 
     //auto result = recvfrom(csock, msgBuffer, key.length()+1, 0, (sockaddr*)&senderInfo, &infoSize);

@@ -7,18 +7,18 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
-#include <mutex>
+#include <atomic>
 
 #include <switch.h>
 #include "ScreenRenderer.h"
 #include "VideoStream.h"
 #include "InputThread.h"
-#include "CommandSender.h"
+#include "Text.h"
 
 using namespace std;
 
-std::mutex streamOnMutex;
-StreamConfigData sconfig;
+atomic_bool streamOn, streamRequested, quitApp;
+atomic_int32_t streamProfile;
 
 int loopCount = 0; //just to have a visual on the screen to make sure the thread is alive
 
@@ -45,34 +45,43 @@ void destroyNetwork()
     socketExit();
 }
 
-string BuildDisplayText(stringstream& displayStream, string prependText, StreamConfigData& config)
+string StreamTechniqueToStr(STREAM_MODE mode)
 {
-    displayStream.str(string()); //clear the stream
-    auto techniqueStr = (sconfig.streamSetting < techniqueCount && sconfig.streamSetting > -1 ? defaultStreamSettings[sconfig.streamSetting] : "invalid");
+    stringstream displayStream;
+    if(mode < techniqueCount && mode >= 0)
+        displayStream << "Stream Profile: " << defaultStreamSettings[mode] << endl;
+    else
+        displayStream << "Stream Profile: Unknown - " << mode << endl;
+        
+    return displayStream.str();
+}
 
-    displayStream << "Stream implementation technique: " << techniqueStr << endl;
-    displayStream << "Target Framerate: " << sconfig.framerate << endl;
+string LoopCountToStr()
+{
+    stringstream stream;
+    stream << "Loop count: " << loopCount << endl;
+    return stream.str();
+}
 
-
-    displayStream << "Loop count: " << loopCount << endl;
-
-    if(config.streamOn)
-    {
-        config.bgCol.g = 200;
-        config.bgCol.b = 50;
-        config.bgCol.r = 50;
-        displayStream << endl << "Waiting for connection... (Use 'Home' to quit if frozen for too long)" << endl;
-
-        return displayStream.str();
-    }
+FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defaultCol)
+{
+    PlFontData switchFont, nintendoFont;
+    plGetSharedFontByType(&switchFont, PlSharedFontType_Standard);
+    plGetSharedFontByType(&nintendoFont, PlSharedFontType_NintendoExt);
     
-    stringstream displayMessage;
-    displayMessage << "Hello there! \\(^_^) Welcome to switch-remote-play!" << endl;
-    displayMessage << prependText << endl;
-    displayMessage << endl;
-    displayMessage << displayStream.str() << endl;
+    auto systemFont = FC_CreateFont();
+    auto switchFontStream = SDL_RWFromMem((void *)switchFont.address, switchFont.size);
+    auto nintFontStream = SDL_RWFromMem((void *)nintendoFont.address, nintendoFont.size);
+    FC_LoadFont_RW(systemFont, renderer, switchFontStream, nintFontStream, 
+                    1, fontSize, defaultCol, TTF_STYLE_NORMAL);
 
-    return displayMessage.str();
+    return systemFont;
+}
+
+void FreeFont(FC_Font* font)
+{
+    FC_ClearFont(font);
+    FC_FreeFont(font);
 }
 
 int main(int argc, char **argv)
@@ -97,22 +106,34 @@ int main(int argc, char **argv)
     cout << "Console output will now be redirected to the server (nxlink.exe)" << endl;    
     cout << "basic switch services initialised" << endl;
 
-    sconfig.bgCol = {255, 255, 255, 255};
-    sconfig.textColour = { 50, 20, 50, 255 };
-    sconfig.framerate = 60;
-    sconfig.streamRequested = false;
-    sconfig.quitApp = false;
-    sconfig.streamOn = false;
-    sconfig.streamSetting = STREAM_MODE::LOW_LATENCY_30_FPS;
-    sconfig.useFrameSkip = true;
-
-    ScreenRenderer screen;
+    streamRequested = false;
+    quitApp = false;
+    streamOn = false;
+    streamProfile = STREAM_MODE::LOW_LATENCY_30_FPS;
     
+    ScreenRenderer screen;
+    SDL_Color bgCol = {200, 200, 200, 255};
+    
+    Text heading = {
+        .x = 400, .y = 20, .colour = { 100, 200, 100, 255 },
+        .value = "Switch Remote Play \\(^.^)/"
+    };
+    Text controlsText = {
+        .x = 100, .y = 200, .colour = { 100, 200, 100, 255 }, 
+        .value = "" 
+    };
+    Text streamProfileText = { 
+        .x = 100, .y = 400, .colour = { 100, 200, 100, 255 }, 
+        .value = "" 
+    };
+    Text streamPendingText = {
+        .x = 100, .y = 600, .colour = { 200, 100, 100, 255 },
+        .value = "Stream Pending Connection..." 
+    };
+
     cout << "creating SDL window" << endl;
     bool initOK = screen.Initialise(1280, 720, 32, false);
-    
     VideoStream stream;
-
     string controlsMessage = "/!\\ Initialisation Failed! /!\\";
     if(initOK)
     {
@@ -121,91 +142,116 @@ int main(int argc, char **argv)
 
         stringstream defaultMessageStream;
         defaultMessageStream << "Ready to accept a video stream connection."<< endl;
-        // defaultMessageStream << "Press 'Minus' to find host PC" << endl;
         defaultMessageStream << "Press d-pad up or down to cycle stream settings." << endl;
-        // defaultMessageStream << "Press 'L' to toggle frame skip (for decoupled decoder technique only)" << endl;
         defaultMessageStream << endl;
         defaultMessageStream << "Press 'R' to start stream connection" << endl;
         defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << endl;
 
         controlsMessage = defaultMessageStream.str();
         cout << controlsMessage << endl;
+
+        controlsText.value = controlsMessage;
     }
     else
     {
+        //send a copy to the nxlink server
+        auto errorMessage = "Failed to initialise screen renderer...";
+        cout << errorMessage << endl;
+        
+        destroyNetwork();
+        plExit();
+        //doesn't display for now on the switch screen from nxlink redirecting stdio
         consoleInit(NULL);
-    }
-    
-    stringstream configDisplayString;
+        cout << errorMessage << endl;
+        
+        consoleUpdate(NULL);
+        int countdown = 3;
+        while(countdown > 0)
+        {
+            --countdown;
+            this_thread::sleep_for(chrono::duration<int, milli>(1000));
+            //cout << "closing application in " << countdown << endl;
+            consoleUpdate(NULL);
+        }
 
-    thread inputThread = StartInputThread(sconfig, streamOnMutex);
+        consoleExit(NULL);
+        return -1;
+    }
+    auto systemFont = LoadSystemFont(screen.Renderer(), 32, {0,0,0, 255});
+
+    thread inputThread = thread([]{
+        RunInactiveStreamInput(streamRequested, streamOn, quitApp, streamProfile);
+    });
+    //inputThread.detach(); //detach doesn't work and causes crashes
     thread gamepadThread;
+
+    //30fps refresh rate
+    auto const mainSleepDur = chrono::duration<int, milli>(33);
+
+    auto boolToWord = [](bool value) { return value ? "yes" : "no"; };
+    cout << "Atomic Info Breakdown" << endl;
+    cout << "a_i32 lock free? " << boolToWord(atomic_int32_t{}.is_lock_free()) << endl;
+    cout << "a_bool lock free? " << boolToWord(atomic_bool{}.is_lock_free()) << endl;
+    cout << "a_ui32 lock free? " << boolToWord(atomic_uint32_t{}.is_lock_free()) << endl;
 
     while(appletMainLoop())
     {
         loopCount++;
 
-        if(initOK)
+        if(streamRequested.load(std::memory_order_acquire))
         {
-            { //lock mutex to check if stream has been requested to start
-                lock_guard<mutex> streamGuard(streamOnMutex);
-                
-                if(sconfig.streamRequested)
-                {
-                    //display on the screen a connection is pending
-                    auto displayText = BuildDisplayText(configDisplayString, controlsMessage, sconfig);
+            //display on the screen a connection is pending
+            SDL_Color pendingStreamCol = { 20, 20, 20, 255 };
+            screen.ClearScreen(pendingStreamCol);
 
-                    screen.ClearScreen(sconfig.bgCol);
-                    screen.DrawText(displayText, 100, 100, sconfig.textColour);
-                    screen.PresentScreen();
-
-                    auto setting = sconfig.streamSetting;
-                    CommandConnectionThreadStart("192.168.0.19", 20001, setting);
-                    //RunCommandThread("192.168.0.19", 20001, setting);
-                    sconfig.streamOn = stream.WaitForStream(url);
-                    //connect gamepad thread now
-                    gamepadThread = StartGamepadThread("192.168.0.19", 20002);
-                }
-            }
-            bool streamActive = false;
-            { //update the config to let it know if the stream failed to connect
-                lock_guard<mutex> streamGuard(streamOnMutex);
-                streamActive = sconfig.streamOn;
-            }
+            heading.Render(screen.Renderer(), systemFont);
             
-            if(streamActive)
-            {
-                //start stream
-                stream.StreamVideoViaDecoder(screen, sconfig);
-                
-                {
-                    lock_guard<mutex> lock(streamOnMutex);
-                    sconfig.streamOn = false; //If PC killed the connection, then we need to make sure we know too
-                    sconfig.streamRequested = false;
-                }
-                cout << "Stream ended" << endl;
-                stream.Cleanup();
-                if(gamepadThread.joinable())
-                    gamepadThread.join();
-                cout << "Stream cleaned up" << endl;
-            }
-            else
-            { //no stream, so let's display some helpful info
-                lock_guard<mutex> streamGuard(streamOnMutex);
-                auto displayText = BuildDisplayText(configDisplayString, controlsMessage, sconfig);
+            auto mode = (STREAM_MODE)streamProfile.load(std::memory_order_acquire);
 
-                screen.ClearScreen(sconfig.bgCol);
-                screen.DrawText(displayText, 100, 100, sconfig.textColour);
-                screen.PresentScreen();
+            streamProfileText.value = StreamTechniqueToStr(mode);
+            streamProfileText.Render(screen.Renderer(), systemFont);
+            streamPendingText.Render(screen.Renderer(), systemFont);
+            
+            screen.PresentScreen();
 
-                if(sconfig.quitApp)
-                    break;
-            }
+            RunStartStreamCommand("192.168.0.19", 20001, mode);
+            streamOn = stream.WaitForStream(url);
+        }
+        if(streamOn)
+        {
+            gamepadThread = StartGamepadThread("192.168.0.19", 20002);
+            //start stream
+            stream.StreamVideoViaDecoder(screen, streamOn);
+             //If PC killed the connection, then we need to make sure we know too
+            streamOn = false;
+            streamRequested = false;
+
+            cout << "Stream ended" << endl;
+
+            stream.Cleanup();
+            cout << "Stream cleaned up" << endl;
+
+            if(gamepadThread.joinable())
+                gamepadThread.join();
         }
         else
-            consoleUpdate(NULL);
+        { //no stream, so let's display some helpful info
+            screen.ClearScreen(bgCol);
+            
+            heading.Render(screen.Renderer(), systemFont);
+            controlsText.Render(screen.Renderer(), systemFont);
 
-        sleep(1); // no point thrashing the screen to refresh text
+            auto mode = (STREAM_MODE)streamProfile.load(std::memory_order_acquire);
+            streamProfileText.value = StreamTechniqueToStr(mode);
+            streamProfileText.Render(screen.Renderer(), systemFont);
+
+            screen.PresentScreen();
+
+            if(quitApp)
+                break;
+        }
+        // no point thrashing the screen to refresh text
+        this_thread::sleep_for(mainSleepDur);
     }
 
     cout << "exiting application..." << endl;
@@ -216,12 +262,16 @@ int main(int argc, char **argv)
     else
         SDL_Quit();
 
+    //wait here if the stream is still on so we can clean it up properly
+    if(streamOn)
     {
-        lock_guard<mutex> streamGuard(streamOnMutex);
-        if(sconfig.streamOn)
-            stream.Cleanup();
+        cout << "waiting for stream to stop..." << endl;
+        while(streamOn)
+            this_thread::sleep_for(mainSleepDur);
+        cout << "cleaning up stream" << endl;
+        stream.Cleanup();
     }
-
+    
     if(inputThread.joinable())
         inputThread.join();
 
@@ -231,7 +281,9 @@ int main(int argc, char **argv)
         if plExit is not called, after consecutively opening the application 
         it will cause hbloader to close too with error code for 'max sessions' (0x615)
     */
-    plExit(); //close the pl session we made when starting up the app
+    plExit();
+    FreeFont(systemFont);
+
     cout << "End of main reached" << endl;
     destroyNetwork();
     return 0;
