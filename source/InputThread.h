@@ -8,6 +8,7 @@
 #include "VideoStream.h"
 #include "CommandSender.h"
 #include <sys/socket.h>
+#include "FFMPEGConfigUI.h"
 
 using namespace std;
 
@@ -65,7 +66,8 @@ bool ProcessInactiveStreamInput(u32 kDown,
                                 atomic_bool& streamRequested,
                                 atomic_bool& streamOn, 
                                 atomic_bool& quitApp,
-                                atomic_int32_t& streamProfile)
+                                atomic_int32_t& streamProfile,
+                                FFMPEGConfigUI& configRender)
 {
     if (kDown & KEY_PLUS) 
     {
@@ -83,6 +85,8 @@ bool ProcessInactiveStreamInput(u32 kDown,
             streamProfile.store(STREAM_MODE::STREAM_MODE_COUNT - 1, std::memory_order_release);
         else
             streamProfile.store(nextSetting, std::memory_order_release);
+
+        configRender.SelectPrevious();
     }
     else if(kDown & KEY_DDOWN)
     {
@@ -92,9 +96,20 @@ bool ProcessInactiveStreamInput(u32 kDown,
             streamProfile.store(0, std::memory_order_release);
         else
             streamProfile.store(nextSetting, std::memory_order_release);
+
+        configRender.SelectNext();
     }
     else if(kDown & KEY_R)
         streamRequested = true;
+
+    if(kDown & KEY_DRIGHT)
+    {
+        configRender.IncreaseSetting();
+    }
+    else if(kDown & KEY_DLEFT)
+    {
+        configRender.DecreaseSetting();
+    }
 
     return true;
 }
@@ -102,7 +117,8 @@ bool ProcessInactiveStreamInput(u32 kDown,
 void RunInactiveStreamInput(atomic_bool& streamRequested,
                             atomic_bool& streamOn, 
                             atomic_bool& quitApp,
-                            atomic_int32_t& streamProfile)
+                            atomic_int32_t& streamProfile,
+                            FFMPEGConfigUI& configRender)
 {
     auto const sleepDuration = chrono::duration<int, milli>(16); //poll input 60fps
     while(appletMainLoop())
@@ -115,7 +131,7 @@ void RunInactiveStreamInput(atomic_bool& streamRequested,
             u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
             if(!ProcessInactiveStreamInput(kDown, streamRequested,
                                             streamOn, quitApp, 
-                                            streamProfile))
+                                            streamProfile, configRender))
                 break;
         }
 

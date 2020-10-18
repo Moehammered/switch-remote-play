@@ -14,6 +14,7 @@
 #include "VideoStream.h"
 #include "InputThread.h"
 #include "Text.h"
+#include "FFMPEGConfigUI.h"
 
 using namespace std;
 
@@ -112,18 +113,18 @@ int main(int argc, char **argv)
     streamProfile = STREAM_MODE::LOW_LATENCY_30_FPS;
     
     ScreenRenderer screen;
-    SDL_Color bgCol = {200, 200, 200, 255};
+    constexpr SDL_Color bgCol = {20, 20, 20, 255};
     
     Text heading = {
         .x = 400, .y = 20, .colour = { 100, 200, 100, 255 },
         .value = "Switch Remote Play \\(^.^)/"
     };
     Text controlsText = {
-        .x = 100, .y = 200, .colour = { 100, 200, 100, 255 }, 
+        .x = 100, .y = 60, .colour = { 100, 200, 100, 255 }, 
         .value = "" 
     };
     Text streamProfileText = { 
-        .x = 100, .y = 400, .colour = { 100, 200, 100, 255 }, 
+        .x = 100, .y = 280, .colour = { 100, 200, 100, 255 }, 
         .value = "" 
     };
     Text streamPendingText = {
@@ -179,8 +180,11 @@ int main(int argc, char **argv)
     }
     auto systemFont = LoadSystemFont(screen.Renderer(), 32, {0,0,0, 255});
 
-    thread inputThread = thread([]{
-        RunInactiveStreamInput(streamRequested, streamOn, quitApp, streamProfile);
+    auto configRenderer = FFMPEGConfigUI();
+
+    thread inputThread = thread([&configRenderer]{
+        RunInactiveStreamInput(streamRequested, streamOn
+        , quitApp, streamProfile, configRenderer);
     });
     //inputThread.detach(); //detach doesn't work and causes crashes
     thread gamepadThread;
@@ -201,7 +205,7 @@ int main(int argc, char **argv)
         if(streamRequested.load(std::memory_order_acquire))
         {
             //display on the screen a connection is pending
-            SDL_Color pendingStreamCol = { 20, 20, 20, 255 };
+            SDL_Color pendingStreamCol = { 60, 60, 60, 255 };
             screen.ClearScreen(pendingStreamCol);
 
             heading.Render(screen.Renderer(), systemFont);
@@ -237,8 +241,10 @@ int main(int argc, char **argv)
         else
         { //no stream, so let's display some helpful info
             screen.ClearScreen(bgCol);
-            
+        
             heading.Render(screen.Renderer(), systemFont);
+            configRenderer.Render(screen.Renderer(), systemFont);
+
             controlsText.Render(screen.Renderer(), systemFont);
 
             auto mode = (STREAM_MODE)streamProfile.load(std::memory_order_acquire);
