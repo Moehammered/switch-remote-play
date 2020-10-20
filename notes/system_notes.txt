@@ -1,0 +1,19 @@
+switch implementation notes
+
+atomic lock free availability
+    all primitive data types are lock free (including float, double, and pointers)
+    trivial structs are lock free (SDL_Color for example)
+        -- need to test if this is due to SDL_Color being 4 bytes
+
+std::thread
+    dangling threads will cause a crash once they try to cleanup
+    detach will cause a crash
+
+System resources (pl and rfs)
+    resource setup calls need to be mirrored with resource cleanup calls
+    plInitialize allows access to getting the system font data
+        requires calling plExit when finished with it
+            -- failing to do so, will require the HB app to be closed, 
+            otherwise the app will crash HB menu if opened consecutively
+    rfsInit is the same as well
+

@@ -15,6 +15,7 @@
 #include "InputThread.h"
 #include "Text.h"
 #include "FFMPEGConfigUI.h"
+#include "SystemSetup.h"
 
 using namespace std;
 
@@ -29,22 +30,6 @@ const std::string defaultStreamSettings[] = {
     "Low Latency, variable fps, 5000 kb/s"
 };
 const int techniqueCount = sizeof(defaultStreamSettings)/sizeof(defaultStreamSettings[0]);
-
-void initialiseSwitch(SocketInitConfig& config)
-{
-    socketInitialize(&config);
-    nxlinkStdio();
-
-    auto serviceType = PlServiceType_User;
-    cout << "Calling plInitialize with value " << serviceType << endl;
-    plInitialize(serviceType); //required to access system resources (font data for example)
-}
-
-void destroyNetwork()
-{
-    cout << "destroying default socket initialisation" << endl;
-    socketExit();
-}
 
 string StreamTechniqueToStr(STREAM_MODE mode)
 {
@@ -64,46 +49,11 @@ string LoopCountToStr()
     return stream.str();
 }
 
-FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defaultCol)
-{
-    PlFontData switchFont, nintendoFont;
-    plGetSharedFontByType(&switchFont, PlSharedFontType_Standard);
-    plGetSharedFontByType(&nintendoFont, PlSharedFontType_NintendoExt);
-    
-    auto systemFont = FC_CreateFont();
-    auto switchFontStream = SDL_RWFromMem((void *)switchFont.address, switchFont.size);
-    auto nintFontStream = SDL_RWFromMem((void *)nintendoFont.address, nintendoFont.size);
-    FC_LoadFont_RW(systemFont, renderer, switchFontStream, nintFontStream, 
-                    1, fontSize, defaultCol, TTF_STYLE_NORMAL);
-
-    return systemFont;
-}
-
-void FreeFont(FC_Font* font)
-{
-    FC_ClearFont(font);
-    FC_FreeFont(font);
-}
-
 int main(int argc, char **argv)
 {
-    string url = "tcp://0.0.0.0:2222";
+    const string streamURL = "tcp://0.0.0.0:2222";
 
-    SocketInitConfig socketConfiguration = {
-        .bsdsockets_version = 1,
-
-        .tcp_tx_buf_size = 0x80000,
-        .tcp_rx_buf_size = 0x100000,
-        .tcp_tx_buf_max_size = 0x300000,
-        .tcp_rx_buf_max_size = 0x500000,
-
-        .udp_tx_buf_size = 0x1400,
-        .udp_rx_buf_size = 0x2500,
-
-        .sb_efficiency = 3,
-    };
-
-    initialiseSwitch(socketConfiguration);
+    initialiseSwitch();
     cout << "Console output will now be redirected to the server (nxlink.exe)" << endl;    
     cout << "basic switch services initialised" << endl;
 
@@ -133,13 +83,12 @@ int main(int argc, char **argv)
     };
 
     cout << "creating SDL window" << endl;
-    bool initOK = screen.Initialise(1280, 720, 32, false);
+    bool initOK = screen.Initialise(1280, 720, false);
     VideoStream stream;
     string controlsMessage = "/!\\ Initialisation Failed! /!\\";
     if(initOK)
     {
         cout << "Initialising video stream config" << endl;
-        stream.Initialise();
 
         stringstream defaultMessageStream;
         defaultMessageStream << "Ready to accept a video stream connection."<< endl;
@@ -159,7 +108,6 @@ int main(int argc, char **argv)
         auto errorMessage = "Failed to initialise screen renderer...";
         cout << errorMessage << endl;
         
-        destroyNetwork();
         plExit();
         //doesn't display for now on the switch screen from nxlink redirecting stdio
         consoleInit(NULL);
@@ -176,9 +124,12 @@ int main(int argc, char **argv)
         }
 
         consoleExit(NULL);
+        
+        socketExit();
         return -1;
     }
-    auto systemFont = LoadSystemFont(screen.Renderer(), 32, {0,0,0, 255});
+    constexpr SDL_Color black = {0,0,0, 255};
+    auto systemFont = LoadSystemFont(screen.Renderer(), 32, black);
 
     auto configRenderer = FFMPEGConfigUI();
 
@@ -191,12 +142,7 @@ int main(int argc, char **argv)
 
     //30fps refresh rate
     auto const mainSleepDur = chrono::duration<int, milli>(33);
-
-    auto boolToWord = [](bool value) { return value ? "yes" : "no"; };
-    cout << "Atomic Info Breakdown" << endl;
-    cout << "a_i32 lock free? " << boolToWord(atomic_int32_t{}.is_lock_free()) << endl;
-    cout << "a_bool lock free? " << boolToWord(atomic_bool{}.is_lock_free()) << endl;
-    cout << "a_ui32 lock free? " << boolToWord(atomic_uint32_t{}.is_lock_free()) << endl;
+    //PrintOutAtomicLockInfo();
 
     while(appletMainLoop())
     {
@@ -219,11 +165,15 @@ int main(int argc, char **argv)
             screen.PresentScreen();
 
             RunStartStreamCommand("192.168.0.19", 20001, mode);
-            streamOn = stream.WaitForStream(url);
+            streamOn = stream.WaitForStream(streamURL);
+            
+            cout << "stream connection found? " << streamOn << endl;
         }
         if(streamOn)
         {
-            gamepadThread = StartGamepadThread("192.168.0.19", 20002);
+            cout << "making gamepad thread" << endl;
+            gamepadThread = thread(RunGamepadThread,"192.168.0.19", 20002);
+            cout << "entering video decoder" << endl;
             //start stream
             stream.StreamVideoViaDecoder(screen, streamOn);
              //If PC killed the connection, then we need to make sure we know too
@@ -261,7 +211,6 @@ int main(int argc, char **argv)
     }
 
     cout << "exiting application..." << endl;
-    screen.CleanupFont();
 
     if(!initOK)
         consoleExit(NULL);
@@ -291,6 +240,6 @@ int main(int argc, char **argv)
     FreeFont(systemFont);
 
     cout << "End of main reached" << endl;
-    destroyNetwork();
+    socketExit();
     return 0;
 }

@@ -221,9 +221,4 @@ void RunGamepadThread(std::string ip, uint16_t port)
     close(padSocket);
 }
 
-thread StartGamepadThread(std::string ip, uint16_t port)
-{
-    return thread(RunGamepadThread, ip, port);
-}
-
 #endif

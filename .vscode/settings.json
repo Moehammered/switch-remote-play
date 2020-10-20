@@ -54,6 +54,7 @@
         "ctime": "cpp",
         "ratio": "cpp",
         "mutex": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "stop_token": "cpp"
     }
 }

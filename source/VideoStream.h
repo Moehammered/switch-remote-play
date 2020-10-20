@@ -8,36 +8,26 @@ extern "C"
     #include <libavutil/frame.h>
 }
 #include <string>
-#include "ScreenRenderer.h"
-#include <thread>
 #include <atomic>
-#include "NetworkData.h"
+#include "ScreenRenderer.h"
 
 class VideoStream
 {
     public:
-        //~VideoStream();
-
-        void Initialise();
-
         bool WaitForStream(std::string url);
 
         //need to update this to work interatively instead of blocking
         void StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bool& streamOn);
 
-        void StreamVideo(ScreenRenderer& renderer);
-
-        void StreamVideoQueue(ScreenRenderer& renderer);
-
         void Cleanup();
+
     private:
+        const AVMediaType streamMediaType = AVMEDIA_TYPE_VIDEO;
         AVFormatContext* streamFormat;
-        //AVPacket streamPacket;
         AVStream* stream;
         int streamIndex;
         AVCodec* decoder;
         AVCodecContext* decoderContext;
-        AVMediaType streamMediaType;
         AVFrame* frame;
 
         uint8_t* videoData[4];
