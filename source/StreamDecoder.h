@@ -1,5 +1,5 @@
-#ifndef __DECODER_H__
-#define __DECODER_H__
+#ifndef __STREAMDECODER_H__
+#define __STREAMDECODER_H__
 
 extern "C"
 {
@@ -8,11 +8,13 @@ extern "C"
     #include <libavutil/frame.h>
 }
 
-class Decoder
+class StreamDecoder
 {
     public:
-        Decoder();
-        bool Initialise(AVCodecParameters const * const codecConfig, bool useFrameSkip);
+        StreamDecoder(AVCodecParameters const * const codecConfig, bool skipFrames);
+
+        bool Initialised();
+
         bool DecodeFramePacket(const AVPacket& packet);
 
         void Cleanup();

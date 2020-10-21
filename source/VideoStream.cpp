@@ -8,17 +8,16 @@ extern "C"
 
 //#include <switch.h>
 #include <iostream>
-#include "Decoder.h"
+#include "StreamDecoder.h"
+
+VideoStream::VideoStream()
+    : streamFormat{nullptr}, stream{nullptr}, decoder{nullptr},
+    decoderContext{nullptr}, frame{nullptr}
+{   
+}
 
 bool VideoStream::WaitForStream(std::string url)
 {
-    //default compiler generated constructor doesn't initialise these to null by default
-    streamFormat = nullptr;
-    decoder = nullptr;
-    stream = nullptr;
-    decoderContext = nullptr;
-    frame = nullptr;
-
     int ret = 0;
 
     // setting TCP input options
@@ -115,13 +114,27 @@ bool VideoStream::WaitForStream(std::string url)
     return true;
 }
 
+bool VideoStream::Read(AVPacket& output)
+{
+    av_init_packet(&output);
+    output.data = NULL;
+    output.size = 0;
+
+    return av_read_frame(streamFormat, &output) >= 0;
+}
+
+AVStream const * const VideoStream::StreamInfo()
+{
+    return stream;
+}
+
 /**
  * Read https://ffmpeg.org/doxygen/3.3/group__lavc__encdec.html for info on the decoding / encoding process for packets
  */
 void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bool& streamOn)
 {
-    Decoder decoder;
-    if(!decoder.Initialise(stream->codecpar, false))
+    StreamDecoder decoder{stream->codecpar, false};
+    if(!decoder.Initialised())
     {
         std::cout << "Error occurred initialising the decoder." << std::endl;
         return;
@@ -131,14 +144,6 @@ void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bo
     av_init_packet(&dataPacket);
     dataPacket.data = NULL;
     dataPacket.size = 0;
-
-    // values to capture frame rate / time passage of renderer
-    // int deltaFrameSample = 300;
-    // const double NANO_TO_SECONDS = 1000000000.0;
-    // uint64_t currTime, prevTime, deltaTime;
-    // currTime = armTicksToNs(armGetSystemTick());
-    // prevTime = currTime;
-    // deltaTime = 0;
 
     std::cout << "starting stream read of packets...\n" << std::endl;
     //read frames from the stream we've connected to and setup
@@ -171,35 +176,35 @@ void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bo
             dataPacket.data += decodedFrame.pkt_size; //think this is unnecessary
             dataPacket.size -= decodedFrame.pkt_size; //think this is unnecessary
         }
-        // currTime = armTicksToNs(armGetSystemTick());
-        // deltaTime += (currTime - prevTime);
-        // prevTime = currTime;
-
-        // if(--deltaFrameSample == -1)
-        // {
-        //     deltaFrameSample = 300;
-        //     auto frameRate = deltaFrameSample / (deltaTime / NANO_TO_SECONDS);
-        //     //std::cout << "FPS: " << frameRate << ", DeltaTimePassed: " << deltaTime/NANO_TO_SECONDS << std::endl;
-
-        //     deltaTime = 0;
-        // }
-        // std::cout << "cleaning up used packet" << std::endl;
+        
         av_packet_unref(&dataPacket);
 
         if(!streamOn.load(std::memory_order_acquire))
             break;
     }
-    //try and close the stream
+    
     avformat_close_input(&streamFormat);
     streamFormat = nullptr;
     decoder.Flush();
     decoder.Cleanup();
 }
 
+void VideoStream::CloseStream()
+{
+    if(streamFormat != nullptr)
+    {
+        avformat_close_input(&streamFormat);
+        streamFormat = nullptr;
+    }
+}
+
 void VideoStream::Cleanup()
 {
     if(streamFormat != nullptr)
+    {
         avformat_close_input(&streamFormat);
+        streamFormat = nullptr;
+    }
     if(decoderContext != nullptr)
     {
         avcodec_close(decoderContext);

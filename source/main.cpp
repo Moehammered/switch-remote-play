@@ -13,6 +13,7 @@
 #include "ScreenRenderer.h"
 #include "VideoStream.h"
 #include "InputThread.h"
+#include "StreamDecoder.h"
 #include "Text.h"
 #include "FFMPEGConfigUI.h"
 #include "SystemSetup.h"
@@ -143,6 +144,54 @@ int main(int argc, char **argv)
     //30fps refresh rate
     auto const mainSleepDur = chrono::duration<int, milli>(33);
     //PrintOutAtomicLockInfo();
+#define USE_NON_BLOCK_STREAM
+#ifdef USE_NON_BLOCK_STREAM
+    StreamDecoder* streamDecoder = nullptr;
+    AVPacket streamPacket;
+    auto rendererScreenTexture = screen.GetScreenTexture();
+    auto renderRegion = screen.Region();
+    auto processStream = [&]{
+        if(stream.Read(streamPacket) && streamOn.load(memory_order_acquire))
+        {
+            if(streamDecoder->DecodeFramePacket(streamPacket))
+            {
+                // render frame data - expecting YUV420 format
+                // (stride values represent space between horizontal lines across screen)
+                auto decodedFrame = streamDecoder->DecodedFrame();
+
+                auto yPlane = decodedFrame.data[0];
+                auto yPlaneStride = decodedFrame.width;
+                auto uPlane = decodedFrame.data[1];
+                auto uPlaneStride = decodedFrame.width/2;
+                auto vPlane = decodedFrame.data[2];
+                auto vPlaneStride = decodedFrame.width/2;
+
+                // std::cout << "Updating SDL texture" << std::endl;
+                SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
+                                    yPlane, yPlaneStride,
+                                    uPlane, uPlaneStride, 
+                                    vPlane, vPlaneStride);
+
+                screen.RenderScreenTexture();
+                
+                streamPacket.data += decodedFrame.pkt_size; //think this is unnecessary
+                streamPacket.size -= decodedFrame.pkt_size; //think this is unnecessary
+            }
+
+            av_packet_unref(&streamPacket);
+        }
+        else
+        {
+            stream.CloseStream();
+            streamDecoder->Cleanup();
+            stream.Cleanup();
+            streamOn = false;
+
+            if(gamepadThread.joinable())
+                gamepadThread.join();
+        }
+    };
+#endif
 
     while(appletMainLoop())
     {
@@ -166,11 +215,27 @@ int main(int argc, char **argv)
 
             RunStartStreamCommand("192.168.0.19", 20001, mode);
             streamOn = stream.WaitForStream(streamURL);
-            
+            streamRequested = false;
             cout << "stream connection found? " << streamOn << endl;
+
+#ifdef USE_NON_BLOCK_STREAM
+            cout << "Using Non-blocking call technique for VideoStream" << endl;
+            // non-blocking test init code here
+            if(streamOn)
+            {
+                auto streamInfo = stream.StreamInfo();
+                streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
+                cout << "making gamepad thread" << endl;
+                gamepadThread = thread(RunGamepadThread,"192.168.0.19", 20002);
+            }
+            // non-blocking test init code end
+#endif
         }
         if(streamOn)
         {
+#ifdef USE_NON_BLOCK_STREAM
+            processStream();
+#else
             cout << "making gamepad thread" << endl;
             gamepadThread = thread(RunGamepadThread,"192.168.0.19", 20002);
             cout << "entering video decoder" << endl;
@@ -187,6 +252,7 @@ int main(int argc, char **argv)
 
             if(gamepadThread.joinable())
                 gamepadThread.join();
+#endif
         }
         else
         { //no stream, so let's display some helpful info
@@ -205,9 +271,9 @@ int main(int argc, char **argv)
 
             if(quitApp)
                 break;
+            // no point thrashing the screen to refresh text
+            this_thread::sleep_for(mainSleepDur);
         }
-        // no point thrashing the screen to refresh text
-        this_thread::sleep_for(mainSleepDur);
     }
 
     cout << "exiting application..." << endl;

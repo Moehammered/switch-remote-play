@@ -1,4 +1,4 @@
-#include "Decoder.h"
+#include "StreamDecoder.h"
 #include <switch.h>
 #include <iostream>
 
@@ -49,78 +49,60 @@ void printAVDiscardMode(AVDiscard mode)
     }
 }
 
-Decoder::Decoder()
+StreamDecoder::StreamDecoder(AVCodecParameters const * const codecConfig, bool skipFrames)
+    : codec{nullptr}, context{nullptr}, currentFrame{nullptr}, 
+    frameSkipCount{0}, skipFrames{skipFrames}
 {
-    codec = nullptr;
-    context = nullptr;
-    currentFrame = nullptr;
-}
-
-bool Decoder::Initialise(AVCodecParameters const * const codecConfig, bool useFrameSkip)
-{
-    skipFrames = useFrameSkip;
     std::cout << "Using frame skip? " << (skipFrames ? "yes" : "no") << std::endl;
 
     if(codecConfig == nullptr)
-    {
         std::cout << "Codec parameters are not initialised" << std::endl;
-        return false;
+    else
+    {
+        codec = avcodec_find_decoder(codecConfig->codec_id);
+            
+        if(codec == nullptr)
+            std::cout << "Error looking for decoder codec with ID " << codecConfig->codec_id << std::endl;
+        else
+        {
+            if(context != nullptr)
+                avcodec_free_context(&context);
+
+            context = avcodec_alloc_context3(codec);
+            
+            if(context == nullptr)
+                std::cout << "Error allocating context for decoder" << std::endl;
+            else
+            {
+                auto result = avcodec_parameters_to_context(context, codecConfig);
+                if(result < 0)
+                {
+                    std::cout << "Error occurred copying codec info to decoder context" << std::endl;
+                    printAVError(result);
+                }
+                else
+                {
+                    result = avcodec_open2(context, codec, nullptr);
+                    if(result < 0)
+                    {
+                        std::cout << "Error occurred initialising decoder context to use the current codec (ID: " << codecConfig->codec_id << ")" << std::endl;
+                        printAVError(result);
+                    }
+                    else
+                        currentFrame = av_frame_alloc();
+                }
+            }
+        }
     }
     
-    codec = avcodec_find_decoder(codecConfig->codec_id);
-
-    if(codec == nullptr)
-    {
-        std::cout << "Error looking for decoder codec with ID " << codecConfig->codec_id << std::endl;
-        return false;
-    }
-
-    if(context != nullptr)
-        avcodec_free_context(&context);
-
-    context = avcodec_alloc_context3(codec);
-    
-    if(context == nullptr)
-    {
-        std::cout << "Error allocating context for decoder" << std::endl;
-        return false;
-    }
-
-    auto result = avcodec_parameters_to_context(context, codecConfig);
-    if(result < 0)
-    {
-        std::cout << "Error occurred copying codec info to decoder context" << std::endl;
-        printAVError(result);
-        return false;
-    }
-
-    result = avcodec_open2(context, codec, nullptr);
-    if(result < 0)
-    {
-        std::cout << "Error occurred initialising decoder context to use the current codec (ID: " << codecConfig->codec_id << ")" << std::endl;
-        printAVError(result);
-        return false;
-    }
-
-    // don't think this is necessary as the videoData and linesizes aren't referenced
-    // result = av_image_alloc(videoData, videoLinesizes, context->width, context->height, context->pix_fmt, 1);
-    // if(result < 0)
-    // {
-    //     std::cout << "Failed to allocate image data: " << errbuf << std::endl;
-    //     printAVError(result);
-    //     return false;
-    // }
-
-    currentFrame = av_frame_alloc();
-
     lastPacketTime = armTicksToNs(armGetSystemTick());
+    // std::cout << "default decoder context skip frame mode: ";
+    // printAVDiscardMode(context->skip_frame);
+}
 
-    frameSkipCount = 0;
-
-    std::cout << "default decoder context skip frame mode: ";
-    printAVDiscardMode(context->skip_frame);
-
-    return true;
+bool StreamDecoder::Initialised()
+{
+    return context != nullptr;
 }
 
 /**
@@ -138,7 +120,7 @@ bool Decoder::Initialise(AVCodecParameters const * const codecConfig, bool useFr
  * A better implementation of frame skip would either use the built in skip, or use the 
  * time stamps of the packets and keep track of the time and see if the decoder falls behind realtime by a certain margin.
  */ 
-bool Decoder::DecodeFramePacket(const AVPacket& packet)
+bool StreamDecoder::DecodeFramePacket(const AVPacket& packet)
 {
     /** frame skipping implementation 1: dump/ignore packets
      * Pros:
@@ -212,7 +194,7 @@ bool Decoder::DecodeFramePacket(const AVPacket& packet)
     return true;
 }
 
-const AVFrame& Decoder::DecodedFrame()
+const AVFrame& StreamDecoder::DecodedFrame()
 {
     return *currentFrame;
 }
@@ -220,7 +202,7 @@ const AVFrame& Decoder::DecodedFrame()
 /**
  * let the decoder flush any remaining packets. Will block until all pending frames are flushed out.
  */
-void Decoder::Flush()
+void StreamDecoder::Flush()
 {
     //send a null packet to instruct the decoder context to start flushing
     avcodec_send_packet(context, nullptr);
@@ -232,7 +214,7 @@ void Decoder::Flush()
     } while (result != AVERROR_EOF);
 }
 
-void Decoder::Cleanup()
+void StreamDecoder::Cleanup()
 {
     if(context != nullptr)
     {
