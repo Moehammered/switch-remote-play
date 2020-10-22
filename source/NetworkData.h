@@ -23,6 +23,8 @@ struct alignas(16) FFMPEG_Config
     int8_t      padding[3];
 };
 
+constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
+
 enum Command : int16_t
 {
     SHUTDOWN = 0xEEE,
@@ -37,20 +39,20 @@ enum Command : int16_t
     IGNORE_COMMAND = 0xFFF
 };
 
+constexpr int COMMAND_CODE_SIZE = sizeof(Command);
+
 struct alignas(32) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member
     FFMPEG_Config   configData;
     Command         commandCode;
     //fill the struct to pad it out to 32 bytes
-    int8_t          padding[32-sizeof(FFMPEG_Config)-sizeof(Command)];
+    int8_t          padding[32 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE];
 
     // int16_t dataBufferSize;
     // char dataBuffer[255];
 };
 
-const int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);
-const int COMMAND_CODE_SIZE = sizeof(Command);
-const int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
+constexpr int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);
 
 #endif

@@ -176,6 +176,23 @@ void FFMPEGConfigUI::Render(SDL_Renderer* renderer, FC_Font* font)
     }
 }
 
+FFMPEG_Config const FFMPEGConfigUI::Settings()
+{
+    auto framerate = framerates[settingsIndices[framerateIndex]];
+    auto vsMode = vsyncModes[settingsIndices[vsyncIndex]];
+    auto bitrate = bitratesKB[settingsIndices[bitrateIndex]];
+    auto videoRes = videoCaptureResolutions[settingsIndices[videoResIndex]];
+    auto scaleRes = videoScaleResolutions[settingsIndices[videoScaleIndex]];
+
+    return FFMPEG_Config{
+        .desiredFrameRate = framerate,
+        .videoX = videoRes.width, .videoY = videoRes.height,
+        .scaleX = scaleRes.width, .scaleY = scaleRes.height,
+        .bitrateKB = bitrate,
+        .vsyncMode = vsMode,
+    };
+}
+
 void FFMPEGConfigUI::UpdateFramerate()
 {
     const auto frInd = settingsIndices[framerateIndex];

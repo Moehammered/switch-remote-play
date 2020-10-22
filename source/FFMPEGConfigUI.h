@@ -4,6 +4,7 @@
 #include <array>
 #include <SDL2/SDL_render.h>
 #include "Text.h"
+#include "NetworkData.h"
 
 struct Resolution
 {
@@ -25,6 +26,7 @@ class FFMPEGConfigUI
         void SelectNext();
         void SelectPrevious();
         void Render(SDL_Renderer* renderer, FC_Font* font);
+        FFMPEG_Config const Settings();
     
         SDL_Color highlight;
         SDL_Color textColour;

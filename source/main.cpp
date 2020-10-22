@@ -18,53 +18,22 @@
 #include "FFMPEGConfigUI.h"
 #include "SystemSetup.h"
 
-using namespace std;
+#define USE_NON_BLOCK_STREAM
+std::atomic_bool streamOn, streamRequested, quitApp;
 
-atomic_bool streamOn, streamRequested, quitApp;
-atomic_int32_t streamProfile;
-
-int loopCount = 0; //just to have a visual on the screen to make sure the thread is alive
-
-const std::string defaultStreamSettings[] = {
-    "Low Latency, 30fps, 5000 kb/s",
-    "OK Latency, 60fps, 5000 kb/s",
-    "Low Latency, variable fps, 5000 kb/s"
-};
-const int techniqueCount = sizeof(defaultStreamSettings)/sizeof(defaultStreamSettings[0]);
-
-string StreamTechniqueToStr(STREAM_MODE mode)
-{
-    stringstream displayStream;
-    if(mode < techniqueCount && mode >= 0)
-        displayStream << "Stream Profile: " << defaultStreamSettings[mode] << endl;
-    else
-        displayStream << "Stream Profile: Unknown - " << mode << endl;
-        
-    return displayStream.str();
-}
-
-string LoopCountToStr()
-{
-    stringstream stream;
-    stream << "Loop count: " << loopCount << endl;
-    return stream.str();
-}
 
 int main(int argc, char **argv)
 {
-    const string streamURL = "tcp://0.0.0.0:2222";
+    const std::string streamURL = "tcp://0.0.0.0:2222";
 
-    initialiseSwitch();
-    cout << "Console output will now be redirected to the server (nxlink.exe)" << endl;    
-    cout << "basic switch services initialised" << endl;
+    initialiseSwitch(); 
+    std::cout << "basic switch services initialised" << std::endl;
 
     streamRequested = false;
     quitApp = false;
     streamOn = false;
-    streamProfile = STREAM_MODE::LOW_LATENCY_30_FPS;
     
     ScreenRenderer screen;
-    constexpr SDL_Color bgCol = {20, 20, 20, 255};
     
     Text heading = {
         .x = 400, .y = 20, .colour = { 100, 200, 100, 255 },
@@ -74,32 +43,28 @@ int main(int argc, char **argv)
         .x = 100, .y = 60, .colour = { 100, 200, 100, 255 }, 
         .value = "" 
     };
-    Text streamProfileText = { 
-        .x = 100, .y = 280, .colour = { 100, 200, 100, 255 }, 
-        .value = "" 
-    };
     Text streamPendingText = {
         .x = 100, .y = 600, .colour = { 200, 100, 100, 255 },
         .value = "Stream Pending Connection..." 
     };
 
-    cout << "creating SDL window" << endl;
+    std::cout << "creating SDL window" << std::endl;
     bool initOK = screen.Initialise(1280, 720, false);
-    VideoStream stream;
-    string controlsMessage = "/!\\ Initialisation Failed! /!\\";
+
+    std::string controlsMessage = "/!\\ Initialisation Failed! /!\\";
     if(initOK)
     {
-        cout << "Initialising video stream config" << endl;
+        std::cout << "Initialising video stream config" << std::endl;
 
-        stringstream defaultMessageStream;
-        defaultMessageStream << "Ready to accept a video stream connection."<< endl;
-        defaultMessageStream << "Press d-pad up or down to cycle stream settings." << endl;
-        defaultMessageStream << endl;
-        defaultMessageStream << "Press 'R' to start stream connection" << endl;
-        defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << endl;
+        std::stringstream defaultMessageStream;
+        defaultMessageStream << "Ready to accept a video stream connection."<< std::endl;
+        defaultMessageStream << "Press d-pad up or down to cycle stream settings." << std::endl;
+        defaultMessageStream << std::endl;
+        defaultMessageStream << "Press 'R' to start stream connection" << std::endl;
+        defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << std::endl;
 
         controlsMessage = defaultMessageStream.str();
-        cout << controlsMessage << endl;
+        std::cout << controlsMessage << std::endl;
 
         controlsText.value = controlsMessage;
     }
@@ -107,19 +72,19 @@ int main(int argc, char **argv)
     {
         //send a copy to the nxlink server
         auto errorMessage = "Failed to initialise screen renderer...";
-        cout << errorMessage << endl;
+        std::cout << errorMessage << std::endl;
         
         plExit();
         //doesn't display for now on the switch screen from nxlink redirecting stdio
         consoleInit(NULL);
-        cout << errorMessage << endl;
+        std::cout << errorMessage << std::endl;
         
         consoleUpdate(NULL);
         int countdown = 3;
         while(countdown > 0)
         {
             --countdown;
-            this_thread::sleep_for(chrono::duration<int, milli>(1000));
+            std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
             //cout << "closing application in " << countdown << endl;
             consoleUpdate(NULL);
         }
@@ -129,29 +94,23 @@ int main(int argc, char **argv)
         socketExit();
         return -1;
     }
-    constexpr SDL_Color black = {0,0,0, 255};
-    auto systemFont = LoadSystemFont(screen.Renderer(), 32, black);
 
     auto configRenderer = FFMPEGConfigUI();
 
-    thread inputThread = thread([&configRenderer]{
-        RunInactiveStreamInput(streamRequested, streamOn
-        , quitApp, streamProfile, configRenderer);
+    std::thread inputThread = std::thread([&configRenderer]{
+        RunInactiveStreamInput(streamRequested, streamOn, quitApp, configRenderer);
     });
-    //inputThread.detach(); //detach doesn't work and causes crashes
-    thread gamepadThread;
+    
+    std::thread gamepadThread;
+    VideoStream stream;
 
-    //30fps refresh rate
-    auto const mainSleepDur = chrono::duration<int, milli>(33);
-    //PrintOutAtomicLockInfo();
-#define USE_NON_BLOCK_STREAM
 #ifdef USE_NON_BLOCK_STREAM
     StreamDecoder* streamDecoder = nullptr;
     AVPacket streamPacket;
     auto rendererScreenTexture = screen.GetScreenTexture();
     auto renderRegion = screen.Region();
     auto processStream = [&]{
-        if(stream.Read(streamPacket) && streamOn.load(memory_order_acquire))
+        if(stream.Read(streamPacket) && streamOn.load(std::memory_order_acquire))
         {
             if(streamDecoder->DecodeFramePacket(streamPacket))
             {
@@ -186,6 +145,8 @@ int main(int argc, char **argv)
             streamDecoder->Cleanup();
             stream.Cleanup();
             streamOn = false;
+            delete streamDecoder;
+            streamDecoder = nullptr;
 
             if(gamepadThread.joinable())
                 gamepadThread.join();
@@ -193,10 +154,15 @@ int main(int argc, char **argv)
     };
 #endif
 
+
+    constexpr SDL_Color bgCol = {20, 20, 20, 255};
+    constexpr SDL_Color black = {0,0,0, 255};
+    auto systemFont = LoadSystemFont(screen.Renderer(), 32, black);
+    
+    //30fps refresh rate
+    auto const mainSleepDur = std::chrono::duration<int, std::milli>(33);
     while(appletMainLoop())
     {
-        loopCount++;
-
         if(streamRequested.load(std::memory_order_acquire))
         {
             //display on the screen a connection is pending
@@ -205,28 +171,27 @@ int main(int argc, char **argv)
 
             heading.Render(screen.Renderer(), systemFont);
             
-            auto mode = (STREAM_MODE)streamProfile.load(std::memory_order_acquire);
-
-            streamProfileText.value = StreamTechniqueToStr(mode);
-            streamProfileText.Render(screen.Renderer(), systemFont);
             streamPendingText.Render(screen.Renderer(), systemFont);
             
             screen.PresentScreen();
 
-            RunStartStreamCommand("192.168.0.19", 20001, mode);
+            RunStartConfiguredStreamCommand("192.168.0.19", 20001, configRenderer.Settings());
             streamOn = stream.WaitForStream(streamURL);
             streamRequested = false;
-            cout << "stream connection found? " << streamOn << endl;
+            std::cout << "stream connection found? " << streamOn << std::endl;
 
 #ifdef USE_NON_BLOCK_STREAM
-            cout << "Using Non-blocking call technique for VideoStream" << endl;
+            std::cout << "Using Non-blocking call technique for VideoStream" << std::endl;
             // non-blocking test init code here
             if(streamOn)
             {
                 auto streamInfo = stream.StreamInfo();
+                if(streamDecoder != nullptr)
+                    delete streamDecoder;
+
                 streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                cout << "making gamepad thread" << endl;
-                gamepadThread = thread(RunGamepadThread,"192.168.0.19", 20002);
+                std::cout << "making gamepad thread" << std::endl;
+                gamepadThread = std::thread(RunGamepadThread,"192.168.0.19", 20002);
             }
             // non-blocking test init code end
 #endif
@@ -236,19 +201,19 @@ int main(int argc, char **argv)
 #ifdef USE_NON_BLOCK_STREAM
             processStream();
 #else
-            cout << "making gamepad thread" << endl;
+            std::cout << "making gamepad thread" << std::endl;
             gamepadThread = thread(RunGamepadThread,"192.168.0.19", 20002);
-            cout << "entering video decoder" << endl;
+            std::cout << "entering video decoder" << std::endl;
             //start stream
             stream.StreamVideoViaDecoder(screen, streamOn);
              //If PC killed the connection, then we need to make sure we know too
             streamOn = false;
             streamRequested = false;
 
-            cout << "Stream ended" << endl;
+            std::cout << "Stream ended" << std::endl;
 
             stream.Cleanup();
-            cout << "Stream cleaned up" << endl;
+            std::cout << "Stream cleaned up" << std::endl;
 
             if(gamepadThread.joinable())
                 gamepadThread.join();
@@ -263,20 +228,16 @@ int main(int argc, char **argv)
 
             controlsText.Render(screen.Renderer(), systemFont);
 
-            auto mode = (STREAM_MODE)streamProfile.load(std::memory_order_acquire);
-            streamProfileText.value = StreamTechniqueToStr(mode);
-            streamProfileText.Render(screen.Renderer(), systemFont);
-
             screen.PresentScreen();
 
             if(quitApp)
                 break;
             // no point thrashing the screen to refresh text
-            this_thread::sleep_for(mainSleepDur);
+            std::this_thread::sleep_for(mainSleepDur);
         }
     }
 
-    cout << "exiting application..." << endl;
+    std::cout << "exiting application..." << std::endl;
 
     if(!initOK)
         consoleExit(NULL);
@@ -286,11 +247,20 @@ int main(int argc, char **argv)
     //wait here if the stream is still on so we can clean it up properly
     if(streamOn)
     {
-        cout << "waiting for stream to stop..." << endl;
+        std::cout << "waiting for stream to stop..." << std::endl;
         while(streamOn)
-            this_thread::sleep_for(mainSleepDur);
-        cout << "cleaning up stream" << endl;
+            std::this_thread::sleep_for(mainSleepDur);
+        std::cout << "cleaning up stream" << std::endl;
         stream.Cleanup();
+
+        #ifdef USE_NON_BLOCK_STREAM
+        if(streamDecoder != nullptr)
+        {
+            streamDecoder->Cleanup();
+            delete streamDecoder;
+            streamDecoder = nullptr;
+        }
+        #endif
     }
     
     if(inputThread.joinable())
@@ -305,7 +275,7 @@ int main(int argc, char **argv)
     plExit();
     FreeFont(systemFont);
 
-    cout << "End of main reached" << endl;
+    std::cout << "End of main reached" << std::endl;
     socketExit();
     return 0;
 }

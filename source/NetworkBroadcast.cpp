@@ -9,8 +9,6 @@
 #include <string.h>
 #include <iostream>
 
-using namespace std;
-
 bool NetworkBroadcast::FindConnectionIP(std::string key, std::string& ip)
 {
     ip = "";
@@ -19,44 +17,44 @@ bool NetworkBroadcast::FindConnectionIP(std::string key, std::string& ip)
     auto bsocket = CreateBroadcastSocket();
     if(bsocket < 0)
     {
-        cout << "Error creating socket" << endl;
+        std::cout << "Error creating socket" << std::endl;
         return false;
     }
-    cout << "Broadcast socket ready" << endl;
+    std::cout << "Broadcast socket ready" << std::endl;
 
-    string localIP;
+    std::string localIP;
     auto lsocket = CreateListenerSocket(localIP);
     if(lsocket < 0)
     {
-        cout << "Error creating listener socket" << endl;
+        std::cout << "Error creating listener socket" << std::endl;
         close(bsocket);
         return false;
     }
 
-    cout << "Listener socket ready (Connect to " << localIP << ")" << endl;
+    std::cout << "Listener socket ready (Connect to " << localIP << ")" << std::endl;
 
-    cout << "Broadcasting '" << key << "' and listening for response" << endl;
+    std::cout << "Broadcasting '" << key << "' and listening for response" << std::endl;
     int attempts = 1;
     int count = 1;
     while(count <= attempts && !connectionFound)
     {
-        cout << "Attempt " << count << " Broadcasting... ";
+        std::cout << "Attempt " << count << " Broadcasting... ";
         auto result = Broadcast(bsocket, key);
         if(result < 0)
         {
-            cout << "Broadcast failed: " << strerror(errno) << endl;
+            std::cout << "Broadcast failed: " << strerror(errno) << std::endl;
         }
         else
         {
             result = Listen(lsocket, ip, key);
             if(result < 0)
             {
-                cout << "Listening failed. No response or error." << endl;
+                std::cout << "Listening failed. No response or error." << std::endl;
             }
             else
             {
                 connectionFound = true;
-                cout << "Connection response found from " << ip << endl;
+                std::cout << "Connection response found from " << ip << std::endl;
             }
             
         }
@@ -65,7 +63,7 @@ bool NetworkBroadcast::FindConnectionIP(std::string key, std::string& ip)
     }
 
     if(!connectionFound)
-        cout << "No response found on local network." << endl;
+        std::cout << "No response found on local network." << std::endl;
 
     close(bsocket);
     close(lsocket);
@@ -172,7 +170,7 @@ int NetworkBroadcast::Listen(int sock, std::string& ip, std::string key)
     auto csock = accept(sock, (sockaddr*)&senderInfo, &infoSize);
     if(csock < 0)
     {
-        cout << "Error accepting connection: " << strerror(errno) << endl;
+        std::cout << "Error accepting connection: " << strerror(errno) << std::endl;
         return csock;
     }
 
@@ -185,13 +183,13 @@ int NetworkBroadcast::Listen(int sock, std::string& ip, std::string key)
 
     if(result < 0)
     {
-        cout << "recvfrom failed: " << strerror(errno) << endl;
+        std::cout << "recvfrom failed: " << strerror(errno) << std::endl;
         close(csock);
         return result;
     }
 
     close(csock);
-    cout << "received: " << msgBuffer << " | key: " << key << endl;
+    std::cout << "received: " << msgBuffer << " | key: " << key << std::endl;
     if(msgBuffer == key)
     {
         ip = inet_ntoa(senderInfo.sin_addr);

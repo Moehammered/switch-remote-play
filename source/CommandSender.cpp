@@ -88,3 +88,23 @@ bool SendStreamConfig(const int connectionSock, FFMPEG_Config config)
 
     return true;
 }
+
+bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
+{
+    assert(COMMAND_CODE_SIZE == 2);
+    assert(FFMPEG_CONFIG_SIZE == 16);
+    assert(COMMAND_PAYLOAD_SIZE == 32);
+
+    char* dataPtr = (char*)&payload;
+
+    std::cout << "Sending command payload with configuration of size: " << COMMAND_PAYLOAD_SIZE << " bytes" << std::endl;
+
+    auto result = send(connectionSock, dataPtr, COMMAND_PAYLOAD_SIZE, 0);
+    if(result < 0)
+    {
+        std::cout << "Failed to send data code: " << strerror(errno) << std::endl;
+        return false;
+    }
+
+    return true;
+}

@@ -10,28 +10,26 @@
 #include <sys/socket.h>
 #include "FFMPEGConfigUI.h"
 
-using namespace std;
-
 void RunStopCommandThread(std::string ip, uint16_t port)
 {
     int commandSocket = -1;
     if(ConnectTo(ip, 20001, commandSocket))
     {
         if(SendCode(commandSocket, Command::CLOSE_SERVER))
-            cout << "Sent Close server command payload" << endl;
+            std::cout << "Sent Close server command payload" << std::endl;
         else
-            cout << "Error sending close server command payload" << endl;
+            std::cout << "Error sending close server command payload" << std::endl;
     }
     close(commandSocket);
 }
 
 void CommandStopThreadStart(std::string ip, uint16_t port)
 {
-    auto t = thread(RunStopCommandThread, ip, port);
+    auto t = std::thread(RunStopCommandThread, ip, port);
     t.join();
 }
 
-void RunStartStreamCommand(std::string ip, uint16_t port, STREAM_MODE setting)
+void RunStartPresetStreamCommand(std::string ip, uint16_t port, STREAM_MODE setting)
 {
     int commandSocket = -1;
     if(ConnectTo(ip, 20001, commandSocket))
@@ -54,19 +52,38 @@ void RunStartStreamCommand(std::string ip, uint16_t port, STREAM_MODE setting)
         }
 
         if(SendCode(commandSocket, streamCommand))
-            cout << "Sent start command payload" << endl;
+            std::cout << "Sent start preset command" << std::endl;
         else
-            cout << "Error sending start payload" << endl;
+            std::cout << "Error sending start preset command" << std::endl;
     }
     close(commandSocket);
-    cout << "Closed command socket" << endl;
+    std::cout << "Closed command socket" << std::endl;
+}
+
+void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config)
+{
+    int commandSocket = -1;
+    if(ConnectTo(ip, 20001, commandSocket))
+    {
+        auto streamCommand = Command::START_STREAM;
+        auto const payload = CommandPayload{
+            .configData = config,
+            .commandCode = streamCommand
+        };
+        
+        if(SendCommandPayload(commandSocket, payload))
+            std::cout << "Sent start command payload with configuration" << std::endl;
+        else
+            std::cout << "Error sending start payload with configuration" << std::endl;
+    }
+    close(commandSocket);
+    std::cout << "Closed command socket" << std::endl;
 }
 
 bool ProcessInactiveStreamInput(u32 kDown,
-                                atomic_bool& streamRequested,
-                                atomic_bool& streamOn, 
-                                atomic_bool& quitApp,
-                                atomic_int32_t& streamProfile,
+                                std::atomic_bool& streamRequested,
+                                std::atomic_bool& streamOn, 
+                                std::atomic_bool& quitApp,
                                 FFMPEGConfigUI& configRender)
 {
     if (kDown & KEY_PLUS) 
@@ -79,24 +96,10 @@ bool ProcessInactiveStreamInput(u32 kDown,
     }
     if(kDown & KEY_DUP)
     {
-        auto currentProfile = streamProfile.load(std::memory_order_acquire);
-        auto nextSetting = currentProfile - 1;
-        if(nextSetting < 0)
-            streamProfile.store(STREAM_MODE::STREAM_MODE_COUNT - 1, std::memory_order_release);
-        else
-            streamProfile.store(nextSetting, std::memory_order_release);
-
         configRender.SelectPrevious();
     }
     else if(kDown & KEY_DDOWN)
     {
-        auto currentProfile = streamProfile.load(std::memory_order_acquire);
-        auto nextSetting = currentProfile + 1;
-        if(nextSetting >= STREAM_MODE::STREAM_MODE_COUNT)
-            streamProfile.store(0, std::memory_order_release);
-        else
-            streamProfile.store(nextSetting, std::memory_order_release);
-
         configRender.SelectNext();
     }
     else if(kDown & KEY_R)
@@ -114,28 +117,26 @@ bool ProcessInactiveStreamInput(u32 kDown,
     return true;
 }
 
-void RunInactiveStreamInput(atomic_bool& streamRequested,
-                            atomic_bool& streamOn, 
-                            atomic_bool& quitApp,
-                            atomic_int32_t& streamProfile,
+void RunInactiveStreamInput(std::atomic_bool& streamRequested,
+                            std::atomic_bool& streamOn, 
+                            std::atomic_bool& quitApp,
                             FFMPEGConfigUI& configRender)
 {
-    auto const sleepDuration = chrono::duration<int, milli>(16); //poll input 60fps
+    auto const sleepDuration = std::chrono::duration<int, std::milli>(16); //poll input 60fps
     while(appletMainLoop())
     {
-        if(!streamOn)
+        if(!streamOn && !streamRequested)
         {
             hidScanInput();
 
             //different buttons pressed compared to previous time
             u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
             if(!ProcessInactiveStreamInput(kDown, streamRequested,
-                                            streamOn, quitApp, 
-                                            streamProfile, configRender))
+                                            streamOn, quitApp, configRender))
                 break;
         }
 
-        this_thread::sleep_for(sleepDuration);
+        std::this_thread::sleep_for(sleepDuration);
     }
 }
 
@@ -169,9 +170,11 @@ void RunGamepadThread(std::string ip, uint16_t port)
         auto delta = (now - last)/NANO_TO_SECONDS;
         auto quitHeldTime = 0.0;
 
+        auto const sleepDuration = std::chrono::duration<int, std::milli>(16);
+
         while(appletMainLoop())
         {
-            this_thread::sleep_for(chrono::duration<int, milli>(16)); // sleep a tiny bit between inputs
+            std::this_thread::sleep_for(sleepDuration); // sleep a tiny bit between inputs
             hidScanInput();
             now = armTicksToNs(armGetSystemTick());
             delta = (now - last)/NANO_TO_SECONDS;
@@ -208,7 +211,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
             auto result = send(padSocket, (char*)&inputData, dataSize, 0);
             if(result < 0)
             {
-                cout << "Error sending pad data" << endl;
+                std::cout << "Error sending pad data" << std::endl;
             }
 
             // reset the input data

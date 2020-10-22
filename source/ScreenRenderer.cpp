@@ -3,13 +3,11 @@
 #include <iostream>
 #include <switch.h>
 
-using namespace std;
-
 bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, bool vSync)
 {
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        cout << "Failed to initialise SDL. SDL ERROR: " << SDL_GetError() << endl;
+        std::cout << "Failed to initialise SDL. SDL ERROR: " << SDL_GetError() << std::endl;
         return false;
     }
 
@@ -18,8 +16,8 @@ bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, boo
     window = SDL_CreateWindow("switch-remote-play", 0, 0, (int)width, (int)height, SDL_WINDOW_FULLSCREEN);
     if (window == nullptr)
     {
-        cout << "Attempted to create a window of size " << (int)width << ", " << (int)height << endl;
-        cout << "Error when trying to create an SDL window. SDL ERROR: " << SDL_GetError() << endl;
+        std::cout << "Attempted to create a window of size " << (int)width << ", " << (int)height << std::endl;
+        std::cout << "Error when trying to create an SDL window. SDL ERROR: " << SDL_GetError() << std::endl;
         SDL_Quit();
         return false;
     }
@@ -31,7 +29,7 @@ bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, boo
     renderer = SDL_CreateRenderer(window, 0, renderFlags);
     if (renderer == nullptr)
     {
-        cout << "Error trying to create an SDL renderer. SDL ERROR: " << SDL_GetError() << endl;
+        std::cout << "Error trying to create an SDL renderer. SDL ERROR: " << SDL_GetError() << std::endl;
         SDL_Quit();
         return false;
     }
