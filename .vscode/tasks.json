@@ -25,17 +25,17 @@
 			"windows": {
 				"command": "C:/mingw-w64/switch/nxlink.exe"
 			},
-			//"command": "nxlink.exe -a 192.168.0.17 switch-remote-play.nro -s",
 			"args": [
 				"-s",
-				"${workspaceFolder}\\${workspaceFolderBasename}.nro",
+				"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro",
 				"-a",
 				"192.168.0.17"
 			],
 			"options": {
 				"cwd": "C:/mingw-w64/switch"
 			},
-			"group": "none"
+			"group": "none",
+			"problemMatcher": []
 		}
 	]
 }
