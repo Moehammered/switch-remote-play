@@ -1,0 +1,11 @@
+# included here to override global ignore rules
+
+# this gitignore is for the ExtraDependencies folder so they can be
+# included and referenced relative to the solution from the Visual Studio Solution
+
+# Custom exceptions to parent rules so ViGEmClient libraries can be tracked.
+![Dd]ebug/
+![Rr]elease/
+!x64/
+!x86/
+!*.lib
