@@ -6,10 +6,6 @@
 
 #include <Xinput.h>
 #include <ViGEm/Client.h>
-//#pragma comment(lib, "setupapi.lib")
-
-void initTest();
-
 #include "SwitchControlsDefinitions.h"
 #include <unordered_map>
 
