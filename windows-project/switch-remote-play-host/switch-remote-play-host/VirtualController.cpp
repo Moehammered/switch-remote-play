@@ -48,7 +48,7 @@ const std::unordered_map < DS4_DPAD_DIRECTIONS, std::string, std::hash<uint32_t>
 };
 
 
-DS4InputData ConvertToDS4(GamepadDataPayload data)
+DS4InputData ConvertToDS4(GamepadDataPayload const data)
 {
 	DS4InputData converted = {};
 
@@ -68,7 +68,7 @@ DS4InputData ConvertToDS4(GamepadDataPayload data)
 	return converted;
 }
 
-void PrintDS4Conversion(DS4InputData data)
+void PrintDS4Conversion(DS4InputData const data)
 {
 	auto dpadStream = std::stringstream();
 
@@ -96,7 +96,7 @@ void PrintDS4Conversion(DS4InputData data)
 	std::cout << dpadStream.str() << std::endl << btns.str() << std::endl << axis.str() << std::endl << std::endl;
 }
 
-DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload data)
+DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload const data)
 {
 	USHORT dpadInput = 0;
 	//handle dpad
@@ -132,7 +132,7 @@ DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload data)
 	return (DS4_DPAD_DIRECTIONS)dpadInput;
 }
 
-USHORT ConvertButtons(GamepadDataPayload data)
+USHORT ConvertButtons(GamepadDataPayload const data)
 {
 	USHORT btns = {};
 	//handle pressed buttons
@@ -145,7 +145,7 @@ USHORT ConvertButtons(GamepadDataPayload data)
 	return btns;
 }
 
-BYTE ConvertAnalog(int32_t switchAnalog)
+BYTE ConvertAnalog(int32_t const switchAnalog)
 {
 	//std::cout << "Raw switch analog: " << switchAnalog;
 	auto absolute = switchAnalog < 0 ? -switchAnalog : switchAnalog;

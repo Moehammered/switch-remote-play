@@ -18,12 +18,12 @@ struct DS4InputData
 	BYTE rx, ry;
 };
 
-DS4InputData ConvertToDS4(GamepadDataPayload data);
-void PrintDS4Conversion(DS4InputData data);
+DS4InputData ConvertToDS4(GamepadDataPayload const data);
+void PrintDS4Conversion(DS4InputData const data);
 
-DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload data);
-USHORT ConvertButtons(GamepadDataPayload data);
-BYTE ConvertAnalog(int32_t switchAnalog);
+DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload const data);
+USHORT ConvertButtons(GamepadDataPayload const data);
+BYTE ConvertAnalog(int32_t const switchAnalog);
 
 
 class VirtualController

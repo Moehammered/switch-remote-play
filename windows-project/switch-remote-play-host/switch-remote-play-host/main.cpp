@@ -11,12 +11,13 @@
 #include "VirtualController.h"
 #include "AtomicTest.h"
 #include "Connection.h"
-
-using namespace std;
+#include "FFMPEGHelper.h"
 
 //broadcast a message from this 'server' application to let clients know it's live and ready to get connections
 void BroadcastServer()
 {
+    using namespace std;
+
     sockaddr_in broadcastAddr;
     USHORT portNo = 20001;
     broadcastAddr.sin_port = htons(portNo);
@@ -50,6 +51,8 @@ void BroadcastServer()
 
 int main(int argc, char* argv[])
 {
+    using namespace std;
+
     cout << "FFMPEG stream starter" << endl;
 
     WSADATA wsaStateData;
@@ -57,19 +60,80 @@ int main(int argc, char* argv[])
 
     //BroadcastServer();
 
+    std::atomic<bool> killStream = false;
+    std::atomic<bool> gamepadActive = false;
+    auto lastCommand = Command::IGNORE_COMMAND;
+    auto lastPayload = CommandPayload{};
     auto listeningPort = 20001;
 
-    auto connection = Connection(listeningPort);
-    if (connection.Ready())
+    PROCESS_INFORMATION streamProcessInfo;
+    ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
+    thread gamepadThread;
+
+    do
     {
-        cout << "connection ready" << endl << endl;
-        if (connection.WaitForConnection())
+        killStream.store(false, memory_order_release);
+
+        auto connection = Connection(listeningPort);
+        if (connection.Ready())
         {
-            ReadCommandsFromSwitch(connection.ConnectedSocket());
-            cout << "Closing connection..." << endl;
+            cout << "connection ready" << endl << endl;
+            if (connection.WaitForConnection())
+            {
+                lastPayload = ReadPayloadFromSwitch(connection.ConnectedSocket());
+                lastCommand = lastPayload.commandCode;
+            }
             connection.Close();
         }
-    }
+
+        auto ffmpegStarted = false;
+        switch (lastCommand)
+        {
+            case Command::SHUTDOWN_PC:
+                cout << "Shutdown host PC (Not implemented)" << endl;
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+
+                break;
+
+            case Command::START_STREAM:
+                TerminateProcess(streamProcessInfo.hProcess, 1);
+
+                cout << "Start stream with last received config from switch..." << endl;
+                cout << "FFMPEG Configuration: " << endl << ConfigToString(lastPayload.configData) << endl;
+                streamProcessInfo = StartStream(lastPayload.configData, ffmpegStarted);
+                if(ffmpegStarted)
+                    gamepadThread = StartGamepadListener(killStream, gamepadActive);
+
+                break;
+        }
+
+        // wait here for the stream to change state
+        cout << "waiting for gamepad thread to shutdown..." << endl;
+        while (gamepadActive.load(memory_order_acquire))
+            this_thread::sleep_for(chrono::duration<int, milli>(500));
+
+        if (gamepadThread.joinable())
+            gamepadThread.join();
+
+        cout << "making sure to kill stream..." << endl;
+        killStream.store(true, memory_order_release);
+        cout << "terminating the FFMPEG process" << endl;
+        TerminateProcess(streamProcessInfo.hProcess, 1);
+
+    } while (lastCommand != Command::CLOSE_SERVER && lastCommand != Command::SHUTDOWN);
+
+    cout << "making sure to kill stream..." << endl;
+    killStream.store(true, memory_order_release);
+    cout << "terminating the FFMPEG process" << endl;
+    TerminateProcess(streamProcessInfo.hProcess, 1);
+
+    // wait here for the gamepad to close
+    cout << "waiting for gamepad thread to shutdown..." << endl;
+    while (gamepadActive.load(memory_order_acquire))
+        this_thread::sleep_for(chrono::duration<int, milli>(500));
+
+    if (gamepadThread.joinable())
+        gamepadThread.join();
 
     WSACleanup();
 
