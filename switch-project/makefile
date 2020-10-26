@@ -37,7 +37,8 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
+#TARGET		:=	$(notdir $(CURDIR))
+TARGET		:=	switch-remote-play
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data

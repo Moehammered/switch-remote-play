@@ -55,6 +55,7 @@
         "ratio": "cpp",
         "mutex": "cpp",
         "thread": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "iomanip": "cpp"
     }
 }

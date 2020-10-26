@@ -12,6 +12,7 @@
 #include "AtomicTest.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
+#include "Broadcast.h"
 
 //broadcast a message from this 'server' application to let clients know it's live and ready to get connections
 void BroadcastServer()
@@ -59,6 +60,88 @@ int main(int argc, char* argv[])
     WSAStartup(MAKEWORD(2, 2), &wsaStateData);
 
     //BroadcastServer();
+#ifdef USE_AUTO_CONNECT
+    std::string switchIP{};
+    std::atomic_bool ipFound{ false };
+    auto subnet = "192.168.0.255";
+    auto port = 20010;
+    auto broadcaster = Broadcast(subnet, port);
+
+    auto broadcastProcedure = [&] {
+        if (broadcaster.ReadyToSend())
+        {
+            auto const key = std::string{"switch-remote-play"};
+            auto const waitTime = chrono::duration<int, milli>(1000);
+            while (!ipFound)
+            {
+                if (!broadcaster.Send(key))
+                    cout << "Error broadcasting: " << WSAGetLastError() << endl;
+
+                this_thread::sleep_for(waitTime);
+            }
+
+            //broadcaster.Close();
+        }
+    };
+
+    auto receiverProcedure = [&] {
+        if (broadcaster.ReadyToRecv())
+        {
+            auto const replyKey = std::string{ "let-me-play" };
+            auto const waitTime = chrono::duration<int, milli>(400);
+            while (!ipFound)
+            {
+                auto receivedKey = std::string{};
+                if(!broadcaster.Recv(receivedKey))
+                    cout << "Error recv'ing: " << WSAGetLastError() << endl;
+                else if(receivedKey == replyKey)
+                {
+                    switchIP = broadcaster.ReceivedIP();
+                    ipFound = true;
+                }
+                else if (receivedKey != replyKey)
+                {
+                    cout << "key didn't match. received: " << receivedKey << endl;
+                }
+
+                this_thread::sleep_for(waitTime);
+            }
+            this_thread::sleep_for(waitTime * 2); // wait a bit to let the other thread die
+            //should replace this with a proper connection to handshake
+            if (ipFound && broadcaster.ReadyToSend())
+            {
+                auto const startKey = std::string{ "lets-go" };
+                auto const waitTime = std::chrono::duration<int, std::milli>(500);
+                int broadcastCount = 5;
+                do
+                {
+                    if (!broadcaster.Send(startKey))
+                        std::cout << "Handshake Error sending: " << WSAGetLastError() << std::endl;
+
+                    std::this_thread::sleep_for(waitTime);
+                } while (--broadcastCount >= 0);
+
+                std::cout << "we're ready to roll" << std::endl;
+            }
+            else
+                std::cout << "broadcaster not ready to send or ip is missing..." << std::endl;
+
+            //broadcaster.Close();
+        }
+    };
+
+    auto broadcastThread = thread(broadcastProcedure);
+    auto receiverThread = thread(receiverProcedure);
+
+    if (broadcastThread.joinable())
+        broadcastThread.join();
+    if (receiverThread.joinable())
+        receiverThread.join();
+    broadcaster.Close();
+    // put into broadcast mode here to get the IP of the switch
+#endif
+    // if beyond this point then we should have the switch IP and we've given
+    // the host IP to the switch.
 
     std::atomic<bool> killStream = false;
     std::atomic<bool> gamepadActive = false;

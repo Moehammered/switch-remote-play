@@ -12,7 +12,7 @@ class NetworkBroadcast
     private:
         bool connectionFound;
         std::string lastConnectionIP;
-        const int networkPort = 20001;
+        const int networkPort = 20010;
 
         int CreateBroadcastSocket();
         int CreateListenerSocket(std::string& localIP);

@@ -17,6 +17,7 @@
 #include "Text.h"
 #include "FFMPEGConfigUI.h"
 #include "SystemSetup.h"
+#include "Broadcast.h"
 
 #define USE_NON_BLOCK_STREAM
 std::atomic_bool streamOn, streamRequested, quitApp;
@@ -154,13 +155,106 @@ int main(int argc, char **argv)
     };
 #endif
 
-
     constexpr SDL_Color bgCol = {20, 20, 20, 255};
     constexpr SDL_Color black = {0,0,0, 255};
     auto systemFont = LoadSystemFont(screen.Renderer(), 32, black);
     
     //30fps refresh rate
     auto const mainSleepDur = std::chrono::duration<int, std::milli>(33);
+
+#ifdef USE_AUTO_CONNECT
+    std::string hostIP{};
+    std::atomic_bool ipFound{ false };
+    auto subnet = "192.168.0.255";
+    auto port = 20010;
+    auto broadcaster = Broadcast(subnet, port);
+
+    auto broadcastProcedure = [&] {
+        if (broadcaster.ReadyToSend())
+        {
+            auto const key = std::string{"let-me-play"};
+            auto const waitTime = std::chrono::duration<int, std::milli>(500);
+            while (!ipFound)
+            {
+                if (!broadcaster.Send(key))
+                    std::cout << "Error broadcasting: " << strerror(errno) << std::endl;
+
+                std::this_thread::sleep_for(waitTime);
+            }
+
+        std::this_thread::sleep_for(waitTime * 2);
+        //should replace this with a proper connection to handshake
+        if(ipFound && broadcaster.ReadyToRecv())
+        {
+            auto const startKey = std::string{"lets-go"};
+            auto const waitTime = std::chrono::duration<int, std::milli>(500);
+            auto lastReceived = std::string{};
+            do
+            {
+                if(!broadcaster.Recv(lastReceived))
+                    std::cout << "Handshake Error recv-ing: " << strerror(errno) << std::endl;
+                else if(lastReceived != startKey)
+                    std::cout << "Handshake didn't match" << std::endl;
+
+                std::this_thread::sleep_for(waitTime);
+
+            } while(lastReceived != startKey);
+
+            std::cout << "we're ready to roll" << std::endl;
+        }
+        else
+            std::cout << "broadcaster not ready to receive or ip is missing..." << std::endl;
+
+            // broadcaster.Close();
+        }
+        else
+            std::cout << "Error: broadcaster isn't ready to send" << std::endl;
+    };
+
+    auto receiverProcedure = [&] {
+        if (broadcaster.ReadyToRecv())
+        {
+            auto const replyKey = std::string{ "switch-remote-play" };
+            auto const waitTime = std::chrono::duration<int, std::milli>(400);
+            while (!ipFound)
+            {
+                auto receivedKey = std::string{};
+                if(!broadcaster.Recv(receivedKey))
+                    std::cout << "Error recv-ing: " << strerror(errno) << std::endl;
+                else if(receivedKey == replyKey)
+                {
+                    hostIP = broadcaster.ReceivedIP();
+                    ipFound = true;
+                }
+                else if (receivedKey != replyKey)
+                {
+                    std::cout << "key didn't match. received: " << receivedKey << std::endl;
+                }
+
+                std::this_thread::sleep_for(waitTime);
+            }
+        }
+        else
+            std::cout << "Error: broadcaster isn't ready to recv" << std::endl;
+
+        // broadcaster.Close();
+    };
+
+    auto broadcastThread = std::thread(broadcastProcedure);
+    auto receiverThread = std::thread(receiverProcedure);
+
+    std::cout << "Joining: broadcaster" << std::endl;
+    if (broadcastThread.joinable())
+        broadcastThread.join();
+    std::cout << "Joining: receiver" << std::endl;
+    if (receiverThread.joinable())
+        receiverThread.join();
+    broadcaster.Close();
+
+    if(ipFound)
+        std::cout << "Found connection: " << hostIP << std::endl;;
+#endif
+
     while(appletMainLoop())
     {
         if(streamRequested.load(std::memory_order_acquire))

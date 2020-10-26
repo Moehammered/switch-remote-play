@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AtomicTest.cpp" />
+    <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
     <ClCompile Include="main.cpp" />
@@ -165,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtomicTest.h" />
+    <ClInclude Include="Broadcast.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="FFMPEGHelper.h" />
     <ClInclude Include="NetworkData.h" />
