@@ -25,6 +25,8 @@ public:
 
 	bool Close();
 
+	bool Shutdown();
+	
 private:
 	int broadcastSocket;
 	int receiverSocket;

@@ -22,7 +22,8 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 - [x] Desktop application to host remote connection stream
 - [x] Stream input from the switch to remote connection
 - [ ] Stream audio from remote connection to the switch
-- [ ] ~~Automatically connect switch and PC stream applications~~ (Need to first make manual connection configurable)
+- [x] Automatically connect switch and PC stream applications
+- [ ] Allow manual configuration of switch to PC connection
 - [x] Configure stream settings from switch
 - [x] Disconnect / Reconnect stream at will
 

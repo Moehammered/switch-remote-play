@@ -23,6 +23,8 @@ public:
 
 	bool Close();
 
+	bool Shutdown();
+
 private:
 	SOCKET broadcastSocket;
 	SOCKET receiverSocket;

@@ -84,7 +84,8 @@ bool Broadcast::Recv(std::string& data)
 
     if (res >= 0)
     {
-        buffer[254] = 0;
+        for (auto i{ res }; i < 255; ++i)
+            buffer[i] = 0;
         data = std::string{ buffer };
         return true;
     }
@@ -98,7 +99,7 @@ bool Broadcast::Recv(std::string& data)
 std::string const Broadcast::ReceivedIP() const
 {
     char ipBuffer[25];
-    auto ip = inet_ntop(AF_INET, &receiveAddr.sin_addr, ipBuffer, 25);
+    inet_ntop(AF_INET, &receiveAddr.sin_addr, ipBuffer, 25);
     return std::string(ipBuffer);
 }
 
@@ -112,6 +113,36 @@ bool Broadcast::Close()
         else
             return false;
     }
+    if (receiverSocket != INVALID_SOCKET)
+    {
+        auto socketClosed = closesocket(receiverSocket);
+        if (socketClosed != SOCKET_ERROR)
+            receiverSocket = INVALID_SOCKET;
+        else
+            return false;
+    }
 
-    return broadcastSocket == INVALID_SOCKET;
+    return broadcastSocket == INVALID_SOCKET && receiverSocket == INVALID_SOCKET;
+}
+
+bool Broadcast::Shutdown()
+{
+    if (broadcastSocket != INVALID_SOCKET)
+    {
+        auto socketShut = shutdown(broadcastSocket, SD_BOTH);
+        if (socketShut != SOCKET_ERROR)
+            broadcastSocket = INVALID_SOCKET;
+        else
+            return false;
+    }
+    if (receiverSocket != INVALID_SOCKET)
+    {
+        auto socketShut = shutdown(receiverSocket, SD_BOTH);
+        if (socketShut != SOCKET_ERROR)
+            receiverSocket = INVALID_SOCKET;
+        else
+            return false;
+    }
+
+    return broadcastSocket == INVALID_SOCKET && receiverSocket == INVALID_SOCKET;
 }

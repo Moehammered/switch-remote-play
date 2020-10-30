@@ -172,6 +172,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
 
         auto const sleepDuration = std::chrono::duration<int, std::milli>(16);
 
+        auto retryCount = 10;
         while(appletMainLoop())
         {
             std::this_thread::sleep_for(sleepDuration); // sleep a tiny bit between inputs
@@ -212,6 +213,11 @@ void RunGamepadThread(std::string ip, uint16_t port)
             if(result < 0)
             {
                 std::cout << "Error sending pad data" << std::endl;
+                if(--retryCount < 0)
+                {
+                    std::cout << "closing gamepad thread due to connection loss." << std::endl;
+                    break;
+                }
             }
 
             // reset the input data

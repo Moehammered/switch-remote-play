@@ -1,5 +1,6 @@
 #pragma once
-#include <winsock2.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <stdint.h>
 #include <string>
 
@@ -12,10 +13,8 @@ public:
 
 	bool WaitForConnection();
 
-	bool ConnectTo(std::string ip);
-
-	SOCKET const& ConnectedSocket() const;
-	SOCKET const& ListeningSocket() const;
+	int const& ConnectedSocket() const;
+	int const& ListeningSocket() const;
 
 	std::string const ConnectedIP() const;
 
@@ -24,8 +23,8 @@ public:
 	bool Shutdown();
 
 private:
-	SOCKET listeningSocket;
-	SOCKET connectedSocket;
+	int listeningSocket;
+	int connectedSocket;
 	sockaddr_in serverAddr;
 	sockaddr_in clientAddr;
 	uint16_t portNo;

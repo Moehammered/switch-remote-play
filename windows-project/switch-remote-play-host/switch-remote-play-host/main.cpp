@@ -14,42 +14,6 @@
 #include "FFMPEGHelper.h"
 #include "Broadcast.h"
 
-//broadcast a message from this 'server' application to let clients know it's live and ready to get connections
-void BroadcastServer()
-{
-    using namespace std;
-
-    sockaddr_in broadcastAddr;
-    USHORT portNo = 20001;
-    broadcastAddr.sin_port = htons(portNo);
-    broadcastAddr.sin_family = AF_INET;
-    // need to find a way to automatically get the (wireless)local area network IP and subnet mask to make the broadcast address
-    inet_pton(AF_INET, "192.168.0.255", &broadcastAddr.sin_addr.S_un.S_addr); //broadcast addr of my LAN (gateway 192.168.0.1, subnet mask 255.255.255.0)
-    //broadcastAddr.sin_addr.S_un.S_addr = htonl(INADDR_BROADCAST); //broadcast addr for all network IPs (from local network, to ISP network)
-
-    auto broadcastSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-    bool socketOption = true;
-    int sizeofOption = sizeof(socketOption);
-    //must setup the socket to explicitly want to broadcast
-    auto result = setsockopt(broadcastSock, SOL_SOCKET, SO_BROADCAST, (char*)&socketOption, sizeofOption);
-    if (result == SOCKET_ERROR)
-        cout << "Failed to set socket option to broadcast: " << WSAGetLastError() << endl;
-
-    string bcsMsg = "testes";
-    cout << "broadcasting..." << endl;
-    result = sendto(broadcastSock, bcsMsg.c_str(), bcsMsg.length(), 0, (const sockaddr*)&broadcastAddr, sizeof(broadcastAddr));
-
-    if (result == SOCKET_ERROR)
-        cout << "Failed to send on broadcast socket: " << WSAGetLastError() << endl;
-    else
-        cout << "broadcasted message" << endl;
-
-    cout << "broadcast finished" << endl;
-
-    closesocket(broadcastSock);
-}
-
 int main(int argc, char* argv[])
 {
     using namespace std;
@@ -59,32 +23,14 @@ int main(int argc, char* argv[])
     WSADATA wsaStateData;
     WSAStartup(MAKEWORD(2, 2), &wsaStateData);
 
-    //BroadcastServer();
-#ifdef USE_AUTO_CONNECT
     std::string switchIP{};
     std::atomic_bool ipFound{ false };
     auto subnet = "192.168.0.255";
-    auto port = 20010;
-    auto broadcaster = Broadcast(subnet, port);
-
-    auto broadcastProcedure = [&] {
-        if (broadcaster.ReadyToSend())
-        {
-            auto const key = std::string{"switch-remote-play"};
-            auto const waitTime = chrono::duration<int, milli>(1000);
-            while (!ipFound)
-            {
-                if (!broadcaster.Send(key))
-                    cout << "Error broadcasting: " << WSAGetLastError() << endl;
-
-                this_thread::sleep_for(waitTime);
-            }
-
-            //broadcaster.Close();
-        }
-    };
-
+    auto port = 20000;
+    
     auto receiverProcedure = [&] {
+        auto broadcaster = Broadcast(subnet, port);
+
         if (broadcaster.ReadyToRecv())
         {
             auto const replyKey = std::string{ "let-me-play" };
@@ -107,41 +53,37 @@ int main(int argc, char* argv[])
                 this_thread::sleep_for(waitTime);
             }
             this_thread::sleep_for(waitTime * 2); // wait a bit to let the other thread die
-            //should replace this with a proper connection to handshake
-            if (ipFound && broadcaster.ReadyToSend())
+
+            //handshake method
+            auto handshake = Connection(20001);
+            if (ipFound && handshake.Ready())
             {
-                auto const startKey = std::string{ "lets-go" };
-                auto const waitTime = std::chrono::duration<int, std::milli>(500);
-                int broadcastCount = 5;
-                do
+                std::cout << "Connecting to: " << switchIP << std::endl;
+                if (handshake.ConnectTo(switchIP))
                 {
-                    if (!broadcaster.Send(startKey))
-                        std::cout << "Handshake Error sending: " << WSAGetLastError() << std::endl;
-
-                    std::this_thread::sleep_for(waitTime);
-                } while (--broadcastCount >= 0);
-
-                std::cout << "we're ready to roll" << std::endl;
+                    if (send(handshake.ConnectedSocket(), replyKey.c_str(), replyKey.length(), 0))
+                    {
+                        std::cout << "Sent reply to switch: " << replyKey << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "Failed to send to switch: " << WSAGetLastError() << std::endl;
+                    }
+                }
             }
-            else
-                std::cout << "broadcaster not ready to send or ip is missing..." << std::endl;
-
-            //broadcaster.Close();
+            handshake.Close();
+            broadcaster.Close();
         }
     };
 
-    auto broadcastThread = thread(broadcastProcedure);
-    auto receiverThread = thread(receiverProcedure);
+    auto connectionDiscoveryThread = thread(receiverProcedure);
 
-    if (broadcastThread.joinable())
-        broadcastThread.join();
-    if (receiverThread.joinable())
-        receiverThread.join();
-    broadcaster.Close();
-    // put into broadcast mode here to get the IP of the switch
-#endif
+    if (connectionDiscoveryThread.joinable())
+        connectionDiscoveryThread.join();
+
     // if beyond this point then we should have the switch IP and we've given
     // the host IP to the switch.
+    // (But now that I've gotten it working I realise the host doesn't need to switch's IP...)
 
     std::atomic<bool> killStream = false;
     std::atomic<bool> gamepadActive = false;

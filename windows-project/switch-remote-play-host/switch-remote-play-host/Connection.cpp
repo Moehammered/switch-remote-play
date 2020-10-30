@@ -5,7 +5,7 @@
 Connection::Connection(uint16_t port)
     :   listeningSocket{INVALID_SOCKET},
         connectedSocket{INVALID_SOCKET},
-        clientAddr{0}, serverAddr{0}
+        serverAddr{ 0 }, clientAddr{ 0 }, portNo{ port }
 {
     ZeroMemory(&serverAddr, sizeof(serverAddr));
     ZeroMemory(&clientAddr, sizeof(clientAddr));
@@ -68,6 +68,40 @@ bool Connection::WaitForConnection()
     return true;
 }
 
+bool Connection::ConnectTo(std::string ip)
+{
+    auto connectionSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    if (connectionSocket == INVALID_SOCKET)
+    {
+        std::cout << "Failed to create a connection socket to connect to: " << WSAGetLastError() << std::endl;
+        return false;
+    }
+    else
+    {
+        sockaddr_in clientInfo = {};
+        int infoSize = sizeof(clientInfo);
+        ZeroMemory(&clientInfo, infoSize);
+
+        clientInfo.sin_family = AF_INET;
+        clientInfo.sin_port = htons(portNo);
+        inet_pton(AF_INET, ip.c_str(), &clientInfo.sin_addr.S_un.S_addr);
+
+        auto result = connect(connectionSocket, (const sockaddr*)&clientInfo, infoSize);
+        if (result == SOCKET_ERROR)
+        {
+            std::cout << "Failed to connect: " << WSAGetLastError() << std::endl;
+            closesocket(connectionSocket);
+            return false;
+        }
+        else
+        {
+            clientAddr = clientInfo;
+            connectedSocket = connectionSocket;
+            return true;
+        }
+    }
+}
+
 SOCKET const& Connection::ConnectedSocket() const
 {
     return connectedSocket;
@@ -81,7 +115,7 @@ SOCKET const& Connection::ListeningSocket() const
 std::string const Connection::ConnectedIP() const
 {
     char ipBuffer[25];
-    auto ip = inet_ntop(AF_INET, &clientAddr.sin_addr, ipBuffer, 25);
+    inet_ntop(AF_INET, &clientAddr.sin_addr, ipBuffer, 25);
     return std::string(ipBuffer);
 }
 
@@ -99,6 +133,28 @@ bool Connection::Close()
     {
         auto listenerClosed = closesocket(listeningSocket);
         if (listenerClosed != SOCKET_ERROR)
+            listeningSocket = INVALID_SOCKET;
+        else
+            return false;
+    }
+
+    return connectedSocket == INVALID_SOCKET && listeningSocket == INVALID_SOCKET;
+}
+
+bool Connection::Shutdown()
+{
+    if (connectedSocket != INVALID_SOCKET)
+    {
+        auto socketShut = shutdown(connectedSocket, SD_BOTH);
+        if (socketShut != SOCKET_ERROR)
+            connectedSocket = INVALID_SOCKET;
+        else
+            return false;
+    }
+    if (listeningSocket != INVALID_SOCKET)
+    {
+        auto socketShut = shutdown(listeningSocket, SD_BOTH);
+        if (socketShut != SOCKET_ERROR)
             listeningSocket = INVALID_SOCKET;
         else
             return false;

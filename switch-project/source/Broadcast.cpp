@@ -92,10 +92,6 @@ bool Broadcast::Recv(std::string& data)
     {
         for(auto i{res}; i < 255; ++i)
             buffer[i] = 0;
-        // char substr[res+1];
-        // std::cout << "received string length: " << res << std::endl;
-        // strncpy(substr, buffer, res);
-        // substr[res] = 0;
         data = std::string{ buffer };
         return true;
     }
@@ -109,7 +105,7 @@ bool Broadcast::Recv(std::string& data)
 std::string const Broadcast::ReceivedIP() const
 {
     char ipBuffer[25];
-    auto ip = inet_ntop(AF_INET, &receiveAddr.sin_addr, ipBuffer, 25);
+    inet_ntop(AF_INET, &receiveAddr.sin_addr, ipBuffer, 25);
     return std::string(ipBuffer);
 }
 
@@ -123,6 +119,36 @@ bool Broadcast::Close()
         else
             return false;
     }
+    if(receiverSocket >= 0)
+    {
+        auto socketClosed = close(receiverSocket);
+        if(socketClosed >= 0)
+            receiverSocket = -1;
+        else
+            return false;
+    }
 
-    return broadcastSocket < 0;
+    return broadcastSocket < 0 && receiverSocket < 0;
+}
+
+bool Broadcast::Shutdown()
+{
+    if (broadcastSocket >= 0)
+    {
+        auto socketShut = shutdown(broadcastSocket, SHUT_RDWR);
+        if (socketShut >= 0)
+            broadcastSocket = -1;
+        else
+            return false;
+    }
+    if(receiverSocket >= 0)
+    {
+        auto socketShut = shutdown(receiverSocket, SHUT_RDWR);
+        if(socketShut >= 0)
+            receiverSocket = -1;
+        else
+            return false;
+    }
+
+    return broadcastSocket < 0 && receiverSocket < 0;
 }

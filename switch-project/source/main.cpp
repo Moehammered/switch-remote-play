@@ -8,7 +8,6 @@
 #include <sstream>
 #include <thread>
 #include <atomic>
-
 #include <switch.h>
 #include "ScreenRenderer.h"
 #include "VideoStream.h"
@@ -18,8 +17,8 @@
 #include "FFMPEGConfigUI.h"
 #include "SystemSetup.h"
 #include "Broadcast.h"
+#include "HostFinder.h"
 
-#define USE_NON_BLOCK_STREAM
 std::atomic_bool streamOn, streamRequested, quitApp;
 
 
@@ -48,6 +47,10 @@ int main(int argc, char **argv)
         .x = 100, .y = 600, .colour = { 200, 100, 100, 255 },
         .value = "Stream Pending Connection..." 
     };
+    Text hostConnectionText = {
+        .x = 100, .y = 250, .colour = { 200, 100, 100, 255 },
+        .value = "Host IP: not yet found..."
+    };
 
     std::cout << "creating SDL window" << std::endl;
     bool initOK = screen.Initialise(1280, 720, false);
@@ -59,7 +62,7 @@ int main(int argc, char **argv)
 
         std::stringstream defaultMessageStream;
         defaultMessageStream << "Ready to accept a video stream connection."<< std::endl;
-        defaultMessageStream << "Press d-pad up or down to cycle stream settings." << std::endl;
+        defaultMessageStream << "Press d-pad to cycle stream settings." << std::endl;
         defaultMessageStream << std::endl;
         defaultMessageStream << "Press 'R' to start stream connection" << std::endl;
         defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << std::endl;
@@ -86,7 +89,6 @@ int main(int argc, char **argv)
         {
             --countdown;
             std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
-            //cout << "closing application in " << countdown << endl;
             consoleUpdate(NULL);
         }
 
@@ -105,7 +107,6 @@ int main(int argc, char **argv)
     std::thread gamepadThread;
     VideoStream stream;
 
-#ifdef USE_NON_BLOCK_STREAM
     StreamDecoder* streamDecoder = nullptr;
     AVPacket streamPacket;
     auto rendererScreenTexture = screen.GetScreenTexture();
@@ -143,6 +144,7 @@ int main(int argc, char **argv)
         else
         {
             stream.CloseStream();
+            streamDecoder->Flush();
             streamDecoder->Cleanup();
             stream.Cleanup();
             streamOn = false;
@@ -153,7 +155,6 @@ int main(int argc, char **argv)
                 gamepadThread.join();
         }
     };
-#endif
 
     constexpr SDL_Color bgCol = {20, 20, 20, 255};
     constexpr SDL_Color black = {0,0,0, 255};
@@ -161,99 +162,13 @@ int main(int argc, char **argv)
     
     //30fps refresh rate
     auto const mainSleepDur = std::chrono::duration<int, std::milli>(33);
-
-#ifdef USE_AUTO_CONNECT
-    std::string hostIP{};
-    std::atomic_bool ipFound{ false };
+    
     auto subnet = "192.168.0.255";
-    auto port = 20010;
-    auto broadcaster = Broadcast(subnet, port);
-
-    auto broadcastProcedure = [&] {
-        if (broadcaster.ReadyToSend())
-        {
-            auto const key = std::string{"let-me-play"};
-            auto const waitTime = std::chrono::duration<int, std::milli>(500);
-            while (!ipFound)
-            {
-                if (!broadcaster.Send(key))
-                    std::cout << "Error broadcasting: " << strerror(errno) << std::endl;
-
-                std::this_thread::sleep_for(waitTime);
-            }
-
-        std::this_thread::sleep_for(waitTime * 2);
-        //should replace this with a proper connection to handshake
-        if(ipFound && broadcaster.ReadyToRecv())
-        {
-            auto const startKey = std::string{"lets-go"};
-            auto const waitTime = std::chrono::duration<int, std::milli>(500);
-            auto lastReceived = std::string{};
-            do
-            {
-                if(!broadcaster.Recv(lastReceived))
-                    std::cout << "Handshake Error recv-ing: " << strerror(errno) << std::endl;
-                else if(lastReceived != startKey)
-                    std::cout << "Handshake didn't match" << std::endl;
-
-                std::this_thread::sleep_for(waitTime);
-
-            } while(lastReceived != startKey);
-
-            std::cout << "we're ready to roll" << std::endl;
-        }
-        else
-            std::cout << "broadcaster not ready to receive or ip is missing..." << std::endl;
-
-            // broadcaster.Close();
-        }
-        else
-            std::cout << "Error: broadcaster isn't ready to send" << std::endl;
-    };
-
-    auto receiverProcedure = [&] {
-        if (broadcaster.ReadyToRecv())
-        {
-            auto const replyKey = std::string{ "switch-remote-play" };
-            auto const waitTime = std::chrono::duration<int, std::milli>(400);
-            while (!ipFound)
-            {
-                auto receivedKey = std::string{};
-                if(!broadcaster.Recv(receivedKey))
-                    std::cout << "Error recv-ing: " << strerror(errno) << std::endl;
-                else if(receivedKey == replyKey)
-                {
-                    hostIP = broadcaster.ReceivedIP();
-                    ipFound = true;
-                }
-                else if (receivedKey != replyKey)
-                {
-                    std::cout << "key didn't match. received: " << receivedKey << std::endl;
-                }
-
-                std::this_thread::sleep_for(waitTime);
-            }
-        }
-        else
-            std::cout << "Error: broadcaster isn't ready to recv" << std::endl;
-
-        // broadcaster.Close();
-    };
-
-    auto broadcastThread = std::thread(broadcastProcedure);
-    auto receiverThread = std::thread(receiverProcedure);
-
-    std::cout << "Joining: broadcaster" << std::endl;
-    if (broadcastThread.joinable())
-        broadcastThread.join();
-    std::cout << "Joining: receiver" << std::endl;
-    if (receiverThread.joinable())
-        receiverThread.join();
-    broadcaster.Close();
-
-    if(ipFound)
-        std::cout << "Found connection: " << hostIP << std::endl;;
-#endif
+    auto const handshakeKey = "let-me-play";
+    Connection* cnRef = nullptr;
+    auto handshakeThread = std::thread(Handshake, handshakeKey, 20001, std::ref(cnRef));
+    sleep(1);
+    auto broadcastingThread = std::thread(BroadcastIdentity, handshakeKey, subnet, 20000);
 
     while(appletMainLoop())
     {
@@ -269,49 +184,33 @@ int main(int argc, char **argv)
             
             screen.PresentScreen();
 
-            RunStartConfiguredStreamCommand("192.168.0.19", 20001, configRenderer.Settings());
-            streamOn = stream.WaitForStream(streamURL);
-            streamRequested = false;
-            std::cout << "stream connection found? " << streamOn << std::endl;
-
-#ifdef USE_NON_BLOCK_STREAM
-            std::cout << "Using Non-blocking call technique for VideoStream" << std::endl;
-            // non-blocking test init code here
-            if(streamOn)
+            if(hostFound)
             {
-                auto streamInfo = stream.StreamInfo();
-                if(streamDecoder != nullptr)
-                    delete streamDecoder;
+                RunStartConfiguredStreamCommand(foundIP, 20001, configRenderer.Settings());
+                streamOn = stream.WaitForStream(streamURL);
+                streamRequested = false;
+                std::cout << "stream connection found? " << streamOn << std::endl;
 
-                streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                std::cout << "making gamepad thread" << std::endl;
-                gamepadThread = std::thread(RunGamepadThread,"192.168.0.19", 20002);
+                if(streamOn)
+                {
+                    auto streamInfo = stream.StreamInfo();
+                    if(streamDecoder != nullptr)
+                        delete streamDecoder;
+
+                    streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
+                    std::cout << "making gamepad thread" << std::endl;
+                    gamepadThread = std::thread(RunGamepadThread, foundIP, 20002);
+                }
             }
-            // non-blocking test init code end
-#endif
+            else
+            {
+                sleep(1);
+                streamRequested = false;
+            }
         }
         if(streamOn)
         {
-#ifdef USE_NON_BLOCK_STREAM
             processStream();
-#else
-            std::cout << "making gamepad thread" << std::endl;
-            gamepadThread = thread(RunGamepadThread,"192.168.0.19", 20002);
-            std::cout << "entering video decoder" << std::endl;
-            //start stream
-            stream.StreamVideoViaDecoder(screen, streamOn);
-             //If PC killed the connection, then we need to make sure we know too
-            streamOn = false;
-            streamRequested = false;
-
-            std::cout << "Stream ended" << std::endl;
-
-            stream.Cleanup();
-            std::cout << "Stream cleaned up" << std::endl;
-
-            if(gamepadThread.joinable())
-                gamepadThread.join();
-#endif
         }
         else
         { //no stream, so let's display some helpful info
@@ -321,6 +220,16 @@ int main(int argc, char **argv)
             configRenderer.Render(screen.Renderer(), systemFont);
 
             controlsText.Render(screen.Renderer(), systemFont);
+
+            if(hostFound.load(std::memory_order_acquire))
+            {
+                hostConnectionText.value = "Host IP: " + foundIP;
+                hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
+            }
+            else
+            {
+                hostConnectionText.Render(screen.Renderer(), systemFont);
+            }
 
             screen.PresentScreen();
 
@@ -347,14 +256,12 @@ int main(int argc, char **argv)
         std::cout << "cleaning up stream" << std::endl;
         stream.Cleanup();
 
-        #ifdef USE_NON_BLOCK_STREAM
         if(streamDecoder != nullptr)
         {
             streamDecoder->Cleanup();
             delete streamDecoder;
             streamDecoder = nullptr;
         }
-        #endif
     }
     
     if(inputThread.joinable())
@@ -362,6 +269,29 @@ int main(int argc, char **argv)
 
     if(gamepadThread.joinable())
         gamepadThread.join();
+
+    hostFound = true;
+
+    if(cnRef != nullptr)
+    {
+        std::cout << "shutting down handshake connection..." << std::endl;
+        if(cnRef->Shutdown())
+        {
+            std::cout << "handshake connection shutdown" << std::endl;
+        }
+        else
+        {
+            std::cout << "failed to shutdown handshake connection" << std::endl;
+        }
+    }
+    
+    std::cout << "Joining broadcaster thread... " << foundIP << std::endl;
+    if(broadcastingThread.joinable())
+        broadcastingThread.join();
+    std::cout << "Joining handshake thread... " << foundIP << std::endl;
+    if(handshakeThread.joinable())
+        handshakeThread.join();
+
     /*
         if plExit is not called, after consecutively opening the application 
         it will cause hbloader to close too with error code for 'max sessions' (0x615)
