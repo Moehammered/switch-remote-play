@@ -19,31 +19,50 @@
 #include "Broadcast.h"
 #include "HostFinder.h"
 
-std::atomic_bool streamOn, streamRequested, quitApp;
+auto constexpr defaultControlMessage = 
+"Ready to accept a video stream connection.\n\
+Press d-pad to cycle stream settings.\n\n\
+Press 'R' to start stream connection.\n\
+(will be unresponsive until a connection to a PC is made)";
+
+auto constexpr streamURL = "tcp://0.0.0.0:2222";
+auto constexpr handshakeKey = "let-me-play";
+auto constexpr subnet = "192.168.0.255";
+
+uint16_t constexpr broadcastPort = 20000;
+uint16_t constexpr hostConnectPort = 20001;
+uint16_t constexpr gamepadPort = 20002;
+
+SDL_Color constexpr bgCol = {20, 20, 20, 255};
+SDL_Color constexpr black = {0,0,0, 255};
+SDL_Color constexpr pendingStreamCol = { 60, 60, 60, 255 };
+uint32_t constexpr fontSize = 32;
+
+//30fps refresh rate
+auto constexpr thirtyThreeMs = std::chrono::duration<int, std::milli>(33);
+auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
+
+std::atomic_int32_t streamState;
 
 
 int main(int argc, char **argv)
 {
-    const std::string streamURL = "tcp://0.0.0.0:2222";
-
     initialiseSwitch(); 
     std::cout << "basic switch services initialised" << std::endl;
 
-    streamRequested = false;
-    quitApp = false;
-    streamOn = false;
+    streamState = { StreamState::INACTIVE };
     
     ScreenRenderer screen;
     
-    Text heading = {
+    Text const heading = {
         .x = 400, .y = 20, .colour = { 100, 200, 100, 255 },
         .value = "Switch Remote Play \\(^.^)/"
     };
-    Text controlsText = {
+    Text const controlsText = {
         .x = 100, .y = 60, .colour = { 100, 200, 100, 255 }, 
-        .value = "" 
+        .value = defaultControlMessage
     };
-    Text streamPendingText = {
+    Text const streamPendingText = {
         .x = 100, .y = 600, .colour = { 200, 100, 100, 255 },
         .value = "Stream Pending Connection..." 
     };
@@ -55,24 +74,7 @@ int main(int argc, char **argv)
     std::cout << "creating SDL window" << std::endl;
     bool initOK = screen.Initialise(1280, 720, false);
 
-    std::string controlsMessage = "/!\\ Initialisation Failed! /!\\";
-    if(initOK)
-    {
-        std::cout << "Initialising video stream config" << std::endl;
-
-        std::stringstream defaultMessageStream;
-        defaultMessageStream << "Ready to accept a video stream connection."<< std::endl;
-        defaultMessageStream << "Press d-pad to cycle stream settings." << std::endl;
-        defaultMessageStream << std::endl;
-        defaultMessageStream << "Press 'R' to start stream connection" << std::endl;
-        defaultMessageStream << "(will be unresponsive until a connection to a PC is made)." << std::endl;
-
-        controlsMessage = defaultMessageStream.str();
-        std::cout << controlsMessage << std::endl;
-
-        controlsText.value = controlsMessage;
-    }
-    else
+    if(!initOK)
     {
         //send a copy to the nxlink server
         auto errorMessage = "Failed to initialise screen renderer...";
@@ -100,8 +102,8 @@ int main(int argc, char **argv)
 
     auto configRenderer = FFMPEGConfigUI();
 
-    std::thread inputThread = std::thread([&configRenderer]{
-        RunInactiveStreamInput(streamRequested, streamOn, quitApp, configRenderer);
+    std::thread inputThread = std::thread([&] {
+        RunInactiveStreamInput(streamState, configRenderer);
     });
     
     std::thread gamepadThread;
@@ -112,7 +114,7 @@ int main(int argc, char **argv)
     auto rendererScreenTexture = screen.GetScreenTexture();
     auto renderRegion = screen.Region();
     auto processStream = [&]{
-        if(stream.Read(streamPacket) && streamOn.load(std::memory_order_acquire))
+        if(stream.Read(streamPacket))
         {
             if(streamDecoder->DecodeFramePacket(streamPacket))
             {
@@ -127,16 +129,12 @@ int main(int argc, char **argv)
                 auto vPlane = decodedFrame.data[2];
                 auto vPlaneStride = decodedFrame.width/2;
 
-                // std::cout << "Updating SDL texture" << std::endl;
                 SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
                                     yPlane, yPlaneStride,
                                     uPlane, uPlaneStride, 
                                     vPlane, vPlaneStride);
 
                 screen.RenderScreenTexture();
-                
-                streamPacket.data += decodedFrame.pkt_size; //think this is unnecessary
-                streamPacket.size -= decodedFrame.pkt_size; //think this is unnecessary
             }
 
             av_packet_unref(&streamPacket);
@@ -147,7 +145,7 @@ int main(int argc, char **argv)
             streamDecoder->Flush();
             streamDecoder->Cleanup();
             stream.Cleanup();
-            streamOn = false;
+            streamState.store(StreamState::INACTIVE, std::memory_order_release);
             delete streamDecoder;
             streamDecoder = nullptr;
 
@@ -156,103 +154,103 @@ int main(int argc, char **argv)
         }
     };
 
-    constexpr SDL_Color bgCol = {20, 20, 20, 255};
-    constexpr SDL_Color black = {0,0,0, 255};
-    auto systemFont = LoadSystemFont(screen.Renderer(), 32, black);
+    auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, black);
     
-    //30fps refresh rate
-    auto const mainSleepDur = std::chrono::duration<int, std::milli>(33);
-    
-    auto subnet = "192.168.0.255";
-    auto const handshakeKey = "let-me-play";
     Connection* cnRef = nullptr;
-    auto handshakeThread = std::thread(Handshake, handshakeKey, 20001, std::ref(cnRef));
-    sleep(1);
-    auto broadcastingThread = std::thread(BroadcastIdentity, handshakeKey, subnet, 20000);
+    auto handshakeThread = std::thread(Handshake, handshakeKey, hostConnectPort, std::ref(cnRef));
+    std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
+    auto broadcastingThread = std::thread(BroadcastIdentity, handshakeKey, subnet, broadcastPort);
 
-    while(appletMainLoop())
+    auto runApp = true;
+    while(appletMainLoop() && runApp)
     {
-        if(streamRequested.load(std::memory_order_acquire))
+        switch(streamState.load(std::memory_order_acquire))
         {
-            //display on the screen a connection is pending
-            SDL_Color pendingStreamCol = { 60, 60, 60, 255 };
-            screen.ClearScreen(pendingStreamCol);
-
-            heading.Render(screen.Renderer(), systemFont);
-            
-            streamPendingText.Render(screen.Renderer(), systemFont);
-            
-            screen.PresentScreen();
-
-            if(hostFound)
+            case StreamState::INACTIVE:
             {
-                RunStartConfiguredStreamCommand(foundIP, 20001, configRenderer.Settings());
-                streamOn = stream.WaitForStream(streamURL);
-                streamRequested = false;
-                std::cout << "stream connection found? " << streamOn << std::endl;
+                screen.ClearScreen(bgCol);
+        
+                heading.Render(screen.Renderer(), systemFont);
+                configRenderer.Render(screen.Renderer(), systemFont);
 
-                if(streamOn)
+                controlsText.Render(screen.Renderer(), systemFont);
+
+                if(hostFound.load(std::memory_order_acquire))
                 {
-                    auto streamInfo = stream.StreamInfo();
-                    if(streamDecoder != nullptr)
-                        delete streamDecoder;
+                    hostConnectionText.value = "Host IP: " + foundIP;
+                    hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
+                }
+                else
+                    hostConnectionText.Render(screen.Renderer(), systemFont);
 
-                    streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                    std::cout << "making gamepad thread" << std::endl;
-                    gamepadThread = std::thread(RunGamepadThread, foundIP, 20002);
+                screen.PresentScreen();
+
+                // no point thrashing the screen to refresh text
+                std::this_thread::sleep_for(thirtyThreeMs);
+            }
+            break;
+
+            case StreamState::REQUESTED:
+            {
+                //display on the screen a connection is pending
+                screen.ClearScreen(pendingStreamCol);
+
+                heading.Render(screen.Renderer(), systemFont);
+                
+                streamPendingText.Render(screen.Renderer(), systemFont);
+                
+                screen.PresentScreen();
+
+                if(hostFound)
+                {
+                    RunStartConfiguredStreamCommand(foundIP, hostConnectPort, configRenderer.Settings());
+                    auto streamOn = stream.WaitForStream(streamURL);
+                    std::cout << "stream connection found? " << streamOn << std::endl;
+
+                    if(streamOn)
+                    {
+                        auto streamInfo = stream.StreamInfo();
+                        if(streamDecoder != nullptr)
+                            delete streamDecoder;
+
+                        streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
+                        std::cout << "making gamepad thread" << std::endl;
+                        gamepadThread = std::thread(RunGamepadThread, foundIP, gamepadPort);
+                        streamState.store(StreamState::ACTIVE, std::memory_order_release);
+                    }
+                }
+                else // no host to connect to
+                {
+                    std::this_thread::sleep_for(oneSecond);
+                    streamState.store(StreamState::INACTIVE, std::memory_order_release);
                 }
             }
-            else
+            break;
+
+            case StreamState::ACTIVE:
             {
-                sleep(1);
-                streamRequested = false;
+                processStream();
             }
-        }
-        if(streamOn)
-        {
-            processStream();
-        }
-        else
-        { //no stream, so let's display some helpful info
-            screen.ClearScreen(bgCol);
-        
-            heading.Render(screen.Renderer(), systemFont);
-            configRenderer.Render(screen.Renderer(), systemFont);
+            break;
 
-            controlsText.Render(screen.Renderer(), systemFont);
-
-            if(hostFound.load(std::memory_order_acquire))
+            case StreamState::QUIT:
             {
-                hostConnectionText.value = "Host IP: " + foundIP;
-                hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
+                runApp = false;
             }
-            else
-            {
-                hostConnectionText.Render(screen.Renderer(), systemFont);
-            }
-
-            screen.PresentScreen();
-
-            if(quitApp)
-                break;
-            // no point thrashing the screen to refresh text
-            std::this_thread::sleep_for(mainSleepDur);
+            break;
         }
     }
 
     std::cout << "exiting application..." << std::endl;
 
-    if(!initOK)
-        consoleExit(NULL);
-    else
-        SDL_Quit();
+    SDL_Quit();
 
     //wait here if the stream is still on so we can clean it up properly
-    if(streamOn)
+    if(streamState.load() == StreamState::ACTIVE)
     {
         std::cout << "waiting for stream to stop..." << std::endl;
-        while(streamOn)
-            std::this_thread::sleep_for(mainSleepDur);
+        while(streamState.load() == StreamState::ACTIVE)
+            std::this_thread::sleep_for(thirtyThreeMs);
         std::cout << "cleaning up stream" << std::endl;
         stream.Cleanup();
 
@@ -270,25 +268,23 @@ int main(int argc, char **argv)
     if(gamepadThread.joinable())
         gamepadThread.join();
 
+    //make sure the network discovery threads don't lock up
     hostFound = true;
-
     if(cnRef != nullptr)
     {
         std::cout << "shutting down handshake connection..." << std::endl;
+
         if(cnRef->Shutdown())
-        {
             std::cout << "handshake connection shutdown" << std::endl;
-        }
         else
-        {
             std::cout << "failed to shutdown handshake connection" << std::endl;
-        }
     }
     
-    std::cout << "Joining broadcaster thread... " << foundIP << std::endl;
+    std::cout << "Joining broadcaster thread... " << std::endl;
     if(broadcastingThread.joinable())
         broadcastingThread.join();
-    std::cout << "Joining handshake thread... " << foundIP << std::endl;
+        
+    std::cout << "Joining handshake thread... " << std::endl;
     if(handshakeThread.joinable())
         handshakeThread.join();
 

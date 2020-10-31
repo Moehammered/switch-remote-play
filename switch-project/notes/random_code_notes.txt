@@ -142,3 +142,74 @@ frame rate counter / ticker
     prevTime = currTime;
     uint64_t deltaTime = 0;
     int frameCounter = 180;
+
+
+original while loop before switching to state enum
+    while(appletMainLoop())
+    {
+        if(streamRequested.load(std::memory_order_acquire))
+        {
+            //display on the screen a connection is pending
+            screen.ClearScreen(pendingStreamCol);
+
+            heading.Render(screen.Renderer(), systemFont);
+            
+            streamPendingText.Render(screen.Renderer(), systemFont);
+            
+            screen.PresentScreen();
+
+            if(hostFound)
+            {
+                RunStartConfiguredStreamCommand(foundIP, hostConnectPort, configRenderer.Settings());
+                streamOn = stream.WaitForStream(streamURL);
+                streamRequested = false;
+                std::cout << "stream connection found? " << streamOn << std::endl;
+
+                if(streamOn)
+                {
+                    auto streamInfo = stream.StreamInfo();
+                    if(streamDecoder != nullptr)
+                        delete streamDecoder;
+
+                    streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
+                    std::cout << "making gamepad thread" << std::endl;
+                    gamepadThread = std::thread(RunGamepadThread, foundIP, gamepadPort);
+                }
+            }
+            else
+            {
+                std::this_thread::sleep_for(oneSecond);
+                streamRequested = false;
+            }
+        }
+        if(streamOn)
+        {
+            processStream();
+        }
+        else
+        { //no stream, so let's display some helpful info
+            screen.ClearScreen(bgCol);
+        
+            heading.Render(screen.Renderer(), systemFont);
+            configRenderer.Render(screen.Renderer(), systemFont);
+
+            controlsText.Render(screen.Renderer(), systemFont);
+
+            if(hostFound.load(std::memory_order_acquire))
+            {
+                hostConnectionText.value = "Host IP: " + foundIP;
+                hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
+            }
+            else
+            {
+                hostConnectionText.Render(screen.Renderer(), systemFont);
+            }
+
+            screen.PresentScreen();
+
+            if(quitApp)
+                break;
+            // no point thrashing the screen to refresh text
+            std::this_thread::sleep_for(thirtyThreeMs);
+        }
+    }

@@ -8,8 +8,8 @@
 class Text
 {
     public:
-        void Render(SDL_Renderer* renderer, FC_Font* font);
-        void Render(SDL_Renderer* renderer, FC_Font* font, SDL_Color col);
+        void Render(SDL_Renderer* renderer, FC_Font* font) const;
+        void Render(SDL_Renderer* renderer, FC_Font* font, SDL_Color col) const;
         float x;
         float y;
         SDL_Color colour;

@@ -10,6 +10,14 @@
 #include <sys/socket.h>
 #include "FFMPEGConfigUI.h"
 
+enum StreamState : int32_t
+{
+    INACTIVE,
+    REQUESTED,
+    ACTIVE,
+    QUIT
+};
+
 void RunStopCommandThread(std::string ip, uint16_t port)
 {
     int commandSocket = -1;
@@ -27,37 +35,6 @@ void CommandStopThreadStart(std::string ip, uint16_t port)
 {
     auto t = std::thread(RunStopCommandThread, ip, port);
     t.join();
-}
-
-void RunStartPresetStreamCommand(std::string ip, uint16_t port, STREAM_MODE setting)
-{
-    int commandSocket = -1;
-    if(ConnectTo(ip, 20001, commandSocket))
-    {
-        auto streamCommand = Command::START_STREAM_LOW_LATENCY_30FPS;
-        switch(setting)
-        {
-            default:
-            case STREAM_MODE::LOW_LATENCY_30_FPS:
-                streamCommand = Command::START_STREAM_LOW_LATENCY_30FPS;
-                break;
-
-            case STREAM_MODE::OK_LATENCY_60_FPS:
-                streamCommand = Command::START_STREAM_OK_LATENCY_60FPS;
-                break;
-
-            case STREAM_MODE::LOW_LATENCY_V_FPS:
-                streamCommand = Command::START_STREAM_LOW_LATENCY_VFPS;
-                break;
-        }
-
-        if(SendCode(commandSocket, streamCommand))
-            std::cout << "Sent start preset command" << std::endl;
-        else
-            std::cout << "Error sending start preset command" << std::endl;
-    }
-    close(commandSocket);
-    std::cout << "Closed command socket" << std::endl;
 }
 
 void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config)
@@ -80,62 +57,45 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Confi
     std::cout << "Closed command socket" << std::endl;
 }
 
-bool ProcessInactiveStreamInput(u32 kDown,
-                                std::atomic_bool& streamRequested,
-                                std::atomic_bool& streamOn, 
-                                std::atomic_bool& quitApp,
-                                FFMPEGConfigUI& configRender)
+bool ProcessInactiveStreamInput(u32 kDown, std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender)
 {
-    if (kDown & KEY_PLUS) 
+    auto state = streamState.load(std::memory_order_acquire);
+
+    if(state == StreamState::INACTIVE)
     {
-        if(!streamOn)
+        if(kDown & KEY_PLUS)
         {
-            quitApp = true; // break in order to return to hbmenu
+            streamState.store(StreamState::QUIT, std::memory_order_release);
             return false;
         }
-    }
-    if(kDown & KEY_DUP)
-    {
-        configRender.SelectPrevious();
-    }
-    else if(kDown & KEY_DDOWN)
-    {
-        configRender.SelectNext();
-    }
-    else if(kDown & KEY_R)
-        streamRequested = true;
+        if(kDown & KEY_DUP)
+            configRender.SelectPrevious();
+        else if(kDown & KEY_DDOWN)
+            configRender.SelectNext();
+        else if(kDown & KEY_R)
+            streamState.store(StreamState::REQUESTED, std::memory_order_release);
 
-    if(kDown & KEY_DRIGHT)
-    {
-        configRender.IncreaseSetting();
+        if(kDown & KEY_DRIGHT)
+            configRender.IncreaseSetting();
+        else if(kDown & KEY_DLEFT)
+            configRender.DecreaseSetting();
     }
-    else if(kDown & KEY_DLEFT)
-    {
-        configRender.DecreaseSetting();
-    }
-
+    
     return true;
 }
 
-void RunInactiveStreamInput(std::atomic_bool& streamRequested,
-                            std::atomic_bool& streamOn, 
-                            std::atomic_bool& quitApp,
-                            FFMPEGConfigUI& configRender)
+void RunInactiveStreamInput(std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender)
 {
     auto const sleepDuration = std::chrono::duration<int, std::milli>(16); //poll input 60fps
     while(appletMainLoop())
     {
-        if(!streamOn && !streamRequested)
-        {
-            hidScanInput();
+        hidScanInput();
 
-            //different buttons pressed compared to previous time
-            u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-            if(!ProcessInactiveStreamInput(kDown, streamRequested,
-                                            streamOn, quitApp, configRender))
-                break;
-        }
-
+        //different buttons pressed compared to previous time
+        u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+        if(!ProcessInactiveStreamInput(kDown, streamState, configRender))
+            break;
+    
         std::this_thread::sleep_for(sleepDuration);
     }
 }
