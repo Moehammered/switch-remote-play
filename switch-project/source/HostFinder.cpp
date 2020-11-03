@@ -21,8 +21,8 @@ void BroadcastIdentity(std::string const key, std::string const subnet, uint16_t
         {
             if(!broadcaster.Send(key))
                 std::cout << "Error broadcasting: " << strerror(errno) << std::endl;
-            else
-                std::cout << "Broadcasted: " << key << std::endl;
+            // else
+            //     std::cout << "Broadcasted: " << key << std::endl;
 
             std::this_thread::sleep_for(waitTime);
         }
@@ -30,7 +30,7 @@ void BroadcastIdentity(std::string const key, std::string const subnet, uint16_t
 
     broadcaster.Close();
 
-    std::cout << "Closing broadcaster" << std::endl;
+    // std::cout << "Closing broadcaster" << std::endl;
 }
 
 void Handshake(std::string const key, uint16_t port, Connection*& cn)

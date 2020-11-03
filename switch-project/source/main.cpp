@@ -5,7 +5,6 @@
 
 #include <string>
 #include <iostream>
-#include <sstream>
 #include <thread>
 #include <atomic>
 #include <switch.h>
@@ -18,7 +17,9 @@
 #include "SystemSetup.h"
 #include "Broadcast.h"
 #include "HostFinder.h"
+#include "FileOperations.h"
 
+auto constexpr applicationFolder = "sdmc:/switch/switch-remote-play";
 auto constexpr defaultControlMessage = 
 "Ready to accept a video stream connection.\n\
 Press d-pad to cycle stream settings.\n\n\
@@ -44,12 +45,82 @@ auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
 
 std::atomic_int32_t streamState;
 
+#ifdef USE_EXCEP
+#include <stdexcept>
+#endif
+
+void TestFileOperations()
+{
+    
+    {
+        auto filePath = "sdmc:/switch/switch-remote-play/srp-defaultMessage.txt";
+        if(saveTextToFile(filePath, defaultControlMessage))
+        {
+            std::cout << "wrote default control message to file: " << filePath << std::endl;
+        }
+        else
+        {
+            std::cout << "Failed to write default control message to file: " << filePath << std::endl;
+        }
+    }
+    {
+        std::string txt = std::string{};
+        auto filePath = "sdmc:/switch/srp-defaultMessage.zip";
+        if(readFileAsText(filePath, txt))
+        {
+            std::cout << "Opened test txt file: " << filePath << std::endl;
+            std::cout << txt << std::endl << std::endl;
+        }
+        else
+        {
+            std::cout << "Failed to open test txt file: " << filePath << std::endl;
+        }
+    }
+    {
+        auto filePath = "sdmc:/";
+        auto folder = "switch";
+        if(directoryExists(filePath, folder))
+        {
+            std::cout << "Found " << folder << " in " << filePath << std::endl;
+
+            if(!directoryExists(applicationFolder))
+            {
+                std::cout << "    Application folder missing. Creating now." << std::endl;
+
+                if(createDirectory("sdmc:/switch/", "switch-remote-play"))
+                {
+                    std::cout << "        Created missing directory. Checking to make sure it's there." << std::endl;
+
+                    if(directoryExists(applicationFolder))
+                        std::cout << "            It's there. All good now." << std::endl;
+                    else
+                        std::cout << "            It's not there... Failed to make directory properly." << std::endl;
+                }
+                else
+                    std::cout << "        Failed to create missing directory." << std::endl;
+            }
+        }
+        else
+            std::cout << "Failed to find " << folder << " in " << filePath << std::endl;
+    }
+    auto appDir = getApplicationDirectory();
+    std::cout << "File in App directory: " << appDir << std::endl;
+    std::cout << "App directory" << std::endl;
+    auto appDirFiles = readApplicationDirectory();
+    for(auto& file : appDirFiles)
+        std::cout << "    File: " << file << std::endl;
+
+    std::cout << std::endl << "Root directory" << std::endl;
+    auto rootDirFiles = readRootDirectory();
+    for(auto& file : rootDirFiles)
+        std::cout << "    File: " << file << std::endl;
+}
 
 int main(int argc, char **argv)
 {
     initialiseSwitch(); 
-    std::cout << "basic switch services initialised" << std::endl;
-
+    std::cout << "basic switch services initialised" << std::endl << std::endl;
+    TestFileOperations();
     streamState = { StreamState::INACTIVE };
     
     ScreenRenderer screen;
@@ -156,6 +227,7 @@ int main(int argc, char **argv)
 
     auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, black);
     
+    // Make this happen on button press
     Connection* cnRef = nullptr;
     auto handshakeThread = std::thread(Handshake, handshakeKey, hostConnectPort, std::ref(cnRef));
     std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
