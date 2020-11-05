@@ -18,6 +18,7 @@
 #include "Broadcast.h"
 #include "HostFinder.h"
 #include "FileOperations.h"
+#include "Configuration.h"
 
 auto constexpr applicationFolder = "sdmc:/switch/switch-remote-play";
 auto constexpr defaultControlMessage = 
@@ -25,6 +26,18 @@ auto constexpr defaultControlMessage =
 Press d-pad to cycle stream settings.\n\n\
 Press 'R' to start stream connection.\n\
 (will be unresponsive until a connection to a PC is made)";
+
+auto constexpr defaultConfigFile =
+"\
+\n\
+found_ip=192.168.0.19;\n\
+desired_framerate=60; comment goes here\n\
+video_resolution=1920x1080; another one here\n\
+video_scale=1280x720;\n\
+bitrate_kb=5120;\n\
+vsync_mode=2;\n\
+\n\
+";
 
 auto constexpr streamURL = "tcp://0.0.0.0:2222";
 auto constexpr handshakeKey = "let-me-play";
@@ -45,10 +58,6 @@ auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
 
 std::atomic_int32_t streamState;
 
-#ifdef USE_EXCEP
-#include <stdexcept>
-#endif
-
 void TestFileOperations()
 {
     
@@ -65,7 +74,7 @@ void TestFileOperations()
     }
     {
         std::string txt = std::string{};
-        auto filePath = "sdmc:/switch/srp-defaultMessage.zip";
+        auto filePath = "sdmc:/switch/switch-remote-play/config.ini";
         if(readFileAsText(filePath, txt))
         {
             std::cout << "Opened test txt file: " << filePath << std::endl;
@@ -74,6 +83,15 @@ void TestFileOperations()
         else
         {
             std::cout << "Failed to open test txt file: " << filePath << std::endl;
+            if(saveTextToFile(filePath, defaultConfigFile))
+            {
+                std::cout << "Saved default config file: " << filePath << std::endl;
+                if(readFileAsText(filePath, txt))
+                {
+                    std::cout << "Opened config: " << filePath << std::endl;
+                    std::cout << txt << std::endl << std::endl;
+                }
+            }
         }
     }
     {
@@ -116,11 +134,26 @@ void TestFileOperations()
         std::cout << "    File: " << file << std::endl;
 }
 
+void TestConfigurationFile()
+{
+    std::cout << "Testing Configuration File IO " << std::endl;
+    auto config = Configuration();
+    std::cout << "    Last Found IP Saved: " << config.FoundIP() << std::endl << std::endl;
+    auto savedffmpeg = config.FFMPEGData();
+    std::cout << "    Reading FFMPEG Settings: " << std::endl;
+    std::cout << "        desired_framerate: " << savedffmpeg.desiredFrameRate << std::endl;
+    std::cout << "        video_resolution: " << savedffmpeg.videoX << "x" << savedffmpeg.videoY << std::endl;
+    std::cout << "        video_scale: " << savedffmpeg.scaleX<< "x" << savedffmpeg.scaleY << std::endl;
+    std::cout << "        bitrate_kb: " << savedffmpeg.bitrateKB << std::endl;
+    std::cout << "        vsync_mode: " << (int)savedffmpeg.vsyncMode << std::endl;
+}
+
 int main(int argc, char **argv)
 {
     initialiseSwitch(); 
     std::cout << "basic switch services initialised" << std::endl << std::endl;
-    TestFileOperations();
+    // TestFileOperations();
+    TestConfigurationFile();
     streamState = { StreamState::INACTIVE };
     
     ScreenRenderer screen;
