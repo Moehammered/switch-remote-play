@@ -146,12 +146,33 @@ void TestConfigurationFile()
     std::cout << "        video_scale: " << savedffmpeg.scaleX<< "x" << savedffmpeg.scaleY << std::endl;
     std::cout << "        bitrate_kb: " << savedffmpeg.bitrateKB << std::endl;
     std::cout << "        vsync_mode: " << (int)savedffmpeg.vsyncMode << std::endl;
+
+    auto fakeIP = "192.168.0.20";
+    auto fakeMpegSettings = FFMPEG_Config{
+        .desiredFrameRate = 600, .videoX=2160, .videoY = 1440,
+        .scaleX = 960, .scaleY = 540, .bitrateKB = 11111, .vsyncMode = 5
+    };
+    std::cout << "    Saving fake IP to settings: " << fakeIP << std::endl;
+    config.SaveFoundIP(fakeIP);
+    std::cout << "    Saving fake MPEG settings: " << config.SaveFFMPEG(fakeMpegSettings) << std::endl;
+    
+    auto config2 = Configuration();
+    std::cout << "        IP loaded from config: " << config.FoundIP() << std::endl;
+    std::cout << "        IP loaded from config2 (reloading file): " << config2.FoundIP() << std::endl;
+
+    auto savedffmpeg2 = config2.FFMPEGData();
+    std::cout << "    Reading FFMPEG Settings: " << std::endl;
+    std::cout << "        desired_framerate: " << savedffmpeg2.desiredFrameRate << std::endl;
+    std::cout << "        video_resolution: " << savedffmpeg2.videoX << "x" << savedffmpeg2.videoY << std::endl;
+    std::cout << "        video_scale: " << savedffmpeg2.scaleX<< "x" << savedffmpeg2.scaleY << std::endl;
+    std::cout << "        bitrate_kb: " << savedffmpeg2.bitrateKB << std::endl;
+    std::cout << "        vsync_mode: " << (int)savedffmpeg2.vsyncMode << std::endl;
 }
 
 int main(int argc, char **argv)
 {
     initialiseSwitch(); 
-    std::cout << "basic switch services initialised" << std::endl << std::endl;
+    // std::cout << "basic switch services initialised" << std::endl << std::endl;
     // TestFileOperations();
     TestConfigurationFile();
     streamState = { StreamState::INACTIVE };
@@ -175,7 +196,7 @@ int main(int argc, char **argv)
         .value = "Host IP: not yet found..."
     };
 
-    std::cout << "creating SDL window" << std::endl;
+    // std::cout << "creating SDL window" << std::endl;
     bool initOK = screen.Initialise(1280, 720, false);
 
     if(!initOK)
@@ -310,7 +331,7 @@ int main(int argc, char **argv)
                 {
                     RunStartConfiguredStreamCommand(foundIP, hostConnectPort, configRenderer.Settings());
                     auto streamOn = stream.WaitForStream(streamURL);
-                    std::cout << "stream connection found? " << streamOn << std::endl;
+                    // std::cout << "stream connection found? " << streamOn << std::endl;
 
                     if(streamOn)
                     {
@@ -319,7 +340,7 @@ int main(int argc, char **argv)
                             delete streamDecoder;
 
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                        std::cout << "making gamepad thread" << std::endl;
+                        // std::cout << "making gamepad thread" << std::endl;
                         gamepadThread = std::thread(RunGamepadThread, foundIP, gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
                     }
@@ -346,17 +367,17 @@ int main(int argc, char **argv)
         }
     }
 
-    std::cout << "exiting application..." << std::endl;
+    // std::cout << "exiting application..." << std::endl;
 
     SDL_Quit();
 
     //wait here if the stream is still on so we can clean it up properly
     if(streamState.load() == StreamState::ACTIVE)
     {
-        std::cout << "waiting for stream to stop..." << std::endl;
+        // std::cout << "waiting for stream to stop..." << std::endl;
         while(streamState.load() == StreamState::ACTIVE)
             std::this_thread::sleep_for(thirtyThreeMs);
-        std::cout << "cleaning up stream" << std::endl;
+        // std::cout << "cleaning up stream" << std::endl;
         stream.Cleanup();
 
         if(streamDecoder != nullptr)
@@ -377,7 +398,7 @@ int main(int argc, char **argv)
     hostFound = true;
     if(cnRef != nullptr)
     {
-        std::cout << "shutting down handshake connection..." << std::endl;
+        // std::cout << "shutting down handshake connection..." << std::endl;
 
         if(cnRef->Shutdown())
             std::cout << "handshake connection shutdown" << std::endl;
@@ -385,11 +406,11 @@ int main(int argc, char **argv)
             std::cout << "failed to shutdown handshake connection" << std::endl;
     }
     
-    std::cout << "Joining broadcaster thread... " << std::endl;
+    // std::cout << "Joining broadcaster thread... " << std::endl;
     if(broadcastingThread.joinable())
         broadcastingThread.join();
         
-    std::cout << "Joining handshake thread... " << std::endl;
+    // std::cout << "Joining handshake thread... " << std::endl;
     if(handshakeThread.joinable())
         handshakeThread.join();
 
@@ -400,7 +421,7 @@ int main(int argc, char **argv)
     plExit();
     FreeFont(systemFont);
 
-    std::cout << "End of main reached" << std::endl;
+    // std::cout << "End of main reached" << std::endl;
     socketExit();
     return 0;
 }

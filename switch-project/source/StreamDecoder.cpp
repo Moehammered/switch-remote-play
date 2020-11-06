@@ -53,7 +53,7 @@ StreamDecoder::StreamDecoder(AVCodecParameters const * const codecConfig, bool s
     : codec{nullptr}, context{nullptr}, currentFrame{nullptr}, 
     frameSkipCount{0}, skipFrames{skipFrames}
 {
-    std::cout << "Using frame skip? " << (skipFrames ? "yes" : "no") << std::endl;
+    // std::cout << "Using frame skip? " << (skipFrames ? "yes" : "no") << std::endl;
 
     if(codecConfig == nullptr)
         std::cout << "Codec parameters are not initialised" << std::endl;

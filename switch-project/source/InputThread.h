@@ -48,13 +48,11 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Confi
             .commandCode = streamCommand
         };
         
-        if(SendCommandPayload(commandSocket, payload))
-            std::cout << "Sent start command payload with configuration" << std::endl;
-        else
+        if(!SendCommandPayload(commandSocket, payload))
             std::cout << "Error sending start payload with configuration" << std::endl;
     }
     close(commandSocket);
-    std::cout << "Closed command socket" << std::endl;
+    // std::cout << "Closed command socket" << std::endl;
 }
 
 bool ProcessInactiveStreamInput(u32 kDown, std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender)

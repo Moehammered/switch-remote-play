@@ -21,10 +21,10 @@ class Configuration
 public:
     Configuration();
     std::string const FoundIP() const;
-    // bool SaveFoundIP(std::string const & ip);
+    bool SaveFoundIP(std::string const ip);
 
     FFMPEG_Config const FFMPEGData() const;
-    // bool SaveFFMPEG(FFMPEG_Config const & data);
+    bool SaveFFMPEG(FFMPEG_Config const data);
 
 private:
     auto static constexpr parentFolder = "sdmc:/switch/switch-remote-play";
@@ -35,6 +35,7 @@ private:
     std::string ReadConfigFile(std::string const path);
     bool SaveConfigFile(std::string const & data);
     bool ExtractVariable(std::string const data, std::string const variable, std::string& result) const;
+    bool ReplaceVariable(std::string const data, std::string const variable, std::string const value, std::string& newData) const;
 };
 
 #endif

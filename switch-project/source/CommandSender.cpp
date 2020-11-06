@@ -97,7 +97,7 @@ bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
 
     char* dataPtr = (char*)&payload;
 
-    std::cout << "Sending command payload with configuration of size: " << COMMAND_PAYLOAD_SIZE << " bytes" << std::endl;
+    // std::cout << "Sending command payload with configuration of size: " << COMMAND_PAYLOAD_SIZE << " bytes" << std::endl;
 
     auto result = send(connectionSock, dataPtr, COMMAND_PAYLOAD_SIZE, 0);
     if(result < 0)

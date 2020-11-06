@@ -42,7 +42,7 @@ void Handshake(std::string const key, uint16_t port, Connection*& cn)
         cn = &connection;
         if(connection.Ready())
         {
-            std::cout << "Waiting for handshake..." << std::endl;
+            // std::cout << "Waiting for handshake..." << std::endl;
             // timeval timeout;
             // timeout.tv_sec  = 7;  // after 7 seconds connect() will timeout
             // timeout.tv_usec = 0;
@@ -81,7 +81,7 @@ void Handshake(std::string const key, uint16_t port, Connection*& cn)
 
         connection.Close();
         cn = nullptr;
-        std::cout << "Waiting for handshake..." << std::endl;
+        // std::cout << "Waiting for handshake..." << std::endl;
         std::this_thread::sleep_for(waitTime);
     } while (!hostFound);
 }
