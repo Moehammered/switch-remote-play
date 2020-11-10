@@ -33,7 +33,7 @@ private:
 	sockaddr_in broadcastAddr;
 	sockaddr_in receiveAddr;
 
-	socklen_t const ADDR_SIZE = sizeof(broadcastAddr);
+	static socklen_t constexpr ADDR_SIZE = sizeof(broadcastAddr);
 };
 
 template<class T>

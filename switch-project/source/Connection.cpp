@@ -84,6 +84,20 @@ std::string const Connection::ConnectedIP() const
     return std::string(ipBuffer);
 }
 
+bool Connection::Disconnect()
+{
+    if (connectedSocket >= 0)
+    {
+        auto connecterClosed = close(connectedSocket);
+        if (connecterClosed >= 0)
+            connectedSocket = -1;
+        else
+            return false;
+    }
+
+    return connectedSocket < 0;
+}
+
 bool Connection::Close()
 {
     if (connectedSocket >= 0)

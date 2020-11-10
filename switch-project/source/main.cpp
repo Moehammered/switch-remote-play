@@ -19,8 +19,10 @@
 #include "HostFinder.h"
 #include "FileOperations.h"
 #include "Configuration.h"
+#include "NetworkDiscovery.h"
 
 auto constexpr applicationFolder = "sdmc:/switch/switch-remote-play";
+auto constexpr noHostInfoMessage = "Host IP: Not yet found. Press 'L' to start search...";
 auto constexpr defaultControlMessage = 
 "Ready to accept a video stream connection.\n\
 Press d-pad to cycle stream settings.\n\n\
@@ -49,7 +51,11 @@ uint16_t constexpr gamepadPort = 20002;
 
 SDL_Color constexpr bgCol = {20, 20, 20, 255};
 SDL_Color constexpr black = {0,0,0, 255};
+SDL_Color constexpr green = { 100, 200, 100, 255 };
+SDL_Color constexpr red = { 200, 100, 100, 255 };
+SDL_Color constexpr blue = {100, 100, 200, 255};
 SDL_Color constexpr pendingStreamCol = { 60, 60, 60, 255 };
+
 uint32_t constexpr fontSize = 32;
 
 //30fps refresh rate
@@ -180,20 +186,20 @@ int main(int argc, char **argv)
     ScreenRenderer screen;
     
     Text const heading = {
-        .x = 400, .y = 20, .colour = { 100, 200, 100, 255 },
+        .x = 400, .y = 20, .colour = green,
         .value = "Switch Remote Play \\(^.^)/"
     };
     Text const controlsText = {
-        .x = 100, .y = 60, .colour = { 100, 200, 100, 255 }, 
+        .x = 100, .y = 60, .colour = green, 
         .value = defaultControlMessage
     };
     Text const streamPendingText = {
-        .x = 100, .y = 600, .colour = { 200, 100, 100, 255 },
+        .x = 100, .y = 600, .colour = red,
         .value = "Stream Pending Connection..." 
     };
     Text hostConnectionText = {
-        .x = 100, .y = 250, .colour = { 200, 100, 100, 255 },
-        .value = "Host IP: not yet found..."
+        .x = 100, .y = 250, .colour = red,
+        .value = noHostInfoMessage
     };
 
     // std::cout << "creating SDL window" << std::endl;
@@ -226,9 +232,11 @@ int main(int argc, char **argv)
     }
 
     auto configRenderer = FFMPEGConfigUI();
-
+    
+    NetworkDiscovery* network = nullptr;
+    auto nref = std::ref(network);
     std::thread inputThread = std::thread([&] {
-        RunInactiveStreamInput(streamState, configRenderer);
+        RunInactiveStreamInput(streamState, configRenderer, hostConnectPort, subnet, broadcastPort, nref);
     });
     
     std::thread gamepadThread;
@@ -281,12 +289,6 @@ int main(int argc, char **argv)
 
     auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, black);
     
-    // Make this happen on button press
-    Connection* cnRef = nullptr;
-    auto handshakeThread = std::thread(Handshake, handshakeKey, hostConnectPort, std::ref(cnRef));
-    std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
-    auto broadcastingThread = std::thread(BroadcastIdentity, handshakeKey, subnet, broadcastPort);
-
     auto runApp = true;
     while(appletMainLoop() && runApp)
     {
@@ -301,13 +303,21 @@ int main(int argc, char **argv)
 
                 controlsText.Render(screen.Renderer(), systemFont);
 
-                if(hostFound.load(std::memory_order_acquire))
+                if(nref.get() != nullptr && nref.get()->HostFound())
                 {
-                    hostConnectionText.value = "Host IP: " + foundIP;
+                    hostConnectionText.value = "Host IP: " + nref.get()->IPAddress();
                     hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
                 }
+                else if(nref.get() != nullptr && nref.get()->Searching())
+                {
+                    hostConnectionText.value = "Host IP: Searching...";
+                    hostConnectionText.Render(screen.Renderer(), systemFont, blue);
+                }
                 else
+                {
+                    hostConnectionText.value = noHostInfoMessage;
                     hostConnectionText.Render(screen.Renderer(), systemFont);
+                }
 
                 screen.PresentScreen();
 
@@ -327,9 +337,9 @@ int main(int argc, char **argv)
                 
                 screen.PresentScreen();
 
-                if(hostFound)
+                if(nref.get() != nullptr && nref.get()->HostFound())
                 {
-                    RunStartConfiguredStreamCommand(foundIP, hostConnectPort, configRenderer.Settings());
+                    RunStartConfiguredStreamCommand(nref.get()->IPAddress(), hostConnectPort, configRenderer.Settings());
                     auto streamOn = stream.WaitForStream(streamURL);
                     // std::cout << "stream connection found? " << streamOn << std::endl;
 
@@ -341,7 +351,7 @@ int main(int argc, char **argv)
 
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
                         // std::cout << "making gamepad thread" << std::endl;
-                        gamepadThread = std::thread(RunGamepadThread, foundIP, gamepadPort);
+                        gamepadThread = std::thread(RunGamepadThread, nref.get()->IPAddress(), gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
                     }
                 }
@@ -388,31 +398,23 @@ int main(int argc, char **argv)
         }
     }
     
+    std::cout << "about to deal with the reference to pointer...\n" ;
+    if(nref.get() != nullptr)
+    {
+        std::cout << "shutting down reference to pointer...\n" ;
+        nref.get()->Shutdown();
+
+        std::cout << "about to delete reference to pointer...\n" ;
+        std::this_thread::sleep_for(oneSecond*2);
+        delete nref.get();
+        nref.get() = nullptr;
+    }
+
     if(inputThread.joinable())
         inputThread.join();
 
     if(gamepadThread.joinable())
         gamepadThread.join();
-
-    //make sure the network discovery threads don't lock up
-    hostFound = true;
-    if(cnRef != nullptr)
-    {
-        // std::cout << "shutting down handshake connection..." << std::endl;
-
-        if(cnRef->Shutdown())
-            std::cout << "handshake connection shutdown" << std::endl;
-        else
-            std::cout << "failed to shutdown handshake connection" << std::endl;
-    }
-    
-    // std::cout << "Joining broadcaster thread... " << std::endl;
-    if(broadcastingThread.joinable())
-        broadcastingThread.join();
-        
-    // std::cout << "Joining handshake thread... " << std::endl;
-    if(handshakeThread.joinable())
-        handshakeThread.join();
 
     /*
         if plExit is not called, after consecutively opening the application 

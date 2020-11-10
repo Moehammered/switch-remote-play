@@ -9,6 +9,7 @@
 #include "CommandSender.h"
 #include <sys/socket.h>
 #include "FFMPEGConfigUI.h"
+#include "NetworkDiscovery.h"
 
 enum StreamState : int32_t
 {
@@ -55,7 +56,9 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Confi
     // std::cout << "Closed command socket" << std::endl;
 }
 
-bool ProcessInactiveStreamInput(u32 kDown, std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender)
+bool ProcessInactiveStreamInput(u32 kDown, std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender,
+                                uint16_t hostPort, std::string const subnet, uint16_t broadcastPort,
+                                std::reference_wrapper<NetworkDiscovery*> network)
 {
     auto state = streamState.load(std::memory_order_acquire);
 
@@ -77,12 +80,29 @@ bool ProcessInactiveStreamInput(u32 kDown, std::atomic_int32_t& streamState, FFM
             configRender.IncreaseSetting();
         else if(kDown & KEY_DLEFT)
             configRender.DecreaseSetting();
+        
+        if(kDown & KEY_L)
+        {
+            if(network.get() == nullptr)
+            {
+                network.get() = new NetworkDiscovery(hostPort, subnet, broadcastPort);
+                network.get()->Search();
+            }
+            else if(network.get()->Searching())
+            {
+                network.get()->Shutdown();
+                delete network.get();
+                network.get() = nullptr;
+            }
+        }
     }
     
     return true;
 }
 
-void RunInactiveStreamInput(std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender)
+void RunInactiveStreamInput(std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender,
+                            uint16_t hostPort, std::string const subnet, uint16_t broadcastPort,
+                            std::reference_wrapper<NetworkDiscovery*> network)
 {
     auto const sleepDuration = std::chrono::duration<int, std::milli>(16); //poll input 60fps
     while(appletMainLoop())
@@ -91,7 +111,8 @@ void RunInactiveStreamInput(std::atomic_int32_t& streamState, FFMPEGConfigUI& co
 
         //different buttons pressed compared to previous time
         u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-        if(!ProcessInactiveStreamInput(kDown, streamState, configRender))
+        if(!ProcessInactiveStreamInput(kDown, streamState, configRender,
+                                        hostPort, subnet, broadcastPort, network))
             break;
     
         std::this_thread::sleep_for(sleepDuration);
