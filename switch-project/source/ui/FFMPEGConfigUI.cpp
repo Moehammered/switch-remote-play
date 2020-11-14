@@ -35,17 +35,22 @@ constexpr const char* vsyncModeToString(const int8_t mode)
 FFMPEGConfigUI::FFMPEGConfigUI() 
     : settingIndex(0), settingsIndices{}, menu{}
 {
-    
+    settingsIndices[framerateIndex] = 1;
+    settingsIndices[videoResIndex] = 0;
+    settingsIndices[videoScaleIndex] = 0;
+    settingsIndices[bitrateIndex] = 4;
+    settingsIndices[vsyncIndex] = 4;
+
+    constexpr auto defFps = framerates[1];
+    constexpr auto defVideoRes = videoCaptureResolutions[0];
+    constexpr auto defScale = videoScaleResolutions[0];
+    constexpr auto defBitrate = bitratesKB[4];
+    constexpr auto defVsync = vsyncModeToString(vsyncModes[4]);
+
     auto textColour = SDL_Color{.r = 200, .g = 200, .b = 200, .a = 255};
     const int settingTextX = 100;
     const int yOffset = 300;
     const int ySpace = 50;
-
-    constexpr auto defFps = framerates[0];
-    constexpr auto defVideoRes = videoCaptureResolutions[0];
-    constexpr auto defScale = videoScaleResolutions[0];
-    constexpr auto defBitrate = bitratesKB[0];
-    constexpr auto defVsync = vsyncModeToString(vsyncModes[0]);
 
     for(size_t i = 0; i < settingsCount; ++i)
     {

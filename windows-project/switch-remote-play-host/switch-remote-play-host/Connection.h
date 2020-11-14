@@ -19,6 +19,8 @@ public:
 
 	std::string const ConnectedIP() const;
 
+	bool Disconnect();
+
 	bool Close();
 
 	bool Shutdown();

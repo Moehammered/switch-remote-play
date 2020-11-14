@@ -119,6 +119,20 @@ std::string const Connection::ConnectedIP() const
     return std::string(ipBuffer);
 }
 
+bool Connection::Disconnect()
+{
+    if (connectedSocket != INVALID_SOCKET)
+    {
+        auto connecterClosed = closesocket(connectedSocket);
+        if (connecterClosed != SOCKET_ERROR)
+            connectedSocket = INVALID_SOCKET;
+        else
+            return false;
+    }
+
+    return connectedSocket == INVALID_SOCKET;
+}
+
 bool Connection::Close()
 {
     if (connectedSocket != INVALID_SOCKET)

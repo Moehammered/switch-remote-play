@@ -46,8 +46,9 @@ auto constexpr streamURL = "tcp://0.0.0.0:2222";
 auto constexpr handshakeKey = "let-me-play";
 auto constexpr subnet = "192.168.0.255";
 
+uint16_t constexpr handshakePort = 19999;
 uint16_t constexpr broadcastPort = 20000;
-uint16_t constexpr hostConnectPort = 20001;
+uint16_t constexpr hostCommandPort = 20001;
 uint16_t constexpr gamepadPort = 20002;
 
 SDL_Color constexpr bgCol = {20, 20, 20, 255};
@@ -239,7 +240,7 @@ int main(int argc, char **argv)
     NetworkDiscovery* networkInstancePointer = nullptr;
     auto networkPointerRef = std::ref(networkInstancePointer);
     std::thread inputThread = std::thread([&] {
-        RunInactiveStreamInput(streamState, configRenderer, hostConnectPort, subnet, broadcastPort, networkPointerRef);
+        RunInactiveStreamInput(streamState, configRenderer, handshakePort, subnet, broadcastPort, networkPointerRef);
     });
     
     std::thread gamepadThread;
@@ -344,7 +345,7 @@ int main(int argc, char **argv)
 
                 if(networkPointerRef.get() != nullptr && networkPointerRef.get()->HostFound())
                 {
-                    RunStartConfiguredStreamCommand(networkPointerRef.get()->IPAddress(), hostConnectPort, configRenderer.Settings());
+                    RunStartConfiguredStreamCommand(networkPointerRef.get()->IPAddress(), hostCommandPort, configRenderer.Settings());
                     auto streamOn = stream.WaitForStream(streamURL);
                     // std::cout << "stream connection found? " << streamOn << std::endl;
 
