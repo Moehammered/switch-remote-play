@@ -11,8 +11,8 @@ struct alignas(16) FFMPEG_Config
     int16_t     scaleX;
     int16_t     scaleY;
     uint16_t    bitrateKB;
-    int8_t      vsyncMode;
-    int8_t      padding[3];
+    int16_t     vsyncMode;
+    int8_t      padding[2];
 };
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);

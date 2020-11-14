@@ -9,17 +9,18 @@
 #include <atomic>
 #include <switch.h>
 #include "ScreenRenderer.h"
-#include "VideoStream.h"
+#include "stream/VideoStream.h"
 #include "InputThread.h"
-#include "StreamDecoder.h"
-#include "Text.h"
-#include "FFMPEGConfigUI.h"
-#include "SystemSetup.h"
-#include "Broadcast.h"
-#include "HostFinder.h"
-#include "FileOperations.h"
-#include "Configuration.h"
-#include "NetworkDiscovery.h"
+#include "stream/StreamDecoder.h"
+#include "ui/Text.h"
+#include "ui/FFMPEGConfigUI.h"
+#include "system/SystemSetup.h"
+#include "network/Broadcast.h"
+#include "network/HostFinder.h"
+#include "system/FileOperations.h"
+#include "system/Configuration.h"
+#include "network/NetworkDiscovery.h"
+#include "ui/Menu.h"
 
 auto constexpr applicationFolder = "sdmc:/switch/switch-remote-play";
 auto constexpr noHostInfoMessage = "Host IP: Not yet found. Press 'L' to start search...";
@@ -151,7 +152,7 @@ void TestConfigurationFile()
     std::cout << "        video_resolution: " << savedffmpeg.videoX << "x" << savedffmpeg.videoY << std::endl;
     std::cout << "        video_scale: " << savedffmpeg.scaleX<< "x" << savedffmpeg.scaleY << std::endl;
     std::cout << "        bitrate_kb: " << savedffmpeg.bitrateKB << std::endl;
-    std::cout << "        vsync_mode: " << (int)savedffmpeg.vsyncMode << std::endl;
+    std::cout << "        vsync_mode: " << savedffmpeg.vsyncMode << std::endl;
 
     auto fakeIP = "192.168.0.20";
     auto fakeMpegSettings = FFMPEG_Config{
@@ -172,7 +173,7 @@ void TestConfigurationFile()
     std::cout << "        video_resolution: " << savedffmpeg2.videoX << "x" << savedffmpeg2.videoY << std::endl;
     std::cout << "        video_scale: " << savedffmpeg2.scaleX<< "x" << savedffmpeg2.scaleY << std::endl;
     std::cout << "        bitrate_kb: " << savedffmpeg2.bitrateKB << std::endl;
-    std::cout << "        vsync_mode: " << (int)savedffmpeg2.vsyncMode << std::endl;
+    std::cout << "        vsync_mode: " << savedffmpeg2.vsyncMode << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -185,22 +186,24 @@ int main(int argc, char **argv)
     
     ScreenRenderer screen;
     
-    Text const heading = {
-        .x = 400, .y = 20, .colour = green,
-        .value = "Switch Remote Play \\(^.^)/"
-    };
-    Text const controlsText = {
-        .x = 100, .y = 60, .colour = green, 
-        .value = defaultControlMessage
-    };
     Text const streamPendingText = {
         .x = 100, .y = 600, .colour = red,
         .value = "Stream Pending Connection..." 
     };
-    Text hostConnectionText = {
+    
+    auto titleMenu = Menu{};
+    auto& heading = titleMenu.AddElement({
+        .x = 400, .y = 20, .colour = green,
+        .value = "Switch Remote Play \\(^.^)/"
+    });
+    auto& controlsText = titleMenu.AddElement({
+        .x = 100, .y = 60, .colour = green, 
+        .value = defaultControlMessage
+    });
+    auto& hostConnectionText = titleMenu.AddElement({
         .x = 100, .y = 250, .colour = red,
         .value = noHostInfoMessage
-    };
+    });
 
     // std::cout << "creating SDL window" << std::endl;
     bool initOK = screen.Initialise(1280, 720, false);
@@ -233,10 +236,10 @@ int main(int argc, char **argv)
 
     auto configRenderer = FFMPEGConfigUI();
     
-    NetworkDiscovery* network = nullptr;
-    auto nref = std::ref(network);
+    NetworkDiscovery* networkInstancePointer = nullptr;
+    auto networkPointerRef = std::ref(networkInstancePointer);
     std::thread inputThread = std::thread([&] {
-        RunInactiveStreamInput(streamState, configRenderer, hostConnectPort, subnet, broadcastPort, nref);
+        RunInactiveStreamInput(streamState, configRenderer, hostConnectPort, subnet, broadcastPort, networkPointerRef);
     });
     
     std::thread gamepadThread;
@@ -298,17 +301,18 @@ int main(int argc, char **argv)
             {
                 screen.ClearScreen(bgCol);
         
-                heading.Render(screen.Renderer(), systemFont);
+                // heading.Render(screen.Renderer(), systemFont);
+                titleMenu.Render(screen.Renderer(), systemFont);
                 configRenderer.Render(screen.Renderer(), systemFont);
 
-                controlsText.Render(screen.Renderer(), systemFont);
+                // controlsText.Render(screen.Renderer(), systemFont);
 
-                if(nref.get() != nullptr && nref.get()->HostFound())
+                if(networkPointerRef.get() != nullptr && networkPointerRef.get()->HostFound())
                 {
-                    hostConnectionText.value = "Host IP: " + nref.get()->IPAddress();
+                    hostConnectionText.value = "Host IP: " + networkPointerRef.get()->IPAddress();
                     hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
                 }
-                else if(nref.get() != nullptr && nref.get()->Searching())
+                else if(networkPointerRef.get() != nullptr && networkPointerRef.get()->Searching())
                 {
                     hostConnectionText.value = "Host IP: Searching...";
                     hostConnectionText.Render(screen.Renderer(), systemFont, blue);
@@ -331,15 +335,16 @@ int main(int argc, char **argv)
                 //display on the screen a connection is pending
                 screen.ClearScreen(pendingStreamCol);
 
-                heading.Render(screen.Renderer(), systemFont);
+                // heading.Render(screen.Renderer(), systemFont);
+                titleMenu.Render(screen.Renderer(), systemFont);
                 
                 streamPendingText.Render(screen.Renderer(), systemFont);
                 
                 screen.PresentScreen();
 
-                if(nref.get() != nullptr && nref.get()->HostFound())
+                if(networkPointerRef.get() != nullptr && networkPointerRef.get()->HostFound())
                 {
-                    RunStartConfiguredStreamCommand(nref.get()->IPAddress(), hostConnectPort, configRenderer.Settings());
+                    RunStartConfiguredStreamCommand(networkPointerRef.get()->IPAddress(), hostConnectPort, configRenderer.Settings());
                     auto streamOn = stream.WaitForStream(streamURL);
                     // std::cout << "stream connection found? " << streamOn << std::endl;
 
@@ -351,7 +356,7 @@ int main(int argc, char **argv)
 
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
                         // std::cout << "making gamepad thread" << std::endl;
-                        gamepadThread = std::thread(RunGamepadThread, nref.get()->IPAddress(), gamepadPort);
+                        gamepadThread = std::thread(RunGamepadThread, networkPointerRef.get()->IPAddress(), gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
                     }
                 }
@@ -399,15 +404,15 @@ int main(int argc, char **argv)
     }
     
     std::cout << "about to deal with the reference to pointer...\n" ;
-    if(nref.get() != nullptr)
+    if(networkPointerRef.get() != nullptr)
     {
         std::cout << "shutting down reference to pointer...\n" ;
-        nref.get()->Shutdown();
+        networkPointerRef.get()->Shutdown();
 
         std::cout << "about to delete reference to pointer...\n" ;
-        std::this_thread::sleep_for(oneSecond*2);
-        delete nref.get();
-        nref.get() = nullptr;
+        std::this_thread::sleep_for(oneSecond);
+        delete networkPointerRef.get();
+        networkPointerRef.get() = nullptr;
     }
 
     if(inputThread.joinable())

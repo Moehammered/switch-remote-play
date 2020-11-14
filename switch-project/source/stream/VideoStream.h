@@ -9,7 +9,7 @@ extern "C"
 }
 #include <string>
 #include <atomic>
-#include "ScreenRenderer.h"
+#include "../ScreenRenderer.h"
 
 class VideoStream
 {

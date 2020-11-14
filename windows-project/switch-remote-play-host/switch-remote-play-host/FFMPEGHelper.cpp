@@ -115,7 +115,7 @@ std::string ConfigToString(FFMPEG_Config const config)
     }
 
     stringstream args;
-    args << "Vsync Mode: " << (int)config.vsyncMode << " (" << vsyncText << ")" << endl;
+    args << "Vsync Mode: " << config.vsyncMode << " (" << vsyncText << ")" << endl;
     args << "Target Framerate: " << config.desiredFrameRate << " fps" << endl;
     args << "Video Capture Size(x,y): " << config.videoX << ", " << config.videoY << endl;
     args << "Stream Scale Size(x,y): " << config.scaleX << ", " << config.scaleY << endl;

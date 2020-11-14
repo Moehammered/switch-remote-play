@@ -1,7 +1,7 @@
 #ifndef __CONFIGURATION_H__
 #define __CONFIGURATION_H__
 
-#include "NetworkData.h"
+#include "../network/NetworkData.h"
 #include <string>
 /* Configuration File Layout
 

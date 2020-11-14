@@ -152,7 +152,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
         return false;
     }
 
-    auto vsync = std::to_string((int)data.vsyncMode);
+    auto vsync = std::to_string(data.vsyncMode);
     if(!ReplaceVariable(newData, VSYNC_TAG, vsync, newData))
     {
         std::cout << "Save error --> couldn't replace " << VSYNC_TAG << std::endl;

@@ -4,7 +4,8 @@
 #include <array>
 #include <SDL2/SDL_render.h>
 #include "Text.h"
-#include "NetworkData.h"
+#include "../network/NetworkData.h"
+#include "Menu.h"
 
 struct Resolution
 {
@@ -27,10 +28,6 @@ class FFMPEGConfigUI
         void SelectPrevious();
         void Render(SDL_Renderer* renderer, FC_Font* font);
         FFMPEG_Config const Settings();
-    
-        SDL_Color highlight;
-        SDL_Color textColour;
-        SDL_Color backgroundColour;
 
     private:
         static constexpr int framerateIndex = 0;
@@ -41,16 +38,16 @@ class FFMPEGConfigUI
         int settingIndex;
 
         static constexpr int settingsCount = 5;
-        std::array<int, settingsCount> settingsIndices;
+        std::array<size_t, settingsCount> settingsIndices;
 
-        std::array<Text, settingsCount> settingsText;
+        Menu menu;
 
         static constexpr std::array<const int16_t, 2> framerates = { 30, 60 };
         static constexpr std::array<const Resolution, 2> videoCaptureResolutions = {
             1920, 1080, 1280, 720
         };
         static constexpr std::array<const Resolution, 2> videoScaleResolutions = {
-            1280, 720, 1980, 720
+            1280, 720, 1980, 1080
         };
         static constexpr std::array<const uint16_t, 10> bitratesKB = {
             mbToKb(3), mbToKb(4), mbToKb(4.5), mbToKb(5), mbToKb(5.5), 
@@ -60,11 +57,7 @@ class FFMPEGConfigUI
             -1, 0, 1, 2, 3
         };
 
-        void UpdateFramerate();
-        void UpdateVideoRes();
-        void UpdateVideoScale();
-        void UpdateBitrate();
-        void UpdateVsync();
+        void UpdateSetting(int index, Text& element, int direction);
 };
 
 #endif

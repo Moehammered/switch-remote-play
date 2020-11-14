@@ -5,11 +5,11 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
-#include "VideoStream.h"
-#include "CommandSender.h"
+#include "stream/VideoStream.h"
+#include "network/CommandSender.h"
 #include <sys/socket.h>
-#include "FFMPEGConfigUI.h"
-#include "NetworkDiscovery.h"
+#include "ui/FFMPEGConfigUI.h"
+#include "network/NetworkDiscovery.h"
 
 enum StreamState : int32_t
 {
