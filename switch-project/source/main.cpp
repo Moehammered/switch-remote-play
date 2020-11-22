@@ -21,26 +21,7 @@
 #include "system/Configuration.h"
 #include "network/NetworkDiscovery.h"
 #include "ui/Menu.h"
-
-auto constexpr applicationFolder = "sdmc:/switch/switch-remote-play";
-auto constexpr noHostInfoMessage = "Host IP: Not yet found. Press 'L' to start search...";
-auto constexpr defaultControlMessage = 
-"Ready to accept a video stream connection.\n\
-Press d-pad to cycle stream settings.\n\n\
-Press 'R' to start stream connection.\n\
-(will be unresponsive until a connection to a PC is made)";
-
-auto constexpr defaultConfigFile =
-"\
-\n\
-found_ip=192.168.0.19;\n\
-desired_framerate=60; comment goes here\n\
-video_resolution=1920x1080; another one here\n\
-video_scale=1280x720;\n\
-bitrate_kb=5120;\n\
-vsync_mode=2;\n\
-\n\
-";
+#include "MainScreen.h"
 
 auto constexpr streamURL = "tcp://0.0.0.0:2222";
 auto constexpr handshakeKey = "let-me-play";
@@ -52,11 +33,7 @@ uint16_t constexpr hostCommandPort = 20001;
 uint16_t constexpr gamepadPort = 20002;
 
 SDL_Color constexpr bgCol = {20, 20, 20, 255};
-SDL_Color constexpr black = {0,0,0, 255};
-SDL_Color constexpr green = { 100, 200, 100, 255 };
-SDL_Color constexpr red = { 200, 100, 100, 255 };
-SDL_Color constexpr blue = {100, 100, 200, 255};
-SDL_Color constexpr pendingStreamCol = { 60, 60, 60, 255 };
+SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
 
 uint32_t constexpr fontSize = 32;
 
@@ -66,191 +43,10 @@ auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
 
 std::atomic_int32_t streamState;
 
-void TestFileOperations()
+void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& streamDecoder,
+                    SDL_Texture* rendererScreenTexture, SDL_Rect& renderRegion,
+                    ScreenRenderer& screen, std::thread& gamepadThread)
 {
-    
-    {
-        auto filePath = "sdmc:/switch/switch-remote-play/srp-defaultMessage.txt";
-        if(saveTextToFile(filePath, defaultControlMessage))
-        {
-            std::cout << "wrote default control message to file: " << filePath << std::endl;
-        }
-        else
-        {
-            std::cout << "Failed to write default control message to file: " << filePath << std::endl;
-        }
-    }
-    {
-        std::string txt = std::string{};
-        auto filePath = "sdmc:/switch/switch-remote-play/config.ini";
-        if(readFileAsText(filePath, txt))
-        {
-            std::cout << "Opened test txt file: " << filePath << std::endl;
-            std::cout << txt << std::endl << std::endl;
-        }
-        else
-        {
-            std::cout << "Failed to open test txt file: " << filePath << std::endl;
-            if(saveTextToFile(filePath, defaultConfigFile))
-            {
-                std::cout << "Saved default config file: " << filePath << std::endl;
-                if(readFileAsText(filePath, txt))
-                {
-                    std::cout << "Opened config: " << filePath << std::endl;
-                    std::cout << txt << std::endl << std::endl;
-                }
-            }
-        }
-    }
-    {
-        auto filePath = "sdmc:/";
-        auto folder = "switch";
-        if(directoryExists(filePath, folder))
-        {
-            std::cout << "Found " << folder << " in " << filePath << std::endl;
-
-            if(!directoryExists(applicationFolder))
-            {
-                std::cout << "    Application folder missing. Creating now." << std::endl;
-
-                if(createDirectory("sdmc:/switch/", "switch-remote-play"))
-                {
-                    std::cout << "        Created missing directory. Checking to make sure it's there." << std::endl;
-
-                    if(directoryExists(applicationFolder))
-                        std::cout << "            It's there. All good now." << std::endl;
-                    else
-                        std::cout << "            It's not there... Failed to make directory properly." << std::endl;
-                }
-                else
-                    std::cout << "        Failed to create missing directory." << std::endl;
-            }
-        }
-        else
-            std::cout << "Failed to find " << folder << " in " << filePath << std::endl;
-    }
-    auto appDir = getApplicationDirectory();
-    std::cout << "File in App directory: " << appDir << std::endl;
-    std::cout << "App directory" << std::endl;
-    auto appDirFiles = readApplicationDirectory();
-    for(auto& file : appDirFiles)
-        std::cout << "    File: " << file << std::endl;
-
-    std::cout << std::endl << "Root directory" << std::endl;
-    auto rootDirFiles = readRootDirectory();
-    for(auto& file : rootDirFiles)
-        std::cout << "    File: " << file << std::endl;
-}
-
-void TestConfigurationFile()
-{
-    std::cout << "Testing Configuration File IO " << std::endl;
-    auto config = Configuration();
-    std::cout << "    Last Found IP Saved: " << config.FoundIP() << std::endl << std::endl;
-    auto savedffmpeg = config.FFMPEGData();
-    std::cout << "    Reading FFMPEG Settings: " << std::endl;
-    std::cout << "        desired_framerate: " << savedffmpeg.desiredFrameRate << std::endl;
-    std::cout << "        video_resolution: " << savedffmpeg.videoX << "x" << savedffmpeg.videoY << std::endl;
-    std::cout << "        video_scale: " << savedffmpeg.scaleX<< "x" << savedffmpeg.scaleY << std::endl;
-    std::cout << "        bitrate_kb: " << savedffmpeg.bitrateKB << std::endl;
-    std::cout << "        vsync_mode: " << savedffmpeg.vsyncMode << std::endl;
-
-    auto fakeIP = "192.168.0.20";
-    auto fakeMpegSettings = FFMPEG_Config{
-        .desiredFrameRate = 600, .videoX=2160, .videoY = 1440,
-        .scaleX = 960, .scaleY = 540, .bitrateKB = 11111, .vsyncMode = 5
-    };
-    std::cout << "    Saving fake IP to settings: " << fakeIP << std::endl;
-    config.SaveFoundIP(fakeIP);
-    std::cout << "    Saving fake MPEG settings: " << config.SaveFFMPEG(fakeMpegSettings) << std::endl;
-    
-    auto config2 = Configuration();
-    std::cout << "        IP loaded from config: " << config.FoundIP() << std::endl;
-    std::cout << "        IP loaded from config2 (reloading file): " << config2.FoundIP() << std::endl;
-
-    auto savedffmpeg2 = config2.FFMPEGData();
-    std::cout << "    Reading FFMPEG Settings: " << std::endl;
-    std::cout << "        desired_framerate: " << savedffmpeg2.desiredFrameRate << std::endl;
-    std::cout << "        video_resolution: " << savedffmpeg2.videoX << "x" << savedffmpeg2.videoY << std::endl;
-    std::cout << "        video_scale: " << savedffmpeg2.scaleX<< "x" << savedffmpeg2.scaleY << std::endl;
-    std::cout << "        bitrate_kb: " << savedffmpeg2.bitrateKB << std::endl;
-    std::cout << "        vsync_mode: " << savedffmpeg2.vsyncMode << std::endl;
-}
-
-int main(int argc, char **argv)
-{
-    initialiseSwitch(); 
-    // std::cout << "basic switch services initialised" << std::endl << std::endl;
-    // TestFileOperations();
-    TestConfigurationFile();
-    streamState = { StreamState::INACTIVE };
-    
-    ScreenRenderer screen;
-    
-    Text const streamPendingText = {
-        .x = 100, .y = 600, .colour = red,
-        .value = "Stream Pending Connection..." 
-    };
-    
-    auto titleMenu = Menu{};
-    auto& heading = titleMenu.AddElement({
-        .x = 400, .y = 20, .colour = green,
-        .value = "Switch Remote Play \\(^.^)/"
-    });
-    auto& controlsText = titleMenu.AddElement({
-        .x = 100, .y = 60, .colour = green, 
-        .value = defaultControlMessage
-    });
-    auto& hostConnectionText = titleMenu.AddElement({
-        .x = 100, .y = 250, .colour = red,
-        .value = noHostInfoMessage
-    });
-
-    // std::cout << "creating SDL window" << std::endl;
-    bool initOK = screen.Initialise(1280, 720, false);
-
-    if(!initOK)
-    {
-        //send a copy to the nxlink server
-        auto errorMessage = "Failed to initialise screen renderer...";
-        std::cout << errorMessage << std::endl;
-        
-        plExit();
-        //doesn't display for now on the switch screen from nxlink redirecting stdio
-        consoleInit(NULL);
-        std::cout << errorMessage << std::endl;
-        
-        consoleUpdate(NULL);
-        int countdown = 3;
-        while(countdown > 0)
-        {
-            --countdown;
-            std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
-            consoleUpdate(NULL);
-        }
-
-        consoleExit(NULL);
-        
-        socketExit();
-        return -1;
-    }
-
-    auto configRenderer = FFMPEGConfigUI();
-    
-    NetworkDiscovery* networkInstancePointer = nullptr;
-    auto networkPointerRef = std::ref(networkInstancePointer);
-    std::thread inputThread = std::thread([&] {
-        RunInactiveStreamInput(streamState, configRenderer, handshakePort, subnet, broadcastPort, networkPointerRef);
-    });
-    
-    std::thread gamepadThread;
-    VideoStream stream;
-
-    StreamDecoder* streamDecoder = nullptr;
-    AVPacket streamPacket;
-    auto rendererScreenTexture = screen.GetScreenTexture();
-    auto renderRegion = screen.Region();
-    auto processStream = [&]{
         if(stream.Read(streamPacket))
         {
             if(streamDecoder->DecodeFramePacket(streamPacket))
@@ -291,6 +87,51 @@ int main(int argc, char **argv)
         }
     };
 
+int main(int argc, char **argv)
+{
+    initialiseSwitch(); 
+    streamState = { StreamState::INACTIVE };
+    
+    ScreenRenderer screen;
+    bool initOK = screen.Initialise(1280, 720, false);
+    SetupMainScreen();
+
+    if(!initOK)
+    {
+        //send a copy to the nxlink server
+        auto errorMessage = "Failed to initialise screen renderer...";
+        std::cout << errorMessage << std::endl;
+        
+        plExit();
+        //doesn't display for now on the switch screen from nxlink redirecting stdio
+        consoleInit(NULL);
+        std::cout << errorMessage << std::endl;
+        
+        consoleUpdate(NULL);
+        int countdown = 3;
+        while(countdown > 0)
+        {
+            --countdown;
+            std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
+            consoleUpdate(NULL);
+        }
+
+        consoleExit(NULL);
+        
+        socketExit();
+        return -1;
+    }
+
+    auto network = NetworkDiscovery{handshakePort, subnet, broadcastPort};
+    
+    std::thread gamepadThread;
+    VideoStream stream;
+
+    StreamDecoder* streamDecoder = nullptr;
+    AVPacket streamPacket;
+    auto rendererScreenTexture = screen.GetScreenTexture();
+    auto renderRegion = screen.Region();
+    
     auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, black);
     
     auto runApp = true;
@@ -302,28 +143,31 @@ int main(int argc, char **argv)
             {
                 screen.ClearScreen(bgCol);
         
-                // heading.Render(screen.Renderer(), systemFont);
-                titleMenu.Render(screen.Renderer(), systemFont);
-                configRenderer.Render(screen.Renderer(), systemFont);
+                hidScanInput();
+                auto kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 
-                // controlsText.Render(screen.Renderer(), systemFont);
+                if(kDown & KEY_PLUS)
+                    streamState.store(StreamState::QUIT, std::memory_order_release);
+                if(kDown & KEY_DUP)
+                    configRenderer.SelectPrevious();
+                else if(kDown & KEY_DDOWN)
+                    configRenderer.SelectNext();
+                else if(kDown & KEY_R)
+                    streamState.store(StreamState::REQUESTED, std::memory_order_release);
 
-                if(networkPointerRef.get() != nullptr && networkPointerRef.get()->HostFound())
+                if(kDown & KEY_DRIGHT)
+                    configRenderer.IncreaseSetting();
+                else if(kDown & KEY_DLEFT)
+                    configRenderer.DecreaseSetting();
+                
+                if(kDown & KEY_L)
                 {
-                    hostConnectionText.value = "Host IP: " + networkPointerRef.get()->IPAddress();
-                    hostConnectionText.Render(screen.Renderer(), systemFont, heading.colour);
-                }
-                else if(networkPointerRef.get() != nullptr && networkPointerRef.get()->Searching())
-                {
-                    hostConnectionText.value = "Host IP: Searching...";
-                    hostConnectionText.Render(screen.Renderer(), systemFont, blue);
-                }
-                else
-                {
-                    hostConnectionText.value = noHostInfoMessage;
-                    hostConnectionText.Render(screen.Renderer(), systemFont);
+                    if(!network.Searching())
+                        network.Search();
                 }
 
+                RenderMainScreen(screen.Renderer(), systemFont);
+                RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 screen.PresentScreen();
 
                 // no point thrashing the screen to refresh text
@@ -334,20 +178,17 @@ int main(int argc, char **argv)
             case StreamState::REQUESTED:
             {
                 //display on the screen a connection is pending
-                screen.ClearScreen(pendingStreamCol);
-
-                // heading.Render(screen.Renderer(), systemFont);
-                titleMenu.Render(screen.Renderer(), systemFont);
+                screen.ClearScreen(pendingStreamBgCol);
                 
-                streamPendingText.Render(screen.Renderer(), systemFont);
+                RenderPendingConnectionScreen(screen.Renderer(), systemFont);
+                RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 
                 screen.PresentScreen();
 
-                if(networkPointerRef.get() != nullptr && networkPointerRef.get()->HostFound())
+                if(network.HostFound())
                 {
-                    RunStartConfiguredStreamCommand(networkPointerRef.get()->IPAddress(), hostCommandPort, configRenderer.Settings());
+                    RunStartConfiguredStreamCommand(network.IPAddress(), hostCommandPort, configRenderer.Settings());
                     auto streamOn = stream.WaitForStream(streamURL);
-                    // std::cout << "stream connection found? " << streamOn << std::endl;
 
                     if(streamOn)
                     {
@@ -356,8 +197,7 @@ int main(int argc, char **argv)
                             delete streamDecoder;
 
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                        // std::cout << "making gamepad thread" << std::endl;
-                        gamepadThread = std::thread(RunGamepadThread, networkPointerRef.get()->IPAddress(), gamepadPort);
+                        gamepadThread = std::thread(RunGamepadThread, network.IPAddress(), gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
                     }
                 }
@@ -371,7 +211,9 @@ int main(int argc, char **argv)
 
             case StreamState::ACTIVE:
             {
-                processStream();
+                processStream(stream, streamPacket, streamDecoder, 
+                                rendererScreenTexture, renderRegion, 
+                                screen, gamepadThread);
             }
             break;
 
@@ -383,17 +225,13 @@ int main(int argc, char **argv)
         }
     }
 
-    // std::cout << "exiting application..." << std::endl;
-
     SDL_Quit();
 
     //wait here if the stream is still on so we can clean it up properly
     if(streamState.load() == StreamState::ACTIVE)
     {
-        // std::cout << "waiting for stream to stop..." << std::endl;
         while(streamState.load() == StreamState::ACTIVE)
             std::this_thread::sleep_for(thirtyThreeMs);
-        // std::cout << "cleaning up stream" << std::endl;
         stream.Cleanup();
 
         if(streamDecoder != nullptr)
@@ -404,20 +242,8 @@ int main(int argc, char **argv)
         }
     }
     
-    std::cout << "about to deal with the reference to pointer...\n" ;
-    if(networkPointerRef.get() != nullptr)
-    {
-        std::cout << "shutting down reference to pointer...\n" ;
-        networkPointerRef.get()->Shutdown();
-
-        std::cout << "about to delete reference to pointer...\n" ;
-        std::this_thread::sleep_for(oneSecond);
-        delete networkPointerRef.get();
-        networkPointerRef.get() = nullptr;
-    }
-
-    if(inputThread.joinable())
-        inputThread.join();
+    if(network.Searching())
+        network.Shutdown();
 
     if(gamepadThread.joinable())
         gamepadThread.join();
@@ -428,8 +254,7 @@ int main(int argc, char **argv)
     */
     plExit();
     FreeFont(systemFont);
-
-    // std::cout << "End of main reached" << std::endl;
     socketExit();
+    
     return 0;
 }

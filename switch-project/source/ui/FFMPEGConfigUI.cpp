@@ -1,13 +1,27 @@
 #include "FFMPEGConfigUI.h"
 #include <string>
 
-constexpr std::array<const int16_t, 2> FFMPEGConfigUI::framerates;
-constexpr std::array<const Resolution, 2> FFMPEGConfigUI::videoCaptureResolutions;
-constexpr std::array<const Resolution, 2> FFMPEGConfigUI::videoScaleResolutions;
-constexpr std::array<const uint16_t, 10> FFMPEGConfigUI::bitratesKB;
-constexpr std::array<const int8_t, 5> FFMPEGConfigUI::vsyncModes;
+constexpr uint16_t mbToKb(double mbs)
+{
+    return mbs * 1024;
+}
 
-constexpr const char* vsyncModeToString(const int8_t mode)
+constexpr std::array<const int16_t, 2> framerates = { 30, 60 };
+constexpr std::array<const Resolution, 2> videoCaptureResolutions = {
+    1920, 1080, 1280, 720
+};
+constexpr std::array<const Resolution, 2> videoScaleResolutions = {
+    1280, 720, 1980, 720
+};
+constexpr std::array<const uint16_t, 10> bitratesKB = {
+    mbToKb(3), mbToKb(4), mbToKb(4.5), mbToKb(5), mbToKb(5.5), 
+    mbToKb(6), mbToKb(6.5), mbToKb(7), mbToKb(7.5), mbToKb(8)
+};
+constexpr std::array<const int16_t, 5> vsyncModes = {
+    -1, 0, 1, 2, 3
+};
+
+constexpr const char* vsyncModeToString(const int16_t mode)
 {
     switch(mode)
     {
@@ -32,89 +46,140 @@ constexpr const char* vsyncModeToString(const int8_t mode)
 }
 
 
-FFMPEGConfigUI::FFMPEGConfigUI() 
-    : settingIndex(0), settingsIndices{}, menu{}
+FFMPEGConfigUI::FFMPEGConfigUI() : 
+highlight {.r = 200, .g = 200, .b = 50, .a = 255}, 
+textColour {.r = 200, .g = 200, .b = 200, .a = 255},
+backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255},
+settingIndex(0), settingsIndices{}, settingsText{}
 {
+    const int settingTextX = 100;
+    const int yOffset = 300;
+    const int ySpace = 50;
+    int counter = 1;
+    for(auto &t : settingsText)
+    {
+        t.colour = textColour;
+        t.x = settingTextX;
+        t.y = yOffset + ySpace * counter++;
+    }
+
     settingsIndices[framerateIndex] = 1;
     settingsIndices[videoResIndex] = 0;
     settingsIndices[videoScaleIndex] = 0;
     settingsIndices[bitrateIndex] = 4;
     settingsIndices[vsyncIndex] = 4;
 
-    constexpr auto defFps = framerates[1];
-    constexpr auto defVideoRes = videoCaptureResolutions[0];
-    constexpr auto defScale = videoScaleResolutions[0];
-    constexpr auto defBitrate = bitratesKB[4];
-    constexpr auto defVsync = vsyncModeToString(vsyncModes[4]);
+    auto defFps = framerates[settingsIndices[framerateIndex]];
+    auto defVideoRes = videoCaptureResolutions[settingsIndices[videoResIndex]];
+    auto defScale = videoScaleResolutions[settingsIndices[videoScaleIndex]];
+    auto defBitrate = bitratesKB[settingsIndices[bitrateIndex]];
+    auto defVsync = vsyncModeToString(vsyncModes[settingsIndices[vsyncIndex]]);
 
-    auto textColour = SDL_Color{.r = 200, .g = 200, .b = 200, .a = 255};
-    const int settingTextX = 100;
-    const int yOffset = 300;
-    const int ySpace = 50;
-
-    for(size_t i = 0; i < settingsCount; ++i)
-    {
-        Text element{};
-        element.colour = textColour;
-        element.x = settingTextX;
-        element.y = yOffset + ySpace * (i+1);
-
-        switch(i)
-        {
-            case framerateIndex:
-                element.value = "Desired framerate: " + std::to_string(defFps);
-            break;
-
-            case videoResIndex:
-                element.value = "Video Res: " 
-                                + std::to_string(defVideoRes.width) 
-                                + "x" + std::to_string(defVideoRes.height);
-            break;
-
-            case videoScaleIndex:
-                element.value = "Scale Res: "
-                                + std::to_string(defScale.width) 
-                                + "x" + std::to_string(defScale.height);
-            break;
-
-            case bitrateIndex:
-                element.value = "Bitrate(KB/s): " + std::to_string(defBitrate);
-            break;
-
-            case vsyncIndex:
-                element.value = "Vsync Mode: " + std::string(defVsync);
-            break;
-        }
-        menu.AddElement(element);
-    }
-
-    menu.OnAccept([&] (int index, Text& element) {
-        UpdateSetting(index, element, 1);
-    });
-
-    menu.OnCancel([&] (int index, Text& element) {
-        UpdateSetting(index, element, -1);
-    });
+    settingsText[framerateIndex].value = "Desired framerate: " + std::to_string(defFps);
+    settingsText[videoResIndex].value = "Video Res: " 
+                                        + std::to_string(defVideoRes.width) 
+                                        + "x" + std::to_string(defVideoRes.height);
+    settingsText[videoScaleIndex].value = "Scale Res: "
+                                        + std::to_string(defScale.width) 
+                                        + "x" + std::to_string(defScale.height);
+    settingsText[bitrateIndex].value = "Bitrate(KB/s): " + std::to_string(defBitrate);
+    settingsText[vsyncIndex].value = "Vsync Mode: " + std::string(defVsync);
 }
 
 void FFMPEGConfigUI::IncreaseSetting()
 {
-    menu.Accept();
+    auto currInd = settingsIndices[settingIndex];
+
+    switch(settingIndex)
+    {
+        case framerateIndex:
+            if(++currInd >= framerates.size())
+                currInd = 0;
+        break;
+
+        case videoResIndex:
+            if(++currInd >= videoCaptureResolutions.size())
+                currInd = 0;
+        break;
+
+        case videoScaleIndex:
+            if(++currInd >= videoScaleResolutions.size())
+                currInd = 0;
+        break;
+
+        case bitrateIndex:
+            if(++currInd >= bitratesKB.size())
+                currInd = 0;
+        break;
+
+        case vsyncIndex:
+            if(++currInd >= vsyncModes.size())
+                currInd = 0;
+        break;
+    }
+
+    settingsIndices[settingIndex] = currInd;
+
+    UpdateFramerate();
+    UpdateVideoRes();
+    UpdateVideoScale();
+    UpdateBitrate();
+    UpdateVsync();
 }
 
 void FFMPEGConfigUI::DecreaseSetting()
 {
-    menu.Cancel();
+    auto currInd = settingsIndices[settingIndex];
+
+    switch(settingIndex)
+    {
+        case framerateIndex:
+            if(--currInd < 0)
+                currInd = framerates.size() - 1;
+        break;
+
+        case videoResIndex:
+            if(--currInd < 0)
+                currInd = videoCaptureResolutions.size() - 1;
+        break;
+
+        case videoScaleIndex:
+            if(--currInd < 0)
+                currInd = videoScaleResolutions.size() - 1;
+        break;
+
+        case bitrateIndex:
+            if(--currInd < 0)
+                currInd = bitratesKB.size() - 1;
+        break;
+
+        case vsyncIndex:
+            if(--currInd < 0)
+                currInd = vsyncModes.size() - 1;
+        break;
+    }
+
+    settingsIndices[settingIndex] = currInd;
+
+    UpdateFramerate();
+    UpdateVideoRes();
+    UpdateVideoScale();
+    UpdateBitrate();
+    UpdateVsync();
 }
 
 void FFMPEGConfigUI::SelectNext()
 {
-    menu.Next();
+    ++settingIndex;
+    if(settingIndex >= settingsIndices.size())
+        settingIndex = 0;
 }
 
 void FFMPEGConfigUI::SelectPrevious()
 {
-    menu.Prev();
+    --settingIndex;
+    if(settingIndex < 0)
+        settingIndex = settingsIndices.size() - 1;
 }
 
 void FFMPEGConfigUI::Render(SDL_Renderer* renderer, FC_Font* font)
@@ -122,7 +187,13 @@ void FFMPEGConfigUI::Render(SDL_Renderer* renderer, FC_Font* font)
     //use this later to render a rect behind the text elements
     //SDL_SetRenderDrawColor(renderer, backgroundColour.r, backgroundColour.g, backgroundColour.b, backgroundColour.a);
     //sdl fill rect here
-    menu.Render(renderer, font);
+    for(auto i = 0; i < settingsText.size(); ++i)
+    {
+        if(i != settingIndex)
+            settingsText[i].Render(renderer, font);
+        else
+            settingsText[i].Render(renderer, font, highlight);
+    }
 }
 
 FFMPEG_Config const FFMPEGConfigUI::Settings()
@@ -142,99 +213,45 @@ FFMPEG_Config const FFMPEGConfigUI::Settings()
     };
 }
 
-void FFMPEGConfigUI::UpdateSetting(int index, Text& element, int direction)
+void FFMPEGConfigUI::UpdateFramerate()
 {
-    auto currInd = settingsIndices[index];
-    
-    switch(index)
-    {
-        case framerateIndex:
-        {
-            if(direction <= 0 && currInd == 0)
-                currInd = framerates.size()-1;
-            else
-                currInd += direction;
+    const auto frInd = settingsIndices[framerateIndex];
+    const auto framerate = framerates[frInd];
 
-            if(currInd >= framerates.size())
-                currInd = 0;
-            
-            const auto setting = framerates[currInd];
+    settingsText[framerateIndex].value = "Desired framerate: " + std::to_string(framerate);
+}
 
-            element.value = "Desired framerate: " + std::to_string(setting);
-            settingsIndices[index] = currInd;
-        }
-        break;
+void FFMPEGConfigUI::UpdateVideoRes()
+{
+    const auto vrInd = settingsIndices[videoResIndex];
+    const auto res = videoCaptureResolutions[vrInd];
 
-        case videoResIndex:
-        {
-            if(direction <= 0 && currInd == 0)
-                currInd = videoCaptureResolutions.size()-1;
-            else
-                currInd += direction;
+    settingsText[videoResIndex].value = "Video Res: " 
+                                        + std::to_string(res.width) 
+                                        + "x" + std::to_string(res.height);
+}
 
-            if(currInd >= videoCaptureResolutions.size())
-                currInd = 0;
+void FFMPEGConfigUI::UpdateVideoScale()
+{
+    const auto vrInd = settingsIndices[videoScaleIndex];
+    const auto res = videoScaleResolutions[vrInd];
 
-            const auto setting = videoCaptureResolutions[currInd];
+    settingsText[videoScaleIndex].value = "Scale Res: "
+                                        + std::to_string(res.width) 
+                                        + "x" + std::to_string(res.height);
+}
 
-            element.value = "Video Res: " 
-                            + std::to_string(setting.width) 
-                            + "x" + std::to_string(setting.height);
-            settingsIndices[index] = currInd;
-        }
-        break;
+void FFMPEGConfigUI::UpdateBitrate()
+{
+    const auto brInd = settingsIndices[bitrateIndex];
+    const auto br = bitratesKB[brInd];
 
-        case videoScaleIndex:
-        {
-            if(direction <= 0 && currInd == 0)
-                currInd = videoScaleResolutions.size()-1;
-            else
-                currInd += direction;
+    settingsText[bitrateIndex].value = "Bitrate(KB/s): " + std::to_string(br);
+}
 
-            if(currInd >= videoScaleResolutions.size())
-                currInd = 0;
-
-            const auto setting = videoScaleResolutions[currInd];
-
-            element.value = "Scale Res: " 
-                            + std::to_string(setting.width) 
-                            + "x" + std::to_string(setting.height);
-            settingsIndices[index] = currInd;
-        }
-        break;
-
-        case bitrateIndex:
-        {
-            if(direction <= 0 && currInd == 0)
-                currInd = bitratesKB.size()-1;
-            else
-                currInd += direction;
-
-            if(currInd >= bitratesKB.size())
-                currInd = 0;
-
-            const auto setting = bitratesKB[currInd];
-
-            element.value = "Bitrate(KB/s): " + std::to_string(setting);
-            settingsIndices[index] = currInd;
-        }
-        break;
-
-        case vsyncIndex:
-        {
-            if(direction <= 0 && currInd == 0)
-                currInd = vsyncModes.size()-1;
-            else
-                currInd += direction;
-
-            if(currInd >= vsyncModes.size())
-                currInd = 0;
-
-            const auto setting = vsyncModes[currInd];
-
-            element.value = "Vsync Mode: " + std::string(vsyncModeToString(setting));
-            settingsIndices[index] = currInd;
-        }
-        break;
-    }
+void FFMPEGConfigUI::UpdateVsync()
+{
+    const auto vsInd = settingsIndices[vsyncIndex];
+    const auto mode = vsyncModes[vsInd];
+    settingsText[vsyncIndex].value = "Vsync Mode: " + std::string(vsyncModeToString(mode));
 }
