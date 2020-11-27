@@ -7,15 +7,20 @@ constexpr uint16_t mbToKb(double mbs)
 }
 
 constexpr std::array<const int16_t, 2> framerates = { 30, 60 };
-constexpr std::array<const Resolution, 2> videoCaptureResolutions = {
-    1920, 1080, 1280, 720
+constexpr std::array<const Resolution, 7> videoCaptureResolutions = {
+    Resolution{1024, 576}, Resolution{1152, 648}, 
+    Resolution{1280, 720}, Resolution{1366, 768},
+    Resolution{1600, 900}, Resolution{1920, 1080},
+    Resolution{2560, 1440}
 };
 constexpr std::array<const Resolution, 2> videoScaleResolutions = {
-    1280, 720, 1980, 720
+    Resolution{1280, 720}, Resolution{1980, 720}
 };
-constexpr std::array<const uint16_t, 10> bitratesKB = {
+constexpr std::array<const uint16_t, 20> bitratesKB = {
     mbToKb(3), mbToKb(4), mbToKb(4.5), mbToKb(5), mbToKb(5.5), 
-    mbToKb(6), mbToKb(6.5), mbToKb(7), mbToKb(7.5), mbToKb(8)
+    mbToKb(6), mbToKb(6.5), mbToKb(7), mbToKb(7.5), mbToKb(8),
+    mbToKb(8.5), mbToKb(9), mbToKb(9.5), mbToKb(10), mbToKb(11),
+    mbToKb(12), mbToKb(13), mbToKb(14), mbToKb(15), mbToKb(16)
 };
 constexpr std::array<const int16_t, 5> vsyncModes = {
     -1, 0, 1, 2, 3
@@ -26,19 +31,19 @@ constexpr const char* vsyncModeToString(const int16_t mode)
     switch(mode)
     {
         case -1:
-            return "auto";
+            return "auto (generally bad, picks what FFMPEG deems OK)";
 
         case 0:
-            return "passthrough";
+            return "passthrough (render as it comes, matching timestamps)";
 
         case 1:
-            return "constant frame rate";
+            return "constant frame rate (force desired fps = latency)";
 
         case 2:
             return "variable frame rate";
 
         case 3:
-            return "drop time (like passthrough)";
+            return "drop time (like passthrough, ignores packet timestamps)";
 
         default:
             return "unknown";
@@ -64,7 +69,7 @@ settingIndex(0), settingsIndices{}, settingsText{}
     }
 
     settingsIndices[framerateIndex] = 1;
-    settingsIndices[videoResIndex] = 0;
+    settingsIndices[videoResIndex] = 2;
     settingsIndices[videoScaleIndex] = 0;
     settingsIndices[bitrateIndex] = 4;
     settingsIndices[vsyncIndex] = 4;

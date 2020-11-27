@@ -14,10 +14,127 @@
 #include "FFMPEGHelper.h"
 #include "Broadcast.h"
 
+MONITORINFOEX DefaultMonitorInfo()
+{
+    auto monitorPoint = POINT{ 0 };
+    monitorPoint.x = 0; monitorPoint.y = 0;
+    auto handle = MonitorFromPoint(monitorPoint, MONITOR_DEFAULTTOPRIMARY);
+
+    auto monitorInfo = MONITORINFOEX{};
+    monitorInfo.cbSize = sizeof(monitorInfo);
+
+    GetMonitorInfo(handle, &monitorInfo);
+
+    return monitorInfo;
+}
+
+void PrintChangeDisplayStatus(long result)
+{
+    switch (result)
+    {
+    case DISP_CHANGE_SUCCESSFUL:
+        std::cout << "The settings change was successful" << "\n";
+        break;
+
+    case DISP_CHANGE_BADDUALVIEW:
+        std::cout << "The settings change was unsuccessful because the system is DualView capable" << "\n";
+        break;
+
+    case DISP_CHANGE_BADFLAGS:
+        std::cout << "An invalid set of flags was passed in" << "\n";
+        break;
+
+    case DISP_CHANGE_BADMODE:
+        std::cout << "The graphics mode is not supported" << "\n";
+        break;
+
+    case DISP_CHANGE_BADPARAM:
+        std::cout << "An invalid parameter was passed in. This can include an invalid flag or combination of flags" << "\n";
+        break;
+
+    case DISP_CHANGE_FAILED:
+        std::cout << "The display driver failed the specified graphics mode" << "\n";
+        break;
+
+    case DISP_CHANGE_NOTUPDATED:
+        std::cout << "Unable to write settings to the registry" << "\n";
+        break;
+
+    case DISP_CHANGE_RESTART:
+        std::cout << "The computer must be restarted for the graphics mode to work" << "\n";
+        break;
+    }
+}
+
+bool ChangeResolution(int width, int height)
+{
+    auto deviceMode = DEVMODE{ 0 };
+
+    deviceMode.dmSize = sizeof(deviceMode);
+    deviceMode.dmBitsPerPel = 32;
+    deviceMode.dmPelsWidth = width;
+    deviceMode.dmPelsHeight = height;
+    deviceMode.dmDisplayFrequency = 60;
+    deviceMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+
+    auto result = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
+    return result == DISP_CHANGE_SUCCESSFUL;
+}
+
+void TestMonitorInfo()
+{
+    auto monitorInfo = DefaultMonitorInfo();
+
+    std::cout << "Monitor Info: " << "\n";
+    if (monitorInfo.dwFlags == MONITORINFOF_PRIMARY)
+        std::cout << "    Primary Monitor" << "\n";
+    else
+        std::cout << "    Secondary Monitor" << "\n";
+
+    auto charRep = std::wstring{ monitorInfo.szDevice };
+    auto str = std::string(charRep.begin(), charRep.end());
+    std::cout << "    " << str << "\n";
+    auto width = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
+    auto height = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
+    std::cout << "    " << width << " x " << height << "\n";
+    auto workWidth = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
+    auto workHeight = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
+    std::cout << "    " << workWidth << " x " << workHeight << "\n";
+
+    auto deviceMode = DEVMODE{ 0 };
+
+    deviceMode.dmSize = sizeof(deviceMode);
+    deviceMode.dmBitsPerPel = 32;
+    deviceMode.dmPelsWidth = 1280;
+    deviceMode.dmPelsHeight = 720;
+    deviceMode.dmDisplayFrequency = 60;
+    deviceMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+
+    auto result = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
+    if (result == DISP_CHANGE_SUCCESSFUL)
+    {
+        std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(5000));
+
+        deviceMode.dmPelsWidth = width;
+        deviceMode.dmPelsHeight = height;
+
+        auto changeBackResult = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
+        PrintChangeDisplayStatus(changeBackResult);
+    }
+    else
+    {
+        PrintChangeDisplayStatus(result);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     std::cout << "Switch Remote Play Host \\(^.^)/" << std::endl;
 
+    //TestMonitorInfo();
+    auto initialMonitorSettings = DefaultMonitorInfo();
+    auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
+    auto const initialWidth = initialMonitorSettings.rcMonitor.right - initialMonitorSettings.rcMonitor.left;
     WSADATA wsaStateData;
     WSAStartup(MAKEWORD(2, 2), &wsaStateData);
 
@@ -128,6 +245,7 @@ int main(int argc, char* argv[])
 
                 std::cout << "Start stream with last received config from switch..." << std::endl;
                 std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
+                ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
                 streamProcessInfo = StartStream(lastPayload.configData, ffmpegStarted);
                 if (ffmpegStarted)
                 {
@@ -152,6 +270,8 @@ int main(int argc, char* argv[])
         killStream.store(true, std::memory_order_release);
         std::cout << "terminating the FFMPEG process" << std::endl;
         TerminateProcess(streamProcessInfo.hProcess, 1);
+        std::cout << "Resetting resolution" << std::endl;
+        ChangeResolution(initialWidth, initialHeight);
 
     } while (lastCommand != Command::CLOSE_SERVER && lastCommand != Command::SHUTDOWN);
 

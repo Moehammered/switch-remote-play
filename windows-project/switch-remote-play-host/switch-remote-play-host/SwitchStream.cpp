@@ -72,6 +72,8 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                     auto streamDead = killStream.load(memory_order_acquire);
                     gamepadActive.store(true, memory_order_release);
                     auto active = true;
+                    auto const maxRetries = 5;
+                    auto retryCount = maxRetries;
                     do
                     {
                         active = gamepadActive.load(memory_order_acquire);
@@ -83,30 +85,48 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                         if (result == SOCKET_ERROR)
                         {
                             cout << "Failed to receive data for gamepad stream" << endl;
+                            std:this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
+                            --retryCount;
+                            if (retryCount == 0)
+                            {
+                                killStream.store(true, memory_order_release);
+                                active = false;
+                                streamDead = true;
+                            }
                         }
-                        else if (padData.keys == 0xFFFF)
+                        else if (result > 0)
                         {
-                            cout << "Received kill signal" << endl;
+                            if (padData.keys == 0xFFFF)
+                            {
+                                cout << "Received kill signal" << endl;
+                                killStream.store(true, memory_order_release);
+                                active = false;
+                                streamDead = true;
+                            }
+                            else if (padData.keys != 0x0 || (padData.ljx | padData.ljy | padData.rjx | padData.rjy) != 0)
+                            {
+                                //update controller
+                                auto ds4input = ConvertToDS4(padData);
+                                //PrintDS4Conversion(ds4input);
+                                controller.SetButtons(ds4input.buttons);
+                                controller.SetDpad(ds4input.directions);
+                                controller.SetAnalogAxis(ds4input.lx, ds4input.ly, ds4input.rx, ds4input.ry);
+                                controller.SetShoulderTriggers(ds4input.lt, ds4input.rt);
+
+                                controller.UpdateController();
+                            }
+                            else
+                            {
+                                controller.ResetController();
+                                controller.UpdateController();
+                            }
+                        }
+                        else if (result == 0)
+                        {
+                            // connection closed, cleanup
                             killStream.store(true, memory_order_release);
                             active = false;
                             streamDead = true;
-                        }
-                        else if (padData.keys != 0x0 || (padData.ljx | padData.ljy | padData.rjx | padData.rjy) != 0)
-                        {
-                            //update controller
-                            auto ds4input = ConvertToDS4(padData);
-                            //PrintDS4Conversion(ds4input);
-                            controller.SetButtons(ds4input.buttons);
-                            controller.SetDpad(ds4input.directions);
-                            controller.SetAnalogAxis(ds4input.lx, ds4input.ly, ds4input.rx, ds4input.ry);
-                            controller.SetShoulderTriggers(ds4input.lt, ds4input.rt);
-
-                            controller.UpdateController();
-                        }
-                        else
-                        {
-                            controller.ResetController();
-                            controller.UpdateController();
                         }
                     } while (padData.keys != 0xFFFF && !streamDead && active);
 
