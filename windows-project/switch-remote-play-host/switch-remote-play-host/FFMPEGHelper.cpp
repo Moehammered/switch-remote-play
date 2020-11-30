@@ -54,6 +54,26 @@ std::string CreateCommandLineArg(FFMPEG_Config const config)
     return args.str();
 }
 
+std::string CreateAudioCommandLineArg()
+{
+    using namespace std;
+
+    char filePath[MAX_PATH];
+    GetModuleFileNameA(NULL, filePath, MAX_PATH);
+    PathRemoveFileSpecA(filePath);
+    PathCombineA(filePath, filePath, "ffmpeg.exe");
+
+    auto const connectionIP = "udp://192.168.0.17:2224";
+    auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";
+    auto const qualityArgs = "-f s16le -ar 16000 -ac 2 -c:a pcm_s16le ";
+    auto const packetSize = "pkt_size=640";
+    stringstream args;
+    args << filePath << inputArgs << qualityArgs;
+    args << connectionIP << "?" << packetSize;
+
+    return args.str();
+}
+
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
 PROCESS_INFORMATION StartStream(FFMPEG_Config const config, bool& started)
 {
@@ -73,6 +93,31 @@ PROCESS_INFORMATION StartStream(FFMPEG_Config const config, bool& started)
 #ifdef SHOW_IN_PARENT
     processFlags = 0; //keep output in the parent window
 #endif
+
+    if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, processFlags, NULL, NULL, &si, &pi))
+    {
+        //error occured
+        std::cout << "Failed to start process. CreateProcess error code: " << GetLastError() << std::endl;
+        std::cout << "Argument line passed to cmd: " << std::endl << std::endl << args << std::endl;
+        started = false;
+    }
+    else
+        started = true;
+
+    return pi;
+}
+
+PROCESS_INFORMATION StartAudio(bool& started)
+{
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    ZeroMemory(&pi, sizeof(pi));
+
+    si.cb = sizeof(si);
+
+    auto const args = CreateAudioCommandLineArg();
+    auto processFlags = CREATE_NO_WINDOW;
 
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, processFlags, NULL, NULL, &si, &pi))
     {

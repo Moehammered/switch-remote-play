@@ -22,6 +22,10 @@ void initialiseSwitch()
     socketInitialize(&socketConfiguration);
     nxlinkStdio();
     plInitialize(PlServiceType_User); //required to access system resources (font data for example)
+    // pcvInitialize();
+
+    audoutInitialize();
+    audoutStartAudioOut();
 }
 
 FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defaultCol)

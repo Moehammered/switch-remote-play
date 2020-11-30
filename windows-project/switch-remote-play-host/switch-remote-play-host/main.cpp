@@ -213,6 +213,8 @@ int main(int argc, char* argv[])
 
     PROCESS_INFORMATION streamProcessInfo;
     ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
+    PROCESS_INFORMATION audioProcessInfo;
+    ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
     std::thread gamepadThread;
 
     do
@@ -232,21 +234,27 @@ int main(int argc, char* argv[])
         }
 
         auto ffmpegStarted = false;
+        auto audioStarted = false;
         switch (lastCommand)
         {
             case Command::SHUTDOWN_PC:
                 std::cout << "Shutdown host PC (Not implemented)" << std::endl;
                 TerminateProcess(streamProcessInfo.hProcess, 1);
+                TerminateProcess(audioProcessInfo.hProcess, 1);
 
                 break;
 
             case Command::START_STREAM:
                 TerminateProcess(streamProcessInfo.hProcess, 1);
+                TerminateProcess(audioProcessInfo.hProcess, 1);
 
                 std::cout << "Start stream with last received config from switch..." << std::endl;
                 std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
                 ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
+                // make sure this function takes in the IP of the switch dynamically from the handshake
                 streamProcessInfo = StartStream(lastPayload.configData, ffmpegStarted);
+                audioProcessInfo = StartAudio(audioStarted);
+
                 if (ffmpegStarted)
                 {
                     if (handshakeConnection != nullptr)
@@ -270,6 +278,7 @@ int main(int argc, char* argv[])
         killStream.store(true, std::memory_order_release);
         std::cout << "terminating the FFMPEG process" << std::endl;
         TerminateProcess(streamProcessInfo.hProcess, 1);
+        TerminateProcess(audioProcessInfo.hProcess, 1);
         std::cout << "Resetting resolution" << std::endl;
         ChangeResolution(initialWidth, initialHeight);
 
@@ -279,6 +288,7 @@ int main(int argc, char* argv[])
     killStream.store(true, std::memory_order_release);
     std::cout << "terminating the FFMPEG process" << std::endl;
     TerminateProcess(streamProcessInfo.hProcess, 1);
+    TerminateProcess(audioProcessInfo.hProcess, 1);
 
     // wait here for the gamepad to close
     std::cout << "waiting for gamepad thread to shutdown..." << std::endl;

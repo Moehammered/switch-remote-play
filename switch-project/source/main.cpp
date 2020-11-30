@@ -10,6 +10,7 @@
 #include <switch.h>
 #include "ScreenRenderer.h"
 #include "stream/VideoStream.h"
+#include "stream/AudioStream.h"
 #include "InputThread.h"
 #include "stream/StreamDecoder.h"
 #include "ui/Text.h"
@@ -125,6 +126,9 @@ int main(int argc, char **argv)
     auto network = NetworkDiscovery{handshakePort, subnet, broadcastPort};
     
     std::thread gamepadThread;
+    std::thread audioThread;
+    auto audioSocket = -1;
+    auto audioPort = 2224;
     VideoStream stream;
 
     StreamDecoder* streamDecoder = nullptr;
@@ -170,6 +174,17 @@ int main(int argc, char **argv)
                 RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 screen.PresentScreen();
 
+                if(audioSocket > 0)
+                {
+                    std::cout << "Audio Socket is set. Shutting it down\n";
+                    shutdown(audioSocket, SHUT_RDWR);
+                    if(audioThread.joinable())
+                    {
+                        std::cout << "Joining audio thread...\n";
+                        audioThread.join();
+                    }
+                    audioSocket = -1;
+                }
                 // no point thrashing the screen to refresh text
                 std::this_thread::sleep_for(thirtyThreeMs);
             }
@@ -199,6 +214,21 @@ int main(int argc, char **argv)
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
                         gamepadThread = std::thread(RunGamepadThread, network.IPAddress(), gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
+                        if(audioSocket > 0)
+                        {
+                            std::cout << "Audio Socket is set. Shutting it down\n";
+                            shutdown(audioSocket, SHUT_RDWR);
+                            if(audioThread.joinable())
+                            {
+                                std::cout << "Joining audio thread...\n";
+                                audioThread.join();
+                            }
+                            audioSocket = -1;
+                        }
+                        audioThread = std::thread([&]{ 
+                            audioSocket = setup_socket(audioPort);
+                            audioHandlerLoop(streamState, audioSocket); 
+                        });
                     }
                 }
                 else // no host to connect to
@@ -248,11 +278,17 @@ int main(int argc, char **argv)
     if(gamepadThread.joinable())
         gamepadThread.join();
 
+    if(audioThread.joinable())
+        audioThread.join();
     /*
         if plExit is not called, after consecutively opening the application 
         it will cause hbloader to close too with error code for 'max sessions' (0x615)
     */
+   
+    audoutStopAudioOut();
+    audoutExit();
     plExit();
+    // pcvExit();
     FreeFont(systemFont);
     socketExit();
     
