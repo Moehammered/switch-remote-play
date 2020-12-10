@@ -340,3 +340,17 @@ opening files and config files
         std::cout << "        bitrate_kb: " << savedffmpeg2.bitrateKB << std::endl;
         std::cout << "        vsync_mode: " << savedffmpeg2.vsyncMode << std::endl;
     }
+
+
+
+BLOODY AUDIO FORMAT
+http://soundfile.sapp.org/doc/WaveFormat/
+
+    The disappointing part is this was much simpler than I thought it was.
+    Realising that the framerate can be dynamic and that I needed to WAIT
+    for all the samples to come through before attempting to play them...
+    So ashamed haha. Thankfully though, it means re-implementation of the audio
+    stream code will be a breeze.
+
+    TL;DR if framerate is 30, wait for samplerate/30 samples worth of packets per frame
+    if framerate is 100, wait for samplerate/100 samples worth of packets per frame...

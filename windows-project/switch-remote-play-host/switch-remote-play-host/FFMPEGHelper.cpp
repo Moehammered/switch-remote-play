@@ -54,7 +54,7 @@ std::string CreateCommandLineArg(FFMPEG_Config const config)
     return args.str();
 }
 
-std::string CreateAudioCommandLineArg()
+std::string CreateAudioCommandLineArg(int sampleRate, int packetSize)
 {
     using namespace std;
 
@@ -65,11 +65,13 @@ std::string CreateAudioCommandLineArg()
 
     auto const connectionIP = "udp://192.168.0.17:2224";
     auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";
-    auto const qualityArgs = "-f s16le -ar 16000 -ac 2 -c:a pcm_s16le ";
-    auto const packetSize = "pkt_size=640";
+    auto const qualityArgs = "-f s16le ";
+    auto const sampleRateArg = "-ar ";
+    auto const channelArgs = " -ac 2 -c:a pcm_s16le ";
+    auto const packetArg = "pkt_size=";
     stringstream args;
-    args << filePath << inputArgs << qualityArgs;
-    args << connectionIP << "?" << packetSize;
+    args << filePath << inputArgs << qualityArgs << sampleRateArg << sampleRate << channelArgs;
+    args << connectionIP << "?" << packetArg << packetSize;
 
     return args.str();
 }
@@ -116,8 +118,16 @@ PROCESS_INFORMATION StartAudio(bool& started)
 
     si.cb = sizeof(si);
 
-    auto const args = CreateAudioCommandLineArg();
-    auto processFlags = CREATE_NO_WINDOW;
+    auto constexpr samplerate = 48000;
+    auto constexpr framerate = 100;
+    auto constexpr inputSampleCount = samplerate / framerate;
+    auto constexpr channels = 2; // stereo audio
+    auto constexpr bitrate = 16;
+
+    auto constexpr data_size = inputSampleCount * channels * bitrate/8;
+    
+    auto const args = CreateAudioCommandLineArg(samplerate, data_size);
+    auto processFlags = CREATE_NEW_CONSOLE;
 
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, processFlags, NULL, NULL, &si, &pi))
     {

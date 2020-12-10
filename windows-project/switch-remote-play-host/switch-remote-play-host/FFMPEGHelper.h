@@ -7,7 +7,7 @@
 
 std::string CreateCommandLineArg(FFMPEG_Config const config);
 
-std::string CreateAudioCommandLineArg();
+std::string CreateAudioCommandLineArg(int sampleRate, int packetSize);
 
 PROCESS_INFORMATION StartStream(FFMPEG_Config const config, bool& started);
 PROCESS_INFORMATION StartAudio(bool& started);

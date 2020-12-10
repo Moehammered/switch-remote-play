@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <vector>
+#include <thread>
 extern "C"
 {
     #include <switch/services/audout.h>
@@ -15,17 +16,29 @@ public:
 
     bool Ready() const;
 
+    bool Running() const;
+
     void Start();
 
     void Shutdown();
 
-private:
     int udpSocket;
-    std::vector<char> inputBuffer;
-    std::vector<std::vector<char>> resampleBuffers;
+    void Play(int const & socket, std::atomic_bool& running);
+
+private:
+    std::vector<uint8_t> inputBuffer;
+    std::vector<std::vector<uint16_t>> resampleBuffers alignas(0x1000);
     std::vector<AudioOutBuffer> audioBuffers;
-    int audioBufferIndex;
+    uint32_t audioBufferIndex;
+    std::thread playbackThread;
+
+    std::vector<uint16_t> ResampleInput(std::vector<uint8_t> const & packetData, int factor);
+
+    void AppendAudioOut(int bufferLocation);
+
 };
+
+void RunAudioStream(AudioStream& stream, std::atomic_bool& running);
 
 int constexpr swapBuffer(int const currentIndex, int const max);
 

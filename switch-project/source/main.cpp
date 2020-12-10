@@ -2,6 +2,8 @@
   switch-remote-play
     Remote PC connection focused on allowing PC games to played on the switch
 */
+//#define MANUAL_AUDIO
+#define PCM_AUDIO
 
 #include <string>
 #include <iostream>
@@ -10,7 +12,6 @@
 #include <switch.h>
 #include "ScreenRenderer.h"
 #include "stream/VideoStream.h"
-#include "stream/AudioStream.h"
 #include "InputThread.h"
 #include "stream/StreamDecoder.h"
 #include "ui/Text.h"
@@ -23,6 +24,12 @@
 #include "network/NetworkDiscovery.h"
 #include "ui/Menu.h"
 #include "MainScreen.h"
+#ifdef MANUAL_AUDIO
+#include "stream/AudioStream.h"
+#endif
+#ifdef PCM_AUDIO
+#include "stream/PcmStream.h"
+#endif
 
 auto constexpr streamURL = "tcp://0.0.0.0:2222";
 auto constexpr handshakeKey = "let-me-play";
@@ -90,10 +97,12 @@ void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& 
 
 int main(int argc, char **argv)
 {
+    std::cout << "Initialising Switch\n";
     initialiseSwitch(); 
     streamState = { StreamState::INACTIVE };
     
     ScreenRenderer screen;
+    std::cout << "Initialising Screen\n";
     bool initOK = screen.Initialise(1280, 720, false);
     SetupMainScreen();
 
@@ -126,10 +135,19 @@ int main(int argc, char **argv)
     auto network = NetworkDiscovery{handshakePort, subnet, broadcastPort};
     
     std::thread gamepadThread;
+    
+    uint16_t constexpr audioPort {2224U};
+    #ifdef MANUAL_AUDIO
     std::thread audioThread;
     auto audioSocket = -1;
-    auto audioPort = 2224;
+    #endif
+    #ifdef PCM_AUDIO
+    PcmStream audioStream {audioPort};
+    #endif
     VideoStream stream;
+    // need to re-implement
+    // auto audioStream = AudioStream{audioPort};
+    // audioStream.Shutdown();
 
     StreamDecoder* streamDecoder = nullptr;
     AVPacket streamPacket;
@@ -139,12 +157,17 @@ int main(int argc, char **argv)
     auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, black);
     
     auto runApp = true;
+    std::cout << "Starting main loop\n";
     while(appletMainLoop() && runApp)
     {
         switch(streamState.load(std::memory_order_acquire))
         {
             case StreamState::INACTIVE:
             {
+                #ifdef PCM_AUDIO
+                if(audioStream.Running())
+                    audioStream.Stop(); // can lock here due to recvfrom waiting on signal
+                #endif
                 screen.ClearScreen(bgCol);
         
                 hidScanInput();
@@ -173,7 +196,11 @@ int main(int argc, char **argv)
                 RenderMainScreen(screen.Renderer(), systemFont);
                 RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 screen.PresentScreen();
-
+                
+                // needs re-implementation
+                // if(audioStream.Running())
+                //     audioStream.Shutdown();
+                #ifdef MANUAL_AUDIO
                 if(audioSocket > 0)
                 {
                     std::cout << "Audio Socket is set. Shutting it down\n";
@@ -185,6 +212,7 @@ int main(int argc, char **argv)
                     }
                     audioSocket = -1;
                 }
+                #endif
                 // no point thrashing the screen to refresh text
                 std::this_thread::sleep_for(thirtyThreeMs);
             }
@@ -214,6 +242,20 @@ int main(int argc, char **argv)
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
                         gamepadThread = std::thread(RunGamepadThread, network.IPAddress(), gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
+
+                        #ifdef PCM_AUDIO
+                        if(audioStream.Ready() && !audioStream.Running())
+                            audioStream.Start();
+                        #endif
+
+                        // need to re-implement
+                        // if(audioStream.Running())
+                        //     audioStream.Shutdown();
+                        // audioStream = AudioStream{audioPort};
+                        // if(audioStream.Ready())
+                        //     audioStream.Start();
+
+                        #ifdef MANUAL_AUDIO
                         if(audioSocket > 0)
                         {
                             std::cout << "Audio Socket is set. Shutting it down\n";
@@ -229,6 +271,7 @@ int main(int argc, char **argv)
                             audioSocket = setup_socket(audioPort);
                             audioHandlerLoop(streamState, audioSocket); 
                         });
+                        #endif
                     }
                 }
                 else // no host to connect to
@@ -278,8 +321,17 @@ int main(int argc, char **argv)
     if(gamepadThread.joinable())
         gamepadThread.join();
 
+    // need to re-implement
+    // if(audioStream.Running())
+    //     audioStream.Shutdown();
+    #ifdef MANUAL_AUDIO
     if(audioThread.joinable())
         audioThread.join();
+    #endif
+    #ifdef PCM_AUDIO
+    if(audioStream.Running())
+        audioStream.Shutdown();
+    #endif
     /*
         if plExit is not called, after consecutively opening the application 
         it will cause hbloader to close too with error code for 'max sessions' (0x615)
