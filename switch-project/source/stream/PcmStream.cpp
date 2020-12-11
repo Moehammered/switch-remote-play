@@ -96,8 +96,15 @@ void ReadAudioStream(std::atomic_bool& running, int const & audioSocket)
             auto lastRead = recvfrom(audioSocket, dst, PacketsPerFrame-totalRead, 0, (sockaddr*)&si_other, &slen);
             if(lastRead > 0)
                 totalRead += lastRead;
-            else if(lastRead == 0)
+            else if(lastRead < 0)
             {
+                std::cout << "Audio Stream - Received Error Res: " << lastRead << std::endl;
+                totalRead = -1;
+                break;
+            }
+            else if(lastRead == 0 && !running.load(std::memory_order_relaxed))
+            {
+                std::cout << "Audio Stream died\n";
                 totalRead = -1;
                 break;
             }
@@ -112,13 +119,13 @@ void ReadAudioStream(std::atomic_bool& running, int const & audioSocket)
         }
     }
 
+    std::cout << "Audio stream stopped - socket ID: " << audioSocket << std::endl;
     Cleanup();
 }
 
 PcmStream::PcmStream(uint16_t port)
- : audioSocket{-1}, audioThread{}
+ : audioSocket{0}, audioThread{}
 {
-    audioSocket = CreateSocket(port);
 }
 
 bool PcmStream::Ready() const
@@ -133,8 +140,9 @@ bool PcmStream::Running() const
 
 void PcmStream::Start()
 {
-    if(!audioStreamOn && audioSocket != -1)
+    if(!audioStreamOn)
     {
+        audioSocket = CreateSocket(2224);
         auto processStream = [&]{
             SetupBuffers();
             audioStreamOn = true;
@@ -153,15 +161,8 @@ void PcmStream::Shutdown()
     audioStreamOn.store(false, std::memory_order_release);
     shutdown(audioSocket, SHUT_RDWR);
     close(audioSocket);
-    audioSocket = -1;
+    audioSocket = 0;
 
-    if(audioThread.joinable())
-        audioThread.join();
-}
-
-void PcmStream::Stop()
-{
-    audioStreamOn = false;
     if(audioThread.joinable())
         audioThread.join();
 }

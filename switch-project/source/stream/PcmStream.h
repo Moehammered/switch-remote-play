@@ -16,8 +16,6 @@ class PcmStream
 
         void Shutdown();
 
-        void Stop();
-
     private:
         int audioSocket;
         std::thread audioThread;

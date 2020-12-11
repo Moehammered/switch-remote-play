@@ -2,7 +2,7 @@
   switch-remote-play
     Remote PC connection focused on allowing PC games to played on the switch
 */
-//#define MANUAL_AUDIO
+
 #define PCM_AUDIO
 
 #include <string>
@@ -43,7 +43,7 @@ uint16_t constexpr gamepadPort = 20002;
 SDL_Color constexpr bgCol = {20, 20, 20, 255};
 SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
 
-uint32_t constexpr fontSize = 32;
+uint32_t constexpr fontSize = 30;
 
 //30fps refresh rate
 auto constexpr thirtyThreeMs = std::chrono::duration<int, std::milli>(33);
@@ -55,45 +55,45 @@ void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& 
                     SDL_Texture* rendererScreenTexture, SDL_Rect& renderRegion,
                     ScreenRenderer& screen, std::thread& gamepadThread)
 {
-        if(stream.Read(streamPacket))
+    if(stream.Read(streamPacket))
+    {
+        if(streamDecoder->DecodeFramePacket(streamPacket))
         {
-            if(streamDecoder->DecodeFramePacket(streamPacket))
-            {
-                // render frame data - expecting YUV420 format
-                // (stride values represent space between horizontal lines across screen)
-                auto decodedFrame = streamDecoder->DecodedFrame();
+            // render frame data - expecting YUV420 format
+            // (stride values represent space between horizontal lines across screen)
+            auto decodedFrame = streamDecoder->DecodedFrame();
 
-                auto yPlane = decodedFrame.data[0];
-                auto yPlaneStride = decodedFrame.width;
-                auto uPlane = decodedFrame.data[1];
-                auto uPlaneStride = decodedFrame.width/2;
-                auto vPlane = decodedFrame.data[2];
-                auto vPlaneStride = decodedFrame.width/2;
+            auto yPlane = decodedFrame.data[0];
+            auto yPlaneStride = decodedFrame.width;
+            auto uPlane = decodedFrame.data[1];
+            auto uPlaneStride = decodedFrame.width/2;
+            auto vPlane = decodedFrame.data[2];
+            auto vPlaneStride = decodedFrame.width/2;
 
-                SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
-                                    yPlane, yPlaneStride,
-                                    uPlane, uPlaneStride, 
-                                    vPlane, vPlaneStride);
+            SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
+                                yPlane, yPlaneStride,
+                                uPlane, uPlaneStride, 
+                                vPlane, vPlaneStride);
 
-                screen.RenderScreenTexture();
-            }
-
-            av_packet_unref(&streamPacket);
+            screen.RenderScreenTexture();
         }
-        else
-        {
-            stream.CloseStream();
-            streamDecoder->Flush();
-            streamDecoder->Cleanup();
-            stream.Cleanup();
-            streamState.store(StreamState::INACTIVE, std::memory_order_release);
-            delete streamDecoder;
-            streamDecoder = nullptr;
 
-            if(gamepadThread.joinable())
-                gamepadThread.join();
-        }
-    };
+        av_packet_unref(&streamPacket);
+    }
+    else
+    {
+        stream.CloseStream();
+        streamDecoder->Flush();
+        streamDecoder->Cleanup();
+        stream.Cleanup();
+        streamState.store(StreamState::INACTIVE, std::memory_order_release);
+        delete streamDecoder;
+        streamDecoder = nullptr;
+
+        if(gamepadThread.joinable())
+            gamepadThread.join();
+    }
+};
 
 int main(int argc, char **argv)
 {
@@ -104,7 +104,17 @@ int main(int argc, char **argv)
     ScreenRenderer screen;
     std::cout << "Initialising Screen\n";
     bool initOK = screen.Initialise(1280, 720, false);
+    std::cout << "Initialising Text\n";
     SetupMainScreen();
+
+    if(directoryExists("romfs:/fonts"))
+    {
+        std::string buff{};
+        if(!readFileAsText("romfs:/fonts/RobotoMono-Light.ttf", buff))
+            std::cout << "Failed to open font file\n";
+    }
+    else
+        std::cout << "Failed to open directory\n";
 
     if(!initOK)
     {
@@ -132,6 +142,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    std::cout << "Initialising Network Discovery\n";
     auto network = NetworkDiscovery{handshakePort, subnet, broadcastPort};
     
     std::thread gamepadThread;
@@ -142,8 +153,10 @@ int main(int argc, char **argv)
     auto audioSocket = -1;
     #endif
     #ifdef PCM_AUDIO
+    std::cout << "Initialising PcmStream\n";
     PcmStream audioStream {audioPort};
     #endif
+    std::cout << "Initialising Video Stream\n";
     VideoStream stream;
     // need to re-implement
     // auto audioStream = AudioStream{audioPort};
@@ -154,7 +167,8 @@ int main(int argc, char **argv)
     auto rendererScreenTexture = screen.GetScreenTexture();
     auto renderRegion = screen.Region();
     
-    auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, black);
+    std::cout << "Loading System Fonts\n";
+    auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, white);
     
     auto runApp = true;
     std::cout << "Starting main loop\n";
@@ -166,7 +180,9 @@ int main(int argc, char **argv)
             {
                 #ifdef PCM_AUDIO
                 if(audioStream.Running())
-                    audioStream.Stop(); // can lock here due to recvfrom waiting on signal
+                    audioStream.Shutdown();
+                // if(audioStream.Running())
+                //     audioStream.Stop(); // can lock here due to recvfrom waiting on signal
                 #endif
                 screen.ClearScreen(bgCol);
         
@@ -337,12 +353,16 @@ int main(int argc, char **argv)
         it will cause hbloader to close too with error code for 'max sessions' (0x615)
     */
    
-    audoutStopAudioOut();
-    audoutExit();
-    plExit();
-    // pcvExit();
+    auto libnxRes = audoutStopAudioOut();
+    if(!R_SUCCEEDED(libnxRes))
+        std::cout << "Failed to call audoutStopAudioOut with result: " << libnxRes << std::endl;
     FreeFont(systemFont);
-    socketExit();
+    CleanupSystem();
+    // audoutExit();
+    // plExit();
+    // // pcvExit();
+    // FreeFont(systemFont);
+    // socketExit();
     
     return 0;
 }

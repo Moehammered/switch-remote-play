@@ -7,6 +7,7 @@
 void initialiseSwitch();
 FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defaultCol);
 void FreeFont(FC_Font* font);
+void CleanupSystem();
 void PrintOutAtomicLockInfo();
 
 #endif

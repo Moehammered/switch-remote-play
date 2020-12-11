@@ -43,10 +43,10 @@ BUILD		:=	build
 SOURCES		:=	source source/network source/ui source/system source/stream
 DATA		:=	data
 INCLUDES	:=	include
-#ROMFS		:=	romfs
+ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered
-APP_VERSION	:=	0.4.5
+APP_VERSION	:=	0.6.0
 
 
 #---------------------------------------------------------------------------------
