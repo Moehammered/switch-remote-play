@@ -48,9 +48,9 @@ void initialiseSwitch()
     
     redirectStdOut();
 
-    libnxRes = plInitialize(PlServiceType_User); //required to access system resources (font data for example)
-    if(!R_SUCCEEDED(libnxRes))
-        std::cout << "Failed to call plInitialize(PlServiceType_User) with result: " << libnxRes << std::endl;
+    // libnxRes = plInitialize(PlServiceType_User); //required to access system resources (font data for example)
+    // if(!R_SUCCEEDED(libnxRes))
+    //     std::cout << "Failed to call plInitialize(PlServiceType_User) with result: " << libnxRes << std::endl;
     // pcvInitialize();
 
     libnxRes = romfsInit();
@@ -99,8 +99,9 @@ void CleanupSystem()
     fflush(outFile);
     fclose(outFile);
     #endif
+    romfsExit();
     audoutExit();
-    plExit();
+    // plExit();
     // pcvExit();
     socketExit();
 }

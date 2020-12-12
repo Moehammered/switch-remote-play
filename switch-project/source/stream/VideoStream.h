@@ -15,14 +15,11 @@ class VideoStream
 {
     public:
         VideoStream();
-        bool WaitForStream(std::string url);
+        bool WaitForStream(uint16_t port);
 
         bool Read(AVPacket& output);
 
         AVStream const * const StreamInfo();
-
-        //need to update this to work interatively instead of blocking
-        void StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bool& streamOn);
 
         void CloseStream();
 

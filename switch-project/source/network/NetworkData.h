@@ -11,6 +11,15 @@ enum STREAM_MODE : int32_t
     STREAM_MODE_COUNT
 };
 
+struct alignas(16) AudioConfig
+{
+    uint32_t    sampleRate;
+    uint32_t    framerate;
+    uint32_t    channelCount;
+    uint32_t    bitrate;
+};
+
+int constexpr AUDIO_CONFIG_SIZE = {sizeof(AudioConfig)};
 struct alignas(16) FFMPEG_Config 
 {
     int16_t     desiredFrameRate;

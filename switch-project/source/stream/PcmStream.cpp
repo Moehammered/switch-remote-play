@@ -2,131 +2,34 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <string.h>
+
 #include <iostream>
 #include <atomic>
-#include <string.h>
-#include <malloc.h>
-#include <vector>
-
-extern "C"
-{
-    #include <switch/services/audout.h>
-}
-
-auto constexpr SampleRate {48000};
-auto constexpr framerate {100};
-auto constexpr ChannelCount {2}; // stereo
-auto constexpr BitRate {16};
-auto constexpr SamplesPerFrame {SampleRate / framerate};
-auto constexpr PacketsPerFrame {SamplesPerFrame * BitRate/8 * ChannelCount};
+#include "AudioPlayback.h"
 
 std::atomic_bool audioStreamOn {false};
 
-auto constexpr BufferCount {3};
-
-// char packets[1024];
-
-std::vector<AudioOutBuffer> switchAudioBuffers {};
-AudioOutBuffer *releaseBuffer {nullptr};
-std::vector<char*> audioBuffers {};
-auto constexpr BufferAlignment {0x1000};
-int bufferIndex {0};
-
-void SetupBuffers()
-{
-    if(audioBuffers.size() > 0)
-    {
-        for(auto b : audioBuffers)
-            free(b);
-        
-        audioBuffers.clear();
-    }
-
-    switchAudioBuffers.clear();
-
-    for(auto i = 0; i < BufferCount; ++i)
-    {
-        audioBuffers.push_back((char*)memalign(BufferAlignment, PacketsPerFrame));
-        switchAudioBuffers.push_back(
-            AudioOutBuffer
-            {
-                .next = nullptr, .buffer = nullptr, 
-                .buffer_size = 0, .data_size = 0, .data_offset = 0
-            }
-        );
-    }
-
-    bufferIndex = 0;
-}
-
-int PlayBuffer(int buffer_size, int data_size, void* buffer, int bufferInd)
-{
-    switchAudioBuffers[bufferInd].buffer = buffer;
-    switchAudioBuffers[bufferInd].buffer_size = buffer_size;
-    switchAudioBuffers[bufferInd].data_size = data_size;
-    audoutPlayBuffer(&switchAudioBuffers[bufferInd], &releaseBuffer);
-
-    if(++bufferInd >= BufferCount)
-        bufferInd = 0;
-
-    return bufferInd;
-}
-
-void Cleanup()
-{
-    auto flushed = false;
-    audoutFlushAudioOutBuffers(&flushed);
-    for(auto b : audioBuffers)
-        free(b);
-    
-    audioBuffers.clear();
-    switchAudioBuffers.clear();
-}
-
 void ReadAudioStream(std::atomic_bool& running, int const & audioSocket)
 {
-    socklen_t slen = sizeof(sockaddr_in);
+    AudioPlayback audioStream{};
     while(running && audioSocket > 0)
     {
-        auto totalRead = 0;
-        do
-        {
-            sockaddr_in si_other;
-            auto dst = audioBuffers[bufferIndex] + totalRead;
-            auto lastRead = recvfrom(audioSocket, dst, PacketsPerFrame-totalRead, 0, (sockaddr*)&si_other, &slen);
-            if(lastRead > 0)
-                totalRead += lastRead;
-            else if(lastRead < 0)
-            {
-                std::cout << "Audio Stream - Received Error Res: " << lastRead << std::endl;
-                totalRead = -1;
-                break;
-            }
-            else if(lastRead == 0 && !running.load(std::memory_order_relaxed))
-            {
-                std::cout << "Audio Stream died\n";
-                totalRead = -1;
-                break;
-            }
-        } while (totalRead < PacketsPerFrame);
-
-        if(totalRead != -1)
-            bufferIndex = PlayBuffer(PacketsPerFrame, PacketsPerFrame, audioBuffers[bufferIndex], bufferIndex);
+        auto result = audioStream.ReadPackets(audioSocket);
+        if(result > 0)
+            audioStream.Play();
         else
-        {
-            // stream dead?
             running = false;
-        }
     }
 
-    std::cout << "Audio stream stopped - socket ID: " << audioSocket << std::endl;
-    Cleanup();
+    std::cout << "Audio stream stopped - socket ID: " << audioSocket << "\n";
+    audioStream.Cleanup();
 }
 
 PcmStream::PcmStream(uint16_t port)
- : audioSocket{0}, audioThread{}
-{
-}
+ : audioSocket{0}, audioPort{port},
+   audioThread{}
+{ }
 
 bool PcmStream::Ready() const
 {
@@ -144,7 +47,6 @@ void PcmStream::Start()
     {
         audioSocket = CreateSocket(2224);
         auto processStream = [&]{
-            SetupBuffers();
             audioStreamOn = true;
             ReadAudioStream(audioStreamOn, audioSocket);
         };
@@ -181,7 +83,7 @@ int PcmStream::CreateSocket(uint16_t port)
         auto bindCheck = bind(sock, (sockaddr*)&addr, sizeof(addr));
         if(bindCheck < 0)
         {
-            std::cout << "Failed to bind UDP socket - " << strerror(errno) << std::endl;
+            std::cout << "Failed to bind UDP socket - " << strerror(errno) << "\n";
             close(sock);
             return -1;
         }
@@ -190,7 +92,7 @@ int PcmStream::CreateSocket(uint16_t port)
     }
     else
     {
-        std::cout << "Failed to create UDP Socket - " << strerror(errno) << std::endl;
+        std::cout << "Failed to create UDP Socket - " << strerror(errno) << "\n";
         return -1;
     }
 }

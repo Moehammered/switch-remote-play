@@ -17,7 +17,8 @@ class PcmStream
         void Shutdown();
 
     private:
-        int audioSocket;
+        int32_t audioSocket;
+        uint16_t audioPort;
         std::thread audioThread;
 
         int CreateSocket(uint16_t port);

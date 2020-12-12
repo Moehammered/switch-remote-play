@@ -10,15 +10,19 @@ extern "C"
 #include <iostream>
 #include "StreamDecoder.h"
 
+auto constexpr streamURL = "tcp://0.0.0.0";
+
 VideoStream::VideoStream()
     : streamFormat{nullptr}, stream{nullptr}, decoder{nullptr},
     decoderContext{nullptr}, frame{nullptr}
 {   
 }
 
-bool VideoStream::WaitForStream(std::string url)
+bool VideoStream::WaitForStream(uint16_t port)
 {
     int ret = 0;
+
+    auto url = std::string{streamURL} + ":" + std::to_string(port);
 
     // setting TCP input options
     AVDictionary* opts = 0;
@@ -126,67 +130,6 @@ bool VideoStream::Read(AVPacket& output)
 AVStream const * const VideoStream::StreamInfo()
 {
     return stream;
-}
-
-/**
- * Read https://ffmpeg.org/doxygen/3.3/group__lavc__encdec.html for info on the decoding / encoding process for packets
- */
-void VideoStream::StreamVideoViaDecoder(ScreenRenderer& renderer, std::atomic_bool& streamOn)
-{
-    StreamDecoder decoder{stream->codecpar, false};
-    if(!decoder.Initialised())
-    {
-        std::cout << "Error occurred initialising the decoder." << std::endl;
-        return;
-    }
-    
-    AVPacket dataPacket;
-    av_init_packet(&dataPacket);
-    dataPacket.data = NULL;
-    dataPacket.size = 0;
-
-    std::cout << "starting stream read of packets...\n" << std::endl;
-    //read frames from the stream we've connected to and setup
-    while (av_read_frame(streamFormat, &dataPacket) >= 0)
-    {
-        if(decoder.DecodeFramePacket(dataPacket))
-        {
-            //something was decoded, render it
-            auto screenTexture = renderer.GetScreenTexture();
-            auto region = renderer.Region();
-            // render frame data - expecting YUV420 format
-            // (stride values represent space between horizontal lines across screen)
-            auto decodedFrame = decoder.DecodedFrame();
-
-            auto yPlane = decodedFrame.data[0];
-            auto yPlaneStride = decodedFrame.width;
-            auto uPlane = decodedFrame.data[1];
-            auto uPlaneStride = decodedFrame.width/2;
-            auto vPlane = decodedFrame.data[2];
-            auto vPlaneStride = decodedFrame.width/2;
-
-            // std::cout << "Updating SDL texture" << std::endl;
-            SDL_UpdateYUVTexture(screenTexture, &region, 
-                                yPlane, yPlaneStride,
-                                uPlane, uPlaneStride, 
-                                vPlane, vPlaneStride);
-
-            renderer.RenderScreenTexture();
-            
-            dataPacket.data += decodedFrame.pkt_size; //think this is unnecessary
-            dataPacket.size -= decodedFrame.pkt_size; //think this is unnecessary
-        }
-        
-        av_packet_unref(&dataPacket);
-
-        if(!streamOn.load(std::memory_order_acquire))
-            break;
-    }
-    
-    avformat_close_input(&streamFormat);
-    streamFormat = nullptr;
-    decoder.Flush();
-    decoder.Cleanup();
 }
 
 void VideoStream::CloseStream()
