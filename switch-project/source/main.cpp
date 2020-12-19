@@ -165,16 +165,20 @@ int main(int argc, char **argv)
                 if(kDown & KEY_PLUS)
                     streamState.store(StreamState::QUIT, std::memory_order_release);
                 if(kDown & KEY_DUP)
-                    configRenderer.SelectPrevious();
+                    SelectPrevious();
                 else if(kDown & KEY_DDOWN)
-                    configRenderer.SelectNext();
+                    SelectNext();
                 else if(kDown & KEY_R)
                     streamState.store(StreamState::REQUESTED, std::memory_order_release);
+                else if(kDown & KEY_ZL)
+                    PreviousScreen();
+                else if(kDown & KEY_ZR)
+                    NextScreen();
 
                 if(kDown & KEY_DRIGHT)
-                    configRenderer.IncreaseSetting();
+                    IncreaseSetting();
                 else if(kDown & KEY_DLEFT)
-                    configRenderer.DecreaseSetting();
+                    DecreaseSetting();
                 
                 if(kDown & KEY_L)
                 {
@@ -203,7 +207,7 @@ int main(int argc, char **argv)
 
                 if(network.HostFound())
                 {
-                    RunStartConfiguredStreamCommand(network.IPAddress(), hostCommandPort, configRenderer.Settings());
+                    RunStartConfiguredStreamCommand(network.IPAddress(), hostCommandPort, GetFfmpegSettings());
                     auto streamOn = stream.WaitForStream(videoPort);
 
                     if(streamOn)
