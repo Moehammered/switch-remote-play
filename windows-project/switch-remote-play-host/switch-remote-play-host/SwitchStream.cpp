@@ -39,24 +39,23 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
     return data;
 }
 
-std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool& gamepadActive)
+std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
 {
     using namespace std;
-    thread workerThread;
+    thread workerThread{};
 
     if (gamepadActive.load(memory_order_acquire))
     {
         gamepadActive.store(false, memory_order_release);
     }
 
-    workerThread = thread([&] {
+    workerThread = thread([&, gamepadPort=port] {
 
         while (gamepadActive.load(memory_order_acquire)) //don't let it continue if a previous gamepadThread is running
         {
             this_thread::sleep_for(chrono::duration<int, milli>(100)); //wait a bit to let previous gamepad thread cleanup
         }
 
-        auto gamepadPort = 20002;
         auto connection = Connection(gamepadPort);
         if(connection.Ready())
         {

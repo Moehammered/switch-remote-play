@@ -6,7 +6,7 @@
 #define SHOW_IN_PARENT
 
 // Generate the command line argument string to execute ffmpeg
-std::string CreateCommandLineArg(FFMPEG_Config const config)
+std::string CreateVideoCommandLineArg(FFMPEG_Config const config, uint16_t port)
 {
     using namespace std;
 
@@ -34,11 +34,11 @@ std::string CreateCommandLineArg(FFMPEG_Config const config)
         vsyncMode = "-1"; //automatically choose between 1 or 2
         break;
     default:
-        vsyncMode = "cfr";
+        vsyncMode = "drop";
         break;
     }
 
-    auto const connectionIP = "tcp://192.168.0.17:2222";
+    auto const connectionIP = "tcp://192.168.0.17:" + std::to_string(port);
     stringstream args;
     args << filePath << " -probesize 32 -hwaccel auto -y -f gdigrab ";
     args << "-framerate " << config.desiredFrameRate << " ";
@@ -54,7 +54,7 @@ std::string CreateCommandLineArg(FFMPEG_Config const config)
     return args.str();
 }
 
-std::string CreateAudioCommandLineArg(int sampleRate, int packetSize)
+std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, uint16_t port)
 {
     using namespace std;
 
@@ -63,7 +63,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize)
     PathRemoveFileSpecA(filePath);
     PathCombineA(filePath, filePath, "ffmpeg.exe");
 
-    auto const connectionIP = "udp://192.168.0.17:2224";
+    auto const connectionIP = "udp://192.168.0.17:" + std::to_string(port);
     auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";
     auto const qualityArgs = "-f s16le ";
     auto const sampleRateArg = "-ar ";
@@ -77,7 +77,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize)
 }
 
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
-PROCESS_INFORMATION StartStream(FFMPEG_Config const config, bool& started)
+PROCESS_INFORMATION StartStream(FFMPEG_Config const config, uint16_t port, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -86,7 +86,7 @@ PROCESS_INFORMATION StartStream(FFMPEG_Config const config, bool& started)
 
     si.cb = sizeof(si);
 
-    auto args = CreateCommandLineArg(config);
+    auto args = CreateVideoCommandLineArg(config, port);
 #ifdef SHOW_FFMPEG_PROCESS
     auto processFlags = CREATE_NEW_CONSOLE;
 #else
@@ -109,7 +109,7 @@ PROCESS_INFORMATION StartStream(FFMPEG_Config const config, bool& started)
     return pi;
 }
 
-PROCESS_INFORMATION StartAudio(bool& started)
+PROCESS_INFORMATION StartAudio(uint16_t port, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -126,7 +126,7 @@ PROCESS_INFORMATION StartAudio(bool& started)
 
     auto constexpr data_size = inputSampleCount * channels * bitrate/8;
     
-    auto const args = CreateAudioCommandLineArg(samplerate, data_size);
+    auto const args = CreateAudioCommandLineArg(samplerate, data_size, port);
     auto processFlags = CREATE_NEW_CONSOLE;
 
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, processFlags, NULL, NULL, &si, &pi))

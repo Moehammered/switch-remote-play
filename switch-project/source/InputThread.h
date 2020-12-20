@@ -2,8 +2,8 @@
 #define __INPUTTHREAD_H__
 
 #include <atomic>
-#include "ui/FFMPEGConfigUI.h"
-#include "network/NetworkDiscovery.h"
+#include <string>
+#include "network/NetworkData.h"
 
 struct GamepadDataPayload
 {
@@ -23,17 +23,7 @@ enum StreamState : int32_t
 
 void RunStopCommandThread(std::string ip, uint16_t port);
 
-void CommandStopThreadStart(std::string ip, uint16_t port);
-
 void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config);
-
-bool ProcessInactiveStreamInput(uint32_t kDown, std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender,
-                                uint16_t hostPort, std::string const subnet, uint16_t broadcastPort,
-                                std::reference_wrapper<NetworkDiscovery*> network);
-
-void RunInactiveStreamInput(std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender,
-                            uint16_t hostPort, std::string const subnet, uint16_t broadcastPort,
-                            std::reference_wrapper<NetworkDiscovery*> network);
 
 void RunGamepadThread(std::string ip, uint16_t port);
 

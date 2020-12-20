@@ -141,8 +141,13 @@ int main(int argc, char* argv[])
     std::string switchIP{};
     std::atomic_bool ipFound{ false };
     auto subnet = "192.168.0.255";
-    auto port = 20000;
-    auto handshakePort = 19999;
+
+    uint16_t constexpr handshakePort = 19999;
+    uint16_t constexpr broadcastPort = 20000;
+    uint16_t constexpr hostCommandPort = 20001;
+    uint16_t constexpr gamepadPort = 20002;
+    uint16_t constexpr videoPort = 2222;
+    uint16_t constexpr audioPort = 2224;
     Connection* handshakeConnection = nullptr;
     Broadcast* broadcastConnection = nullptr;
 
@@ -169,7 +174,7 @@ int main(int argc, char* argv[])
     };
 
     auto receiverProcedure = [&] {
-        auto broadcaster = Broadcast(subnet, port);
+        auto broadcaster = Broadcast(subnet, broadcastPort);
         broadcastConnection = &broadcaster;
 
         if (broadcaster.ReadyToRecv())
@@ -209,7 +214,6 @@ int main(int argc, char* argv[])
     std::atomic<bool> gamepadActive = false;
     auto lastCommand = Command::IGNORE_COMMAND;
     auto lastPayload = CommandPayload{};
-    auto commandPort = 20001;
 
     PROCESS_INFORMATION streamProcessInfo;
     ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
@@ -221,7 +225,7 @@ int main(int argc, char* argv[])
     {
         killStream.store(false, std::memory_order_release);
 
-        auto connection = Connection(commandPort);
+        auto connection = Connection(hostCommandPort);
         if (connection.Ready())
         {
             std::cout << "Ready to receive a connection from the switch..." << std::endl << std::endl;
@@ -252,15 +256,15 @@ int main(int argc, char* argv[])
                 std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
                 ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
                 // make sure this function takes in the IP of the switch dynamically from the handshake
-                streamProcessInfo = StartStream(lastPayload.configData, ffmpegStarted);
-                audioProcessInfo = StartAudio(audioStarted);
+                streamProcessInfo = StartStream(lastPayload.configData, videoPort, ffmpegStarted);
+                audioProcessInfo = StartAudio(audioPort, audioStarted);
 
                 if (ffmpegStarted)
                 {
                     if (handshakeConnection != nullptr)
                         handshakeConnection->Shutdown();
 
-                    gamepadThread = StartGamepadListener(killStream, gamepadActive);
+                    gamepadThread = StartGamepadListener(killStream, gamepadActive, gamepadPort);
                 }
 
                 break;

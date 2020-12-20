@@ -69,9 +69,9 @@ settingIndex(0), settingsIndices{}, settingsText{}
     }
 
     settingsIndices[framerateIndex] = 1;
-    settingsIndices[videoResIndex] = 2;
+    settingsIndices[videoResIndex] = 5;
     settingsIndices[videoScaleIndex] = 0;
-    settingsIndices[bitrateIndex] = 4;
+    settingsIndices[bitrateIndex] = 9;
     settingsIndices[vsyncIndex] = 4;
 
     auto defFps = framerates[settingsIndices[framerateIndex]];

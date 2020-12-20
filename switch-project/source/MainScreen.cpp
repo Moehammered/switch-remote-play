@@ -28,7 +28,7 @@ Text const streamPendingText{
 };
 FFMPEGConfigUI configurator;
 FfmpegConfigRenderer configRenderer;
-MenuScreen currentMenu {IP_SET};
+MenuScreen currentMenu {MAIN};
 
 void UpdateScreens()
 {

@@ -3,16 +3,13 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
-#include "stream/VideoStream.h"
 #include "network/CommandSender.h"
 #include <sys/socket.h>
-#include "ui/FFMPEGConfigUI.h"
-#include "network/NetworkDiscovery.h"
 
 void RunStopCommandThread(std::string ip, uint16_t port)
 {
     int commandSocket = -1;
-    if(ConnectTo(ip, 20001, commandSocket))
+    if(ConnectTo(ip, port, commandSocket))
     {
         if(SendCode(commandSocket, Command::CLOSE_SERVER))
             std::cout << "Sent Close server command payload" << std::endl;
@@ -22,16 +19,10 @@ void RunStopCommandThread(std::string ip, uint16_t port)
     close(commandSocket);
 }
 
-void CommandStopThreadStart(std::string ip, uint16_t port)
-{
-    auto t = std::thread(RunStopCommandThread, ip, port);
-    t.join();
-}
-
 void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config)
 {
     int commandSocket = -1;
-    if(ConnectTo(ip, 20001, commandSocket))
+    if(ConnectTo(ip, port, commandSocket))
     {
         auto streamCommand = Command::START_STREAM;
         auto const payload = CommandPayload{
@@ -43,75 +34,11 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Confi
             std::cout << "Error sending start payload with configuration" << std::endl;
     }
     close(commandSocket);
-    // std::cout << "Closed command socket" << std::endl;
-}
-
-bool ProcessInactiveStreamInput(uint32_t kDown, std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender,
-                                uint16_t hostPort, std::string const subnet, uint16_t broadcastPort,
-                                std::reference_wrapper<NetworkDiscovery*> network)
-{
-    auto state = streamState.load(std::memory_order_acquire);
-
-    if(state == StreamState::INACTIVE)
-    {
-        if(kDown & KEY_PLUS)
-        {
-            streamState.store(StreamState::QUIT, std::memory_order_release);
-            return false;
-        }
-        if(kDown & KEY_DUP)
-            configRender.SelectPrevious();
-        else if(kDown & KEY_DDOWN)
-            configRender.SelectNext();
-        else if(kDown & KEY_R)
-            streamState.store(StreamState::REQUESTED, std::memory_order_release);
-
-        if(kDown & KEY_DRIGHT)
-            configRender.IncreaseSetting();
-        else if(kDown & KEY_DLEFT)
-            configRender.DecreaseSetting();
-        
-        if(kDown & KEY_L)
-        {
-            if(network.get() == nullptr)
-            {
-                network.get() = new NetworkDiscovery(hostPort, subnet, broadcastPort);
-                network.get()->Search();
-            }
-            else if(network.get()->Searching())
-            {
-                network.get()->Shutdown();
-                delete network.get();
-                network.get() = nullptr;
-            }
-        }
-    }
-    
-    return true;
-}
-
-void RunInactiveStreamInput(std::atomic_int32_t& streamState, FFMPEGConfigUI& configRender,
-                            uint16_t hostPort, std::string const subnet, uint16_t broadcastPort,
-                            std::reference_wrapper<NetworkDiscovery*> network)
-{
-    auto const sleepDuration = std::chrono::duration<int, std::milli>(16); //poll input 60fps
-    while(appletMainLoop())
-    {
-        hidScanInput();
-
-        //different buttons pressed compared to previous time
-        uint32_t kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-        if(!ProcessInactiveStreamInput(kDown, streamState, configRender,
-                                        hostPort, subnet, broadcastPort, network))
-            break;
-    
-        std::this_thread::sleep_for(sleepDuration);
-    }
 }
 
 void RunGamepadThread(std::string ip, uint16_t port)
 {
-    int padSocket;
+    int padSocket{-1};
     if(ConnectTo(ip, port, padSocket))
     {
         JoystickPosition lJoy;
