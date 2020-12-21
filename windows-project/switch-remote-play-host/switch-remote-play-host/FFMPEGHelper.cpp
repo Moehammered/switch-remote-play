@@ -3,10 +3,11 @@
 #include <iostream>
 #include <sstream>
 
-#define SHOW_IN_PARENT
+auto ffmpegProcessFlag{ 0 }; // 0 - in parent process window
+auto audioProcessFlag{ CREATE_NO_WINDOW };
 
 // Generate the command line argument string to execute ffmpeg
-std::string CreateVideoCommandLineArg(FFMPEG_Config const config, uint16_t port)
+std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string const ip, uint16_t port)
 {
     using namespace std;
 
@@ -38,7 +39,7 @@ std::string CreateVideoCommandLineArg(FFMPEG_Config const config, uint16_t port)
         break;
     }
 
-    auto const connectionIP = "tcp://192.168.0.17:" + std::to_string(port);
+    auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
     stringstream args;
     args << filePath << " -probesize 32 -hwaccel auto -y -f gdigrab ";
     args << "-framerate " << config.desiredFrameRate << " ";
@@ -54,7 +55,7 @@ std::string CreateVideoCommandLineArg(FFMPEG_Config const config, uint16_t port)
     return args.str();
 }
 
-std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, uint16_t port)
+std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::string const ip, uint16_t port)
 {
     using namespace std;
 
@@ -63,7 +64,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, uint16_t p
     PathRemoveFileSpecA(filePath);
     PathCombineA(filePath, filePath, "ffmpeg.exe");
 
-    auto const connectionIP = "udp://192.168.0.17:" + std::to_string(port);
+    auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
     auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";
     auto const qualityArgs = "-f s16le ";
     auto const sampleRateArg = "-ar ";
@@ -77,7 +78,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, uint16_t p
 }
 
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
-PROCESS_INFORMATION StartStream(FFMPEG_Config const config, uint16_t port, bool& started)
+PROCESS_INFORMATION StartStream(FFMPEG_Config const config, std::string const ip, uint16_t port, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -86,30 +87,30 @@ PROCESS_INFORMATION StartStream(FFMPEG_Config const config, uint16_t port, bool&
 
     si.cb = sizeof(si);
 
-    auto args = CreateVideoCommandLineArg(config, port);
-#ifdef SHOW_FFMPEG_PROCESS
-    auto processFlags = CREATE_NEW_CONSOLE;
-#else
-    auto processFlags = CREATE_NO_WINDOW;
-#endif
-#ifdef SHOW_IN_PARENT
-    processFlags = 0; //keep output in the parent window
-#endif
+    auto args = CreateVideoCommandLineArg(config, ip, port);
 
-    if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, processFlags, NULL, NULL, &si, &pi))
+    if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, ffmpegProcessFlag, NULL, NULL, &si, &pi))
     {
         //error occured
         std::cout << "Failed to start process. CreateProcess error code: " << GetLastError() << std::endl;
         std::cout << "Argument line passed to cmd: " << std::endl << std::endl << args << std::endl;
         started = false;
+
+        TerminateProcess(pi.hProcess, 1);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
     }
     else
         started = true;
 
+    CloseHandle(si.hStdInput);
+    CloseHandle(si.hStdOutput);
+    CloseHandle(si.hStdError);
+
     return pi;
 }
 
-PROCESS_INFORMATION StartAudio(uint16_t port, bool& started)
+PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -126,18 +127,24 @@ PROCESS_INFORMATION StartAudio(uint16_t port, bool& started)
 
     auto constexpr data_size = inputSampleCount * channels * bitrate/8;
     
-    auto const args = CreateAudioCommandLineArg(samplerate, data_size, port);
-    auto processFlags = CREATE_NEW_CONSOLE;
+    auto const args = CreateAudioCommandLineArg(samplerate, data_size, ip, port);
 
-    if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, processFlags, NULL, NULL, &si, &pi))
+    if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, audioProcessFlag, NULL, NULL, &si, &pi))
     {
         //error occured
         std::cout << "Failed to start process. CreateProcess error code: " << GetLastError() << std::endl;
         std::cout << "Argument line passed to cmd: " << std::endl << std::endl << args << std::endl;
         started = false;
+        TerminateProcess(pi.hProcess, 1);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
     }
     else
         started = true;
+
+    CloseHandle(si.hStdInput);
+    CloseHandle(si.hStdOutput);
+    CloseHandle(si.hStdError);
 
     return pi;
 }

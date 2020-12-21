@@ -33,8 +33,8 @@ uint16_t constexpr handshakePort = 19999;
 uint16_t constexpr broadcastPort = 20000;
 uint16_t constexpr hostCommandPort = 20001;
 uint16_t constexpr gamepadPort = 20002;
-uint16_t constexpr videoPort = 2222;
-uint16_t constexpr audioPort = 2224;
+uint16_t constexpr videoPort = 20003;
+uint16_t constexpr audioPort = 20004;
 
 SDL_Color constexpr bgCol = {20, 20, 20, 255};
 SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };

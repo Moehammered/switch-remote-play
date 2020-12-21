@@ -45,7 +45,7 @@ void PcmStream::Start()
 {
     if(!audioStreamOn)
     {
-        audioSocket = CreateSocket(2224);
+        audioSocket = CreateSocket(audioPort);
         auto processStream = [&]{
             audioStreamOn = true;
             ReadAudioStream(audioStreamOn, audioSocket);

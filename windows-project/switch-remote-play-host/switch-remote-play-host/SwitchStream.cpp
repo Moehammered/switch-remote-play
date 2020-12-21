@@ -65,7 +65,7 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                 GamepadDataPayload padData = {};
                 for (auto& c : padData.padding)
                     c = 0;
-                VirtualController controller;
+                VirtualController controller{};
                 if (controller.Create())
                 {
                     auto streamDead = killStream.load(memory_order_acquire);
@@ -84,7 +84,7 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                         if (result == SOCKET_ERROR)
                         {
                             cout << "Failed to receive data for gamepad stream" << endl;
-                            std:this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
+                            std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
                             --retryCount;
                             if (retryCount == 0)
                             {

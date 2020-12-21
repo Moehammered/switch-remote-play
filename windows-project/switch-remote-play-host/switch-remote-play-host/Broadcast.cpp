@@ -6,7 +6,7 @@ Broadcast::Broadcast(std::string subnet, uint16_t port)
     : broadcastSocket{ INVALID_SOCKET }, receiverSocket{ INVALID_SOCKET },
       broadcastAddr{0}, receiveAddr{0}
 {
-    sockaddr_in addr;
+    sockaddr_in addr{ 0 };
     addr.sin_port = htons(port);
     addr.sin_family = AF_INET;
     // need to find a way to automatically get the (wireless)local area network IP and subnet mask to make the broadcast address
@@ -76,7 +76,7 @@ bool Broadcast::Send(char const* const data, int size)
 
 bool Broadcast::Recv(std::string& data)
 {
-    char buffer[255];
+    char buffer[255]{};
     for (auto& c : buffer)
         c = 0;
     int size = sizeof(receiveAddr);

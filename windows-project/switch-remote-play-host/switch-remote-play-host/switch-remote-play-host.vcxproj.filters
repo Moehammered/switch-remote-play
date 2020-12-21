@@ -66,4 +66,7 @@
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="WindowsCodeNotes.txt" />
+  </ItemGroup>
 </Project>

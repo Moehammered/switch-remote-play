@@ -1,6 +1,6 @@
 /**
- * Test console application to demonstrate connecting to a client automatically on the network without inputting IP manually.
- * To test this, run the client application first, then run the server application and the connection will occur.
+ * Switch-remote-play host application for the PC to stream video and audio to a switch running the Switch-Remote-Play switch app.
+ * Relies on ffmpeg.exe being located within the same directory as this executable.
 */
 
 #include <iostream>
@@ -28,44 +28,6 @@ MONITORINFOEX DefaultMonitorInfo()
     return monitorInfo;
 }
 
-void PrintChangeDisplayStatus(long result)
-{
-    switch (result)
-    {
-    case DISP_CHANGE_SUCCESSFUL:
-        std::cout << "The settings change was successful" << "\n";
-        break;
-
-    case DISP_CHANGE_BADDUALVIEW:
-        std::cout << "The settings change was unsuccessful because the system is DualView capable" << "\n";
-        break;
-
-    case DISP_CHANGE_BADFLAGS:
-        std::cout << "An invalid set of flags was passed in" << "\n";
-        break;
-
-    case DISP_CHANGE_BADMODE:
-        std::cout << "The graphics mode is not supported" << "\n";
-        break;
-
-    case DISP_CHANGE_BADPARAM:
-        std::cout << "An invalid parameter was passed in. This can include an invalid flag or combination of flags" << "\n";
-        break;
-
-    case DISP_CHANGE_FAILED:
-        std::cout << "The display driver failed the specified graphics mode" << "\n";
-        break;
-
-    case DISP_CHANGE_NOTUPDATED:
-        std::cout << "Unable to write settings to the registry" << "\n";
-        break;
-
-    case DISP_CHANGE_RESTART:
-        std::cout << "The computer must be restarted for the graphics mode to work" << "\n";
-        break;
-    }
-}
-
 bool ChangeResolution(int width, int height)
 {
     auto deviceMode = DEVMODE{ 0 };
@@ -81,62 +43,110 @@ bool ChangeResolution(int width, int height)
     return result == DISP_CHANGE_SUCCESSFUL;
 }
 
-void TestMonitorInfo()
+PROCESS_INFORMATION streamProcessInfo{ 0 };
+PROCESS_INFORMATION audioProcessInfo{ 0 };
+Broadcast* switchBroadcastListener{ nullptr };
+Connection* switchHandshakeConnection{ nullptr };
+Connection* switchCommandListener{ nullptr };
+
+void StopStreamProcesses()
 {
-    auto monitorInfo = DefaultMonitorInfo();
-
-    std::cout << "Monitor Info: " << "\n";
-    if (monitorInfo.dwFlags == MONITORINFOF_PRIMARY)
-        std::cout << "    Primary Monitor" << "\n";
-    else
-        std::cout << "    Secondary Monitor" << "\n";
-
-    auto charRep = std::wstring{ monitorInfo.szDevice };
-    auto str = std::string(charRep.begin(), charRep.end());
-    std::cout << "    " << str << "\n";
-    auto width = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
-    auto height = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
-    std::cout << "    " << width << " x " << height << "\n";
-    auto workWidth = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
-    auto workHeight = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
-    std::cout << "    " << workWidth << " x " << workHeight << "\n";
-
-    auto deviceMode = DEVMODE{ 0 };
-
-    deviceMode.dmSize = sizeof(deviceMode);
-    deviceMode.dmBitsPerPel = 32;
-    deviceMode.dmPelsWidth = 1280;
-    deviceMode.dmPelsHeight = 720;
-    deviceMode.dmDisplayFrequency = 60;
-    deviceMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-
-    auto result = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
-    if (result == DISP_CHANGE_SUCCESSFUL)
+    if (streamProcessInfo.hProcess != nullptr)
     {
-        std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(5000));
-
-        deviceMode.dmPelsWidth = width;
-        deviceMode.dmPelsHeight = height;
-
-        auto changeBackResult = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
-        PrintChangeDisplayStatus(changeBackResult);
+        TerminateProcess(streamProcessInfo.hProcess, 1);
+        CloseHandle(streamProcessInfo.hProcess);
+        CloseHandle(streamProcessInfo.hThread);
+        ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
     }
-    else
+    if (audioProcessInfo.hProcess != nullptr)
     {
-        PrintChangeDisplayStatus(result);
+        TerminateProcess(audioProcessInfo.hProcess, 1);
+        CloseHandle(audioProcessInfo.hProcess);
+        CloseHandle(audioProcessInfo.hThread);
+        ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
     }
+}
+
+BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType)
+{
+    switch (eventType)
+    {
+        // Handle the CTRL-C signal.
+        case CTRL_C_EVENT:
+        case CTRL_CLOSE_EVENT:
+            std::cout << "Cleaning up in event handler...\n";
+            std::cout << "Terminating video and audio process\n";
+            StopStreamProcesses();
+            if (switchHandshakeConnection != nullptr)
+            {
+                std::cout << "terminating handshake connection\n";
+                switchHandshakeConnection->Shutdown();
+                switchHandshakeConnection->Close();
+            }
+            if (switchBroadcastListener != nullptr)
+            {
+                std::cout << "terminating broadcast listener ";
+                std::cout << switchBroadcastListener->Close() << " ";
+                std::cout << switchBroadcastListener->Shutdown() << "\n";
+            }
+            if (switchCommandListener != nullptr)
+            {
+                std::cout << "terminating command receiver connection\n";
+                switchCommandListener->Close();
+                switchCommandListener->Shutdown();
+            }
+            Sleep(2000);
+            return TRUE;
+
+        default:
+            return FALSE;
+    }
+}
+
+bool WinsockReady()
+{
+    WSADATA wsaStateData;
+    auto socketStartup = WSAStartup(MAKEWORD(2, 2), &wsaStateData);
+
+    switch (socketStartup)
+    {
+        case WSASYSNOTREADY:
+            std::cout << "Winsock Error - WSASYSNOTREADY: The underlying network subsystem is not ready for network communication\n";
+            return false;
+
+        case WSAVERNOTSUPPORTED:
+            std::cout << "Winsock Error - WSAVERNOTSUPPORTED: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation\n";
+            return false;
+
+        case WSAEINPROGRESS:
+            std::cout << "Winsock Error - WSAEINPROGRESS: A blocking Windows Sockets 1.1 operation is in progress\n";
+            return false;
+
+        case WSAEPROCLIM:
+            std::cout << "Winsock Error - WSAEPROCLIM: A limit on the number of tasks supported by the Windows Sockets implementation has been reached\n";
+            return false;
+
+        case WSAEFAULT:
+            std::cout << "Winsock Error - WSAEFAULT: The lpWSAData parameter is not a valid pointer\n";
+            return false;
+    }
+
+    return true;
 }
 
 int main(int argc, char* argv[])
 {
+    if (!WinsockReady())
+    {
+        std::cout << "Failed to initialise windows network sockets. Please check your firewall rules for ports and try again or try restarting your machine.\n";
+        return -1;
+    }
+
     std::cout << "Switch Remote Play Host \\(^.^)/" << std::endl;
 
-    //TestMonitorInfo();
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
     auto const initialWidth = initialMonitorSettings.rcMonitor.right - initialMonitorSettings.rcMonitor.left;
-    WSADATA wsaStateData;
-    WSAStartup(MAKEWORD(2, 2), &wsaStateData);
 
     std::string switchIP{};
     std::atomic_bool ipFound{ false };
@@ -146,17 +156,15 @@ int main(int argc, char* argv[])
     uint16_t constexpr broadcastPort = 20000;
     uint16_t constexpr hostCommandPort = 20001;
     uint16_t constexpr gamepadPort = 20002;
-    uint16_t constexpr videoPort = 2222;
-    uint16_t constexpr audioPort = 2224;
-    Connection* handshakeConnection = nullptr;
-    Broadcast* broadcastConnection = nullptr;
+    uint16_t constexpr videoPort = 20003;
+    uint16_t constexpr audioPort = 20004;
 
     auto handshakeProcedure = [&] {
         auto const replyKey = std::string{ "let-me-play" };
 
         //handshake method
         auto handshake = Connection(handshakePort);
-        handshakeConnection = &handshake;
+        switchHandshakeConnection = &handshake;
 
         if (ipFound && handshake.Ready())
         {
@@ -170,12 +178,12 @@ int main(int argc, char* argv[])
             }
         }
         handshake.Close();
-        handshakeConnection = nullptr;
+        switchHandshakeConnection = nullptr;
     };
 
     auto receiverProcedure = [&] {
         auto broadcaster = Broadcast(subnet, broadcastPort);
-        broadcastConnection = &broadcaster;
+        switchBroadcastListener = &broadcaster;
 
         if (broadcaster.ReadyToRecv())
         {
@@ -200,7 +208,7 @@ int main(int argc, char* argv[])
             }
 
             broadcaster.Close();
-            broadcastConnection = nullptr;
+            switchBroadcastListener = nullptr;
         }
     };
 
@@ -215,10 +223,10 @@ int main(int argc, char* argv[])
     auto lastCommand = Command::IGNORE_COMMAND;
     auto lastPayload = CommandPayload{};
 
-    PROCESS_INFORMATION streamProcessInfo;
+    
     ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
-    PROCESS_INFORMATION audioProcessInfo;
     ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
+    SetConsoleCtrlHandler(ConsoleWindowEventHandler, TRUE);
     std::thread gamepadThread;
 
     do
@@ -226,6 +234,7 @@ int main(int argc, char* argv[])
         killStream.store(false, std::memory_order_release);
 
         auto connection = Connection(hostCommandPort);
+        switchCommandListener = &connection;
         if (connection.Ready())
         {
             std::cout << "Ready to receive a connection from the switch..." << std::endl << std::endl;
@@ -234,6 +243,8 @@ int main(int argc, char* argv[])
                 lastPayload = ReadPayloadFromSwitch(connection.ConnectedSocket());
                 lastCommand = lastPayload.commandCode;
             }
+            else
+                lastCommand = Command::CLOSE_SERVER;
             connection.Close();
         }
 
@@ -243,30 +254,32 @@ int main(int argc, char* argv[])
         {
             case Command::SHUTDOWN_PC:
                 std::cout << "Shutdown host PC (Not implemented)" << std::endl;
-                TerminateProcess(streamProcessInfo.hProcess, 1);
-                TerminateProcess(audioProcessInfo.hProcess, 1);
+                StopStreamProcesses();
 
                 break;
 
             case Command::START_STREAM:
-                TerminateProcess(streamProcessInfo.hProcess, 1);
-                TerminateProcess(audioProcessInfo.hProcess, 1);
+                StopStreamProcesses();
 
-                std::cout << "Start stream with last received config from switch..." << std::endl;
-                std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
-                ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
-                // make sure this function takes in the IP of the switch dynamically from the handshake
-                streamProcessInfo = StartStream(lastPayload.configData, videoPort, ffmpegStarted);
-                audioProcessInfo = StartAudio(audioPort, audioStarted);
-
-                if (ffmpegStarted)
+                if (ipFound)
                 {
-                    if (handshakeConnection != nullptr)
-                        handshakeConnection->Shutdown();
+                    std::cout << "Start stream with last received config from switch..." << std::endl;
+                    std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
+                    ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
+                    // make sure this function takes in the IP of the switch dynamically from the handshake
+                    streamProcessInfo = StartStream(lastPayload.configData, switchIP, videoPort, ffmpegStarted);
+                    audioProcessInfo = StartAudio(switchIP, audioPort, audioStarted);
 
-                    gamepadThread = StartGamepadListener(killStream, gamepadActive, gamepadPort);
+                    if (ffmpegStarted)
+                    {
+                        if (switchHandshakeConnection != nullptr)
+                            switchHandshakeConnection->Shutdown();
+
+                        gamepadThread = StartGamepadListener(killStream, gamepadActive, gamepadPort);
+                    }
                 }
-
+                else
+                    std::cout << "Switch IP has not been found. Please restart the application and switch application and try searching for the host PC on the switch.\n";
                 break;
         }
 
@@ -281,8 +294,7 @@ int main(int argc, char* argv[])
         std::cout << "making sure to kill stream..." << std::endl;
         killStream.store(true, std::memory_order_release);
         std::cout << "terminating the FFMPEG process" << std::endl;
-        TerminateProcess(streamProcessInfo.hProcess, 1);
-        TerminateProcess(audioProcessInfo.hProcess, 1);
+        StopStreamProcesses();
         std::cout << "Resetting resolution" << std::endl;
         ChangeResolution(initialWidth, initialHeight);
 
@@ -291,8 +303,7 @@ int main(int argc, char* argv[])
     std::cout << "making sure to kill stream..." << std::endl;
     killStream.store(true, std::memory_order_release);
     std::cout << "terminating the FFMPEG process" << std::endl;
-    TerminateProcess(streamProcessInfo.hProcess, 1);
-    TerminateProcess(audioProcessInfo.hProcess, 1);
+    StopStreamProcesses();
 
     // wait here for the gamepad to close
     std::cout << "waiting for gamepad thread to shutdown..." << std::endl;
@@ -302,10 +313,10 @@ int main(int argc, char* argv[])
     if (gamepadThread.joinable())
         gamepadThread.join();
 
-    if (handshakeConnection != nullptr)
-        handshakeConnection->Shutdown();
-    if (broadcastConnection != nullptr)
-        broadcastConnection->Shutdown();
+    if (switchHandshakeConnection != nullptr)
+        switchHandshakeConnection->Shutdown();
+    if (switchBroadcastListener != nullptr)
+        switchBroadcastListener->Shutdown();
 
     if (connectionDiscoveryThread.joinable())
         connectionDiscoveryThread.join();
