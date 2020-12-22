@@ -39,7 +39,7 @@ uint16_t constexpr audioPort = 20004;
 SDL_Color constexpr bgCol = {20, 20, 20, 255};
 SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
 
-uint32_t constexpr fontSize = 30;
+uint32_t constexpr fontSize = 24;
 
 //30fps refresh rate
 auto constexpr thirtyThreeMs = std::chrono::duration<int, std::milli>(33);
@@ -175,9 +175,9 @@ int main(int argc, char **argv)
                 else if(kDown & KEY_ZR)
                     NextScreen();
 
-                if(kDown & KEY_DRIGHT)
+                if(kDown & KEY_A)
                     IncreaseSetting();
-                else if(kDown & KEY_DLEFT)
+                else if(kDown & KEY_B)
                     DecreaseSetting();
                 
                 if(kDown & KEY_L)
@@ -205,9 +205,14 @@ int main(int argc, char **argv)
                 
                 screen.PresentScreen();
 
-                if(network.HostFound())
+                if(network.HostFound() || UseManualIP())
                 {
-                    RunStartConfiguredStreamCommand(network.IPAddress(), hostCommandPort, GetFfmpegSettings());
+                    auto ip = std::string{};
+                    if(UseManualIP())
+                        ip = GetManualIPAddress();
+                    else
+                        ip = network.IPAddress();
+                    RunStartConfiguredStreamCommand(ip, hostCommandPort, GetFfmpegSettings());
                     auto streamOn = stream.WaitForStream(videoPort);
 
                     if(streamOn)
@@ -217,7 +222,7 @@ int main(int argc, char **argv)
                             delete streamDecoder;
 
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                        gamepadThread = std::thread(RunGamepadThread, network.IPAddress(), gamepadPort);
+                        gamepadThread = std::thread(RunGamepadThread, ip, gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
 
                         if(audioStream.Ready() && !audioStream.Running())

@@ -1,25 +1,74 @@
 #include "ManualNetworkConfig.h"
 #include "Text.h"
 #include <iostream>
+#include "../system/Configuration.h"
 
 auto constexpr SEGMENTS {4};
-auto constexpr TextElementCount {5};
+auto constexpr SaveElement {5};
+auto constexpr ManualIPModeElement {6};
+auto constexpr TextElementCount {6};
 Text ipSegments[SEGMENTS];
+Text const warningText{
+    .x = 75, .y = 350,
+    .colour {255, 50, 0, 255},
+    .value {"Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button."}
+};
 Text const saveText {
-    .x = 100, .y = 450,
+    .x = 100, .y = 500,
     .colour {255, 255, 255, 255},
     .value {"Save IP"}
+};
+Text manualIPStateText {
+    .x = 250, .y = 500,
+    .colour {255, 255, 255, 255},
+    .value {"Manual IP Disabled"}
 };
 int16_t ip[SEGMENTS] {192, 168, 0, 1};
 int32_t selectedSegment {0};
 
 SDL_Color constexpr highlight {200, 200, 50, 255};
+auto useManualIP {false};
+
+void LoadManualIP()
+{
+    auto cfg = Configuration{};
+    auto manualIP = cfg.ManualIP();
+    if(manualIP.size() > 0)
+    {
+        auto dotCounter {0};
+        int16_t buffer[4]{0, 0, 0, 0};
+        auto lastPoint{0};
+        for(auto i = 0U; i < manualIP.size() && dotCounter < 3; ++i)
+        {
+            if(manualIP[i] == '.')
+            {
+                auto segment = manualIP.substr(lastPoint, i-lastPoint);
+                // std::cout << "converting " << segment << "\n";
+                buffer[dotCounter] = atoi(segment.c_str());
+                ++dotCounter;
+                lastPoint = i+1;
+            }
+        }
+        if(dotCounter == 3)
+        {
+            auto segment = manualIP.substr(lastPoint, manualIP.size()-lastPoint);
+            // std::cout << "converting " << segment << "\n";
+            buffer[dotCounter] = atoi(segment.c_str());
+            ++dotCounter;
+            for(auto i = 0; i < dotCounter; ++i)
+                ip[i] = buffer[i];
+        }
+        else
+            std::cout << "Incorrect ip format found. Only " << dotCounter << " dots found in IP string.\n";
+    }
+}
 
 void SetupManualNetworkScreen()
 {
+    LoadManualIP();
     SDL_Color constexpr white {255,255,255,255};
-    int x = 100; int y = 400;
-    int offset = 50;
+    int x = 100; int y = 450;
+    int offset = 70;
     for(auto i = 0; i < SEGMENTS; ++i)
     {
         ipSegments[i].colour = white;
@@ -60,9 +109,14 @@ void IncreaseSegment()
             ip[selectedSegment] = 0;
         UpdateText();
     }
-    else if(selectedSegment == TextElementCount-1)
+    else if(selectedSegment == SaveElement-1)
     {
         SaveManualIP();
+    }
+    else if(selectedSegment == ManualIPModeElement-1)
+    {
+        useManualIP = !useManualIP;
+        manualIPStateText.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
     }
 }
 
@@ -77,9 +131,9 @@ void DecreaseSegment()
     }
 }
 
-
 void RenderNetworkConfigScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
 {
+    warningText.Render(renderer, systemFont);
     for(auto i = 0; i < SEGMENTS; ++i)
     {
         if(selectedSegment == i)
@@ -87,22 +141,36 @@ void RenderNetworkConfigScreen(SDL_Renderer * const renderer, FC_Font * const sy
         else
             ipSegments[i].Render(renderer, systemFont);
     }
-    if(selectedSegment == TextElementCount-1)
+    if(selectedSegment == SaveElement-1)
         saveText.Render(renderer, systemFont, highlight);
     else
         saveText.Render(renderer, systemFont);
+    if(selectedSegment == ManualIPModeElement-1)
+        manualIPStateText.Render(renderer, systemFont, highlight);
+    else
+        manualIPStateText.Render(renderer, systemFont);
 }
 
 void SaveManualIP()
 {
-    // do stuff here
+    auto ip = ManualIPAddress();
+    auto cfg = Configuration{};
+    if(!cfg.SaveManualIP(ip))
+        std::cout << "Failed to manually save IP\n";
+    else
+        std::cout << "Saved manual IP " << ip << "\n";
 }
 
-std::string const IPAddress()
+std::string const ManualIPAddress()
 {
     auto period {std::string{"."}};
     return ipSegments[0].value + period 
          + ipSegments[1].value + period
          + ipSegments[2].value + period
          + ipSegments[3].value;
+}
+
+bool ManualIPMode()
+{
+    return useManualIP;
 }

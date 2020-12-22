@@ -13,6 +13,7 @@ void IncreaseSegment();
 void DecreaseSegment();
 void RenderNetworkConfigScreen(SDL_Renderer * const renderer, FC_Font * const systemFont);
 void SaveManualIP();
-std::string const IPAddress();
+std::string const ManualIPAddress();
+bool ManualIPMode();
 
 #endif

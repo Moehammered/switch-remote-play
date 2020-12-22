@@ -242,6 +242,12 @@ int main(int argc, char* argv[])
             {
                 lastPayload = ReadPayloadFromSwitch(connection.ConnectedSocket());
                 lastCommand = lastPayload.commandCode;
+
+                if (!ipFound)
+                {
+                    switchIP = connection.ConnectedIP();
+                    ipFound = true;
+                }
             }
             else
                 lastCommand = Command::CLOSE_SERVER;

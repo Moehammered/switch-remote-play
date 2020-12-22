@@ -3,21 +3,39 @@
 #include "ui/FFMPEGConfigUI.h"
 #include "ui/ManualNetworkConfig.h"
 #include <iostream>
+#include "system/Configuration.h"
 
 auto constexpr noHostInfoMessage = "Host IP: Not yet found. Press 'L' to start search...";
 auto constexpr defaultControlMessage = 
 "Welcome to Switch Remote Play. \n\
-Press ZL/ZR to cycle screens. D-Pad to cycle settings where applicable.\n\n\
-When the host IP is set, press 'R' to start stream connection.\n\
+Press 'ZL'/'ZR' to cycle screens.\n\
+Press 'A'/'B' to cycle settings where applicable.\n\
+When the host IP is set, press 'R' to start the stream.\n\
 (will be unresponsive until a connection to a PC is made)";
+
+auto constexpr instructions =
+"1. Please make sure the switch-remote-play-host application is running on your windows PC.\n\
+2. Please connect to a 5GHZ wifi network if you can. (e.g. homewifi_5GHz).\n\
+3. Please make sure ports 19999 to 20004 aren't blocked or occupied on your PC.\n\
+4. Please make sure Windows Firewall isn't blocking ffmpeg or switch-remote-play-host.\n\n\
+Stream tips:\n\
+- Hold '+' for more than 3 seconds to close the stream.\n\
+- Favor lower desktop resolution to reduce latency.\n\
+- You can mute your PC and audio will still stream to the switch.\
+";
 
 Text const title{
     .x = 400, .y = 20, .colour = green,
     .value = "Switch Remote Play \\(^.^)/"
 };
 Text const controlText{
-    .x = 100, .y = 60, .colour = green, 
+    .x = 20, .y = 60, .colour = green, 
     .value = defaultControlMessage
+};
+
+Text const placeholderInstructions{
+    .x = 10, .y = 350, .colour = orange, 
+    .value = instructions
 };
 
 Text hostConnectionText{};
@@ -29,16 +47,15 @@ Text const streamPendingText{
 FFMPEGConfigUI configurator;
 FfmpegConfigRenderer configRenderer;
 MenuScreen currentMenu {MAIN};
+Configuration config;
 
 void UpdateScreens()
 {
-    configRenderer.Config(configurator.Settings());
-
     switch(currentMenu)
     {
         default:
         case MAIN:
-            currentScreenText.value = "Main Screen";
+            currentScreenText.value = "Help Screen";
         break;
 
         case CONFIG:
@@ -50,6 +67,9 @@ void UpdateScreens()
             currentScreenText.value = "Manual IP Screen";
         break;
     }
+
+    config = Configuration{};
+    configRenderer.Config(config.FFMPEGData());
 }
 
 void SetupMainScreen()
@@ -60,10 +80,11 @@ void SetupMainScreen()
     };
 
     currentScreenText = Text{
-        .x = 400, .y = 300, .colour = white,
-        .value = "Main Screen"
+        .x = 415, .y = 310, .colour = white,
+        .value = "Help Screen"
     };
 
+    config = Configuration{};
     SetupManualNetworkScreen();
 
     UpdateScreens();
@@ -186,7 +207,9 @@ void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
         default:
         case MAIN:
             // render current settings and start button
-            configRenderer.Render(renderer, systemFont);
+            // hide config renderer screen since it does nothing for now
+            //configRenderer.Render(renderer, systemFont);
+            placeholderInstructions.Render(renderer, systemFont);
         break;
 
         case CONFIG:
@@ -202,7 +225,12 @@ void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
 
 void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const * network)
 {
-    if(network != nullptr && network->HostFound())
+    if(ManualIPMode())
+    {
+        hostConnectionText.value = "Host IP: (Manual)" + ManualIPAddress();
+        hostConnectionText.Render(renderer, systemFont, orange);
+    }
+    else if(network != nullptr && network->HostFound())
     {
         hostConnectionText.value = "Host IP: " + network->IPAddress();
         hostConnectionText.Render(renderer, systemFont, green);
@@ -221,7 +249,12 @@ void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFo
 
 void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const & network)
 {
-    if(network.HostFound())
+    if(ManualIPMode())
+    {
+        hostConnectionText.value = "Host IP: (Manual)" + ManualIPAddress();
+        hostConnectionText.Render(renderer, systemFont, orange);
+    }
+    else if(network.HostFound())
     {
         hostConnectionText.value = "Host IP: " + network.IPAddress();
         hostConnectionText.Render(renderer, systemFont, green);
@@ -250,4 +283,14 @@ void RenderPendingConnectionScreen(SDL_Renderer * const renderer, FC_Font * cons
 FFMPEG_Config const GetFfmpegSettings()
 {
     return configurator.Settings();
+}
+
+bool UseManualIP()
+{
+    return ManualIPMode();
+}
+
+std::string const GetManualIPAddress()
+{
+    return ManualIPAddress();
 }

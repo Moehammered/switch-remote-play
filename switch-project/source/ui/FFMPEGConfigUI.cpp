@@ -80,15 +80,15 @@ settingIndex(0), settingsIndices{}, settingsText{}
     auto defBitrate = bitratesKB[settingsIndices[bitrateIndex]];
     auto defVsync = vsyncModeToString(vsyncModes[settingsIndices[vsyncIndex]]);
 
-    settingsText[framerateIndex].value = "Desired Framerate:  " + std::to_string(defFps);
-    settingsText[videoResIndex].value = "Desktop Resolution: " 
+    settingsText[framerateIndex].value = "Desired Framerate:-- " + std::to_string(defFps);
+    settingsText[videoResIndex].value = "Desktop Resolution:- " 
                                         + std::to_string(defVideoRes.width) 
                                         + "x" + std::to_string(defVideoRes.height);
-    settingsText[videoScaleIndex].value = "Switch Resolution:  "
+    settingsText[videoScaleIndex].value = "Switch Resolution:-- "
                                         + std::to_string(defScale.width) 
                                         + "x" + std::to_string(defScale.height);
-    settingsText[bitrateIndex].value = "Bitrate(KB/s):      " + std::to_string(defBitrate);
-    settingsText[vsyncIndex].value = "Vsync Mode:         " + std::string(defVsync);
+    settingsText[bitrateIndex].value = "Bitrate(KB/s):------ " + std::to_string(defBitrate);
+    settingsText[vsyncIndex].value = "Vsync Mode:--------- " + std::string(defVsync);
 }
 
 void FFMPEGConfigUI::IncreaseSetting()
@@ -223,7 +223,7 @@ void FFMPEGConfigUI::UpdateFramerate()
     const auto frInd = settingsIndices[framerateIndex];
     const auto framerate = framerates[frInd];
 
-    settingsText[framerateIndex].value = "Desired Framerate: " + std::to_string(framerate);
+    settingsText[framerateIndex].value = "Desired Framerate:-- " + std::to_string(framerate);
 }
 
 void FFMPEGConfigUI::UpdateVideoRes()
@@ -231,7 +231,7 @@ void FFMPEGConfigUI::UpdateVideoRes()
     const auto vrInd = settingsIndices[videoResIndex];
     const auto res = videoCaptureResolutions[vrInd];
 
-    settingsText[videoResIndex].value = "Desktop Resolution: " 
+    settingsText[videoResIndex].value = "Desktop Resolution:- " 
                                         + std::to_string(res.width) 
                                         + "x" + std::to_string(res.height);
 }
@@ -241,7 +241,7 @@ void FFMPEGConfigUI::UpdateVideoScale()
     const auto vrInd = settingsIndices[videoScaleIndex];
     const auto res = videoScaleResolutions[vrInd];
 
-    settingsText[videoScaleIndex].value = "Switch Resolution:  "
+    settingsText[videoScaleIndex].value = "Switch Resolution:-- "
                                         + std::to_string(res.width) 
                                         + "x" + std::to_string(res.height);
 }
@@ -251,12 +251,12 @@ void FFMPEGConfigUI::UpdateBitrate()
     const auto brInd = settingsIndices[bitrateIndex];
     const auto br = bitratesKB[brInd];
 
-    settingsText[bitrateIndex].value = "Bitrate(KB/s):      " + std::to_string(br);
+    settingsText[bitrateIndex].value = "Bitrate(KB/s):------ " + std::to_string(br);
 }
 
 void FFMPEGConfigUI::UpdateVsync()
 {
     const auto vsInd = settingsIndices[vsyncIndex];
     const auto mode = vsyncModes[vsInd];
-    settingsText[vsyncIndex].value = "Vsync Mode:         " + std::string(vsyncModeToString(mode));
+    settingsText[vsyncIndex].value = "Vsync Mode:--------- " + std::string(vsyncModeToString(mode));
 }

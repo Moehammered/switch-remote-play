@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+auto constexpr MANUAL_IP_TAG = "manual_ip";
 auto constexpr IP_TAG = "found_ip";
 auto constexpr FPS_TAG = "desired_framerate";
 auto constexpr VIDEO_RES_TAG = "video_resolution";
@@ -30,7 +31,33 @@ bool Configuration::SaveFoundIP(std::string const ip)
     if(ReplaceVariable(data, IP_TAG, ip, newData))
         return SaveConfigFile(newData);
     else
-        return false;
+    {
+        newData = std::string{IP_TAG} + "=" + ip + ";\n";
+        newData += data;
+        return SaveConfigFile(newData);
+    }
+}
+
+std::string const Configuration::ManualIP() const
+{
+    auto ip = std::string{};
+    if(ExtractVariable(data, MANUAL_IP_TAG, ip))
+        return ip;
+    else
+        return std::string{};
+}
+
+bool Configuration::SaveManualIP(std::string const ip)
+{
+    auto newData = std::string{};
+    if(ReplaceVariable(data, MANUAL_IP_TAG, ip, newData))
+        return SaveConfigFile(newData);
+    else
+    {
+        newData = std::string{MANUAL_IP_TAG} + "=" + ip + ";\n";
+        newData += data;
+        return SaveConfigFile(newData);
+    }
 }
 
 FFMPEG_Config const Configuration::FFMPEGData() const

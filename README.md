@@ -23,7 +23,7 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 - [x] Stream input from the switch to remote connection
 - [x] Stream audio from remote connection to the switch
 - [x] Automatically connect switch and PC stream applications
-- [ ] Allow manual configuration of switch to PC connection
+- [x] Allow manual configuration of switch to PC connection
 - [x] Configure stream settings from switch
 - [x] Disconnect / Reconnect stream at will
 - [ ] Toggle Input Mode to DS4 controller

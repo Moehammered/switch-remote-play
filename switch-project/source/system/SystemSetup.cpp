@@ -71,9 +71,9 @@ FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defau
     if(!TTF_WasInit() && TTF_Init() < 0)
         std::cout << "Failed to call TTF_Init: " << TTF_GetError() << std::endl;
     //auto fontPath = "romfs:/fonts/PTSerif-Regular.ttf";
-    //auto fontPath = "romfs:/fonts/RobotoMono-Regular.ttf";
+    auto fontPath = "romfs:/fonts/RobotoMono-Regular.ttf";
     // auto fontPath = "romfs:/fonts/RobotoMono-Light.ttf";
-    auto fontPath = "romfs:/fonts/RobotoCondensed-Regular.ttf";
+    //auto fontPath = "romfs:/fonts/RobotoCondensed-Regular.ttf";
     auto ttf = TTF_OpenFont(fontPath, fontSize);
     if(ttf == nullptr)
         std::cout << "Failed to open ttf font\n";

@@ -23,6 +23,9 @@ public:
     std::string const FoundIP() const;
     bool SaveFoundIP(std::string const ip);
 
+    std::string const ManualIP() const;
+    bool SaveManualIP(std::string const ip);
+
     FFMPEG_Config const FFMPEGData() const;
     bool SaveFFMPEG(FFMPEG_Config const data);
 
