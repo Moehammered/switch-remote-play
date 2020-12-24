@@ -137,7 +137,10 @@ bool Broadcast::Shutdown()
     {
         auto socketShut = shutdown(broadcastSocket, SHUT_RDWR);
         if (socketShut >= 0)
+        {
+            close(broadcastSocket);
             broadcastSocket = -1;
+        }
         else
             return false;
     }
@@ -145,7 +148,10 @@ bool Broadcast::Shutdown()
     {
         auto socketShut = shutdown(receiverSocket, SHUT_RDWR);
         if(socketShut >= 0)
+        {
+            close(receiverSocket);
             receiverSocket = -1;
+        }
         else
             return false;
     }

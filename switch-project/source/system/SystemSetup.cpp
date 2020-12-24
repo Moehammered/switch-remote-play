@@ -70,10 +70,14 @@ FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defau
     auto systemFont = FC_CreateFont();
     if(!TTF_WasInit() && TTF_Init() < 0)
         std::cout << "Failed to call TTF_Init: " << TTF_GetError() << std::endl;
-    //auto fontPath = "romfs:/fonts/PTSerif-Regular.ttf";
     auto fontPath = "romfs:/fonts/RobotoMono-Regular.ttf";
-    // auto fontPath = "romfs:/fonts/RobotoMono-Light.ttf";
     //auto fontPath = "romfs:/fonts/RobotoCondensed-Regular.ttf";
+
+    /*
+        A crash occurs here if the application is opened a 2nd time after
+        previously streaming. Not sure why, could be a file handle leak?
+    */
+    std::cout << "Opening font " << fontPath << "\n";
     auto ttf = TTF_OpenFont(fontPath, fontSize);
     if(ttf == nullptr)
         std::cout << "Failed to open ttf font\n";

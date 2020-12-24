@@ -126,7 +126,10 @@ bool Connection::Shutdown()
     {
         auto socketShut = shutdown(connectedSocket, SHUT_RDWR);
         if (socketShut >= 0)
+        {
+            close(connectedSocket);
             connectedSocket = -1;
+        }
         else
             return false;
     }
@@ -134,7 +137,10 @@ bool Connection::Shutdown()
     {
         auto socketShut = shutdown(listeningSocket, SHUT_RDWR);
         if (socketShut >= 0)
+        {
+            close(listeningSocket);
             listeningSocket = -1;
+        }
         else
             return false;
     }

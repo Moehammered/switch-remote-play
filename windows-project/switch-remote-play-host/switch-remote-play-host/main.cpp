@@ -14,6 +14,8 @@
 #include "FFMPEGHelper.h"
 #include "Broadcast.h"
 
+auto constexpr applicationVersion = "0.7.1";
+
 MONITORINFOEX DefaultMonitorInfo()
 {
     auto monitorPoint = POINT{ 0 };
@@ -86,8 +88,8 @@ BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType)
             if (switchBroadcastListener != nullptr)
             {
                 std::cout << "terminating broadcast listener ";
-                std::cout << switchBroadcastListener->Close() << " ";
-                std::cout << switchBroadcastListener->Shutdown() << "\n";
+                switchBroadcastListener->Close();
+                switchBroadcastListener->Shutdown();
             }
             if (switchCommandListener != nullptr)
             {
@@ -142,7 +144,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::cout << "Switch Remote Play Host \\(^.^)/" << std::endl;
+    std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")" << std::endl;
 
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
@@ -282,6 +284,8 @@ int main(int argc, char* argv[])
                             switchHandshakeConnection->Shutdown();
 
                         gamepadThread = StartGamepadListener(killStream, gamepadActive, gamepadPort);
+                        if(IsWindowVisible(GetConsoleWindow()))
+                            ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
                     }
                 }
                 else

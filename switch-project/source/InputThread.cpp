@@ -36,6 +36,7 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Confi
     close(commandSocket);
 }
 
+// input scanning needs refactoring for libnx 4.0
 void RunGamepadThread(std::string ip, uint16_t port)
 {
     int padSocket{-1};

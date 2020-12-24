@@ -13,8 +13,8 @@ constexpr std::array<const Resolution, 7> videoCaptureResolutions = {
     Resolution{1600, 900}, Resolution{1920, 1080},
     Resolution{2560, 1440}
 };
-constexpr std::array<const Resolution, 2> videoScaleResolutions = {
-    Resolution{1280, 720}, Resolution{1980, 720}
+constexpr std::array<const Resolution, 1> videoScaleResolutions = {
+    Resolution{1280, 720}/*, Resolution{1980, 720}*/
 };
 constexpr std::array<const uint16_t, 20> bitratesKB = {
     mbToKb(3), mbToKb(4), mbToKb(4.5), mbToKb(5), mbToKb(5.5), 

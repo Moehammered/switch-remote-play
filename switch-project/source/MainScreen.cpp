@@ -14,12 +14,13 @@ When the host IP is set, press 'R' to start the stream.\n\
 (will be unresponsive until a connection to a PC is made)";
 
 auto constexpr instructions =
-"1. Please make sure the switch-remote-play-host application is running on your windows PC.\n\
+"1. Please make sure the switch-remote-play-host application is running on your Windows PC.\n\
 2. Please connect to a 5GHZ wifi network if you can. (e.g. homewifi_5GHz).\n\
 3. Please make sure ports 19999 to 20004 aren't blocked or occupied on your PC.\n\
-4. Please make sure Windows Firewall isn't blocking ffmpeg or switch-remote-play-host.\n\n\
+4. Please make sure Windows Firewall isn't blocking ffmpeg or switch-remote-play-host.\n\
 Stream tips:\n\
 - Hold '+' for more than 3 seconds to close the stream.\n\
+- Hold 'ZL+ZR+B' or touch the screen for 3 seconds to toggle mouse/ps4 controller.\n\
 - Favor lower desktop resolution to reduce latency.\n\
 - You can mute your PC and audio will still stream to the switch.\
 ";

@@ -10,6 +10,8 @@ This project is inspired by the github project [In-Home-Switching](https://githu
 
 This project consists of an application written for the switch that will decode stream data received from [FFMPEG](https://github.com/FFmpeg/FFmpeg) and send its input to an application to emulate a controller. The rendering is done with SDL2 and the project is written in C++.
 
+- **Tested on Atmosphere 0.14.1 - FW 10.1.0**
+
 ## Windows-Project
 
 This project consists of an application written for Windows that will launch an FFMPEG stream to encode and send data. The application, after launching the [FFMPEG](https://github.com/FFmpeg/FFmpeg) stream, will then listen to receive input data and emulate a controller via the [ViGEm Client SDK](https://github.com/ViGEm/ViGEmClient). The [ViGEm Client SDK](https://github.com/ViGEm/ViGEmClient) expects the [ViGEm Bus Kernel Driver](https://github.com/ViGEm/ViGEmBus) to be installed on the machine in order to work. For more info on the kernel driver code see the [ViGEmBus](https://github.com/ViGEm/ViGEmBus) github page. For the driver installation, see the [ViGEmBus Releases](https://github.com/ViGEm/ViGEmBus/releases) page.
@@ -26,9 +28,24 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 - [x] Allow manual configuration of switch to PC connection
 - [x] Configure stream settings from switch
 - [x] Disconnect / Reconnect stream at will
-- [ ] Toggle Input Mode to DS4 controller
+- [x] Toggle Input Mode to Mouse
+- [x] Toggle Input Mode to DS4(PS4) controller
 - [ ] Toggle Input Mode to Xbox controller
-- [ ] Toggle Input Mode to mouse
+
+## Known Issue
+
+After closing a stream and then closing the application. If the homebrew loader menu/app is not closed, any app opened next will either crash or lock up and will require the homebrew menu to be closed via the home button.
+
+To reproduce:
+
+- Successfully connect to a stream from your PC with switch-remote-play
+- Stop the stream
+  - Either by closing the application on the PC or holding '+' on the switch
+- Close the switch-remote-play app with the '+' button
+- You are back in the homebrew menu. Open any homebrew app (Goldleaf or switch-remote-play for example)
+- The app will freeze or crash
+
+To avoid this, just close the homebrew loader with the HOME button. I'm still trying to figure out why it's happening. If anyone has any insight please contact me.
 
 ## Thanks
 
@@ -40,6 +57,7 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 - [SwitchBrew](https://switchbrew.org/wiki/Main_Page) for [libNX](https://github.com/switchbrew/libnx)
 - [devkitPro](https://devkitpro.org/) bloody legends for letting us have a toolchain to compile stuff for the Switch
 - [SciresM, TuxSH, hexkyz, and fincs](https://github.com/Atmosphere-NX/Atmosphere) for Atmosphere. Absolute madlads these lot are. Also a shoutout to the champs that help contribute to the repo.
+- Jonathan Dearborn for SDL_FontCache
 
 ## Licence
 

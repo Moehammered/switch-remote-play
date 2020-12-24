@@ -72,7 +72,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
     auto const packetArg = "pkt_size=";
     stringstream args;
     args << filePath << inputArgs << qualityArgs << sampleRateArg << sampleRate << channelArgs;
-    args << connectionIP << "?" << packetArg << packetSize;
+    args << connectionIP;// << "?" << packetArg << packetSize;
 
     return args.str();
 }

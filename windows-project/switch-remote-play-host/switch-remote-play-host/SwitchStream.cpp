@@ -5,6 +5,7 @@
 #include "VirtualController.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
+#include <chrono>
 
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 {
@@ -73,13 +74,21 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                     auto active = true;
                     auto const maxRetries = 5;
                     auto retryCount = maxRetries;
+
+                    auto constexpr mouseToggleNano = 3000000000;
+                    auto lastTime = std::chrono::high_resolution_clock::now();
+                    auto mouseMode{ true };
+                    auto constexpr mouseToggleBtnCombo = KEY_ZL | KEY_ZR | KEY_B;
+                    auto mouseBtnFlags = 0;
+                    double constexpr joystickExtent = 0xFFFF / 2;
+                    auto constexpr mouseSensitivity = 10;
                     do
                     {
                         active = gamepadActive.load(memory_order_acquire);
                         padData.keys = 0;
                         padData.ljx = padData.ljy = 0;
                         padData.rjx = padData.rjy = 0;
-
+                        
                         auto result = recv(connection.ConnectedSocket(), (char*)&padData, GamepadPayloadSize, 0);
                         if (result == SOCKET_ERROR)
                         {
@@ -102,6 +111,41 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                                 active = false;
                                 streamDead = true;
                             }
+                            else if (mouseMode)
+                            {
+                                INPUT mouseInput{ 0 };
+                                mouseInput.type = INPUT_MOUSE;
+                                mouseInput.mi.dwFlags = MOUSEEVENTF_MOVE;
+                                auto x = (padData.rjx + padData.ljx) % (int)joystickExtent;
+                                auto y = (-padData.rjy + -padData.ljy) % (int)joystickExtent;
+                                mouseInput.mi.dx = (long)(mouseSensitivity * (x / joystickExtent));
+                                mouseInput.mi.dy = (long)(mouseSensitivity * (y / joystickExtent));
+
+                                // left mouse button
+                                if (padData.keys & KEY_L && !(mouseBtnFlags & MOUSEEVENTF_LEFTDOWN))
+                                {
+                                    mouseInput.mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
+                                    mouseBtnFlags |= MOUSEEVENTF_LEFTDOWN;
+                                }
+                                else if (!(padData.keys & KEY_L) && (mouseBtnFlags & MOUSEEVENTF_LEFTDOWN))
+                                {
+                                    mouseInput.mi.dwFlags |= MOUSEEVENTF_LEFTUP;
+                                    mouseBtnFlags &= ~MOUSEEVENTF_LEFTDOWN;
+                                }
+
+                                // right mouse button
+                                if (padData.keys & KEY_R && !(mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN))
+                                {
+                                    mouseInput.mi.dwFlags |= MOUSEEVENTF_RIGHTDOWN;
+                                    mouseBtnFlags |= MOUSEEVENTF_RIGHTDOWN;
+                                }
+                                else if (!(padData.keys & KEY_R) && (mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN))
+                                {
+                                    mouseInput.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
+                                    mouseBtnFlags &= ~MOUSEEVENTF_RIGHTDOWN;
+                                }
+                                SendInput(1, &mouseInput, sizeof(INPUT));
+                            }
                             else if (padData.keys != 0x0 || (padData.ljx | padData.ljy | padData.rjx | padData.rjy) != 0)
                             {
                                 //update controller
@@ -119,6 +163,42 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                                 controller.ResetController();
                                 controller.UpdateController();
                             }
+
+                            // figure out if we should toggle mouse mode
+                            if (padData.keys == mouseToggleBtnCombo || padData.keys & KEY_TOUCH)
+                            {
+                                auto timePassed = std::chrono::high_resolution_clock::now() - lastTime;
+                                if (timePassed.count() >= mouseToggleNano)
+                                {
+                                    controller.ResetController();
+                                    controller.UpdateController();
+
+                                    mouseMode = !mouseMode;
+
+                                    if (mouseMode)
+                                        MessageBeep(MB_OK);
+                                    else
+                                        MessageBeep(MB_ICONERROR);
+
+                                    if (mouseBtnFlags & (MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_RIGHTDOWN))
+                                    {
+                                        INPUT mouseInput{ 0 };
+                                        mouseInput.type = INPUT_MOUSE;
+                                        if(mouseBtnFlags & MOUSEEVENTF_LEFTDOWN)
+                                            mouseInput.mi.dwFlags |= MOUSEEVENTF_LEFTUP;
+                                        if (mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN)
+                                            mouseInput.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
+                                        mouseBtnFlags &= ~MOUSEEVENTF_LEFTDOWN;
+                                        mouseBtnFlags &= ~MOUSEEVENTF_RIGHTDOWN;
+
+                                        SendInput(1, &mouseInput, sizeof(INPUT));
+                                    }
+
+                                    lastTime = std::chrono::high_resolution_clock::now();
+                                }
+                            }
+                            else
+                                lastTime = std::chrono::high_resolution_clock::now();
                         }
                         else if (result == 0)
                         {
@@ -128,6 +208,21 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                             streamDead = true;
                         }
                     } while (padData.keys != 0xFFFF && !streamDead && active);
+
+                    // make sure there aren't accidental junk key presses when stream dies
+                    if (mouseBtnFlags & (MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_RIGHTDOWN))
+                    {
+                        INPUT mouseInput{ 0 };
+                        mouseInput.type = INPUT_MOUSE;
+                        if (mouseBtnFlags & MOUSEEVENTF_LEFTDOWN)
+                            mouseInput.mi.dwFlags |= MOUSEEVENTF_LEFTUP;
+                        if (mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN)
+                            mouseInput.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
+                        mouseBtnFlags &= ~MOUSEEVENTF_LEFTDOWN;
+                        mouseBtnFlags &= ~MOUSEEVENTF_RIGHTDOWN;
+
+                        SendInput(1, &mouseInput, sizeof(INPUT));
+                    }
 
                     controller.ResetController();
                     controller.UpdateController();

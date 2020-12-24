@@ -46,7 +46,8 @@ INCLUDES	:=	include
 ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered
-APP_VERSION	:=	0.7.0
+ICON		:=	switch-remote-play-icon.jpg
+APP_VERSION	:=	0.7.1
 
 
 #---------------------------------------------------------------------------------

@@ -11,20 +11,14 @@
 #include <atomic>
 #include <switch.h>
 #include "ScreenRenderer.h"
-#include "stream/VideoStream.h"
-#include "InputThread.h"
-#include "stream/StreamDecoder.h"
-#include "ui/Text.h"
-#include "ui/FFMPEGConfigUI.h"
-#include "system/SystemSetup.h"
-#include "network/Broadcast.h"
-#include "network/HostFinder.h"
-#include "system/FileOperations.h"
-#include "system/Configuration.h"
-#include "network/NetworkDiscovery.h"
-#include "ui/Menu.h"
 #include "MainScreen.h"
+#include "InputThread.h"
+#include "network/NetworkDiscovery.h"
+#include "stream/VideoStream.h"
+#include "stream/StreamDecoder.h"
 #include "stream/PcmStream.h"
+#include "system/SystemSetup.h"
+#include "system/Configuration.h"
 
 auto constexpr handshakeKey = "let-me-play";
 auto constexpr subnet = "192.168.0.255";
