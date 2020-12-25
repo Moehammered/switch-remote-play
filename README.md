@@ -2,7 +2,7 @@
 
 Let the switch remotely play PC games (similar to steam link or remote play)
 
-For instructions, please see the [instructions](instructions/instructions.md) folder in the repo.
+For instructions, please see the [instructions](https://github.com/Moehammered/switch-remote-play/blob/master/instructions/Instructions.md) folder in the repo.
 
 This project is inspired by the github project [In-Home-Switching](https://github.com/jakibaki/In-Home-Switching) and [SkyNX](https://github.com/DevL0rd/SkyNX). The goal is to make a convenient streamer/client application to be used to remote play PC games on the switch.
 
