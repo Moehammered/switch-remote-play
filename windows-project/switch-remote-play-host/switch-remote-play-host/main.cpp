@@ -7,134 +7,22 @@
 #include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include "SystemCalls.h"
 #include "SwitchStream.h"
 #include "VirtualController.h"
 #include "AtomicTest.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
 #include "Broadcast.h"
+#include "MasterVolume.h"
 
-auto constexpr applicationVersion = "0.7.1";
-
-MONITORINFOEX DefaultMonitorInfo()
-{
-    auto monitorPoint = POINT{ 0 };
-    monitorPoint.x = 0; monitorPoint.y = 0;
-    auto handle = MonitorFromPoint(monitorPoint, MONITOR_DEFAULTTOPRIMARY);
-
-    auto monitorInfo = MONITORINFOEX{};
-    monitorInfo.cbSize = sizeof(monitorInfo);
-
-    GetMonitorInfo(handle, &monitorInfo);
-
-    return monitorInfo;
-}
-
-bool ChangeResolution(int width, int height)
-{
-    auto deviceMode = DEVMODE{ 0 };
-
-    deviceMode.dmSize = sizeof(deviceMode);
-    deviceMode.dmBitsPerPel = 32;
-    deviceMode.dmPelsWidth = width;
-    deviceMode.dmPelsHeight = height;
-    deviceMode.dmDisplayFrequency = 60;
-    deviceMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-
-    auto result = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
-    return result == DISP_CHANGE_SUCCESSFUL;
-}
+auto constexpr applicationVersion = "0.7.2";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
 Broadcast* switchBroadcastListener{ nullptr };
 Connection* switchHandshakeConnection{ nullptr };
 Connection* switchCommandListener{ nullptr };
-
-void StopStreamProcesses()
-{
-    if (streamProcessInfo.hProcess != nullptr)
-    {
-        TerminateProcess(streamProcessInfo.hProcess, 1);
-        CloseHandle(streamProcessInfo.hProcess);
-        CloseHandle(streamProcessInfo.hThread);
-        ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
-    }
-    if (audioProcessInfo.hProcess != nullptr)
-    {
-        TerminateProcess(audioProcessInfo.hProcess, 1);
-        CloseHandle(audioProcessInfo.hProcess);
-        CloseHandle(audioProcessInfo.hThread);
-        ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
-    }
-}
-
-BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType)
-{
-    switch (eventType)
-    {
-        // Handle the CTRL-C signal.
-        case CTRL_C_EVENT:
-        case CTRL_CLOSE_EVENT:
-            std::cout << "Cleaning up in event handler...\n";
-            std::cout << "Terminating video and audio process\n";
-            StopStreamProcesses();
-            if (switchHandshakeConnection != nullptr)
-            {
-                std::cout << "terminating handshake connection\n";
-                switchHandshakeConnection->Shutdown();
-                switchHandshakeConnection->Close();
-            }
-            if (switchBroadcastListener != nullptr)
-            {
-                std::cout << "terminating broadcast listener ";
-                switchBroadcastListener->Close();
-                switchBroadcastListener->Shutdown();
-            }
-            if (switchCommandListener != nullptr)
-            {
-                std::cout << "terminating command receiver connection\n";
-                switchCommandListener->Close();
-                switchCommandListener->Shutdown();
-            }
-            Sleep(2000);
-            return TRUE;
-
-        default:
-            return FALSE;
-    }
-}
-
-bool WinsockReady()
-{
-    WSADATA wsaStateData;
-    auto socketStartup = WSAStartup(MAKEWORD(2, 2), &wsaStateData);
-
-    switch (socketStartup)
-    {
-        case WSASYSNOTREADY:
-            std::cout << "Winsock Error - WSASYSNOTREADY: The underlying network subsystem is not ready for network communication\n";
-            return false;
-
-        case WSAVERNOTSUPPORTED:
-            std::cout << "Winsock Error - WSAVERNOTSUPPORTED: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation\n";
-            return false;
-
-        case WSAEINPROGRESS:
-            std::cout << "Winsock Error - WSAEINPROGRESS: A blocking Windows Sockets 1.1 operation is in progress\n";
-            return false;
-
-        case WSAEPROCLIM:
-            std::cout << "Winsock Error - WSAEPROCLIM: A limit on the number of tasks supported by the Windows Sockets implementation has been reached\n";
-            return false;
-
-        case WSAEFAULT:
-            std::cout << "Winsock Error - WSAEFAULT: The lpWSAData parameter is not a valid pointer\n";
-            return false;
-    }
-
-    return true;
-}
 
 int main(int argc, char* argv[])
 {
@@ -216,10 +104,6 @@ int main(int argc, char* argv[])
 
     auto connectionDiscoveryThread = std::thread(receiverProcedure);
 
-    // if beyond this point then we should have the switch IP and we've given
-    // the host IP to the switch.
-    // (But now that I've gotten it working I realise the host doesn't need to switch's IP...)
-
     std::atomic<bool> killStream = false;
     std::atomic<bool> gamepadActive = false;
     auto lastCommand = Command::IGNORE_COMMAND;
@@ -229,7 +113,10 @@ int main(int argc, char* argv[])
     ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
     ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
     SetConsoleCtrlHandler(ConsoleWindowEventHandler, TRUE);
-    std::thread gamepadThread;
+    std::thread gamepadThread{};
+
+    auto masterVolume = MasterVolume{};
+    auto originalMuteState = masterVolume.IsMuted();
 
     do
     {
@@ -286,6 +173,9 @@ int main(int argc, char* argv[])
                         gamepadThread = StartGamepadListener(killStream, gamepadActive, gamepadPort);
                         if(IsWindowVisible(GetConsoleWindow()))
                             ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
+
+                        originalMuteState = masterVolume.IsMuted();
+                        masterVolume.Mute(true);
                     }
                 }
                 else
@@ -303,10 +193,15 @@ int main(int argc, char* argv[])
 
         std::cout << "making sure to kill stream..." << std::endl;
         killStream.store(true, std::memory_order_release);
+        
         std::cout << "terminating the FFMPEG process" << std::endl;
         StopStreamProcesses();
+        
         std::cout << "Resetting resolution" << std::endl;
         ChangeResolution(initialWidth, initialHeight);
+
+        std::cout << "Restoring audio mute state" << std::endl;
+        masterVolume.Mute(originalMuteState);
 
     } while (lastCommand != Command::CLOSE_SERVER && lastCommand != Command::SHUTDOWN);
 

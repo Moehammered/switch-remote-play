@@ -161,7 +161,9 @@
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MasterVolume.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
+    <ClCompile Include="SystemCalls.cpp" />
     <ClCompile Include="VirtualController.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,9 +171,11 @@
     <ClInclude Include="Broadcast.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="FFMPEGHelper.h" />
+    <ClInclude Include="MasterVolume.h" />
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
+    <ClInclude Include="SystemCalls.h" />
     <ClInclude Include="VirtualController.h" />
   </ItemGroup>
   <ItemGroup>

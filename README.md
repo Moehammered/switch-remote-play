@@ -25,6 +25,7 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 - [x] Stream input from the switch to remote connection
 - [x] Stream audio from remote connection to the switch
 - [x] Automatically connect switch and PC stream applications
+- [x] Automatically mute PC when audio is streaming to the Switch
 - [x] Allow manual configuration of switch to PC connection
 - [x] Configure stream settings from switch
 - [x] Disconnect / Reconnect stream at will
@@ -34,7 +35,7 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 
 ## Known Issue
 
-After closing a stream and then closing the application. If the homebrew loader menu/app is not closed, any app opened next will either crash or lock up and will require the homebrew menu to be closed via the home button.
+After closing a stream and then closing the application. If the homebrew loader menu/app is not closed, any app opened next can either crash or lock up and will require the homebrew menu to be closed via the HOME button.
 
 To reproduce:
 
@@ -43,9 +44,9 @@ To reproduce:
   - Either by closing the application on the PC or holding '+' on the switch
 - Close the switch-remote-play app with the '+' button
 - You are back in the homebrew menu. Open any homebrew app (Goldleaf or switch-remote-play for example)
-- The app will freeze or crash
+- The app *might* freeze or crash
 
-To avoid this, just close the homebrew loader with the HOME button. I'm still trying to figure out why it's happening. If anyone has any insight please contact me.
+To avoid this, **just close the homebrew loader with the HOME button**. I know **when** it happens but I'm still trying to figure out why it's happening. If anyone has any insight please contact me or if you're curious, the crash point for switch-remote-play is in *SystemSetup.cpp -> LoadSystemFont -> TTF_OpenFont*.
 
 ## Thanks
 
