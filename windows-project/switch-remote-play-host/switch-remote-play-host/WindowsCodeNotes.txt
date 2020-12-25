@@ -5,7 +5,7 @@
         + https://github.com/rdp/screen-capture-recorder-to-video-windows-free/releases/tag/v0.12.11 OR https://github.com/rdp/screen-capture-recorder-to-video-windows-free/releases/latest
     - ViGEmBus Driver (using v1.16.116)
         + https://github.com/ViGEm/ViGEmBus/releases/tag/setup-v1.16.116 OR https://github.com/ViGEm/ViGEmBus/releases/latest
-    - ffmpeg.exe (using 2020-11-25-git-3de3d2f5e2-full_build)
+    - ffmpeg.exe (using ffmpeg-4.3.1-2020-11-19-essentials_build)
         + https://www.gyan.dev/ffmpeg/builds/ OR https://ffmpeg.org/download.html#build-windows
 
     Library dependencies:

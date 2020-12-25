@@ -2,21 +2,19 @@
 
 Let the switch remotely play PC games (similar to steam link or remote play)
 
+For instructions, please see the [instructions](instructions/instructions.md) folder in the repo.
+
 This project is inspired by the github project [In-Home-Switching](https://github.com/jakibaki/In-Home-Switching) and [SkyNX](https://github.com/DevL0rd/SkyNX). The goal is to make a convenient streamer/client application to be used to remote play PC games on the switch.
 
 [In-Home-Switching](https://github.com/jakibaki/In-Home-Switching) and [SkyNX](https://github.com/DevL0rd/SkyNX) already offer the ability to do so, however there were some convenience features missing that I wanted to add. I also recently was studying multi-threading and when I saw the code, I thought 'this is the perfect chance to try writing it in C++'.
 
-## Switch-Project
+## Note
 
-This project consists of an application written for the switch that will decode stream data received from [FFMPEG](https://github.com/FFmpeg/FFmpeg) and send its input to an application to emulate a controller. The rendering is done with SDL2 and the project is written in C++.
+The video stream is CPU dependent as at the moment it uses the ffmpeg option of *hwaccel auto* which usually results in ffmpeg picking CPU for the screen capture process. In my initial prototyping phase I found choosing the AMD GPU option for ffmpeg led to inconsistent stream results. I will look at making the hwaccel option configurable in the future but for now just keep in mind CPU is important.
 
-- **Tested on Atmosphere 0.14.1 - FW 10.1.0**
+If you're playing a game that is CPU intensive then there's a high chance the stream will have skips or hiccups. If your CPU is weak, then it'll be hard for it to produce and push the frames quick enough.
 
-## Windows-Project
-
-This project consists of an application written for Windows that will launch an FFMPEG stream to encode and send data. The application, after launching the [FFMPEG](https://github.com/FFmpeg/FFmpeg) stream, will then listen to receive input data and emulate a controller via the [ViGEm Client SDK](https://github.com/ViGEm/ViGEmClient). The [ViGEm Client SDK](https://github.com/ViGEm/ViGEmClient) expects the [ViGEm Bus Kernel Driver](https://github.com/ViGEm/ViGEmBus) to be installed on the machine in order to work. For more info on the kernel driver code see the [ViGEmBus](https://github.com/ViGEm/ViGEmBus) github page. For the driver installation, see the [ViGEmBus Releases](https://github.com/ViGEm/ViGEmBus/releases) page.
-
-The Windows project is also written in C++ and uses Winsock to do socket communication with the switch application.
+For my PC, when I play Nier Automata there are no hiccups and I can get near 60 fps depending on the stream settings (1280 x 720 desktop res, and 5mb/s bitrate). But when I tried playing RE3 2020 at 30 or 56fps I was getting hiccups and skips. So please keep this in mind.
 
 ## Features
 
@@ -32,6 +30,28 @@ The Windows project is also written in C++ and uses Winsock to do socket communi
 - [x] Toggle Input Mode to Mouse
 - [x] Toggle Input Mode to DS4(PS4) controller
 - [ ] Toggle Input Mode to Xbox controller
+
+## Switch-Project
+
+This project consists of an application written for the switch that will decode stream data received from [FFMPEG](https://github.com/FFmpeg/FFmpeg) and send its input to an application to emulate a controller. The rendering is done with SDL2 and the project is written in C++.
+
+Tested on:
+
+- **Atmosphere 0.14.1 - FW 10.1.0** (switch-remote-play 0.7.2)
+- **Atmosphere 0.16.2 - FW 10.1.0** (switch-remote-play 0.7.2)
+
+## Windows-Project
+
+This project consists of an application written for Windows that will launch an FFMPEG stream to encode and send data. The application, after launching the [FFMPEG](https://github.com/FFmpeg/FFmpeg) stream, will then listen to receive input data and emulate a controller via the [ViGEm Client SDK](https://github.com/ViGEm/ViGEmClient). The [ViGEm Client SDK](https://github.com/ViGEm/ViGEmClient) expects the [ViGEm Bus Kernel Driver](https://github.com/ViGEm/ViGEmBus) to be installed on the machine in order to work. For more info on the kernel driver code see the [ViGEmBus](https://github.com/ViGEm/ViGEmBus) github page. For the driver installation, see the [ViGEmBus Releases](https://github.com/ViGEm/ViGEmBus/releases) page.
+
+The Windows project is also written in C++ and uses Winsock to do socket communication with the switch application.
+
+Tested on:
+
+- **Windows 10 64 bit**
+  - Ryzen 5 2600 3.4GHz
+  - AMD Radeon RX 5600 XT 6GB
+  - 16GB RAM
 
 ## Known Issue
 

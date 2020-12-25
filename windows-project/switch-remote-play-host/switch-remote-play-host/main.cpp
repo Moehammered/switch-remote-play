@@ -29,10 +29,11 @@ int main(int argc, char* argv[])
     if (!WinsockReady())
     {
         std::cout << "Failed to initialise windows network sockets. Please check your firewall rules for ports and try again or try restarting your machine.\n";
+        Sleep(2000);
         return -1;
     }
 
-    std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")" << std::endl;
+    std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")\n" << std::endl;
 
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;

@@ -89,7 +89,7 @@ IMMDevice* MasterVolume::DefaultAudioDevice()
     switch (hr)
     {
         case S_OK:
-            std::cout << "An instance of the specified object class was successfully created\n";
+            //std::cout << "An instance of the specified object class was successfully created\n";
             break;
         case REGDB_E_CLASSNOTREG:
             std::cout << "A specified class is not registered in the registration database. Also can indicate that the type of server you requested in the CLSCTX enumeration is not registered or the values for the server types in the registry are corrupt\n";
@@ -121,17 +121,19 @@ IMMDevice* MasterVolume::DefaultAudioDevice()
         {
             case E_INVALIDARG:
                 std::cout << "Parameter dataFlow or role is out of range\n";
-                return nullptr;
+                break;
             case E_NOTFOUND:
                 std::cout << "No device is available\n";
-                return nullptr;
+                break;
             case E_OUTOFMEMORY:
                 std::cout << "Out of memory\n";
-                return nullptr;
+                break;
             case E_POINTER:
                 std::cout << "The ppv parameter is NULL\n";
-                return nullptr;
+                break;
         }
+
+        return nullptr;
     }
 }
 
