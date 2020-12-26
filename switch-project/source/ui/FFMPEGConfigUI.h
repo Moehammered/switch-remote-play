@@ -12,12 +12,20 @@ struct Resolution
     int16_t height;
 };
 
-static constexpr int framerateIndex = 0;
-static constexpr int videoResIndex = 1;
-static constexpr int videoScaleIndex = 2;
-static constexpr int bitrateIndex = 3;
-static constexpr int vsyncIndex = 4;
-static constexpr int settingsCount = 5;
+enum FfmpegConfigUiElements : int32_t
+{
+    FRAMERATE = 0,
+    DESKTOP_RES,
+    SWITCH_RES,
+    BITRATE,
+    VSYNC,
+    CRF,
+    HWACCEL,
+    PRESET,
+    CODEC,
+    CONFIG_COUNT
+};
+
 class FFMPEGConfigUI
 {
     public:
@@ -28,23 +36,23 @@ class FFMPEGConfigUI
         void SelectPrevious();
         void Render(SDL_Renderer* renderer, FC_Font* font);
         FFMPEG_Config const Settings();
-    
-        SDL_Color highlight;
-        SDL_Color textColour;
-        SDL_Color backgroundColour;
 
     private:
         int settingIndex;
 
-        std::array<int, settingsCount> settingsIndices;
+        std::array<int, FfmpegConfigUiElements::CONFIG_COUNT> settingsIndices;
 
-        std::array<Text, settingsCount> settingsText;
+        std::array<Text, FfmpegConfigUiElements::CONFIG_COUNT> settingsText;
 
         void UpdateFramerate();
         void UpdateVideoRes();
         void UpdateVideoScale();
         void UpdateBitrate();
         void UpdateVsync();
+        void UpdatePreset();
+        void UpdateCRF();
+        void UpdateCodec();
+        void UpdateHWAccel();
 };
 
 #endif

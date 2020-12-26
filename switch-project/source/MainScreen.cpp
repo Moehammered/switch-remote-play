@@ -6,18 +6,13 @@
 #include "system/Configuration.h"
 
 auto constexpr noHostInfoMessage = "Host IP: Not yet found. Press 'L' to start search...";
-auto constexpr defaultControlMessage = 
-"Welcome to Switch Remote Play. \n\
-Press 'ZL'/'ZR' to cycle screens.\n\
-Press 'A'/'B' to cycle settings where applicable.\n\
-When the host IP is set, press 'R' to start the stream.\n\
-(will be unresponsive until a connection to a PC is made)";
+auto constexpr defaultControlMessage = "'ZL'/'ZR' - cycle screens | 'A'/'B' - change settings | 'R' - start stream";
 
 auto constexpr instructions =
 "1. Please make sure the switch-remote-play-host application is running on your Windows PC.\n\
 2. Please connect to a 5GHZ wifi network if you can. (e.g. homewifi_5GHz).\n\
 3. Please make sure ports 19999 to 20004 aren't blocked or occupied on your PC.\n\
-4. Please make sure Windows Firewall isn't blocking ffmpeg or switch-remote-play-host.\n\
+4. Please make sure Windows Firewall isn't blocking ffmpeg or switch-remote-play-host.\n\n\
 Stream tips:\n\
 - Hold '+' for more than 3 seconds to close the stream.\n\
 - Hold 'ZL+ZR+B' or touch the screen for 3 seconds to toggle mouse/ps4 controller.\n\
@@ -30,12 +25,12 @@ Text const title{
     .value = "Switch Remote Play \\(^.^)/"
 };
 Text const controlText{
-    .x = 20, .y = 60, .colour = green, 
+    .x = 100, .y = 60, .colour = green, 
     .value = defaultControlMessage
 };
 
 Text const placeholderInstructions{
-    .x = 10, .y = 350, .colour = orange, 
+    .x = 10, .y = 250, .colour = orange, 
     .value = instructions
 };
 
@@ -76,12 +71,12 @@ void UpdateScreens()
 void SetupMainScreen()
 {
     hostConnectionText = Text{
-        .x = 100, .y = 250, .colour = red,
+        .x = 250, .y = 120, .colour = red,
         .value = noHostInfoMessage
     };
 
     currentScreenText = Text{
-        .x = 415, .y = 310, .colour = white,
+        .x = 440, .y = 180, .colour = white,
         .value = "Help Screen"
     };
 

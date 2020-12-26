@@ -6,6 +6,58 @@
 auto ffmpegProcessFlag{ 0 }; // 0 - in parent process window
 auto audioProcessFlag{ CREATE_NO_WINDOW };
 
+std::string PresetToString(EncoderPreset preset)
+{
+    switch (preset)
+    {
+        case EncoderPreset::ULTRAFAST:
+            return "ultrafast";
+        case EncoderPreset::VERYFAST:
+            return "veryfast";
+        case EncoderPreset::FAST:
+            return "fast";
+        default:
+        case EncoderPreset::MEDIUM:
+            return "medium";
+        case EncoderPreset::SLOW:
+            return "slow";
+        case EncoderPreset::VERYSLOW:
+            return "veryslow";
+    }
+}
+
+std::string VideoCodecModeToString(VideoCodecMode mode)
+{
+    switch (mode)
+    {
+        default:
+        case VideoCodecMode::H264:
+            return "h264";
+        case VideoCodecMode::H264_AMF:
+            return "h264_amf";
+        case VideoCodecMode::H264_NVENC:
+            return "h264_nvenc";
+        case VideoCodecMode::H264_QSV:
+            return "h264_qsv";
+    }
+}
+
+std::string HWAccelToString(HWAccelMode mode)
+{
+    switch (mode)
+    {
+        default:
+        case HWAccelMode::AUTO:
+            return "auto";
+        case HWAccelMode::DXVA2:
+            return "dxva2";
+        case HWAccelMode::VAAPI:
+            return "vaapi";
+        case HWAccelMode::CUDA:
+            return "cuda";
+    }
+}
+
 // Generate the command line argument string to execute ffmpeg
 std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string const ip, uint16_t port)
 {
@@ -41,16 +93,23 @@ std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string co
 
     auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
     stringstream args;
-    args << filePath << " -probesize 32 -hwaccel auto -y -f gdigrab ";
+    args << filePath << " -probesize 32 ";
+    args << "-hwaccel " << HWAccelToString(config.hwaccelMode) << " ";
+    args << "-y -f gdigrab ";
     args << "-framerate " << config.desiredFrameRate << " ";
     args << "-vsync " << vsyncMode << " ";
     args << "-video_size " << config.videoX << "x" << config.videoY << " ";
-    args << "-i desktop -f h264 -vf ";
-    args << "\"scale=" << config.scaleX << "x" << config.scaleY << "\" ";
-    args << "-preset ultrafast -tune zerolatency -pix_fmt yuv420p -profile:v baseline ";
-    args << "-x264-params \"nal-hrd=cbr\" ";
+    args << "-i desktop -f h264 ";
+    args << "-vcodec " << VideoCodecModeToString(config.videoCodecMode) << " ";
+    args << "-vf \"scale=" << config.scaleX << "x" << config.scaleY << "\" ";
+    args << "-preset " << PresetToString(config.preset) << " ";
+    args << "-crf " << config.constantRateFactor << " ";
+    args << "-tune zerolatency -pix_fmt yuv420p ";//-profile:v baseline ";
+    args << "-x264-params \"nal-hrd=vbr:opencl=true\" ";
     args << "-b:v " << config.bitrateKB << "k -minrate " << config.bitrateKB << "k -maxrate " << config.bitrateKB << "k ";
     args << "-bufsize " << config.bitrateKB << "k " << connectionIP;
+
+    std::cout << "\n" << args.str() << "\n";
 
     return args.str();
 }

@@ -79,6 +79,7 @@ To avoid this, **just close the homebrew loader with the HOME button**. I know *
 - [devkitPro](https://devkitpro.org/) bloody legends for letting us have a toolchain to compile stuff for the Switch
 - [SciresM, TuxSH, hexkyz, and fincs](https://github.com/Atmosphere-NX/Atmosphere) for Atmosphere. Absolute madlads these lot are. Also a shoutout to the champs that help contribute to the repo.
 - Jonathan Dearborn for SDL_FontCache
+- [cucholix](https://gbatemp.net/members/cucholix.411991/) for the app icon :)
 
 ## Licence
 

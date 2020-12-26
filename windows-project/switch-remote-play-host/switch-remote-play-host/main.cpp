@@ -16,7 +16,7 @@
 #include "Broadcast.h"
 #include "MasterVolume.h"
 
-auto constexpr applicationVersion = "0.7.2";
+auto constexpr applicationVersion = "0.7.3";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -172,8 +172,10 @@ int main(int argc, char* argv[])
                             switchHandshakeConnection->Shutdown();
 
                         gamepadThread = StartGamepadListener(killStream, gamepadActive, gamepadPort);
+#ifdef RELEASE
                         if(IsWindowVisible(GetConsoleWindow()))
                             ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
+#endif
 
                         originalMuteState = masterVolume.IsMuted();
                         masterVolume.Mute(true);

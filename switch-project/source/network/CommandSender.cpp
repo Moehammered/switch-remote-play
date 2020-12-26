@@ -35,9 +35,9 @@ bool ConnectTo(std::string ip, uint16_t port, int& connectionSock)
 
 bool SendCode(const int connectionSock, Command commandCode)
 {
-    assert(COMMAND_CODE_SIZE == 2);
-    assert(FFMPEG_CONFIG_SIZE == 16);
-    assert(COMMAND_PAYLOAD_SIZE == 32);
+    static_assert(COMMAND_CODE_SIZE == 2);
+    static_assert(FFMPEG_CONFIG_SIZE == 24);
+    static_assert(COMMAND_PAYLOAD_SIZE == 32);
     CommandPayload payload;
     payload.commandCode = commandCode;
 
@@ -67,9 +67,9 @@ bool SendCode(const int connectionSock, Command commandCode)
 
 bool SendStreamConfig(const int connectionSock, FFMPEG_Config config)
 {
-    assert(COMMAND_CODE_SIZE == 2);
-    assert(FFMPEG_CONFIG_SIZE == 16);
-    assert(COMMAND_PAYLOAD_SIZE == 32);
+    static_assert(COMMAND_CODE_SIZE == 2);
+    static_assert(FFMPEG_CONFIG_SIZE == 24);
+    static_assert(COMMAND_PAYLOAD_SIZE == 32);
     CommandPayload payload;
     payload.commandCode = Command::UPDATE_FFMPEG_CONFIG;
 
@@ -91,9 +91,9 @@ bool SendStreamConfig(const int connectionSock, FFMPEG_Config config)
 
 bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
 {
-    assert(COMMAND_CODE_SIZE == 2);
-    assert(FFMPEG_CONFIG_SIZE == 16);
-    assert(COMMAND_PAYLOAD_SIZE == 32);
+    static_assert(COMMAND_CODE_SIZE == 2);
+    static_assert(FFMPEG_CONFIG_SIZE == 24);
+    static_assert(COMMAND_PAYLOAD_SIZE == 32);
 
     char* dataPtr = (char*)&payload;
 

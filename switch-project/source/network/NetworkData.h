@@ -3,12 +3,33 @@
 
 #include <stdint.h>
 
-enum STREAM_MODE : int32_t
+enum EncoderPreset : int16_t
 {
-    LOW_LATENCY_30_FPS = 0,
-    OK_LATENCY_60_FPS,
-    LOW_LATENCY_V_FPS,
-    STREAM_MODE_COUNT
+    ULTRAFAST = 0,
+    VERYFAST,
+    FAST,
+    MEDIUM,
+    SLOW,
+    VERYSLOW,
+    ENCODER_PRESET_COUNT
+};
+
+enum HWAccelMode : int16_t
+{
+    AUTO = 0,
+    DXVA2,
+    CUDA,
+    VAAPI,
+    HWAccelMode_COUNT
+};
+
+enum VideoCodecMode : int16_t
+{
+    H264 = 0,
+    H264_AMF,
+    H264_NVENC,
+    H264_QSV,
+    VIDEOCODECMODE_COUNT
 };
 
 struct alignas(16) AudioConfig
@@ -20,16 +41,20 @@ struct alignas(16) AudioConfig
 };
 
 int constexpr AUDIO_CONFIG_SIZE = {sizeof(AudioConfig)};
-struct alignas(16) FFMPEG_Config 
+struct alignas(8) FFMPEG_Config
 {
-    int16_t     desiredFrameRate;
-    int16_t     videoX;
-    int16_t     videoY;
-    int16_t     scaleX;
-    int16_t     scaleY;
-    uint16_t    bitrateKB;
-    int16_t     vsyncMode;
-    int8_t      padding[2];
+    int16_t         desiredFrameRate;
+    int16_t         videoX;
+    int16_t         videoY;
+    int16_t         scaleX;
+    int16_t         scaleY;
+    uint16_t        bitrateKB;
+    int16_t         vsyncMode;
+    int16_t         constantRateFactor;
+    EncoderPreset   preset;
+    HWAccelMode     hwaccelMode;
+    VideoCodecMode  videoCodecMode;
+    int8_t          padding[2];
 };
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);

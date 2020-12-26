@@ -9,17 +9,17 @@ auto constexpr ManualIPModeElement {6};
 auto constexpr TextElementCount {6};
 Text ipSegments[SEGMENTS];
 Text const warningText{
-    .x = 75, .y = 350,
+    .x = 75, .y = 220,
     .colour {255, 50, 0, 255},
     .value {"Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button."}
 };
 Text const saveText {
-    .x = 100, .y = 500,
+    .x = 350, .y = 400,
     .colour {255, 255, 255, 255},
     .value {"Save IP"}
 };
 Text manualIPStateText {
-    .x = 250, .y = 500,
+    .x = 550, .y = 400,
     .colour {255, 255, 255, 255},
     .value {"Manual IP Disabled"}
 };
@@ -67,7 +67,7 @@ void SetupManualNetworkScreen()
 {
     LoadManualIP();
     SDL_Color constexpr white {255,255,255,255};
-    int x = 100; int y = 450;
+    int x = 430; int y = 350;
     int offset = 70;
     for(auto i = 0; i < SEGMENTS; ++i)
     {
