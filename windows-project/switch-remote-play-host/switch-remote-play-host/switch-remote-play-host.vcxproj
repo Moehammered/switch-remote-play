@@ -173,6 +173,10 @@
     <ClInclude Include="FFMPEGHelper.h" />
     <ClInclude Include="MasterVolume.h" />
     <ClInclude Include="NetworkData.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
+    <ClInclude Include="resource2.h" />
+    <ClInclude Include="resource3.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />
@@ -190,6 +194,12 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="WindowsCodeNotes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="switch_remote_play_icon_2hP_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="switch-remote-play-host.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

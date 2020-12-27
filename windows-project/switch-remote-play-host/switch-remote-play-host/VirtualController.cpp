@@ -103,18 +103,18 @@ DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload const data)
 	if (data.keys & KEY_DDOWN)
 	{
 		if (data.keys & KEY_DLEFT)
-			dpadInput = DS4_BUTTON_DPAD_SOUTHEAST;
-		else if (data.keys & KEY_DRIGHT)
 			dpadInput = DS4_BUTTON_DPAD_SOUTHWEST;
+		else if (data.keys & KEY_DRIGHT)
+			dpadInput = DS4_BUTTON_DPAD_SOUTHEAST;
 		else
 			dpadInput = DS4_BUTTON_DPAD_SOUTH;
 	}
 	else if (data.keys & KEY_DUP)
 	{
 		if (data.keys & KEY_DLEFT)
-			dpadInput = DS4_BUTTON_DPAD_NORTHEAST;
-		else if (data.keys & KEY_DRIGHT)
 			dpadInput = DS4_BUTTON_DPAD_NORTHWEST;
+		else if (data.keys & KEY_DRIGHT)
+			dpadInput = DS4_BUTTON_DPAD_NORTHEAST;
 		else
 			dpadInput = DS4_BUTTON_DPAD_NORTH;
 	}

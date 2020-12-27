@@ -1,5 +1,7 @@
 # switch-remote-play
 
+![icon](switch-project/switch-remote-play-icon.jpg)
+
 Let the switch remotely play PC games (similar to steam link or remote play)
 
 For instructions, please see the [instructions](https://github.com/Moehammered/switch-remote-play/blob/master/instructions/Instructions.md) folder in the repo.
@@ -53,20 +55,40 @@ Tested on:
   - AMD Radeon RX 5600 XT 6GB
   - 16GB RAM
 
-## Known Issue
+## Known Issues
 
-After closing a stream and then closing the application. If the homebrew loader menu/app is not closed, any app opened next can either crash or lock up and will require the homebrew menu to be closed via the HOME button.
+### Stream Performance
 
-To reproduce:
+The stream performance is heavily dependent on network connectivity and your PC CPU performance. Configuration settings will need to be played with the find what works well with your network + PC environment. 
 
-- Successfully connect to a stream from your PC with switch-remote-play
-- Stop the stream
-  - Either by closing the application on the PC or holding '+' on the switch
-- Close the switch-remote-play app with the '+' button
-- You are back in the homebrew menu. Open any homebrew app (Goldleaf or switch-remote-play for example)
-- The app *might* freeze or crash
+I recommend playing with the 'Encoder Preset' and 'Quality Control Factor' values while keeping bitrate at 8192 or less.
 
-To avoid this, **just close the homebrew loader with the HOME button**. I know **when** it happens but I'm still trying to figure out why it's happening. If anyone has any insight please contact me or if you're curious, the crash point for switch-remote-play is in *SystemSetup.cpp -> LoadSystemFont -> TTF_OpenFont*.
+### General tips
+
+- Preset value controls how the encoder should work: ultrafast means the encoder performs to get the image out as fast as possible ignoring quality, and veryslow means the encoder can take its time to preserve image quality.
+- Codec value *can* help performance however I have tested both the AMF and standard h264 and don't notice much of a difference.
+- Quality control factor is what controls how good the image should be. The lower the value the harder your PC must work to maintain quality. **(this value and 'Preset' are what will dictate your CPU's workload)**
+- For more info see the [ffmpeg documentation](https://trac.ffmpeg.org/wiki/Encode/H.264).
+  
+### Config examples
+
+- Great image quality config:
+  - Preset - veryslow
+  - Quality control factor - less than 10 (0 = perfect image)
+  - Bitrate - around 5000 - 8000
+  - Vsync Mode - variable frame rate
+- Latency oriented config:
+  - Preset - ultrafast
+  - Quality control factor - 20+
+  - Bitrate - around 5000
+  - Vsync Mode - variable frame rate
+
+I haven't tested all configuration combinations **(and these are dependent on my PC specs)**, so if you find one that works great please feel free to send it to me with your PC specs and network environment configuration :)
+
+### Rare crash when opening some homebrew apps
+
+The crash issue in v0.7.2 has been found and patched. (it was due to the network discovery feature not being shutdown correctly)
+The app still crashes however it is harder to reproduce now and I haven't found a proper 100% way to reproduce the crash yet. The current crashing issue is rare and only crashes hbloader/hbmenu when opening an app after streaming for a certain while. I can't reproduce it but it's *gone* for now. If anyone figures out how to reproduce the crash, please let me know.
 
 ## Thanks
 

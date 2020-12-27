@@ -159,27 +159,27 @@ bool StreamDecoder::DecodeFramePacket(const AVPacket& packet)
      *  - skipping is very very noticeable in high speed action (Nier Automata for example)
      *  - skipping can be made consistent at the cost of sacrficing quality
      */
-    if(skipFrames)
-    {
-        // skipping is common when trying to stay within 30 milliseconds. 50 milliseconds seems to be reasonable but lag can be noticeable when comparing next to source.
-        const double acceptableLatency = 0.030; //30 ms (1 second = 1000 milliseconds)
-        auto now = armTicksToNs(armGetSystemTick());
-        auto delta = (now - lastPacketTime)/NANO_TO_SECONDS;
-        lastPacketTime = now;
-        if(delta > targetFrameTime+acceptableLatency)
-        {
-            context->skip_frame = AVDISCARD_BIDIR;
-            ++frameSkipCount;
-            // std::cout << "Skipping frame. Current frame skip count " << frameSkipCount << std::endl;
-            // std::cout << "Approx delay from 60fps target: " << delta - targetFrameTime << " seconds" << std::endl;
-            std::cout << "skipping packet. Frame time exceeds acceptable latency (" << acceptableLatency*1000 << "ms)" << std::endl;
-        }
-        else
-        {
-            context->skip_frame = AVDISCARD_DEFAULT;
-            frameSkipCount = 0;
-        }
-    }
+    // if(skipFrames) // commented out for now as it's not used or configurable yet
+    // {
+    //     // skipping is common when trying to stay within 30 milliseconds. 50 milliseconds seems to be reasonable but lag can be noticeable when comparing next to source.
+    //     const double acceptableLatency = 0.030; //30 ms (1 second = 1000 milliseconds)
+    //     auto now = armTicksToNs(armGetSystemTick());
+    //     auto delta = (now - lastPacketTime)/NANO_TO_SECONDS;
+    //     lastPacketTime = now;
+    //     if(delta > targetFrameTime+acceptableLatency)
+    //     {
+    //         context->skip_frame = AVDISCARD_BIDIR;
+    //         ++frameSkipCount;
+    //         // std::cout << "Skipping frame. Current frame skip count " << frameSkipCount << std::endl;
+    //         // std::cout << "Approx delay from 60fps target: " << delta - targetFrameTime << " seconds" << std::endl;
+    //         std::cout << "skipping packet. Frame time exceeds acceptable latency (" << acceptableLatency*1000 << "ms)" << std::endl;
+    //     }
+    //     else
+    //     {
+    //         context->skip_frame = AVDISCARD_DEFAULT;
+    //         frameSkipCount = 0;
+    //     }
+    // }
 
     // std::cout << "sending packet to decoder" << std::endl;
     auto result = avcodec_send_packet(context, &packet);

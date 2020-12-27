@@ -264,8 +264,7 @@ int main(int argc, char **argv)
         }
     }
     
-    if(network.Searching())
-        network.Shutdown();
+    network.Shutdown();
 
     if(gamepadThread.joinable())
         gamepadThread.join();
