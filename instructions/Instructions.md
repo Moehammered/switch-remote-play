@@ -92,7 +92,7 @@ Please make sure that **if you're using manual IP mode**, that your **Switch and
 
 ### Virus Threat Detected
 
-My PC doesn't trigger or treat the program as a thread. Probably because I have Visual Studio installed. When I check it online there are some online file scanners that flag it as a virus. The release build seems to trigger more flags than the debug build.
+The release build seems to trigger more flags than the debug build.
 
 My guess is due to the obfescation and the fact this program:
 
@@ -103,6 +103,8 @@ My guess is due to the obfescation and the fact this program:
 
 The source code is available and you are free to compile it yourself and check by downloading Visual Studio 2019.
 
-If you can trust it then you will have to manually allow the program and get it out of quarentine with Windows Defender. And you **don't need to run this program as admin**.
+If you can trust it then you will have to manually allow the program and get it out of quarantine with Windows Defender. And you **don't need to run this program as admin**.
 
-If anyone with any insight can look at the source code and see what is causing it that would be great.
+![windows defender allow](windows-defender-quarantine.png)
+
+If anyone with any insight please contact me so I can learn how to remedy this issue.
