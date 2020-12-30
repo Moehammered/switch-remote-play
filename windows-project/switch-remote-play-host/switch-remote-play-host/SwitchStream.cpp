@@ -40,7 +40,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
     return data;
 }
 
-std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
+std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
 {
     using namespace std;
     thread workerThread{};
@@ -81,7 +81,6 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                     auto constexpr mouseToggleBtnCombo = KEY_ZL | KEY_ZR | KEY_B;
                     auto mouseBtnFlags = 0;
                     double constexpr joystickExtent = 0xFFFF / 2;
-                    auto constexpr mouseSensitivity = 10;
                     do
                     {
                         active = gamepadActive.load(memory_order_acquire);
@@ -89,7 +88,7 @@ std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool&
                         padData.ljx = padData.ljy = 0;
                         padData.rjx = padData.rjy = 0;
                         
-                        auto result = recv(connection.ConnectedSocket(), (char*)&padData, GamepadPayloadSize, 0);
+                        auto result = recv(connection.ConnectedSocket(), (char*)&padData, GamepadDataPayloadSize, 0);
                         if (result == SOCKET_ERROR)
                         {
                             cout << "Failed to receive data for gamepad stream" << endl;

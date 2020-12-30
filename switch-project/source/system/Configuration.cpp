@@ -1,41 +1,160 @@
 #include "Configuration.h"
 #include "FileOperations.h"
+#include "../network/NetworkData.h"
 
 #include <iostream>
 
 auto constexpr MANUAL_IP_TAG = "manual_ip";
-auto constexpr IP_TAG = "found_ip";
 auto constexpr FPS_TAG = "desired_framerate";
-auto constexpr VIDEO_RES_TAG = "video_resolution";
-auto constexpr VIDEO_SCALE_TAG = "video_scale";
+auto constexpr DESKTOP_RES_TAG = "desktop_resolution";
+auto constexpr SWITCH_RES_TAG = "switch_resolution";
 auto constexpr BITRATE_TAG = "bitrate_kb";
 auto constexpr VSYNC_TAG = "vsync_mode";
+auto constexpr ENCODER_PRESET_TAG = "encoder_preset";
+auto constexpr QUALITY_FACTOR_TAG = "quality_control_factor";
+auto constexpr VIDEO_CODEC_TAG = "video_codec";
+auto constexpr HWACCEL_TAG = "hwaccel_mode";
+auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
+
+int16_t VsyncTextToEnum(std::string s)
+{
+    if(s == "auto")
+        return -1;
+    else if(s == "passthrough")
+        return 0;
+    else if(s == "constant frame rate")
+        return 1;
+    else if(s == "variable frame rate")
+        return 2;
+    else if(s == "drop time")
+        return 3;
+    else
+        return 2;
+}
+
+std::string VsyncToText(const int16_t mode)
+{
+    switch(mode)
+    {
+        case -1:
+            return "auto";
+
+        case 0:
+            return "passthrough";
+
+        case 1:
+            return "constant frame rate";
+
+        default:
+        case 2:
+            return "variable frame rate";
+
+        case 3:
+            return "drop time";
+    }
+}
+
+std::string PresetEnumToText(EncoderPreset preset)
+{
+    switch(preset)
+    {
+        default:
+        case EncoderPreset::ULTRAFAST:
+            return "ultrafast";
+        case EncoderPreset::VERYFAST:
+            return "veryfast";
+        case EncoderPreset::FAST:
+            return "fast";
+        case EncoderPreset::MEDIUM:
+            return "medium";
+        case EncoderPreset::SLOW:
+            return "slow";
+        case EncoderPreset::VERYSLOW:
+            return "veryslow";
+    }
+}
+
+EncoderPreset PresetTextToEnum(std::string s)
+{
+    if(s == "ultrafast")
+        return EncoderPreset::ULTRAFAST;
+    else if(s == "veryfast")
+        return EncoderPreset::VERYFAST;
+    else if(s == "fast")
+        return EncoderPreset::FAST;
+    else if(s == "medium")
+        return EncoderPreset::MEDIUM;
+    else if(s == "slow")
+        return EncoderPreset::SLOW;
+    else if(s == "veryslow")
+        return EncoderPreset::VERYSLOW;
+    else
+        return EncoderPreset::ULTRAFAST;
+}
+
+std::string HWAccelEnumToText(HWAccelMode mode)
+{
+    switch(mode)
+    {
+        default:
+        case HWAccelMode::AUTO:
+            return "auto";
+        case HWAccelMode::DXVA2:
+            return "dxva2";
+        case HWAccelMode::VAAPI:
+            return "vaapi";
+        case HWAccelMode::CUDA:
+            return "cuda";
+    }
+}
+
+HWAccelMode HWAccelTextToEnum(std::string s)
+{
+    if(s == "auto")
+        return HWAccelMode::AUTO;
+    else if(s == "dxva2")
+        return HWAccelMode::DXVA2;
+    else if(s == "cuda")
+        return HWAccelMode::CUDA;
+    else if(s == "vaapi")
+        return HWAccelMode::VAAPI;
+    else
+        return HWAccelMode::AUTO;
+}
+
+std::string VideoCodecEnumToText(VideoCodecMode mode)
+{
+    switch(mode)
+    {
+        default:
+        case VideoCodecMode::H264:
+            return "h264";
+        case VideoCodecMode::H264_AMF:
+            return "h264_amf";
+        case VideoCodecMode::H264_NVENC:
+            return "h264_nvenc";
+        case VideoCodecMode::H264_QSV:
+            return "h264_qsv";
+    }
+}
+
+VideoCodecMode VideoCodecTextToEnum(std::string s)
+{
+    if(s == "h264")
+        return VideoCodecMode::H264;
+    else if(s == "h264_amf")
+        return VideoCodecMode::H264_AMF;
+    else if(s == "h264_nvenc")
+        return VideoCodecMode::H264_NVENC;
+    else if(s == "h264_qsv")
+        return VideoCodecMode::H264_QSV;
+    else
+        return VideoCodecMode::H264;
+}
 
 Configuration::Configuration() : data{}
 {
     data = ReadConfigFile(absolutePath);
-}
-
-std::string const Configuration::FoundIP() const
-{
-    auto ip = std::string{};
-    if(ExtractVariable(data, IP_TAG, ip))
-        return ip;
-    else
-        return std::string{};
-}
-
-bool Configuration::SaveFoundIP(std::string const ip)
-{
-    auto newData = std::string{};
-    if(ReplaceVariable(data, IP_TAG, ip, newData))
-        return SaveConfigFile(newData);
-    else
-    {
-        newData = std::string{IP_TAG} + "=" + ip + ";\n";
-        newData += data;
-        return SaveConfigFile(newData);
-    }
 }
 
 std::string const Configuration::ManualIP() const
@@ -68,10 +187,10 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     if(ExtractVariable(data, FPS_TAG, fpsText))
         temp.desiredFrameRate = atoi(fpsText.c_str());
     else
-        temp.desiredFrameRate = 30;
+        temp.desiredFrameRate = 60;
 
     auto videoResText = std::string{};
-    if(ExtractVariable(data, VIDEO_RES_TAG, videoResText))
+    if(ExtractVariable(data, DESKTOP_RES_TAG, videoResText))
     {
         auto widthStart = 0;
         auto widthEnd = videoResText.find('x', 0);
@@ -95,12 +214,12 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     else
     {
         std::cout << "failed to extract video res" << std::endl;
-        temp.videoX = 1920;
-        temp.videoY = 1080;
+        temp.videoX = 1280;
+        temp.videoY = 720;
     }
 
     auto scaleResText = std::string{};
-    if(ExtractVariable(data, VIDEO_SCALE_TAG, scaleResText))
+    if(ExtractVariable(data, SWITCH_RES_TAG, scaleResText))
     {
         auto widthStart = 0;
         auto widthEnd = scaleResText.find('x', 0);
@@ -127,18 +246,61 @@ FFMPEG_Config const Configuration::FFMPEGData() const
         temp.scaleY = 720;
     }
 
-    auto bitrateText = std::string{};
-    if(ExtractVariable(data, BITRATE_TAG, bitrateText))
-        temp.bitrateKB = atoi(bitrateText.c_str());
-    else
-        temp.bitrateKB = 5120;
+    {
+        auto bitrateText = std::string{};
+        if(ExtractVariable(data, BITRATE_TAG, bitrateText))
+            temp.bitrateKB = atoi(bitrateText.c_str());
+        else
+            temp.bitrateKB = 8192;
+    }
 
-    auto vsyncText = std::string{};
-    if(ExtractVariable(data, VSYNC_TAG, vsyncText))
-        temp.vsyncMode = atoi(vsyncText.c_str());
-    else
-        temp.vsyncMode = 2;
+    {
+        auto vsyncText = std::string{};
+        if(ExtractVariable(data, VSYNC_TAG, vsyncText))
+            temp.vsyncMode = VsyncTextToEnum(vsyncText);
+        else
+            temp.vsyncMode = 2;
+    }
 
+    {
+        auto presetText = std::string{};
+        if(ExtractVariable(data, ENCODER_PRESET_TAG, presetText))
+            temp.preset = PresetTextToEnum(presetText);
+        else
+            temp.preset = EncoderPreset::ULTRAFAST;
+    }
+
+    {
+        std::string qcf{};
+        if(ExtractVariable(data, QUALITY_FACTOR_TAG, qcf))
+            temp.constantRateFactor = atoi(qcf.c_str());
+        else
+            temp.constantRateFactor = 16;
+    }
+
+    {
+        std::string codec{};
+        if(ExtractVariable(data, VIDEO_CODEC_TAG, codec))
+            temp.videoCodecMode = VideoCodecTextToEnum(codec);
+        else
+            temp.videoCodecMode = VideoCodecMode::H264;
+    }
+
+    {
+        std::string hwaccel{};
+        if(ExtractVariable(data, HWACCEL_TAG, hwaccel))
+            temp.hwaccelMode = HWAccelTextToEnum(hwaccel);
+        else
+            temp.hwaccelMode = HWAccelMode::AUTO;
+    }
+
+    {
+        std::string mouse{};
+        if(ExtractVariable(data, MOUSE_SENS_TAG, mouse))
+            temp.mouseSensitivity = atoi(mouse.c_str());
+        else
+            temp.mouseSensitivity = 10;
+    }
     return temp;
 }
 
@@ -146,46 +308,101 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
 {
     auto newData = std::string{this->data};
     
-    auto fps = std::to_string(data.desiredFrameRate);
-    if(!ReplaceVariable(newData, FPS_TAG, fps, newData))
     {
-        std::cout << "Save error --> couldn't replace " << FPS_TAG << std::endl;
-        return false;
+        auto fps = std::to_string(data.desiredFrameRate);
+        if(!ReplaceVariable(newData, FPS_TAG, fps, newData))
+        {
+            std::cout << FPS_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{FPS_TAG} + "=" + fps + ";\n";
+        }
     }
 
-    auto vx = std::to_string(data.videoX);
-    auto vy = std::to_string(data.videoY);
-    auto videoResStr = vx+"x"+vy;
-    
-    if(!ReplaceVariable(newData, VIDEO_RES_TAG, videoResStr, newData))
     {
-        std::cout << "Save error --> couldn't replace " << VIDEO_RES_TAG << std::endl;
-        return false;
-    }
-    
-    auto sx = std::to_string(data.scaleX);
-    auto sy = std::to_string(data.scaleY);
-    auto videoScaleStr = sx+"x"+sy;
-    if(!ReplaceVariable(newData, VIDEO_SCALE_TAG, videoScaleStr, newData))
-    {
-        std::cout << "Save error --> couldn't replace " << VIDEO_SCALE_TAG << std::endl;
-        return false;
+        auto vx = std::to_string(data.videoX);
+        auto vy = std::to_string(data.videoY);
+        auto videoResStr = vx+"x"+vy;
+        
+        if(!ReplaceVariable(newData, DESKTOP_RES_TAG, videoResStr, newData))
+        {
+            std::cout << DESKTOP_RES_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DESKTOP_RES_TAG} + "=" + videoResStr + ";\n";
+        }
     }
 
-    auto br = std::to_string(data.bitrateKB);
-    if(!ReplaceVariable(newData, "bitrate_kb", br, newData))
     {
-        std::cout << "Save error --> couldn't replace " << BITRATE_TAG << std::endl;
-        return false;
+        auto sx = std::to_string(data.scaleX);
+        auto sy = std::to_string(data.scaleY);
+        auto videoScaleStr = sx+"x"+sy;
+        if(!ReplaceVariable(newData, SWITCH_RES_TAG, videoScaleStr, newData))
+        {
+            std::cout << SWITCH_RES_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{SWITCH_RES_TAG} + "=" + videoScaleStr + ";\n";
+        }
     }
 
-    auto vsync = std::to_string(data.vsyncMode);
-    if(!ReplaceVariable(newData, VSYNC_TAG, vsync, newData))
     {
-        std::cout << "Save error --> couldn't replace " << VSYNC_TAG << std::endl;
-        return false;
+        auto br = std::to_string(data.bitrateKB);
+        if(!ReplaceVariable(newData, BITRATE_TAG, br, newData))
+        {
+            std::cout << BITRATE_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{BITRATE_TAG} + "=" + br + ";\n";
+        }
     }
-    
+
+    {
+        auto vsync = VsyncToText(data.vsyncMode);
+        if(!ReplaceVariable(newData, VSYNC_TAG, vsync, newData))
+        {
+            std::cout << VSYNC_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{VSYNC_TAG} + "=" + vsync + ";\n";
+        }
+    }
+
+    {
+        auto preset = PresetEnumToText(data.preset);
+        if(!ReplaceVariable(newData, ENCODER_PRESET_TAG, preset, newData))
+        {
+            std::cout << ENCODER_PRESET_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{ENCODER_PRESET_TAG} + "=" + preset + ";\n";
+        }
+    }
+
+    {
+        auto crf = std::to_string(data.constantRateFactor);
+        if(!ReplaceVariable(newData, QUALITY_FACTOR_TAG, crf, newData))
+        {
+            std::cout << QUALITY_FACTOR_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{QUALITY_FACTOR_TAG} + "=" + crf + ";\n";
+        }
+    }
+
+    {
+        auto codec = VideoCodecEnumToText(data.videoCodecMode);
+        if(!ReplaceVariable(newData, VIDEO_CODEC_TAG, codec, newData))
+        {
+            std::cout << VIDEO_CODEC_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{VIDEO_CODEC_TAG} + "=" + codec + ";\n";
+        }
+    }
+
+    {
+        auto hwaccel = HWAccelEnumToText(data.hwaccelMode);
+        if(!ReplaceVariable(newData, HWACCEL_TAG, hwaccel, newData))
+        {
+            std::cout << HWACCEL_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{HWACCEL_TAG} + "=" + hwaccel + ";\n";
+        }
+    }
+
+    {
+        auto mouse = std::to_string(data.mouseSensitivity);
+        if(!ReplaceVariable(newData, MOUSE_SENS_TAG, mouse, newData))
+        {
+            std::cout << MOUSE_SENS_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{MOUSE_SENS_TAG} + "=" + mouse + ";\n";
+        }
+    }
+
     return SaveConfigFile(newData);
 }
 

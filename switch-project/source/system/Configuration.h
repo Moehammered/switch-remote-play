@@ -7,21 +7,21 @@
 
 this line gets ignored because there's no match
 
-found_ip=192.168.0.19;
+manual_ip=192.168.0.19; <-- semicolon marks the end of the variable
 desired_framerate=60; comment goes here
-video_resolution=1920x1080; another one here
-video_scale=1280x720;
+desktop_resolution=1920x1080; another one here
+switch_resolution=1280x720;
 bitrate_kb=5120;
-vsync_mode=2;
-
+vsync_mode=variable frame rate;
+hwaccel_mode=auto;
+video_codec=h264;
+quality_control_factor=16;
 */
 
 class Configuration
 {
 public:
     Configuration();
-    std::string const FoundIP() const;
-    bool SaveFoundIP(std::string const ip);
 
     std::string const ManualIP() const;
     bool SaveManualIP(std::string const ip);

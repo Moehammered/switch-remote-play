@@ -45,7 +45,7 @@ struct alignas(8) FFMPEG_Config
     EncoderPreset   preset;
     HWAccelMode     hwaccelMode;
     VideoCodecMode  videoCodecMode;
-    int8_t          padding[2];
+    int16_t        mouseSensitivity;
 };
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);

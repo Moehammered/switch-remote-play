@@ -42,13 +42,20 @@ void RunGamepadThread(std::string ip, uint16_t port)
     int padSocket{-1};
     if(ConnectTo(ip, port, padSocket))
     {
-        JoystickPosition lJoy;
-        JoystickPosition rJoy;
+        padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+        PadState defaultPad{0};
+        padInitializeDefault(&defaultPad);
+
+        HidTouchScreenState touchState {0};
+        hidInitializeTouchScreen();
+
+        HidAnalogStickState lStick{0};
+        HidAnalogStickState rStick{0};
+
+        SixAxisSensorValues sixaxis{0};
+
         const int dataSize = sizeof(GamepadDataPayload);
-        auto inputData = GamepadDataPayload();
-        inputData.keys = 0;
-        inputData.ljx = inputData.ljy = 0;
-        inputData.rjx = inputData.rjy = 0;
+        auto inputData = GamepadDataPayload{0};
         for(auto& c : inputData.padding)
             c = 0;
 
@@ -65,13 +72,14 @@ void RunGamepadThread(std::string ip, uint16_t port)
         while(appletMainLoop())
         {
             std::this_thread::sleep_for(sleepDuration); // sleep a tiny bit between inputs
-            hidScanInput();
+            
+            padUpdate(&defaultPad);
             now = armTicksToNs(armGetSystemTick());
             delta = (now - last)/NANO_TO_SECONDS;
             last = now;
-            //hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
-            //u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-            u32 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
+            
+            u32 kHeld = padGetButtons(&defaultPad);
+
             if(kHeld & KEY_PLUS)
             {
                 quitHeldTime += delta;
@@ -87,16 +95,29 @@ void RunGamepadThread(std::string ip, uint16_t port)
             {
                 quitHeldTime = 0;
             }
-            
 
+            if(hidGetTouchScreenStates(&touchState, 1))
+            {
+                if(touchState.count > 0)
+                    kHeld |= KEY_TOUCH;
+            }
             inputData.keys = kHeld;
 
-            hidJoystickRead(&lJoy, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
-            hidJoystickRead(&rJoy, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
-            inputData.ljx = lJoy.dx;
-            inputData.ljy = lJoy.dy;
-            inputData.rjx = rJoy.dx;
-            inputData.rjy = rJoy.dy;
+            lStick = padGetStickPos(&defaultPad, 0);
+            rStick = padGetStickPos(&defaultPad, 1);
+
+            inputData.ljx = lStick.x;
+            inputData.ljy = lStick.y;
+            inputData.rjx = rStick.x;
+            inputData.rjy = rStick.y;
+
+            // if(hidGetHandheldMode())
+            //     hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_P1_AUTO, 1);
+            // else
+            hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_PLAYER_1, 1);
+            
+            inputData.accelerometer = sixaxis.accelerometer;
+            inputData.gryo = sixaxis.gyroscope;
 
             auto result = send(padSocket, (char*)&inputData, dataSize, 0);
             if(result < 0)

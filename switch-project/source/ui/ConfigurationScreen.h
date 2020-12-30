@@ -1,5 +1,5 @@
-#ifndef __FFMPEGCONFIGUI_H__
-#define __FFMPEGCONFIGUI_H__
+#ifndef __CONFIGURATIONSCREEN_H__
+#define __CONFIGURATIONSCREEN_H__
 
 #include <array>
 #include <SDL2/SDL_render.h>
@@ -23,13 +23,14 @@ enum FfmpegConfigUiElements : int32_t
     HWACCEL,
     PRESET,
     CODEC,
+    MOUSE_SENSITIVITY,
     CONFIG_COUNT
 };
 
-class FFMPEGConfigUI
+class ConfigurationScreen
 {
     public:
-        FFMPEGConfigUI();
+        ConfigurationScreen();
         void IncreaseSetting();
         void DecreaseSetting();
         void SelectNext();
@@ -53,6 +54,7 @@ class FFMPEGConfigUI
         void UpdateCRF();
         void UpdateCodec();
         void UpdateHWAccel();
+        void UpdateMouseSensitivity();
 };
 
 #endif

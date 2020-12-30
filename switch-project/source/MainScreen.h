@@ -5,7 +5,7 @@
 #include <string>
 #include "network/NetworkDiscovery.h"
 #include "SDL_FontCache.h"
-#include "ui/FFMPEGConfigUI.h"
+#include "ui/ConfigurationScreen.h"
 #include "ui/FfmpegConfigRenderer.h"
 
 enum MenuScreen : int32_t

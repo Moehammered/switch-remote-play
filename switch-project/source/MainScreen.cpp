@@ -1,6 +1,6 @@
 #include "MainScreen.h"
 #include "ui/Menu.h"
-#include "ui/FFMPEGConfigUI.h"
+#include "ui/ConfigurationScreen.h"
 #include "ui/ManualNetworkConfig.h"
 #include <iostream>
 #include "system/Configuration.h"
@@ -40,7 +40,7 @@ Text const streamPendingText{
     .x = 100, .y = 600, .colour = red,
     .value = "Stream Pending Connection..." 
 };
-FFMPEGConfigUI configurator;
+ConfigurationScreen configurator;
 FfmpegConfigRenderer configRenderer;
 MenuScreen currentMenu {MAIN};
 Configuration config;

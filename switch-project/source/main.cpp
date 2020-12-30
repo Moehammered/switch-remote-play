@@ -142,6 +142,15 @@ int main(int argc, char **argv)
     
     auto runApp {true};
     std::cout << "Starting main loop\n";
+
+    //initialise hid
+    PadState mainPad {0};
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+    padInitializeDefault(&mainPad);
+
+    auto constexpr increaseKeys = KEY_A | KEY_DRIGHT;
+    auto constexpr decreaseKeys = KEY_B | KEY_DLEFT;
+    
     while(appletMainLoop() && runApp)
     {
         switch(streamState.load(std::memory_order_acquire))
@@ -153,8 +162,9 @@ int main(int argc, char **argv)
                 if(audioStream.Running())
                     audioStream.Shutdown();
         
-                hidScanInput();
-                auto kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+                padUpdate(&mainPad);
+
+                auto kDown = padGetButtonsDown(&mainPad);
 
                 if(kDown & KEY_PLUS)
                     streamState.store(StreamState::QUIT, std::memory_order_release);
@@ -169,9 +179,9 @@ int main(int argc, char **argv)
                 else if(kDown & KEY_ZR)
                     NextScreen();
 
-                if(kDown & KEY_A)
+                if(kDown & increaseKeys)
                     IncreaseSetting();
-                else if(kDown & KEY_B)
+                else if(kDown & decreaseKeys)
                     DecreaseSetting();
                 
                 if(kDown & KEY_L)
@@ -206,6 +216,9 @@ int main(int argc, char **argv)
                         ip = GetManualIPAddress();
                     else
                         ip = network.IPAddress();
+                    auto ffmpegConfig = GetFfmpegSettings();
+                    auto configfile = Configuration{};
+                    configfile.SaveFFMPEG(ffmpegConfig);
                     RunStartConfiguredStreamCommand(ip, hostCommandPort, GetFfmpegSettings());
                     auto streamOn = stream.WaitForStream(videoPort);
 
@@ -236,6 +249,7 @@ int main(int argc, char **argv)
                 processStream(stream, streamPacket, streamDecoder, 
                                 rendererScreenTexture, renderRegion, 
                                 screen, gamepadThread);
+                padUpdate(&mainPad); // stop the '+' button from quitting the app when stream stops
             }
             break;
 

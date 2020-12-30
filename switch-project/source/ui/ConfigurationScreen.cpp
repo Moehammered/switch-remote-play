@@ -1,11 +1,14 @@
-#include "FFMPEGConfigUI.h"
+#include "ConfigurationScreen.h"
 #include <string>
 #include <iostream>
+#include "../system/Configuration.h"
 
 SDL_Color constexpr highlight {.r = 200, .g = 200, .b = 50, .a = 255};
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};
 constexpr int maxCRF = 30;
+constexpr int maxMouseSensitivity = 30;
+constexpr int minMouseSensitivity = 3;
 
 constexpr uint16_t mbToKb(double mbs)
 {
@@ -13,13 +16,13 @@ constexpr uint16_t mbToKb(double mbs)
 }
 
 constexpr std::array<const int16_t, 2> framerates = { 30, 60 };
-constexpr std::array<const Resolution, 7> videoCaptureResolutions = {
+constexpr std::array<const Resolution, 7> desktopResolutions = {
     Resolution{1024, 576}, Resolution{1152, 648}, 
     Resolution{1280, 720}, Resolution{1366, 768},
     Resolution{1600, 900}, Resolution{1920, 1080},
     Resolution{2560, 1440}
 };
-constexpr std::array<const Resolution, 1> videoScaleResolutions = {
+constexpr std::array<const Resolution, 1> switchResolutions = {
     Resolution{1280, 720}/*, Resolution{1980, 720}*/
 };
 constexpr std::array<const uint16_t, 20> bitratesKB = {
@@ -59,9 +62,9 @@ std::string VideoCodecModeToString(VideoCodecMode mode)
         case VideoCodecMode::H264_AMF:
             return "h264 AMF (AMD)";
         case VideoCodecMode::H264_NVENC:
-            return "h264 NVENC (NVIDIA)";
+            return "h264 NVENC (NVIDIA) [untested]";
         case VideoCodecMode::H264_QSV:
-            return "h264 Quick Scan (Intel - requires Intel CPU)";
+            return "h264 Quick Scan (Intel - requires Intel CPU) [untested]";
         default:
             return "unknown";
     }
@@ -125,7 +128,7 @@ constexpr const char* vsyncModeToString(const int16_t mode)
     }
 }
 
-FFMPEGConfigUI::FFMPEGConfigUI() 
+ConfigurationScreen::ConfigurationScreen() 
     : settingIndex(0), settingsIndices{}, settingsText{}
 {
     const int settingTextX = 100;
@@ -139,15 +142,71 @@ FFMPEGConfigUI::FFMPEGConfigUI()
         t.y = yOffset + ySpace * counter++;
     }
 
-    settingsIndices[FfmpegConfigUiElements::FRAMERATE] = 1;
-    settingsIndices[FfmpegConfigUiElements::DESKTOP_RES] = 2;
-    settingsIndices[FfmpegConfigUiElements::SWITCH_RES] = 0;
-    settingsIndices[FfmpegConfigUiElements::BITRATE] = 9;
-    settingsIndices[FfmpegConfigUiElements::VSYNC] = 3;
-    settingsIndices[FfmpegConfigUiElements::PRESET] = EncoderPreset::VERYFAST;
-    settingsIndices[FfmpegConfigUiElements::CRF] = 16;
-    settingsIndices[FfmpegConfigUiElements::CODEC] = VideoCodecMode::H264;
-    settingsIndices[FfmpegConfigUiElements::HWACCEL] = HWAccelMode::AUTO;
+    auto config = Configuration{};
+    auto ffmpeg = config.FFMPEGData();
+
+    auto fpsInd = 1;
+    for(auto i = 0U; i < framerates.size(); ++i)
+    {
+        if(ffmpeg.desiredFrameRate == framerates[i])
+        {
+            fpsInd = i;
+            break;
+        }
+    }
+    settingsIndices[FfmpegConfigUiElements::FRAMERATE] = fpsInd;
+
+    auto desktopResInd = 2;
+    for(auto i = 0U; i < desktopResolutions.size(); ++i)
+    {
+        auto res = desktopResolutions[i];
+        if(res.width == ffmpeg.videoX && res.height == ffmpeg.videoY)
+        {
+            desktopResInd = i;
+            break;
+        }
+    }
+    settingsIndices[FfmpegConfigUiElements::DESKTOP_RES] = desktopResInd;
+
+    auto switchResInd = 0;
+    for(auto i = 0U; i < switchResolutions.size(); ++i)
+    {
+        auto res = switchResolutions[i];
+        if(res.width == ffmpeg.scaleX && res.height == ffmpeg.scaleY)
+        {
+            switchResInd = i;
+            break;
+        }
+    }
+    settingsIndices[FfmpegConfigUiElements::SWITCH_RES] = switchResInd;
+
+    auto bitrateInd = 9;
+    for(auto i = 0U; i < bitratesKB.size(); ++i)
+    {
+        if(bitratesKB[i] == ffmpeg.bitrateKB)
+        {
+            bitrateInd = i;
+            break;
+        }
+    }
+    settingsIndices[FfmpegConfigUiElements::BITRATE] = bitrateInd;
+
+    auto vsyncInd = 3;
+    for(auto i = 0U; i < vsyncModes.size(); ++i)
+    {
+        if(vsyncModes[i] == ffmpeg.vsyncMode)
+        {
+            vsyncInd = i;
+            break;
+        }
+    }
+    settingsIndices[FfmpegConfigUiElements::VSYNC] = vsyncInd;
+
+    settingsIndices[FfmpegConfigUiElements::PRESET] = ffmpeg.preset;
+    settingsIndices[FfmpegConfigUiElements::CRF] = ffmpeg.constantRateFactor;
+    settingsIndices[FfmpegConfigUiElements::CODEC] = ffmpeg.videoCodecMode;
+    settingsIndices[FfmpegConfigUiElements::HWACCEL] = ffmpeg.hwaccelMode;
+    settingsIndices[FfmpegConfigUiElements::MOUSE_SENSITIVITY] = ffmpeg.mouseSensitivity;
 
     UpdateFramerate();
     UpdateVideoRes();
@@ -158,9 +217,10 @@ FFMPEGConfigUI::FFMPEGConfigUI()
     UpdateCRF();
     UpdateCodec();
     UpdateHWAccel();
+    UpdateMouseSensitivity();
 }
 
-void FFMPEGConfigUI::IncreaseSetting()
+void ConfigurationScreen::IncreaseSetting()
 {
     auto currInd = settingsIndices[settingIndex];
 
@@ -172,12 +232,12 @@ void FFMPEGConfigUI::IncreaseSetting()
         break;
 
         case FfmpegConfigUiElements::DESKTOP_RES:
-            if(++currInd >= videoCaptureResolutions.size())
+            if(++currInd >= desktopResolutions.size())
                 currInd = 0;
         break;
 
         case FfmpegConfigUiElements::SWITCH_RES:
-            if(++currInd >= videoScaleResolutions.size())
+            if(++currInd >= switchResolutions.size())
                 currInd = 0;
         break;
 
@@ -210,6 +270,11 @@ void FFMPEGConfigUI::IncreaseSetting()
             if(++currInd >= HWAccelMode::CUDA)
                 currInd = 0;
         break;
+
+        case FfmpegConfigUiElements::MOUSE_SENSITIVITY:
+            if(++currInd > maxMouseSensitivity)
+                    currInd = minMouseSensitivity;
+        break;
     }
 
     settingsIndices[settingIndex] = currInd;
@@ -223,9 +288,10 @@ void FFMPEGConfigUI::IncreaseSetting()
     UpdateCRF();
     UpdateCodec();
     UpdateHWAccel();
+    UpdateMouseSensitivity();
 }
 
-void FFMPEGConfigUI::DecreaseSetting()
+void ConfigurationScreen::DecreaseSetting()
 {
     auto currInd = settingsIndices[settingIndex];
 
@@ -238,12 +304,12 @@ void FFMPEGConfigUI::DecreaseSetting()
 
         case FfmpegConfigUiElements::DESKTOP_RES:
             if(--currInd < 0)
-                currInd = videoCaptureResolutions.size() - 1;
+                currInd = desktopResolutions.size() - 1;
         break;
 
         case FfmpegConfigUiElements::SWITCH_RES:
             if(--currInd < 0)
-                currInd = videoScaleResolutions.size() - 1;
+                currInd = switchResolutions.size() - 1;
         break;
 
         case FfmpegConfigUiElements::BITRATE:
@@ -275,6 +341,11 @@ void FFMPEGConfigUI::DecreaseSetting()
             if(--currInd < 0)
                 currInd = HWAccelMode::CUDA - 1;
         break;
+
+        case FfmpegConfigUiElements::MOUSE_SENSITIVITY:
+            if(--currInd < minMouseSensitivity)
+                currInd = maxMouseSensitivity;
+        break;
     }
 
     settingsIndices[settingIndex] = currInd;
@@ -288,23 +359,24 @@ void FFMPEGConfigUI::DecreaseSetting()
     UpdateCRF();
     UpdateCodec();
     UpdateHWAccel();
+    UpdateMouseSensitivity();
 }
 
-void FFMPEGConfigUI::SelectNext()
+void ConfigurationScreen::SelectNext()
 {
     ++settingIndex;
     if(settingIndex >= settingsIndices.size())
         settingIndex = 0;
 }
 
-void FFMPEGConfigUI::SelectPrevious()
+void ConfigurationScreen::SelectPrevious()
 {
     --settingIndex;
     if(settingIndex < 0)
         settingIndex = settingsIndices.size() - 1;
 }
 
-void FFMPEGConfigUI::Render(SDL_Renderer* renderer, FC_Font* font)
+void ConfigurationScreen::Render(SDL_Renderer* renderer, FC_Font* font)
 {
     //use this later to render a rect behind the text elements
     //SDL_SetRenderDrawColor(renderer, backgroundColour.r, backgroundColour.g, backgroundColour.b, backgroundColour.a);
@@ -318,17 +390,18 @@ void FFMPEGConfigUI::Render(SDL_Renderer* renderer, FC_Font* font)
     }
 }
 
-FFMPEG_Config const FFMPEGConfigUI::Settings()
+FFMPEG_Config const ConfigurationScreen::Settings()
 {
     auto framerate = framerates[settingsIndices[FfmpegConfigUiElements::FRAMERATE]];
     auto vsMode = vsyncModes[settingsIndices[FfmpegConfigUiElements::VSYNC]];
     auto bitrate = bitratesKB[settingsIndices[FfmpegConfigUiElements::BITRATE]];
-    auto videoRes = videoCaptureResolutions[settingsIndices[FfmpegConfigUiElements::DESKTOP_RES]];
-    auto scaleRes = videoScaleResolutions[settingsIndices[FfmpegConfigUiElements::SWITCH_RES]];
+    auto videoRes = desktopResolutions[settingsIndices[FfmpegConfigUiElements::DESKTOP_RES]];
+    auto scaleRes = switchResolutions[settingsIndices[FfmpegConfigUiElements::SWITCH_RES]];
     auto crf = settingsIndices[FfmpegConfigUiElements::CRF];
     auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
     auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
     auto videoCodecMode = (VideoCodecMode)settingsIndices[FfmpegConfigUiElements::CODEC];
+    auto mouseSens = settingsIndices[FfmpegConfigUiElements::MOUSE_SENSITIVITY];
 
     return FFMPEG_Config{
         .desiredFrameRate = framerate,
@@ -339,11 +412,12 @@ FFMPEG_Config const FFMPEGConfigUI::Settings()
         .constantRateFactor = crf,
         .preset = preset,
         .hwaccelMode = hwaccel,
-        .videoCodecMode = videoCodecMode
+        .videoCodecMode = videoCodecMode,
+        .mouseSensitivity = mouseSens
     };
 }
 
-void FFMPEGConfigUI::UpdateFramerate()
+void ConfigurationScreen::UpdateFramerate()
 {
     const auto frInd = settingsIndices[FfmpegConfigUiElements::FRAMERATE];
     const auto framerate = framerates[frInd];
@@ -351,27 +425,27 @@ void FFMPEGConfigUI::UpdateFramerate()
     settingsText[FfmpegConfigUiElements::FRAMERATE].value = "Desired Framerate:      " + std::to_string(framerate);
 }
 
-void FFMPEGConfigUI::UpdateVideoRes()
+void ConfigurationScreen::UpdateVideoRes()
 {
     const auto vrInd = settingsIndices[FfmpegConfigUiElements::DESKTOP_RES];
-    const auto res = videoCaptureResolutions[vrInd];
+    const auto res = desktopResolutions[vrInd];
 
     settingsText[FfmpegConfigUiElements::DESKTOP_RES].value = "Desktop Resolution:     " 
                                         + std::to_string(res.width) 
                                         + "x" + std::to_string(res.height);
 }
 
-void FFMPEGConfigUI::UpdateVideoScale()
+void ConfigurationScreen::UpdateVideoScale()
 {
     const auto vrInd = settingsIndices[FfmpegConfigUiElements::SWITCH_RES];
-    const auto res = videoScaleResolutions[vrInd];
+    const auto res = switchResolutions[vrInd];
 
     settingsText[FfmpegConfigUiElements::SWITCH_RES].value = "Switch Resolution:      "
                                         + std::to_string(res.width) 
                                         + "x" + std::to_string(res.height);
 }
 
-void FFMPEGConfigUI::UpdateBitrate()
+void ConfigurationScreen::UpdateBitrate()
 {
     const auto brInd = settingsIndices[FfmpegConfigUiElements::BITRATE];
     const auto br = bitratesKB[brInd];
@@ -379,33 +453,40 @@ void FFMPEGConfigUI::UpdateBitrate()
     settingsText[FfmpegConfigUiElements::BITRATE].value = "Bitrate(KB/s):          " + std::to_string(br);
 }
 
-void FFMPEGConfigUI::UpdateVsync()
+void ConfigurationScreen::UpdateVsync()
 {
     const auto vsInd = settingsIndices[FfmpegConfigUiElements::VSYNC];
     const auto mode = vsyncModes[vsInd];
     settingsText[FfmpegConfigUiElements::VSYNC].value = "Vsync Mode:             " + std::string(vsyncModeToString(mode));
 }
 
-void FFMPEGConfigUI::UpdatePreset()
+void ConfigurationScreen::UpdatePreset()
 {
     const auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
     settingsText[FfmpegConfigUiElements::PRESET].value = "Encoder Preset:         " + PresetToString(preset);
 }
 
-void FFMPEGConfigUI::UpdateCRF()
+void ConfigurationScreen::UpdateCRF()
 {
     const auto crf = settingsIndices[FfmpegConfigUiElements::CRF];
     settingsText[FfmpegConfigUiElements::CRF].value = "Quality Control Factor: " + std::to_string(crf) + " " + crfToString(crf);
 }
 
-void FFMPEGConfigUI::UpdateCodec()
+void ConfigurationScreen::UpdateCodec()
 {
     const auto codec = (VideoCodecMode)settingsIndices[FfmpegConfigUiElements::CODEC];
     settingsText[FfmpegConfigUiElements::CODEC].value = "Video Codec:            " + VideoCodecModeToString(codec);
 }
 
-void FFMPEGConfigUI::UpdateHWAccel()
+void ConfigurationScreen::UpdateHWAccel()
 {
     const auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
     settingsText[FfmpegConfigUiElements::HWACCEL].value = "Hardware Accel Mode:    " + HWAccelToString(hwaccel);
 }
+
+void ConfigurationScreen::UpdateMouseSensitivity()
+{
+    const auto mouseSens = settingsIndices[FfmpegConfigUiElements::MOUSE_SENSITIVITY];
+    settingsText[FfmpegConfigUiElements::MOUSE_SENSITIVITY].value = "Mouse Sensitivity:      " + std::to_string(mouseSens);
+}
+

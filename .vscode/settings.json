@@ -58,6 +58,7 @@
         "stop_token": "cpp",
         "iomanip": "cpp",
         "filesystem": "cpp",
-        "codecvt": "cpp"
+        "codecvt": "cpp",
+        "map": "cpp"
     }
 }

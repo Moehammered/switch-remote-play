@@ -9,4 +9,4 @@
 
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket);
 
-std::thread StartGamepadListener(std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port);
+std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port);

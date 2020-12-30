@@ -57,12 +57,20 @@ typedef enum {
     KEY_SR = KEY_SR_LEFT | KEY_SR_RIGHT,                        ///< SR on Left or Right Joy-Con
 } Switch_HidControllerKeys;
 
-struct GamepadDataPayload
+typedef struct HidVector {
+    float x;
+    float y;
+    float z;
+} HidVector;
+
+struct alignas(8) GamepadDataPayload
 {
-    uint32_t    keys;
-    int32_t     ljx, ljy;
-    int32_t     rjx, rjy;
-    char padding[32 - (sizeof(uint32_t) + sizeof(int32_t) * 4)];
+    uint32_t keys;
+    int32_t ljx, ljy;
+    int32_t rjx, rjy;
+    HidVector gryo;
+    HidVector accelerometer;
+    char padding[64 - sizeof(uint32_t) - sizeof(int32_t) * 4 - sizeof(HidVector) * 2];
 };
 
-const int GamepadPayloadSize = sizeof(GamepadDataPayload);
+auto constexpr GamepadDataPayloadSize = sizeof(GamepadDataPayload);
