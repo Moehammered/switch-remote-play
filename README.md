@@ -59,7 +59,7 @@ Tested on:
 
 ### Stream Performance
 
-The stream performance is heavily dependent on network connectivity and your PC CPU performance. Configuration settings will need to be played with the find what works well with your network + PC environment. 
+The stream performance is heavily dependent on network connectivity and your PC CPU performance. Configuration settings will need to be played with the find what works well with your network + PC environment.
 
 I recommend playing with the 'Encoder Preset' and 'Quality Control Factor' values while keeping bitrate at 8192 or less.
 

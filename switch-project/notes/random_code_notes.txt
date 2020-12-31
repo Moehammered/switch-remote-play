@@ -1,3 +1,6 @@
+Debugging crashes using crash_reports
+$DEVKITPRO/devkitA64/bin/aarch64-none-elf-addr2line -e switch-remote-play.elf -f -p -C -a 0x0
+
 stopping the application from sleeping and stopping it from exiting (for 15 seconds, then it times out)    
     
     // appletLockExit(); //don't let the applet force close till we cleanup (Will force close if cleanup takes longer than 15s)

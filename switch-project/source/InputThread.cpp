@@ -66,7 +66,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
         auto delta = (now - last)/NANO_TO_SECONDS;
         auto quitHeldTime = 0.0;
 
-        auto const sleepDuration = std::chrono::duration<int, std::milli>(10);
+        auto const sleepDuration = std::chrono::duration<int, std::milli>(5);
 
         auto retryCount = 10;
         while(appletMainLoop())

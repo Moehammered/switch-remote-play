@@ -17,3 +17,42 @@ System resources (pl and rfs)
             otherwise the app will crash HB menu if opened consecutively
     rfsInit is the same as well
 
+FFMPEG Decoder notes
+The decoder by default doesn't set all properties in our favor.
+The below is a dump of the default decoder that is setup and 
+some flags that can be set to help performance because in our case
+we always decode the frame that was last sent over the network
+
+For more info read up on the AVCodecContext struct
+    https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#a7651614f4309122981d70e06a4b42fcb
+
+
+--- [Found Decoder default settings] ---
+HW Accel Flags
+    IGNORE HW SUPPORT LEVEL
+
+Flag 1
+   NONE
+Flag 2
+   NONE
+Skip Loop Filter: discard useless packets like 0 size packets in avi
+
+Thread Count: 1
+Threading Type
+    Unknown thread_type: 3
+
+--- [Decoder settings after alteration] ---
+HW Accel Flags
+    IGNORE HW SUPPORT LEVEL
+
+Flag 1
+    FORCE LOW DELAY
+
+Flag 2
+    FAST - ENABLE SPEEDUPS
+
+Skip Loop Filter: discard all
+
+Thread Count: 4
+Threading Type
+    SLICE: Decode more slices of a SINGLE frame at once
