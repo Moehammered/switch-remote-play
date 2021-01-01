@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <processthreadsapi.h>
 
+void SetParentDirectory(std::string path);
+
 std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string const ip, uint16_t port);
 
 std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::string const ip, uint16_t port);

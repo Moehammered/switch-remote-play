@@ -1,10 +1,11 @@
 #include "FFMPEGHelper.h"
-#include <Shlwapi.h>
 #include <iostream>
 #include <sstream>
 
 auto ffmpegProcessFlag{ 0 }; // 0 - in parent process window
 auto audioProcessFlag{ CREATE_NO_WINDOW };
+std::string parentDirectory{};
+std::string ffmpegPath{};
 
 std::string PresetToString(EncoderPreset preset)
 {
@@ -58,15 +59,18 @@ std::string HWAccelToString(HWAccelMode mode)
     }
 }
 
+void SetParentDirectory(std::string path)
+{
+    parentDirectory = path;
+    ffmpegPath = path + "\\ffmpeg.exe";
+}
+
 // Generate the command line argument string to execute ffmpeg
 std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string const ip, uint16_t port)
 {
     using namespace std;
 
-    char filePath[MAX_PATH];
-    GetModuleFileNameA(NULL, filePath, MAX_PATH);
-    PathRemoveFileSpecA(filePath);
-    PathCombineA(filePath, filePath, "ffmpeg.exe");
+    auto filePath = ffmpegPath;
 
     auto vsyncMode = "1";
     switch (config.vsyncMode)
@@ -118,10 +122,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
 {
     using namespace std;
 
-    char filePath[MAX_PATH];
-    GetModuleFileNameA(NULL, filePath, MAX_PATH);
-    PathRemoveFileSpecA(filePath);
-    PathCombineA(filePath, filePath, "ffmpeg.exe");
+    auto filePath = ffmpegPath;
 
     auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
     auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";

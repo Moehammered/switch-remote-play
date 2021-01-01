@@ -6,7 +6,6 @@
 #include "network/NetworkDiscovery.h"
 #include "SDL_FontCache.h"
 #include "ui/ConfigurationScreen.h"
-#include "ui/FfmpegConfigRenderer.h"
 
 enum MenuScreen : int32_t
 {
@@ -25,10 +24,8 @@ SDL_Color constexpr white = {255, 255, 255, 255};
 
 void NextScreen();
 void PreviousScreen();
-void SelectNext();
-void SelectPrevious();
-void IncreaseSetting();
-void DecreaseSetting();
+
+void ProcessScreenInput(PadState const & pad);
 
 void SetupMainScreen();
 

@@ -2,7 +2,7 @@
 #define __CONFIGURATIONSCREEN_H__
 
 #include <array>
-#include <SDL2/SDL_render.h>
+#include "Menu.h"
 #include "Text.h"
 #include "../network/NetworkData.h"
 
@@ -27,15 +27,18 @@ enum FfmpegConfigUiElements : int32_t
     CONFIG_COUNT
 };
 
-class ConfigurationScreen
+class ConfigurationScreen : Menu
 {
     public:
         ConfigurationScreen();
+
+        void ProcessInput(PadState const & pad) override;
+        void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
+
         void IncreaseSetting();
         void DecreaseSetting();
         void SelectNext();
         void SelectPrevious();
-        void Render(SDL_Renderer* renderer, FC_Font* font);
         FFMPEG_Config const Settings();
 
     private:

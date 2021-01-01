@@ -41,7 +41,7 @@ Text const streamPendingText{
     .value = "Stream Pending Connection..." 
 };
 ConfigurationScreen configurator;
-FfmpegConfigRenderer configRenderer;
+NetworkMenu networkScreen;
 MenuScreen currentMenu {MAIN};
 Configuration config;
 
@@ -65,7 +65,6 @@ void UpdateScreens()
     }
 
     config = Configuration{};
-    configRenderer.Config(config.FFMPEGData());
 }
 
 void SetupMainScreen()
@@ -81,9 +80,34 @@ void SetupMainScreen()
     };
 
     config = Configuration{};
-    SetupManualNetworkScreen();
+    networkScreen = NetworkMenu{};
 
     UpdateScreens();
+}
+
+void ProcessScreenInput(PadState const & pad)
+{
+    auto kDown = padGetButtonsDown(&pad);
+
+    if(kDown & KEY_ZL)
+        PreviousScreen();
+    else if(kDown & KEY_ZR)
+        NextScreen();
+
+    switch(currentMenu)
+    {
+        default:
+        case MAIN:
+        break;
+
+        case CONFIG:
+            configurator.ProcessInput(pad);
+        break;
+
+        case IP_SET:
+            networkScreen.ProcessInput(pad);
+        break;
+    }
 }
 
 void NextScreen()
@@ -108,90 +132,6 @@ void PreviousScreen()
     UpdateScreens();
 }
 
-void SelectNext()
-{
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-            // render current settings and start button
-            
-        break;
-
-        case CONFIG:
-            configurator.SelectNext();
-        break;
-
-        case IP_SET:
-            // render manual IP setting
-            SelectNextSegment();
-        break;
-    }
-}
-
-void SelectPrevious()
-{
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-            // render current settings and start button
-            
-        break;
-
-        case CONFIG:
-            configurator.SelectPrevious();
-        break;
-
-        case IP_SET:
-            // render manual IP setting
-            SelectPreviousSegment();
-        break;
-    }
-}
-
-void IncreaseSetting()
-{
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-            // render current settings and start button
-            
-        break;
-
-        case CONFIG:
-            configurator.IncreaseSetting();
-        break;
-
-        case IP_SET:
-            // render manual IP setting
-            IncreaseSegment();
-        break;
-    }
-}
-
-void DecreaseSetting()
-{
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-            // render current settings and start button
-            
-        break;
-
-        case CONFIG:
-            configurator.DecreaseSetting();
-        break;
-
-        case IP_SET:
-            // render manual IP setting
-            DecreaseSegment();
-        break;
-    }
-}
-
 void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
 {
     title.Render(renderer, systemFont);
@@ -202,9 +142,6 @@ void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
     {
         default:
         case MAIN:
-            // render current settings and start button
-            // hide config renderer screen since it does nothing for now
-            //configRenderer.Render(renderer, systemFont);
             placeholderInstructions.Render(renderer, systemFont);
         break;
 
@@ -214,16 +151,16 @@ void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
 
         case IP_SET:
             // render manual IP setting
-            RenderNetworkConfigScreen(renderer, systemFont);
+            networkScreen.Render(renderer, systemFont);
         break;
     }
 }
 
 void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const * network)
 {
-    if(ManualIPMode())
+    if(networkScreen.UseManualIP())
     {
-        hostConnectionText.value = "Host IP: (Manual)" + ManualIPAddress();
+        hostConnectionText.value = "Host IP: (Manual)" + networkScreen.ManualIPAddress();
         hostConnectionText.Render(renderer, systemFont, orange);
     }
     else if(network != nullptr && network->HostFound())
@@ -245,9 +182,9 @@ void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFo
 
 void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const & network)
 {
-    if(ManualIPMode())
+    if(networkScreen.UseManualIP())
     {
-        hostConnectionText.value = "Host IP: (Manual)" + ManualIPAddress();
+        hostConnectionText.value = "Host IP: (Manual)" + networkScreen.ManualIPAddress();
         hostConnectionText.Render(renderer, systemFont, orange);
     }
     else if(network.HostFound())
@@ -283,10 +220,10 @@ FFMPEG_Config const GetFfmpegSettings()
 
 bool UseManualIP()
 {
-    return ManualIPMode();
+    return networkScreen.UseManualIP();
 }
 
 std::string const GetManualIPAddress()
 {
-    return ManualIPAddress();
+    return networkScreen.ManualIPAddress();
 }

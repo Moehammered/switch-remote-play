@@ -3,7 +3,6 @@
 #include <iostream>
 #include "../system/Configuration.h"
 
-SDL_Color constexpr highlight {.r = 200, .g = 200, .b = 50, .a = 255};
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};
 constexpr int maxCRF = 30;
@@ -129,7 +128,7 @@ constexpr const char* vsyncModeToString(const int16_t mode)
 }
 
 ConfigurationScreen::ConfigurationScreen() 
-    : settingIndex(0), settingsIndices{}, settingsText{}
+    : Menu(), settingIndex(0), settingsIndices{}, settingsText{}
 {
     const int settingTextX = 100;
     const int yOffset = 200;
@@ -218,6 +217,21 @@ ConfigurationScreen::ConfigurationScreen()
     UpdateCodec();
     UpdateHWAccel();
     UpdateMouseSensitivity();
+}
+
+void ConfigurationScreen::ProcessInput(PadState const & pad)
+{
+    auto kDown = padGetButtonsDown(&pad);
+
+    if(kDown & KEY_DUP)
+        SelectPrevious();
+    else if(kDown & KEY_DDOWN)
+        SelectNext();
+
+    if(kDown & KEY_A)
+        IncreaseSetting();
+    else if(kDown & KEY_B)
+        DecreaseSetting();
 }
 
 void ConfigurationScreen::IncreaseSetting()
@@ -376,7 +390,7 @@ void ConfigurationScreen::SelectPrevious()
         settingIndex = settingsIndices.size() - 1;
 }
 
-void ConfigurationScreen::Render(SDL_Renderer* renderer, FC_Font* font)
+void ConfigurationScreen::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
     //use this later to render a rect behind the text elements
     //SDL_SetRenderDrawColor(renderer, backgroundColour.r, backgroundColour.g, backgroundColour.b, backgroundColour.a);
@@ -386,7 +400,7 @@ void ConfigurationScreen::Render(SDL_Renderer* renderer, FC_Font* font)
         if(i != settingIndex)
             settingsText[i].Render(renderer, font);
         else
-            settingsText[i].Render(renderer, font, highlight);
+            settingsText[i].Render(renderer, font, highlightColour);
     }
 }
 

@@ -16,7 +16,7 @@
 #include "Broadcast.h"
 #include "MasterVolume.h"
 
-auto constexpr applicationVersion = "0.7.4";
+auto constexpr applicationVersion = "0.7.5";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -24,8 +24,23 @@ Broadcast* switchBroadcastListener{ nullptr };
 Connection* switchHandshakeConnection{ nullptr };
 Connection* switchCommandListener{ nullptr };
 
+std::string ExtractParentDirectory(const char* executablePath)
+{
+    std::string fullPath{ executablePath };
+
+    for(auto i = fullPath.size() - 1; i > 0; --i)
+    {
+        if (fullPath[i] == '\\' || fullPath[i] == '/')
+            return fullPath.substr(0, i);
+    }
+
+    return fullPath;
+}
+
 int main(int argc, char* argv[])
 {
+    SetParentDirectory(ExtractParentDirectory(argv[0]));
+
     if (!WinsockReady())
     {
         std::cout << "Failed to initialise windows network sockets. Please check your firewall rules for ports and try again or try restarting your machine.\n";
