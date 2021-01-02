@@ -47,7 +47,7 @@ ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered
 ICON		:=	switch-remote-play-icon.jpg
-APP_VERSION	:=	0.7.5
+APP_VERSION	:=	0.8.0
 
 
 #---------------------------------------------------------------------------------
