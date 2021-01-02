@@ -40,7 +40,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
    return data;
 }
 
-std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port, ControllerType controllerType)
+std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port, ControllerMode controllerMode)
 {
    using namespace std;
    thread workerThread{};
@@ -69,13 +69,14 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
 
             IVirtualController* controller = nullptr;
 
-            switch (controllerType) {
-            case ControllerType::DS4:
-               controller = new DS4Controller{};
+            switch (controllerMode) {
+            default:
+            case ControllerMode::X360:
+               controller = new X360Controller{};
                break;
 
-            default:
-               controller = new X360Controller{};
+            case ControllerMode::DS4:
+               controller = new DS4Controller{};
                break;
             }
 

@@ -2,6 +2,7 @@
 #include "ui/Menu.h"
 #include "ui/ConfigurationScreen.h"
 #include "ui/ManualNetworkConfig.h"
+#include "ui/ControllerMenu.h"
 #include <iostream>
 #include "system/Configuration.h"
 
@@ -41,6 +42,7 @@ Text const streamPendingText{
     .value = "Stream Pending Connection..." 
 };
 ConfigurationScreen configurator;
+ControllerMenu controllerMenu;
 NetworkMenu networkScreen;
 MenuScreen currentMenu {MAIN};
 Configuration config;
@@ -56,6 +58,10 @@ void UpdateScreens()
 
         case CONFIG:
             currentScreenText.value = "Configuration Screen";
+        break;
+
+        case CONTROLLER:
+            currentScreenText.value = "Controller Screen";
         break;
 
         case IP_SET:
@@ -80,6 +86,7 @@ void SetupMainScreen()
     };
 
     config = Configuration{};
+    controllerMenu = ControllerMenu{};
     networkScreen = NetworkMenu{};
 
     UpdateScreens();
@@ -102,6 +109,10 @@ void ProcessScreenInput(PadState const & pad)
 
         case CONFIG:
             configurator.ProcessInput(pad);
+        break;
+
+        case CONTROLLER:
+            controllerMenu.ProcessInput(pad);
         break;
 
         case IP_SET:
@@ -147,6 +158,10 @@ void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
 
         case CONFIG:
             configurator.Render(renderer, systemFont);
+        break;
+
+        case CONTROLLER:
+            controllerMenu.Render(renderer, systemFont);
         break;
 
         case IP_SET:
@@ -216,6 +231,11 @@ void RenderPendingConnectionScreen(SDL_Renderer * const renderer, FC_Font * cons
 FFMPEG_Config const GetFfmpegSettings()
 {
     return configurator.Settings();
+}
+
+Controller_Config const GetControllerSettings()
+{
+   return controllerMenu.Settings();
 }
 
 bool UseManualIP()

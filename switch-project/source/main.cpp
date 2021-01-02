@@ -206,9 +206,11 @@ int main(int argc, char **argv)
                     else
                         ip = network.IPAddress();
                     auto ffmpegConfig = GetFfmpegSettings();
+                    auto controllerConfig = GetControllerSettings();
                     auto configfile = Configuration{};
                     configfile.SaveFFMPEG(ffmpegConfig);
-                    RunStartConfiguredStreamCommand(ip, hostCommandPort, GetFfmpegSettings());
+                    configfile.SaveController(controllerConfig);
+                    RunStartConfiguredStreamCommand(ip, hostCommandPort, GetFfmpegSettings(), GetControllerSettings());
                     auto streamOn = stream.WaitForStream(videoPort);
 
                     if(streamOn)

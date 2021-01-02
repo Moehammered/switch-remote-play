@@ -29,6 +29,9 @@ public:
     FFMPEG_Config const FFMPEGData() const;
     bool SaveFFMPEG(FFMPEG_Config const data);
 
+    Controller_Config const ControllerData() const;
+    bool SaveController(Controller_Config const data);
+
 private:
     auto static constexpr parentFolder = "sdmc:/switch/switch-remote-play";
     auto static constexpr filename = "config.ini";

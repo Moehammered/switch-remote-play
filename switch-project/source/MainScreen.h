@@ -11,6 +11,7 @@ enum MenuScreen : int32_t
 {
     MAIN,
     CONFIG,
+    CONTROLLER,
     IP_SET,
     COUNT
 };
@@ -37,6 +38,8 @@ void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFo
 void RenderPendingConnectionScreen(SDL_Renderer * const renderer, FC_Font * const systemFont);
 
 FFMPEG_Config const GetFfmpegSettings();
+
+Controller_Config const GetControllerSettings();
 
 bool UseManualIP();
 

@@ -49,7 +49,11 @@ bool SendCode(const int connectionSock, Command commandCode)
     config.scaleX = 0; config.scaleY = 0;
     config.bitrateKB = 0;
    
+    Controller_Config controllerConfig;
+    controllerConfig.controllerMode = ControllerMode::X360;
+
     payload.configData = config;
+    payload.controllerConfig = controllerConfig;
 
     char* dataPtr = (char*)&payload;
 
