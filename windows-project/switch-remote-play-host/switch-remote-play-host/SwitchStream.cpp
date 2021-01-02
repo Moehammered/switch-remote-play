@@ -148,12 +148,11 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                             else if (padData.keys != 0x0 || (padData.ljx | padData.ljy | padData.rjx | padData.rjy) != 0)
                             {
                                 //update controller
-                                auto ds4input = ConvertToDS4(padData);
-                                //PrintDS4Conversion(ds4input);
-                                controller.SetButtons(ds4input.buttons);
-                                controller.SetDpad(ds4input.directions);
-                                controller.SetAnalogAxis(ds4input.lx, ds4input.ly, ds4input.rx, ds4input.ry);
-                                controller.SetShoulderTriggers(ds4input.lt, ds4input.rt);
+                                auto input = ConvertToXUSB(padData);
+                                PrintXUSBConversion(input);
+                                controller.SetButtons(input.buttons);
+                                controller.SetAnalogAxis(input.lx, input.ly, input.rx, input.ry);
+                                controller.SetShoulderTriggers(input.lt, input.rt);
 
                                 controller.UpdateController();
                             }

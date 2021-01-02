@@ -4,60 +4,55 @@
 #include <string>
 
 const Switch_HidControllerKeys ButtonsToCheck[] = {
-	KEY_A, KEY_B, KEY_Y, KEY_X,
+	KEY_A, KEY_B, KEY_X, KEY_Y,
 	KEY_L, KEY_R, KEY_MINUS, KEY_PLUS,
-	KEY_LSTICK, KEY_RSTICK
+	KEY_LSTICK, KEY_RSTICK,
+	KEY_DUP, KEY_DDOWN, KEY_DLEFT, KEY_DRIGHT
 };
 
-std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_DS4_BTNS{
-	{ KEY_A, DS4_BUTTON_CIRCLE },
-	{ KEY_B, DS4_BUTTON_CROSS },
-	{ KEY_X, DS4_BUTTON_TRIANGLE },
-	{ KEY_Y, DS4_BUTTON_SQUARE },
-	{ KEY_L, DS4_BUTTON_SHOULDER_LEFT },
-	{ KEY_R, DS4_BUTTON_SHOULDER_RIGHT },
-	{ KEY_MINUS, DS4_BUTTON_SHARE },
-	{ KEY_PLUS , DS4_BUTTON_OPTIONS },
-	{ KEY_LSTICK , DS4_BUTTON_THUMB_LEFT },
-	{ KEY_RSTICK , DS4_BUTTON_THUMB_RIGHT }
+std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BTNS{
+	{ KEY_A, XUSB_GAMEPAD_B },
+	{ KEY_B, XUSB_GAMEPAD_A },
+	{ KEY_X, XUSB_GAMEPAD_Y },
+	{ KEY_Y, XUSB_GAMEPAD_X },
+	{ KEY_L, XUSB_GAMEPAD_LEFT_SHOULDER },
+	{ KEY_R, XUSB_GAMEPAD_RIGHT_SHOULDER },
+	{ KEY_MINUS, XUSB_GAMEPAD_GUIDE },
+	{ KEY_PLUS , XUSB_GAMEPAD_START },
+	{ KEY_LSTICK , XUSB_GAMEPAD_LEFT_THUMB },
+	{ KEY_RSTICK , XUSB_GAMEPAD_RIGHT_THUMB },
+	{ KEY_DUP   , XUSB_GAMEPAD_DPAD_UP },
+	{ KEY_DDOWN , XUSB_GAMEPAD_DPAD_DOWN },
+	{ KEY_DLEFT , XUSB_GAMEPAD_DPAD_LEFT },
+	{ KEY_DRIGHT, XUSB_GAMEPAD_DPAD_RIGHT },
 };
 
-const std::unordered_map < DS4_BUTTONS, std::string , std::hash<uint32_t> > DS4_BTN_STRINGS{
-	{ DS4_BUTTON_CIRCLE, "CIRCLE" },
-	{ DS4_BUTTON_CROSS, "CROSS" },
-	{ DS4_BUTTON_TRIANGLE, "TRIANGLE" },
-	{ DS4_BUTTON_SQUARE, "SQUARE" },
-	{ DS4_BUTTON_SHOULDER_LEFT, "L1" },
-	{ DS4_BUTTON_SHOULDER_RIGHT, "R1" },
-	{ DS4_BUTTON_SHARE, "SHARE" },
-	{ DS4_BUTTON_OPTIONS, "OPTIONS" },
-	{ DS4_BUTTON_THUMB_LEFT, "LEFT STICK" },
-	{ DS4_BUTTON_THUMB_RIGHT, "RIGHT STICK" }
+const std::unordered_map < XUSB_BUTTON, std::string, std::hash<uint32_t> > XUSB_BTN_STRINGS{
+	{ XUSB_GAMEPAD_A, "A" },
+	{ XUSB_GAMEPAD_B, "B" },
+	{ XUSB_GAMEPAD_X, "X" },
+	{ XUSB_GAMEPAD_Y, "Y" },
+	{ XUSB_GAMEPAD_LEFT_SHOULDER , "L1" },
+	{ XUSB_GAMEPAD_RIGHT_SHOULDER, "R1" },
+	{ XUSB_GAMEPAD_GUIDE, "GUIDE" },
+	{ XUSB_GAMEPAD_START, "START" },
+	{ XUSB_GAMEPAD_LEFT_THUMB , "LEFT STICK" },
+	{ XUSB_GAMEPAD_RIGHT_THUMB, "RIGHT STICK" },
+	{ XUSB_GAMEPAD_DPAD_UP   , "DPAD UP" },
+	{ XUSB_GAMEPAD_DPAD_DOWN , "DPAD DOWN" },
+	{ XUSB_GAMEPAD_DPAD_LEFT , "DPAD LEFT" },
+	{ XUSB_GAMEPAD_DPAD_RIGHT, "DPAD RIGHT" },
 };
 
-const std::unordered_map < DS4_DPAD_DIRECTIONS, std::string, std::hash<uint32_t> > DS4_DIR_STRINGS{
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_NONE, "NONE" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_EAST, "L" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_WEST, "R" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_NORTH, "U" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_SOUTH, "D" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_NORTHEAST, "UL" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_NORTHWEST, "UR" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_SOUTHEAST, "DL" },
-	{ DS4_DPAD_DIRECTIONS::DS4_BUTTON_DPAD_SOUTHWEST, "DR" }
-};
-
-
-DS4InputData ConvertToDS4(GamepadDataPayload const data)
+XUSBInputData ConvertToXUSB(GamepadDataPayload const data)
 {
-	DS4InputData converted = {};
+	XUSBInputData converted = {};
 
-	converted.directions = ConvertDpad(data);
 	converted.buttons = ConvertButtons(data);
 	converted.lx = ConvertAnalog(data.ljx);
-	converted.ly = ConvertAnalog(-data.ljy);
+	converted.ly = ConvertAnalog(data.ljy);
 	converted.rx = ConvertAnalog(data.rjx);
-	converted.ry = ConvertAnalog(-data.rjy);
+	converted.ry = ConvertAnalog(data.rjy);
 
 	converted.lt = 0; converted.rt = 0;
 	if (data.keys & KEY_ZL)
@@ -68,20 +63,13 @@ DS4InputData ConvertToDS4(GamepadDataPayload const data)
 	return converted;
 }
 
-void PrintDS4Conversion(DS4InputData const data)
+void PrintXUSBConversion(XUSBInputData const data)
 {
 	auto dpadStream = std::stringstream();
 
-	dpadStream << "Direction: ";
-	auto dpadFind = DS4_DIR_STRINGS.find(data.directions);
-	if (dpadFind != DS4_DIR_STRINGS.end())
-	{
-		dpadStream << dpadFind->second;
-	}
-
 	auto btns = std::stringstream();
 	btns << "Buttons: ";
-	for (auto b : DS4_BTN_STRINGS)
+	for (auto b : XUSB_BTN_STRINGS)
 	{
 		auto mask = (USHORT)b.first & data.buttons;
 		if (mask != 0)
@@ -96,42 +84,6 @@ void PrintDS4Conversion(DS4InputData const data)
 	std::cout << dpadStream.str() << std::endl << btns.str() << std::endl << axis.str() << std::endl << std::endl;
 }
 
-DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload const data)
-{
-	USHORT dpadInput = 0;
-	//handle dpad
-	if (data.keys & KEY_DDOWN)
-	{
-		if (data.keys & KEY_DLEFT)
-			dpadInput = DS4_BUTTON_DPAD_SOUTHWEST;
-		else if (data.keys & KEY_DRIGHT)
-			dpadInput = DS4_BUTTON_DPAD_SOUTHEAST;
-		else
-			dpadInput = DS4_BUTTON_DPAD_SOUTH;
-	}
-	else if (data.keys & KEY_DUP)
-	{
-		if (data.keys & KEY_DLEFT)
-			dpadInput = DS4_BUTTON_DPAD_NORTHWEST;
-		else if (data.keys & KEY_DRIGHT)
-			dpadInput = DS4_BUTTON_DPAD_NORTHEAST;
-		else
-			dpadInput = DS4_BUTTON_DPAD_NORTH;
-	}
-	else
-	{
-		// check for left / right
-		if (data.keys & KEY_DLEFT)
-			dpadInput = DS4_BUTTON_DPAD_WEST;
-		else if (data.keys & KEY_DRIGHT)
-			dpadInput = DS4_BUTTON_DPAD_EAST;
-		else
-			dpadInput = DS4_BUTTON_DPAD_NONE;
-	}
-
-	return (DS4_DPAD_DIRECTIONS)dpadInput;
-}
-
 USHORT ConvertButtons(GamepadDataPayload const data)
 {
 	USHORT btns = {};
@@ -139,27 +91,31 @@ USHORT ConvertButtons(GamepadDataPayload const data)
 	for (auto btn : ButtonsToCheck)
 	{
 		if ((btn & data.keys) != 0x0)
-			btns |= SWITCH_TO_DS4_BTNS[btn];
+			btns |= SWITCH_TO_XUSB_BTNS[btn];
 	}
 
 	return btns;
 }
 
-BYTE ConvertAnalog(int32_t const switchAnalog)
+SHORT ConvertAnalog(int32_t const switchAnalog)
 {
-	//std::cout << "Raw switch analog: " << switchAnalog;
+#ifndef RELEASE
+	std::cout << "Raw switch analog: " << switchAnalog;
+#endif
 	auto absolute = switchAnalog < 0 ? -switchAnalog : switchAnalog;
 	const auto scale = (double)(0xFFFF / 2.0);
 	double magnitude = absolute / scale;
-	double scaled = magnitude * 128;
-	BYTE result = 0x80;
+	double scaled = magnitude * 32768;
+	SHORT result = 0x0000;
 
 	if (switchAnalog < 0)
-		result -= (BYTE)scaled;
+		result -= (SHORT)scaled;
 	else
-		result += (BYTE)scaled;
+		result += (SHORT)scaled;
 
-	//std::cout << ", scaled: " << scaled << "(" << (USHORT)result << ")" << std::endl;
+#ifndef RELEASE
+	std::cout << ", scaled: " << scaled << "(" << (USHORT)result << ")" << std::endl;
+#endif
 	return result;
 }
 
@@ -182,7 +138,7 @@ bool VirtualController::Create()
 		return false;
 	}
 
-	controllerPad = vigem_target_ds4_alloc();
+	controllerPad = vigem_target_x360_alloc();
 
 	const auto pluginEvent = vigem_target_add(controllerClient, controllerPad);
 
@@ -196,15 +152,10 @@ bool VirtualController::Create()
 		return false;
 	}
 
-	ZeroMemory(&controllerState, sizeof(DS4_REPORT));
-	DS4_REPORT_INIT(&controllerState);
+	ZeroMemory(&controllerState, sizeof(XUSB_REPORT));
+	XUSB_REPORT_INIT(&controllerState);
 
 	return true;
-}
-
-void VirtualController::SetDpad(DS4_DPAD_DIRECTIONS directions)
-{
-	DS4_SET_DPAD(&controllerState, directions);
 }
 
 void VirtualController::SetButtons(USHORT btns)
@@ -212,25 +163,25 @@ void VirtualController::SetButtons(USHORT btns)
 	controllerState.wButtons = btns;
 }
 
-void VirtualController::SetAnalogAxis(BYTE leftX, BYTE leftY, BYTE rightX, BYTE rightY)
+void VirtualController::SetAnalogAxis(SHORT leftX, SHORT leftY, SHORT rightX, SHORT rightY)
 {
-	controllerState.bThumbLX = leftX; controllerState.bThumbLY = leftY;
-	controllerState.bThumbRX = rightX; controllerState.bThumbRY = rightY;
+	controllerState.sThumbLX = leftX; controllerState.sThumbLY = leftY;
+	controllerState.sThumbRX = rightX; controllerState.sThumbRY = rightY;
 }
 
 void VirtualController::SetShoulderTriggers(BYTE l, BYTE r)
 {
-	controllerState.bTriggerL = l; controllerState.bTriggerR = r;
+	controllerState.bLeftTrigger = l; controllerState.bRightTrigger = r;
 }
 
 void VirtualController::UpdateController()
 {
-	vigem_target_ds4_update(controllerClient, controllerPad, controllerState);
+	vigem_target_x360_update(controllerClient, controllerPad, controllerState);
 }
 
 void VirtualController::ResetController()
 {
-	DS4_REPORT_INIT(&controllerState);
+	XUSB_REPORT_INIT(&controllerState);
 }
 
 void VirtualController::Disconnect()
