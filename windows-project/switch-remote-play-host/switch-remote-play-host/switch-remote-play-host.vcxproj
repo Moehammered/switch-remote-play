@@ -159,12 +159,13 @@
     <ClCompile Include="AtomicTest.cpp" />
     <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
-    <ClCompile Include="VirtualController.cpp" />
+    <ClCompile Include="X360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtomicTest.h" />

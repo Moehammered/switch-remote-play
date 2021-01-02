@@ -3,6 +3,12 @@
 #include <windows.h>
 #include <stdint.h>
 
+enum ControllerType : int16_t
+{
+   X360 = 0,
+   DS4
+};
+
 enum EncoderPreset : int16_t
 {
     ULTRAFAST = 0,
