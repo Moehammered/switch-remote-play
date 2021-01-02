@@ -62,12 +62,11 @@ struct alignas(8) FFMPEG_Config
     HWAccelMode     hwaccelMode;
     VideoCodecMode  videoCodecMode;
     int16_t        mouseSensitivity;
-    int16_t        controllerType;
 };
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
 
-struct Controller_Config
+struct alignas(2) Controller_Config
 {
     ControllerMode   controllerMode;
 };

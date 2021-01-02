@@ -1,4 +1,4 @@
-#include "ControllerScreen.h"
+#include "ControllerMenu.h"
 #include <string>
 #include <iostream>
 #include "../system/Configuration.h"
@@ -37,7 +37,7 @@ ControllerMenu::ControllerMenu()
     auto config = Configuration{};
     auto controller = config.ControllerData();
 
-    settingsIndices[ControllerMenu::CONTROLLER_MODE] = controller.controllerMode;
+    settingsIndices[ControllerMenuItems::CONTROLLER_MODE] = controller.controllerMode;
 
     UpdateControllerMode();
 }

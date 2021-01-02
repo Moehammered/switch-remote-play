@@ -10,7 +10,7 @@
 enum ControllerMenuItems : int32_t
 {
     CONTROLLER_MODE = 0,
-    CONFIG_COUNT
+    CONTROLLER_MENU_COUNT
 };
 
 class ControllerMenu : Menu
@@ -30,9 +30,9 @@ class ControllerMenu : Menu
     private:
         int settingIndex;
 
-        std::array<int, ControllerMenuItems::CONFIG_COUNT> settingsIndices;
+        std::array<int, ControllerMenuItems::CONTROLLER_MENU_COUNT> settingsIndices;
 
-        std::array<Text, ControllerMenuItems::CONFIG_COUNT> settingsText;
+        std::array<Text, ControllerMenuItems::CONTROLLER_MENU_COUNT> settingsText;
 
         void UpdateControllerMode();
 };

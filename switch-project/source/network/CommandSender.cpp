@@ -53,7 +53,7 @@ bool SendCode(const int connectionSock, Command commandCode)
     controllerConfig.controllerMode = ControllerMode::X360;
 
     payload.configData = config;
-    payload.controllerConfig = controllerConfig;
+    payload.controllerData = controllerConfig;
 
     char* dataPtr = (char*)&payload;
 
