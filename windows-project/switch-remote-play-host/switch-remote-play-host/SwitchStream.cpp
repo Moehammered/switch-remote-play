@@ -163,6 +163,7 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                      {
                         controller->ConvertPayload(padData);
                         // controller.Print();
+                        controller->UpdateState();
                         controller->UpdateController();
                      }
                      else
@@ -199,6 +200,28 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                               mouseBtnFlags &= ~MOUSEEVENTF_RIGHTDOWN;
 
                               SendInput(1, &mouseInput, sizeof(INPUT));
+                           }
+
+                           lastTime = std::chrono::high_resolution_clock::now();
+                        }
+                     }
+                     else if (padData.keys == abxyToggleBtnCombo)
+                     {
+                        auto timePassed = std::chrono::high_resolution_clock::now() - lastTime;
+                        if (timePassed.count() >= mouseToggleNano)
+                        {
+                           controller->ResetController();
+                           controller->UpdateController();
+
+                           if (controller->abxyMap == ABXYMap::POS)
+                           {
+                              controller->abxyMap = ABXYMap::FUN;
+                              MessageBeep(MB_OK);
+                           }
+                           else
+                           {
+                              controller->abxyMap = ABXYMap::POS;
+                              MessageBeep(MB_ICONERROR);
                            }
 
                            lastTime = std::chrono::high_resolution_clock::now();

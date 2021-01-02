@@ -9,10 +9,13 @@
 #include "SwitchControlsDefinitions.h"
 #include <unordered_map>
 
-enum ABXYMap { POS, FUN, };
+enum class ABXYMap { POS, FUN, };
 
 class IVirtualController {
 public:
+      IVirtualController() : abxyMap(ABXYMap::POS), client(nullptr), pad(nullptr) {};
+   ABXYMap abxyMap;
+
    virtual bool Create() = 0;
    virtual void UpdateController() = 0;
    virtual void Print() = 0;
@@ -21,12 +24,7 @@ public:
    virtual void ResetController() = 0;
    virtual void Disconnect() = 0;
 
-   void SetABXYMap(ABXYMap map) {
-      abxyMap = map;
-   }
-
 protected:
-   ABXYMap abxyMap;
    PVIGEM_CLIENT client;
    PVIGEM_TARGET pad;
 };

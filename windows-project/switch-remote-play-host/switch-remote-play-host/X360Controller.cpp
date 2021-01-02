@@ -158,7 +158,7 @@ void X360Controller::Print()
 
 void X360Controller::ConvertPayload(GamepadDataPayload const data)
 {
-   buttons = ConvertButtons(data, ABXYMap::POS);
+   buttons = ConvertButtons(data, abxyMap);
    lx = ConvertAnalog(data.ljx);
    ly = ConvertAnalog(data.ljy);
    rx = ConvertAnalog(data.rjx);

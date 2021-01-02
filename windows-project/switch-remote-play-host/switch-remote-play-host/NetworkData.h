@@ -57,7 +57,7 @@ struct alignas(8) FFMPEG_Config
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
 
-struct Controller_Config
+struct alignas(2) Controller_Config
 {
     ControllerMode   controllerMode;
 };
