@@ -40,14 +40,14 @@ include $(DEVKITPRO)/libnx/switch_rules
 #TARGET		:=	$(notdir $(CURDIR))
 TARGET		:=	switch-remote-play
 BUILD		:=	build
-SOURCES		:=	source source/network source/ui source/system source/stream
+SOURCES		:=	source source/network source/ui source/system source/stream source/ffmpegHelpers
 DATA		:=	data
 INCLUDES	:=	include
 ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered
 ICON		:=	switch-remote-play-icon.jpg
-APP_VERSION	:=	0.7.5
+APP_VERSION	:=	0.7.6
 
 
 #---------------------------------------------------------------------------------

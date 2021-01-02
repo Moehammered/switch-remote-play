@@ -2,35 +2,10 @@
 
 #include <windows.h>
 #include <stdint.h>
-
-enum EncoderPreset : int16_t
-{
-    ULTRAFAST = 0,
-    VERYFAST,
-    FAST,
-    MEDIUM,
-    SLOW,
-    VERYSLOW,
-    ENCODER_PRESET_COUNT
-};
-
-enum HWAccelMode : int16_t
-{
-    AUTO = 0,
-    DXVA2,
-    CUDA,
-    VAAPI,
-    HWAccelMode_COUNT
-};
-
-enum VideoCodecMode : int16_t
-{
-    H264 = 0,
-    H264_AMF,
-    H264_NVENC,
-    H264_QSV,
-    VIDEOCODECMODE_COUNT
-};
+#include "EncoderPreset.h"
+#include "HWAccel.h"
+#include "VideoCodecMode.h"
+#include "VsyncMode.h"
 
 struct alignas(8) FFMPEG_Config
 {
@@ -40,28 +15,24 @@ struct alignas(8) FFMPEG_Config
     int16_t         scaleX;
     int16_t         scaleY;
     uint16_t        bitrateKB;
-    int16_t         vsyncMode;
+    VsyncMode       vsyncMode;
     int16_t         constantRateFactor;
     EncoderPreset   preset;
     HWAccelMode     hwaccelMode;
     VideoCodecMode  videoCodecMode;
-    int16_t        mouseSensitivity;
+    int16_t         mouseSensitivity;
 };
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
 
-enum class Command : int16_t
+enum Command : int16_t
 {
-    SHUTDOWN = 0xEEE,
-    UPDATE_FFMPEG_CONFIG = 0xADD,
-    START_STREAM = 0xCAD,
-    START_STREAM_LOW_LATENCY_30FPS = 0x030,
-    START_STREAM_LOW_LATENCY_VFPS = 0xA60,
-    START_STREAM_OK_LATENCY_60FPS = 0x060,
-    STOP_STREAM = 0xBAB,
-    CLOSE_SERVER = 0xAAA,
-    SHUTDOWN_PC = 0x0FF,
-    IGNORE_COMMAND = 0xFFF
+    SHUTDOWN = -1,
+    START_STREAM = 0,
+    STOP_STREAM,
+    CLOSE_SERVER,
+    SHUTDOWN_PC,
+    IGNORE_COMMAND
 };
 
 constexpr int COMMAND_CODE_SIZE = sizeof(Command);

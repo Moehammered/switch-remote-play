@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include "../system/Configuration.h"
+#include "../ffmpegHelpers/Resolution.h"
 
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};
@@ -30,66 +31,6 @@ constexpr std::array<const uint16_t, 20> bitratesKB = {
     mbToKb(8.5), mbToKb(9), mbToKb(9.5), mbToKb(10), mbToKb(11),
     mbToKb(12), mbToKb(13), mbToKb(14), mbToKb(15), mbToKb(16)
 };
-constexpr std::array<const int16_t, 5> vsyncModes = {
-    -1, 0, 1, 2, 3
-};
-
-std::string HWAccelToString(HWAccelMode mode)
-{
-    switch(mode)
-    {
-        case HWAccelMode::AUTO:
-            return "Auto (FFMPEG chooses best option)";
-        case HWAccelMode::DXVA2:
-            return "DXVA2 (Direct X)";
-        case HWAccelMode::VAAPI:
-            return "VAAPI (Intel/AMD - unsupported)";
-        case HWAccelMode::CUDA:
-            return "CUDA (NVENC Transcoder - unsupported)";
-
-        default:
-            return "unknown";
-    }
-}
-
-std::string VideoCodecModeToString(VideoCodecMode mode)
-{
-    switch(mode)
-    {
-        case VideoCodecMode::H264:
-            return "h264";
-        case VideoCodecMode::H264_AMF:
-            return "h264 AMF (AMD)";
-        case VideoCodecMode::H264_NVENC:
-            return "h264 NVENC (NVIDIA) [untested]";
-        case VideoCodecMode::H264_QSV:
-            return "h264 Quick Scan (Intel - requires Intel CPU) [untested]";
-        default:
-            return "unknown";
-    }
-}
-
-std::string PresetToString(EncoderPreset preset)
-{
-    switch(preset)
-    {
-        case EncoderPreset::ULTRAFAST:
-            return "ultra fast (bad quality)";
-        case EncoderPreset::VERYFAST:
-            return "very fast";
-        case EncoderPreset::FAST:
-            return "fast";
-        case EncoderPreset::MEDIUM:
-            return "medium (balanced quality)";
-        case EncoderPreset::SLOW:
-            return "slow";
-        case EncoderPreset::VERYSLOW:
-            return "very slow (best quality)";
-
-        default:
-            return "unknown";
-    }
-}
 
 const char* crfToString(int16_t value)
 {
@@ -103,33 +44,10 @@ const char* crfToString(int16_t value)
         return "Bad Quality";
 }
 
-constexpr const char* vsyncModeToString(const int16_t mode)
-{
-    switch(mode)
-    {
-        case -1:
-            return "auto (generally bad - ffmpeg decides.)";
-
-        case 0:
-            return "passthrough (render from timestamps)";
-
-        case 1:
-            return "constant frame rate (force fps - latency)";
-
-        case 2:
-            return "variable frame rate";
-
-        case 3:
-            return "drop time (render ignoring timestamps)";
-
-        default:
-            return "unknown";
-    }
-}
-
 ConfigurationScreen::ConfigurationScreen() 
     : Menu(), settingIndex(0), settingsIndices{}, settingsText{}
 {
+    title.value = "Configuration Settings";
     const int settingTextX = 100;
     const int yOffset = 200;
     const int ySpace = 45;
@@ -190,17 +108,7 @@ ConfigurationScreen::ConfigurationScreen()
     }
     settingsIndices[FfmpegConfigUiElements::BITRATE] = bitrateInd;
 
-    auto vsyncInd = 3;
-    for(auto i = 0U; i < vsyncModes.size(); ++i)
-    {
-        if(vsyncModes[i] == ffmpeg.vsyncMode)
-        {
-            vsyncInd = i;
-            break;
-        }
-    }
-    settingsIndices[FfmpegConfigUiElements::VSYNC] = vsyncInd;
-
+    settingsIndices[FfmpegConfigUiElements::VSYNC] = ffmpeg.vsyncMode;
     settingsIndices[FfmpegConfigUiElements::PRESET] = ffmpeg.preset;
     settingsIndices[FfmpegConfigUiElements::CRF] = ffmpeg.constantRateFactor;
     settingsIndices[FfmpegConfigUiElements::CODEC] = ffmpeg.videoCodecMode;
@@ -261,8 +169,8 @@ void ConfigurationScreen::IncreaseSetting()
         break;
 
         case FfmpegConfigUiElements::VSYNC:
-            if(++currInd >= vsyncModes.size())
-                currInd = 0;
+            if(++currInd >= VsyncMode::VSYNC_MODE_COUNT)
+                currInd = VsyncMode::VSYNC_AUTO;
         break;
 
         case FfmpegConfigUiElements::PRESET:
@@ -333,7 +241,7 @@ void ConfigurationScreen::DecreaseSetting()
 
         case FfmpegConfigUiElements::VSYNC:
             if(--currInd < 0)
-                currInd = vsyncModes.size() - 1;
+                currInd = VsyncMode::VSYNC_MODE_COUNT - 1;
         break;
 
         case FfmpegConfigUiElements::PRESET:
@@ -392,6 +300,7 @@ void ConfigurationScreen::SelectPrevious()
 
 void ConfigurationScreen::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
+    title.Render(renderer, font);
     //use this later to render a rect behind the text elements
     //SDL_SetRenderDrawColor(renderer, backgroundColour.r, backgroundColour.g, backgroundColour.b, backgroundColour.a);
     //sdl fill rect here
@@ -404,13 +313,13 @@ void ConfigurationScreen::Render(SDL_Renderer * const renderer, FC_Font * const 
     }
 }
 
-FFMPEG_Config const ConfigurationScreen::Settings()
+FFMPEG_Config const ConfigurationScreen::Settings() const
 {
     auto framerate = framerates[settingsIndices[FfmpegConfigUiElements::FRAMERATE]];
-    auto vsMode = vsyncModes[settingsIndices[FfmpegConfigUiElements::VSYNC]];
     auto bitrate = bitratesKB[settingsIndices[FfmpegConfigUiElements::BITRATE]];
     auto videoRes = desktopResolutions[settingsIndices[FfmpegConfigUiElements::DESKTOP_RES]];
     auto scaleRes = switchResolutions[settingsIndices[FfmpegConfigUiElements::SWITCH_RES]];
+    auto vsMode = (VsyncMode)settingsIndices[FfmpegConfigUiElements::VSYNC];
     auto crf = settingsIndices[FfmpegConfigUiElements::CRF];
     auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
     auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
@@ -444,9 +353,7 @@ void ConfigurationScreen::UpdateVideoRes()
     const auto vrInd = settingsIndices[FfmpegConfigUiElements::DESKTOP_RES];
     const auto res = desktopResolutions[vrInd];
 
-    settingsText[FfmpegConfigUiElements::DESKTOP_RES].value = "Desktop Resolution:     " 
-                                        + std::to_string(res.width) 
-                                        + "x" + std::to_string(res.height);
+    settingsText[FfmpegConfigUiElements::DESKTOP_RES].value = "Desktop Resolution:     " + ResolutionToString(res);
 }
 
 void ConfigurationScreen::UpdateVideoScale()
@@ -454,9 +361,7 @@ void ConfigurationScreen::UpdateVideoScale()
     const auto vrInd = settingsIndices[FfmpegConfigUiElements::SWITCH_RES];
     const auto res = switchResolutions[vrInd];
 
-    settingsText[FfmpegConfigUiElements::SWITCH_RES].value = "Switch Resolution:      "
-                                        + std::to_string(res.width) 
-                                        + "x" + std::to_string(res.height);
+    settingsText[FfmpegConfigUiElements::SWITCH_RES].value = "Switch Resolution:      " + ResolutionToString(res);
 }
 
 void ConfigurationScreen::UpdateBitrate()
@@ -469,15 +374,14 @@ void ConfigurationScreen::UpdateBitrate()
 
 void ConfigurationScreen::UpdateVsync()
 {
-    const auto vsInd = settingsIndices[FfmpegConfigUiElements::VSYNC];
-    const auto mode = vsyncModes[vsInd];
-    settingsText[FfmpegConfigUiElements::VSYNC].value = "Vsync Mode:             " + std::string(vsyncModeToString(mode));
+    const auto mode = (VsyncMode)settingsIndices[FfmpegConfigUiElements::VSYNC];
+    settingsText[FfmpegConfigUiElements::VSYNC].value = "Vsync Mode:             " + VsyncModeDescription(mode);
 }
 
 void ConfigurationScreen::UpdatePreset()
 {
     const auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
-    settingsText[FfmpegConfigUiElements::PRESET].value = "Encoder Preset:         " + PresetToString(preset);
+    settingsText[FfmpegConfigUiElements::PRESET].value = "Encoder Preset:         " + EncoderPresetDescription(preset);
 }
 
 void ConfigurationScreen::UpdateCRF()
@@ -489,13 +393,13 @@ void ConfigurationScreen::UpdateCRF()
 void ConfigurationScreen::UpdateCodec()
 {
     const auto codec = (VideoCodecMode)settingsIndices[FfmpegConfigUiElements::CODEC];
-    settingsText[FfmpegConfigUiElements::CODEC].value = "Video Codec:            " + VideoCodecModeToString(codec);
+    settingsText[FfmpegConfigUiElements::CODEC].value = "Video Codec:            " + VideoCodecModeDescription(codec);
 }
 
 void ConfigurationScreen::UpdateHWAccel()
 {
     const auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
-    settingsText[FfmpegConfigUiElements::HWACCEL].value = "Hardware Accel Mode:    " + HWAccelToString(hwaccel);
+    settingsText[FfmpegConfigUiElements::HWACCEL].value = "Hardware Accel Mode:    " + HWAccelDescription(hwaccel);
 }
 
 void ConfigurationScreen::UpdateMouseSensitivity()

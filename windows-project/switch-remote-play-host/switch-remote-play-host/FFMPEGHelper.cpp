@@ -7,58 +7,6 @@ auto audioProcessFlag{ CREATE_NO_WINDOW };
 std::string parentDirectory{};
 std::string ffmpegPath{};
 
-std::string PresetToString(EncoderPreset preset)
-{
-    switch (preset)
-    {
-        case EncoderPreset::ULTRAFAST:
-            return "ultrafast";
-        case EncoderPreset::VERYFAST:
-            return "veryfast";
-        case EncoderPreset::FAST:
-            return "fast";
-        default:
-        case EncoderPreset::MEDIUM:
-            return "medium";
-        case EncoderPreset::SLOW:
-            return "slow";
-        case EncoderPreset::VERYSLOW:
-            return "veryslow";
-    }
-}
-
-std::string VideoCodecModeToString(VideoCodecMode mode)
-{
-    switch (mode)
-    {
-        default:
-        case VideoCodecMode::H264:
-            return "h264";
-        case VideoCodecMode::H264_AMF:
-            return "h264_amf";
-        case VideoCodecMode::H264_NVENC:
-            return "h264_nvenc";
-        case VideoCodecMode::H264_QSV:
-            return "h264_qsv";
-    }
-}
-
-std::string HWAccelToString(HWAccelMode mode)
-{
-    switch (mode)
-    {
-        default:
-        case HWAccelMode::AUTO:
-            return "auto";
-        case HWAccelMode::DXVA2:
-            return "dxva2";
-        case HWAccelMode::VAAPI:
-            return "vaapi";
-        case HWAccelMode::CUDA:
-            return "cuda";
-    }
-}
-
 void SetParentDirectory(std::string path)
 {
     parentDirectory = path;
@@ -98,7 +46,7 @@ std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string co
     auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
     stringstream args;
     args << filePath << " -probesize 32 ";
-    args << "-hwaccel " << HWAccelToString(config.hwaccelMode) << " ";
+    args << "-hwaccel " << HWAccelModeToString(config.hwaccelMode) << " ";
     args << "-y -f gdigrab ";
     args << "-framerate " << config.desiredFrameRate << " ";
     args << "-vsync " << vsyncMode << " ";
@@ -106,7 +54,7 @@ std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string co
     args << "-i desktop -f h264 ";
     args << "-vcodec " << VideoCodecModeToString(config.videoCodecMode) << " ";
     args << "-vf \"scale=" << config.scaleX << "x" << config.scaleY << "\" ";
-    args << "-preset " << PresetToString(config.preset) << " ";
+    args << "-preset " << EncoderPresetToString(config.preset) << " ";
     args << "-crf " << config.constantRateFactor << " ";
     args << "-tune zerolatency -pix_fmt yuv420p ";//-profile:v baseline ";
     args << "-x264-params \"nal-hrd=vbr:opencl=true\" ";

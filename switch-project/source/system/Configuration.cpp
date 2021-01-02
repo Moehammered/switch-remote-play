@@ -1,7 +1,11 @@
 #include "Configuration.h"
 #include "FileOperations.h"
 #include "../network/NetworkData.h"
-
+#include "../ffmpegHelpers/HWAccel.h"
+#include "../ffmpegHelpers/VsyncMode.h"
+#include "../ffmpegHelpers/Resolution.h"
+#include "../ffmpegHelpers/EncoderPreset.h"
+#include "../ffmpegHelpers/VideoCodecMode.h"
 #include <iostream>
 
 auto constexpr MANUAL_IP_TAG = "manual_ip";
@@ -15,142 +19,6 @@ auto constexpr QUALITY_FACTOR_TAG = "quality_control_factor";
 auto constexpr VIDEO_CODEC_TAG = "video_codec";
 auto constexpr HWACCEL_TAG = "hwaccel_mode";
 auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
-
-int16_t VsyncTextToEnum(std::string s)
-{
-    if(s == "auto")
-        return -1;
-    else if(s == "passthrough")
-        return 0;
-    else if(s == "constant frame rate")
-        return 1;
-    else if(s == "variable frame rate")
-        return 2;
-    else if(s == "drop time")
-        return 3;
-    else
-        return 2;
-}
-
-std::string VsyncToText(const int16_t mode)
-{
-    switch(mode)
-    {
-        case -1:
-            return "auto";
-
-        case 0:
-            return "passthrough";
-
-        case 1:
-            return "constant frame rate";
-
-        default:
-        case 2:
-            return "variable frame rate";
-
-        case 3:
-            return "drop time";
-    }
-}
-
-std::string PresetEnumToText(EncoderPreset preset)
-{
-    switch(preset)
-    {
-        default:
-        case EncoderPreset::ULTRAFAST:
-            return "ultrafast";
-        case EncoderPreset::VERYFAST:
-            return "veryfast";
-        case EncoderPreset::FAST:
-            return "fast";
-        case EncoderPreset::MEDIUM:
-            return "medium";
-        case EncoderPreset::SLOW:
-            return "slow";
-        case EncoderPreset::VERYSLOW:
-            return "veryslow";
-    }
-}
-
-EncoderPreset PresetTextToEnum(std::string s)
-{
-    if(s == "ultrafast")
-        return EncoderPreset::ULTRAFAST;
-    else if(s == "veryfast")
-        return EncoderPreset::VERYFAST;
-    else if(s == "fast")
-        return EncoderPreset::FAST;
-    else if(s == "medium")
-        return EncoderPreset::MEDIUM;
-    else if(s == "slow")
-        return EncoderPreset::SLOW;
-    else if(s == "veryslow")
-        return EncoderPreset::VERYSLOW;
-    else
-        return EncoderPreset::ULTRAFAST;
-}
-
-std::string HWAccelEnumToText(HWAccelMode mode)
-{
-    switch(mode)
-    {
-        default:
-        case HWAccelMode::AUTO:
-            return "auto";
-        case HWAccelMode::DXVA2:
-            return "dxva2";
-        case HWAccelMode::VAAPI:
-            return "vaapi";
-        case HWAccelMode::CUDA:
-            return "cuda";
-    }
-}
-
-HWAccelMode HWAccelTextToEnum(std::string s)
-{
-    if(s == "auto")
-        return HWAccelMode::AUTO;
-    else if(s == "dxva2")
-        return HWAccelMode::DXVA2;
-    else if(s == "cuda")
-        return HWAccelMode::CUDA;
-    else if(s == "vaapi")
-        return HWAccelMode::VAAPI;
-    else
-        return HWAccelMode::AUTO;
-}
-
-std::string VideoCodecEnumToText(VideoCodecMode mode)
-{
-    switch(mode)
-    {
-        default:
-        case VideoCodecMode::H264:
-            return "h264";
-        case VideoCodecMode::H264_AMF:
-            return "h264_amf";
-        case VideoCodecMode::H264_NVENC:
-            return "h264_nvenc";
-        case VideoCodecMode::H264_QSV:
-            return "h264_qsv";
-    }
-}
-
-VideoCodecMode VideoCodecTextToEnum(std::string s)
-{
-    if(s == "h264")
-        return VideoCodecMode::H264;
-    else if(s == "h264_amf")
-        return VideoCodecMode::H264_AMF;
-    else if(s == "h264_nvenc")
-        return VideoCodecMode::H264_NVENC;
-    else if(s == "h264_qsv")
-        return VideoCodecMode::H264_QSV;
-    else
-        return VideoCodecMode::H264;
-}
 
 Configuration::Configuration() : data{}
 {
@@ -192,24 +60,9 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     auto videoResText = std::string{};
     if(ExtractVariable(data, DESKTOP_RES_TAG, videoResText))
     {
-        auto widthStart = 0;
-        auto widthEnd = videoResText.find('x', 0);
-        auto heightStart = widthEnd+1;
-        auto heightEnd = videoResText.length();
-
-        if(widthEnd == std::string::npos || heightEnd == std::string::npos)
-        {
-            std::cout << "failed to find delimiters for " << videoResText << ": " << widthEnd << ", " << heightEnd << std::endl;
-            temp.videoX = 1920;
-            temp.videoY = 1080;
-        }
-        else
-        {
-            auto width = videoResText.substr(widthStart, widthEnd-widthStart);
-            auto height = videoResText.substr(heightStart, heightEnd-heightStart);
-            temp.videoX = atoi(width.c_str());
-            temp.videoY = atoi(height.c_str());
-        }
+        auto res = ParseResolutionString(videoResText);
+        temp.videoX = res.width;
+        temp.videoY = res.height;
     }
     else
     {
@@ -221,24 +74,9 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     auto scaleResText = std::string{};
     if(ExtractVariable(data, SWITCH_RES_TAG, scaleResText))
     {
-        auto widthStart = 0;
-        auto widthEnd = scaleResText.find('x', 0);
-        auto heightStart = widthEnd+1;
-        auto heightEnd = scaleResText.length();
-
-        if(widthEnd == std::string::npos || heightEnd == std::string::npos)
-        {
-            std::cout << "failed to find delimiters for " << scaleResText << ": " << widthEnd << ", " << heightEnd << std::endl;
-            temp.scaleX = 1280;
-            temp.scaleY = 720;
-        }
-        else
-        {
-            auto width = scaleResText.substr(widthStart, widthEnd-widthStart);
-            auto height = scaleResText.substr(heightStart, heightEnd-heightStart);
-            temp.scaleX = atoi(width.c_str());
-            temp.scaleY = atoi(height.c_str());
-        }
+        auto res = ParseResolutionString(scaleResText);
+        temp.scaleX = res.width;
+        temp.scaleY = res.height;
     }
     else
     {
@@ -257,15 +95,15 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     {
         auto vsyncText = std::string{};
         if(ExtractVariable(data, VSYNC_TAG, vsyncText))
-            temp.vsyncMode = VsyncTextToEnum(vsyncText);
+            temp.vsyncMode = ParseVsyncModeString(vsyncText);
         else
-            temp.vsyncMode = 2;
+            temp.vsyncMode = VsyncMode::VARIABLE_FPS;
     }
 
     {
         auto presetText = std::string{};
         if(ExtractVariable(data, ENCODER_PRESET_TAG, presetText))
-            temp.preset = PresetTextToEnum(presetText);
+            temp.preset = ParseEncoderPresetString(presetText);
         else
             temp.preset = EncoderPreset::ULTRAFAST;
     }
@@ -281,7 +119,7 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     {
         std::string codec{};
         if(ExtractVariable(data, VIDEO_CODEC_TAG, codec))
-            temp.videoCodecMode = VideoCodecTextToEnum(codec);
+            temp.videoCodecMode = ParseVideoCodecModeString(codec);
         else
             temp.videoCodecMode = VideoCodecMode::H264;
     }
@@ -289,7 +127,7 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     {
         std::string hwaccel{};
         if(ExtractVariable(data, HWACCEL_TAG, hwaccel))
-            temp.hwaccelMode = HWAccelTextToEnum(hwaccel);
+            temp.hwaccelMode = ParseHWAccelString(hwaccel);
         else
             temp.hwaccelMode = HWAccelMode::AUTO;
     }
@@ -318,10 +156,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     }
 
     {
-        auto vx = std::to_string(data.videoX);
-        auto vy = std::to_string(data.videoY);
-        auto videoResStr = vx+"x"+vy;
-        
+        auto videoResStr = ResolutionToString({data.videoX, data.videoY});
         if(!ReplaceVariable(newData, DESKTOP_RES_TAG, videoResStr, newData))
         {
             std::cout << DESKTOP_RES_TAG << " variable not found. Appended to config.\n";
@@ -330,9 +165,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     }
 
     {
-        auto sx = std::to_string(data.scaleX);
-        auto sy = std::to_string(data.scaleY);
-        auto videoScaleStr = sx+"x"+sy;
+        auto videoScaleStr = ResolutionToString({data.scaleX, data.scaleY});
         if(!ReplaceVariable(newData, SWITCH_RES_TAG, videoScaleStr, newData))
         {
             std::cout << SWITCH_RES_TAG << " variable not found. Appended to config.\n";
@@ -350,7 +183,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     }
 
     {
-        auto vsync = VsyncToText(data.vsyncMode);
+        auto vsync = VsyncModeToString(data.vsyncMode);
         if(!ReplaceVariable(newData, VSYNC_TAG, vsync, newData))
         {
             std::cout << VSYNC_TAG << " variable not found. Appended to config.\n";
@@ -359,7 +192,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     }
 
     {
-        auto preset = PresetEnumToText(data.preset);
+        auto preset = EncoderPresetToString(data.preset);
         if(!ReplaceVariable(newData, ENCODER_PRESET_TAG, preset, newData))
         {
             std::cout << ENCODER_PRESET_TAG << " variable not found. Appended to config.\n";
@@ -377,7 +210,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     }
 
     {
-        auto codec = VideoCodecEnumToText(data.videoCodecMode);
+        auto codec = VideoCodecModeToString(data.videoCodecMode);
         if(!ReplaceVariable(newData, VIDEO_CODEC_TAG, codec, newData))
         {
             std::cout << VIDEO_CODEC_TAG << " variable not found. Appended to config.\n";
@@ -386,7 +219,7 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     }
 
     {
-        auto hwaccel = HWAccelEnumToText(data.hwaccelMode);
+        auto hwaccel = HWAccelModeToString(data.hwaccelMode);
         if(!ReplaceVariable(newData, HWACCEL_TAG, hwaccel, newData))
         {
             std::cout << HWACCEL_TAG << " variable not found. Appended to config.\n";
