@@ -2,6 +2,14 @@
 
 #include <windows.h>
 #include <stdint.h>
+
+enum ControllerMode : int16_t
+{
+   X360 = 0,
+   DS4,
+   CONTROLLER_MODE_COUNT
+};
+
 #include "EncoderPreset.h"
 #include "HWAccel.h"
 #include "VideoCodecMode.h"
@@ -25,6 +33,13 @@ struct alignas(8) FFMPEG_Config
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
 
+struct alignas(2) Controller_Config
+{
+    ControllerMode   controllerMode;
+};
+
+constexpr int CONTROLLER_CONFIG_SIZE = sizeof(Controller_Config);
+
 enum Command : int16_t
 {
     SHUTDOWN = -1,
@@ -40,10 +55,11 @@ constexpr int COMMAND_CODE_SIZE = sizeof(Command);
 struct alignas(32) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member
-    FFMPEG_Config   configData;
-    Command         commandCode;
+    FFMPEG_Config      configData;
+    Controller_Config  controllerData;
+    Command            commandCode;
     //fill the struct to pad it out to 32 bytes
-    int8_t          padding[32 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE];
+    int8_t             padding[32 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
 
     // int16_t dataBufferSize;
     // char dataBuffer[255];

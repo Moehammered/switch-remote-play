@@ -21,9 +21,6 @@
     <ClCompile Include="SwitchStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VirtualController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AtomicTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,6 +39,10 @@
     <ClCompile Include="MasterVolume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DS4Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="X360Controller.cpp">
     <ClCompile Include="EncoderPreset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

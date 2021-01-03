@@ -65,9 +65,9 @@ void MenuSelection::RenderTitle(SDL_Renderer * const renderer, FC_Font * const f
 
 void MenuSelection::RenderPendingConnection(SDL_Renderer * const renderer, FC_Font * const font)
 {
-    title.Render(renderer, font);
-    controlsText.Render(renderer, font);
-    streamPendingText.Render(renderer, font);
+    title.Render(renderer, systemFont);
+    controlText.Render(renderer, systemFont);
+    currentScreenText.Render(renderer, systemFont);
 }
 
 void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network)

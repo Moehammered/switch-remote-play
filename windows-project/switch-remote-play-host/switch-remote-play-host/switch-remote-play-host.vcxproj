@@ -159,6 +159,7 @@
     <ClCompile Include="AtomicTest.cpp" />
     <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="EncoderPreset.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
     <ClCompile Include="HWAccel.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
+    <ClCompile Include="X360Controller.cpp" />
     <ClCompile Include="VideoCodecMode.cpp" />
     <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VsyncMode.cpp" />

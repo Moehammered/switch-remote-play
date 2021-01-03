@@ -1,0 +1,199 @@
+#include "VirtualController.h"
+#include <iostream>
+#include <sstream>
+#include <string>
+
+const Switch_HidControllerKeys ButtonsToCheck[] = {
+   KEY_A, KEY_B, KEY_X, KEY_Y,
+   KEY_L, KEY_R, KEY_MINUS, KEY_PLUS,
+   KEY_LSTICK, KEY_RSTICK,
+   KEY_DUP, KEY_DDOWN, KEY_DLEFT, KEY_DRIGHT
+};
+
+std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BTNS_FUN{
+   { KEY_A, XUSB_GAMEPAD_A },
+   { KEY_B, XUSB_GAMEPAD_B },
+   { KEY_X, XUSB_GAMEPAD_X },
+   { KEY_Y, XUSB_GAMEPAD_Y },
+   { KEY_L, XUSB_GAMEPAD_LEFT_SHOULDER },
+   { KEY_R, XUSB_GAMEPAD_RIGHT_SHOULDER },
+   { KEY_MINUS, XUSB_GAMEPAD_GUIDE },
+   { KEY_PLUS , XUSB_GAMEPAD_START },
+   { KEY_LSTICK , XUSB_GAMEPAD_LEFT_THUMB },
+   { KEY_RSTICK , XUSB_GAMEPAD_RIGHT_THUMB },
+   { KEY_DUP   , XUSB_GAMEPAD_DPAD_UP },
+   { KEY_DDOWN , XUSB_GAMEPAD_DPAD_DOWN },
+   { KEY_DLEFT , XUSB_GAMEPAD_DPAD_LEFT },
+   { KEY_DRIGHT, XUSB_GAMEPAD_DPAD_RIGHT },
+};
+
+std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BTNS_POS{
+   { KEY_A, XUSB_GAMEPAD_B },
+   { KEY_B, XUSB_GAMEPAD_A },
+   { KEY_X, XUSB_GAMEPAD_Y },
+   { KEY_Y, XUSB_GAMEPAD_X },
+   { KEY_L, XUSB_GAMEPAD_LEFT_SHOULDER },
+   { KEY_R, XUSB_GAMEPAD_RIGHT_SHOULDER },
+   { KEY_MINUS, XUSB_GAMEPAD_GUIDE },
+   { KEY_PLUS , XUSB_GAMEPAD_START },
+   { KEY_LSTICK , XUSB_GAMEPAD_LEFT_THUMB },
+   { KEY_RSTICK , XUSB_GAMEPAD_RIGHT_THUMB },
+   { KEY_DUP   , XUSB_GAMEPAD_DPAD_UP },
+   { KEY_DDOWN , XUSB_GAMEPAD_DPAD_DOWN },
+   { KEY_DLEFT , XUSB_GAMEPAD_DPAD_LEFT },
+   { KEY_DRIGHT, XUSB_GAMEPAD_DPAD_RIGHT },
+};
+
+const std::unordered_map < XUSB_BUTTON, std::string, std::hash<uint32_t> > XUSB_BTN_STRINGS{
+   { XUSB_GAMEPAD_A, "A" },
+   { XUSB_GAMEPAD_B, "B" },
+   { XUSB_GAMEPAD_X, "X" },
+   { XUSB_GAMEPAD_Y, "Y" },
+   { XUSB_GAMEPAD_LEFT_SHOULDER , "L1" },
+   { XUSB_GAMEPAD_RIGHT_SHOULDER, "R1" },
+   { XUSB_GAMEPAD_GUIDE, "GUIDE" },
+   { XUSB_GAMEPAD_START, "START" },
+   { XUSB_GAMEPAD_LEFT_THUMB , "LEFT STICK" },
+   { XUSB_GAMEPAD_RIGHT_THUMB, "RIGHT STICK" },
+   { XUSB_GAMEPAD_DPAD_UP   , "DPAD UP" },
+   { XUSB_GAMEPAD_DPAD_DOWN , "DPAD DOWN" },
+   { XUSB_GAMEPAD_DPAD_LEFT , "DPAD LEFT" },
+   { XUSB_GAMEPAD_DPAD_RIGHT, "DPAD RIGHT" },
+};
+
+USHORT X360Controller::ConvertButtons(GamepadDataPayload const data, ABXYMap abxyMap)
+{
+   auto& switcher = abxyMap == ABXYMap::FUN ?
+      SWITCH_TO_XUSB_BTNS_FUN :
+      SWITCH_TO_XUSB_BTNS_POS;
+
+   USHORT btns = {};
+   //handle pressed buttons
+   for (auto btn : ButtonsToCheck)
+   {
+      if ((btn & data.keys) != 0x0)
+         btns |= switcher[btn];
+   }
+
+   return btns;
+}
+
+SHORT X360Controller::ConvertAnalog(int32_t const switchAnalog)
+{
+   //std::cout << "Raw switch analog: " << switchAnalog;
+   auto absolute = switchAnalog < 0 ? -switchAnalog : switchAnalog;
+   const auto scale = (double)(0xFFFF / 2.0);
+   double magnitude = absolute / scale;
+   double scaled = magnitude * 32768;
+   SHORT result = 0x0000;
+
+   if (switchAnalog < 0)
+      result -= (SHORT)scaled;
+   else
+      result += (SHORT)scaled;
+
+   //std::cout << ", scaled: " << scaled << "(" << (USHORT)result << ")" << std::endl;
+   return result;
+}
+
+bool X360Controller::Create()
+{
+   using namespace std;
+   client = vigem_alloc();
+
+   if (client == nullptr)
+   {
+      cout << "Failed to connect to driver" << endl;
+      return false;
+   }
+
+   const auto result = vigem_connect(client);
+   if (!VIGEM_SUCCESS(result))
+   {
+      vigem_free(client);
+      cout << "Failed to connect bus for virtual controller with error code: 0x" << std::hex << result << endl;
+      return false;
+   }
+
+   pad = vigem_target_x360_alloc();
+
+   const auto pluginEvent = vigem_target_add(client, pad);
+
+   if (!VIGEM_SUCCESS(pluginEvent))
+   {
+      cout << "Failed to plugin for virtual controller with error code: 0x" << std::hex << pluginEvent << endl;
+      vigem_disconnect(client);
+      vigem_free(client);
+      vigem_target_free(pad);
+
+      return false;
+   }
+
+   ZeroMemory(&state, sizeof(XUSB_REPORT));
+   XUSB_REPORT_INIT(&state);
+
+   return true;
+}
+
+void X360Controller::Print()
+{
+   auto dpadStream = std::stringstream();
+
+   auto btns = std::stringstream();
+   btns << "Buttons: ";
+   for (auto b : XUSB_BTN_STRINGS)
+   {
+      auto mask = (USHORT)b.first & buttons;
+      if (mask != 0)
+         btns << b.second << " ";
+   }
+
+   auto axis = std::stringstream();
+   axis << "Axis(L,R): ";
+   axis << "(" << (USHORT)lx << "," << (USHORT)ly << ") , ";
+   axis << "(" << (USHORT)rx << "," << (USHORT)ry << ")";
+
+   std::cout << dpadStream.str() << std::endl << btns.str() << std::endl << axis.str() << std::endl << std::endl;
+}
+
+void X360Controller::ConvertPayload(GamepadDataPayload const data)
+{
+   buttons = ConvertButtons(data, abxyMap);
+   lx = ConvertAnalog(data.ljx);
+   ly = ConvertAnalog(data.ljy);
+   rx = ConvertAnalog(data.rjx);
+   ry = ConvertAnalog(data.rjy);
+
+   lt = 0; rt = 0;
+   if (data.keys & KEY_ZL)
+      lt = 255;
+   if (data.keys & KEY_ZR)
+      rt = 255;
+}
+
+void X360Controller::UpdateState()
+{
+   state.wButtons = buttons;
+   state.sThumbLX = lx; state.sThumbLY = ly;
+   state.sThumbRX = rx; state.sThumbRY = ry;
+   state.bLeftTrigger = lt; state.bRightTrigger = rt;
+}
+
+void X360Controller::UpdateController()
+{
+   vigem_target_x360_update(client, pad, state);
+}
+
+void X360Controller::ResetController()
+{
+   XUSB_REPORT_INIT(&state);
+}
+
+void X360Controller::Disconnect()
+{
+   vigem_target_remove(client, pad);
+   vigem_target_free(pad);
+
+   vigem_disconnect(client);
+   vigem_free(client);
+}

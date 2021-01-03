@@ -19,6 +19,29 @@ auto constexpr QUALITY_FACTOR_TAG = "quality_control_factor";
 auto constexpr VIDEO_CODEC_TAG = "video_codec";
 auto constexpr HWACCEL_TAG = "hwaccel_mode";
 auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
+auto constexpr CONTROLLER_MODE_TAG = "controller_mode";
+
+std::string ControllerModeEnumToText(ControllerMode controllerMode)
+{
+    switch(controllerMode)
+    {
+        default:
+        case ControllerMode::X360:
+            return "x360";
+        case ControllerMode::DS4:
+            return "ds4";
+    }
+}
+
+ControllerMode ControllerModeTextToEnum(std::string s)
+{
+    if(s == "x360")
+        return ControllerMode::X360;
+    else if(s == "ds4")
+        return ControllerMode::DS4;
+    else
+        return ControllerMode::X360;
+}
 
 Configuration::Configuration() : data{}
 {
@@ -233,6 +256,37 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
         {
             std::cout << MOUSE_SENS_TAG << " variable not found. Appended to config.\n";
             newData += std::string{MOUSE_SENS_TAG} + "=" + mouse + ";\n";
+        }
+    }
+
+    return SaveConfigFile(newData);
+}
+
+Controller_Config const Configuration::ControllerData() const
+{
+    auto temp = Controller_Config{};
+
+    {
+        std::string controllerMode{};
+        if(ExtractVariable(data, CONTROLLER_MODE_TAG, controllerMode))
+            temp.controllerMode = ControllerModeTextToEnum(controllerMode);
+        else
+            temp.controllerMode = ControllerMode::X360;
+    }
+
+    return temp;
+}
+
+bool Configuration::SaveController(Controller_Config const data)
+{
+    auto newData = std::string{this->data};
+    
+    {
+        auto controllerMode = ControllerModeEnumToText(data.controllerMode);
+        if(!ReplaceVariable(newData, CONTROLLER_MODE_TAG, controllerMode, newData))
+        {
+            std::cout << CONTROLLER_MODE_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{CONTROLLER_MODE_TAG} + "=" + controllerMode + ";\n";
         }
     }
 

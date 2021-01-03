@@ -202,11 +202,14 @@ int main(int argc, char **argv)
                         ip = menuScreens.GetManualIPAddress();
                     else
                         ip = network.IPAddress();
-                    auto ffmpegConfig = menuScreens.GetFfmpegSettings();
+                  
+                    auto ffmpegConfig = GetFfmpegSettings();
+                    auto controllerConfig = GetControllerSettings();
                     auto configfile = Configuration{};
                     configfile.SaveFFMPEG(ffmpegConfig);
-                    RunStartConfiguredStreamCommand(ip, hostCommandPort, menuScreens.GetFfmpegSettings());
-                    auto streamOn = stream.WaitForStream(menuScreens.GetDecoderSettings(), videoPort);
+                    configfile.SaveController(controllerConfig);
+                    RunStartConfiguredStreamCommand(ip, hostCommandPort, GetFfmpegSettings(), GetControllerSettings());
+                    auto streamOn = stream.WaitForStream(videoPort);
 
                     if(streamOn)
                     {

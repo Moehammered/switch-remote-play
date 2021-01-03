@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
                         if (switchHandshakeConnection != nullptr)
                             switchHandshakeConnection->Shutdown();
 
-                        gamepadThread = StartGamepadListener(lastPayload.configData.mouseSensitivity, killStream, gamepadActive, gamepadPort);
+                        gamepadThread = StartGamepadListener(lastPayload.configData.mouseSensitivity, killStream, gamepadActive, gamepadPort, lastPayload.controllerData.controllerMode);
 #ifdef RELEASE
                         if(IsWindowVisible(GetConsoleWindow()))
                             ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
