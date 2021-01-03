@@ -91,7 +91,7 @@ BEGIN
             VALUE "FileDescription", "Switch Remote Play companion PC application"
             VALUE "FileVersion", "0.8.0.0"
             VALUE "InternalName", "switch-remote-play-host.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2020"
+            VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "switch-remote-play-host.exe"
             VALUE "ProductName", "Switch Remote Play Host"
             VALUE "ProductVersion", "0.8.0.0"
