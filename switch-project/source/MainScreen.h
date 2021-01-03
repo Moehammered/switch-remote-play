@@ -6,12 +6,14 @@
 #include "ui/Menu.h"
 #include "ui/HelpMenu.h"
 #include "ui/NetworkMenu.h"
+#include "ui/DecoderMenu.h"
 #include "ui/ConfigurationScreen.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
 {
     HELP,
+    DECODER_CONFIG,
     CONFIG,
     IP_SET,
     COUNT
@@ -41,6 +43,8 @@ class MenuSelection : public Menu
     
         FFMPEG_Config const GetFfmpegSettings();
 
+        DecoderConfiguration const GetDecoderSettings();
+
         bool UseManualIP();
 
         std::string const GetManualIPAddress();
@@ -50,6 +54,7 @@ class MenuSelection : public Menu
         Text hostConnectionText;
         Text streamPendingText;
         HelpMenu helpScreen;
+        DecoderMenu decoderScreen;
         ConfigurationScreen encoderScreen;
         NetworkMenu networkScreen;
         std::unordered_map<MenuScreen, Menu*> menus;

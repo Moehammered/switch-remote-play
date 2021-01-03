@@ -206,7 +206,7 @@ int main(int argc, char **argv)
                     auto configfile = Configuration{};
                     configfile.SaveFFMPEG(ffmpegConfig);
                     RunStartConfiguredStreamCommand(ip, hostCommandPort, menuScreens.GetFfmpegSettings());
-                    auto streamOn = stream.WaitForStream(videoPort);
+                    auto streamOn = stream.WaitForStream(menuScreens.GetDecoderSettings(), videoPort);
 
                     if(streamOn)
                     {

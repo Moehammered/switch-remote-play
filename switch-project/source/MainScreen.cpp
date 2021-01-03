@@ -7,10 +7,11 @@ auto constexpr defaultControlMessage = "'ZL'/'ZR' - cycle screens | 'A'/'B' - ch
 MenuSelection::MenuSelection() : Menu(), 
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
-    encoderScreen{}, networkScreen{},
+    decoderScreen{}, encoderScreen{}, networkScreen{},
     menus{}, selectedMenu{HELP}
 {
     menus[MenuScreen::HELP] = &helpScreen;
+    menus[MenuScreen::DECODER_CONFIG] = &decoderScreen;
     menus[MenuScreen::CONFIG] = &encoderScreen;
     menus[MenuScreen::IP_SET] = &networkScreen;
 
@@ -96,6 +97,11 @@ void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font *
 FFMPEG_Config const MenuSelection::GetFfmpegSettings()
 {
     return encoderScreen.Settings();
+}
+
+DecoderConfiguration const MenuSelection::GetDecoderSettings()
+{
+    return decoderScreen.DecoderSettings();
 }
 
 bool MenuSelection::UseManualIP()

@@ -10,12 +10,13 @@ extern "C"
 #include <string>
 #include <atomic>
 #include "../ScreenRenderer.h"
+#include "../ffmpegHelpers/DecoderFlags.h"
 
 class VideoStream
 {
     public:
         VideoStream();
-        bool WaitForStream(uint16_t port);
+        bool WaitForStream(DecoderConfiguration decoderSettings, uint16_t port);
 
         bool Read(AVPacket& output);
 
