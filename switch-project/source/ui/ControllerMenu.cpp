@@ -149,14 +149,14 @@ void ControllerMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
     }
 }
 
-Controller_Config const ControllerMenu::Settings()
+ControllerConfig const ControllerMenu::Settings()
 {
     auto controllerMode = (ControllerMode)settingsIndices[ControllerMenuItems::CONTROLLER_MODE];
     auto const controllerMap = (ControllerButtonMap)settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP];
     auto const mouseOnConnect = settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] == 1;
     auto const sensitivity = settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY];
 
-    return Controller_Config{
+    return ControllerConfig{
         .controllerMode = controllerMode,
         .controllerMap = controllerMap,
         .mouseSensitivity = sensitivity,

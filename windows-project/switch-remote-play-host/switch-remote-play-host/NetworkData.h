@@ -10,7 +10,7 @@
 #include "ControllerMode.h"
 #include "ControllerButtonMap.h"
 
-struct alignas(8) FFMPEG_Config
+struct alignas(8) EncoderConfig
 {
     int16_t         desiredFrameRate;
     int16_t         videoX;
@@ -26,9 +26,9 @@ struct alignas(8) FFMPEG_Config
     int8_t          padding[2];
 };
 
-constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
+constexpr int FFMPEG_CONFIG_SIZE = sizeof(EncoderConfig);
 
-struct alignas(2) Controller_Config
+struct alignas(2) ControllerConfig
 {
     ControllerMode      controllerMode;
     ControllerButtonMap controllerMap;
@@ -36,7 +36,7 @@ struct alignas(2) Controller_Config
     bool                mouseOnConnect;
 };
 
-constexpr int CONTROLLER_CONFIG_SIZE = sizeof(Controller_Config);
+constexpr int CONTROLLER_CONFIG_SIZE = sizeof(ControllerConfig);
 
 enum Command : int16_t
 {
@@ -53,11 +53,11 @@ constexpr int COMMAND_CODE_SIZE = sizeof(Command);
 struct alignas(32) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member
-    FFMPEG_Config      configData;
-    Controller_Config  controllerData;
-    Command            commandCode;
+    EncoderConfig       configData;
+    ControllerConfig    controllerData;
+    Command             commandCode;
     //fill the struct to pad it out to 32 bytes
-    int8_t             padding[64 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
+    int8_t              padding[64 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
 
     // int16_t dataBufferSize;
     // char dataBuffer[255];

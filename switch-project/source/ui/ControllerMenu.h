@@ -28,7 +28,7 @@ class ControllerMenu : public Menu
         void DecreaseSetting();
         void SelectNext();
         void SelectPrevious();
-        Controller_Config const Settings();
+        ControllerConfig const Settings();
 
     private:
         ControllerMenuItems selectedItem;

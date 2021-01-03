@@ -7,8 +7,8 @@
 #include "ui/HelpMenu.h"
 #include "ui/NetworkMenu.h"
 #include "ui/DecoderMenu.h"
+#include "ui/EncoderMenu.h"
 #include "ui/ControllerMenu.h"
-#include "ui/ConfigurationScreen.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
@@ -43,11 +43,11 @@ class MenuSelection : public Menu
 
         void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network);
     
-        FFMPEG_Config const GetFfmpegSettings();
+        EncoderConfig const GetFfmpegSettings();
 
         DecoderConfiguration const GetDecoderSettings();
 
-        Controller_Config const GetControllerSettings();
+        ControllerConfig const GetControllerSettings();
 
         bool UseManualIP();
 
@@ -60,7 +60,7 @@ class MenuSelection : public Menu
         HelpMenu helpScreen;
         DecoderMenu decoderScreen;
         ControllerMenu controllerScreen;
-        ConfigurationScreen encoderScreen;
+        EncoderMenu encoderScreen;
         NetworkMenu networkScreen;
         std::unordered_map<MenuScreen, Menu*> menus;
 

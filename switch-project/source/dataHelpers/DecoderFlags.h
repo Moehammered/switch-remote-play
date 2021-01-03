@@ -23,8 +23,9 @@ struct DecoderConfiguration
 int32_t constexpr DefaultHWAccelFlags = AV_HWACCEL_FLAG_IGNORE_LEVEL;
 int32_t constexpr DefaultDecoderFlags1 = AV_CODEC_FLAG_LOW_DELAY;
 int32_t constexpr DefaultDecoderFlags2 = AV_CODEC_FLAG2_FAST;
-AVDiscard constexpr DefaultSkipLoopFilter = AVDiscard::AVDISCARD_DEFAULT;
+AVDiscard constexpr DefaultSkipLoopFilter = AVDiscard::AVDISCARD_ALL;
 int32_t constexpr DefaultThreadType = FF_THREAD_SLICE;
+int32_t constexpr DefaultThreadCount = 4;
 
 /*
     AVCodecContext - https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html
@@ -32,8 +33,8 @@ int32_t constexpr DefaultThreadType = FF_THREAD_SLICE;
     https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#abb01e291550fa3fb96188af4d494587e
 */
 std::unordered_map<int32_t, std::string> AllDecoderFlag1Descriptions();
-std::unordered_map<int32_t, std::string> DecoderFlags1Description(int32_t flags);
-std::unordered_map<int32_t, std::string> DecoderFlags1ToString(int32_t flags);
+std::unordered_map<int32_t, std::string> DecoderFlags1Descriptions(int32_t flags);
+std::unordered_map<int32_t, std::string> DecoderFlags1ToStrings(int32_t flags);
 int32_t ParseDecoderFlags1Strings(std::vector<std::string> const & flagStrings);
 
 /*
@@ -42,7 +43,7 @@ int32_t ParseDecoderFlags1Strings(std::vector<std::string> const & flagStrings);
     https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#a1944f9a4f8f2e123c087e1fe7613d571
 */
 std::unordered_map<int32_t, std::string> AllDecoderFlag2Descriptions();
-std::unordered_map<int32_t, std::string> DecoderFlags2Description(int32_t flags);
+std::unordered_map<int32_t, std::string> DecoderFlags2Descriptions(int32_t flags);
 std::unordered_map<int32_t, std::string> DecoderFlags2ToStrings(int32_t flags);
 int32_t ParseDecoderFlags2Strings(std::vector<std::string> const & flagStrings);
 
@@ -52,7 +53,7 @@ int32_t ParseDecoderFlags2Strings(std::vector<std::string> const & flagStrings);
     https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#a0a90b6a8e324a220e2be52d6e33038b8
 */
 std::unordered_map<int32_t, std::string> AllHWAccelFlagsDescriptions();
-std::unordered_map<int32_t, std::string> HWAccelFlagsDescription(int32_t flags);
+std::unordered_map<int32_t, std::string> HWAccelFlagsDescriptions(int32_t flags);
 std::unordered_map<int32_t, std::string> HWAccelFlagsToStrings(int32_t flags);
 int32_t ParseHWAccelFlagStrings(std::vector<std::string> const & flagStrings);
 

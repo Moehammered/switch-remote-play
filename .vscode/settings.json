@@ -59,6 +59,7 @@
         "iomanip": "cpp",
         "filesystem": "cpp",
         "codecvt": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "set": "cpp"
     }
 }

@@ -31,7 +31,7 @@ For my PC, when I play Nier Automata there are no hiccups and I can get near 60 
 - [x] Disconnect / Reconnect stream at will
 - [x] Toggle Input Mode to Mouse
 - [x] Toggle Input Mode to DS4(PS4) controller
-- [ ] Toggle Input Mode to Xbox controller
+- [x] Toggle Input Mode to Xbox controller
 
 ## Switch-Project
 

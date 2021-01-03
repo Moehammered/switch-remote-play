@@ -6,14 +6,14 @@
 #include "network/CommandSender.h"
 #include <sys/socket.h>
 
-void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config, Controller_Config const controllerConfig)
+void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfig const config, ControllerConfig const controllerConfig)
 {
     int commandSocket = -1;
     if(ConnectTo(ip, port, commandSocket))
     {
         auto streamCommand = Command::START_STREAM;
         auto const payload = CommandPayload{
-            .configData = config,
+            .encoderData = config,
             .controllerData = controllerConfig,
             .commandCode = streamCommand
         };

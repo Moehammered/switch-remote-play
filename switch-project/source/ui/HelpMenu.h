@@ -6,18 +6,10 @@
 
 enum HelpPageItems : int32_t
 {
-    P1,
-    P2,
+    NETWORK_PAGE,
+    STREAM_PAGE,
     HELP_PAGE_COUNT
 };
-
-enum HelpPageButtons : int32_t
-{
-    PREV,
-    NEXT,
-    HELP_BTN_COUNT
-};
-
 class HelpMenu : public Menu
 {
     public:
@@ -29,10 +21,10 @@ class HelpMenu : public Menu
 
     private:
         std::array<Text, HelpPageItems::HELP_PAGE_COUNT> pages;
-        std::array<Text, HELP_BTN_COUNT> buttons;
-
-        int32_t selectedButton;
+        Text currentPageHeader;
         int32_t selectedPage;
+
+        void Update();
 };
 
 #endif

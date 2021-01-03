@@ -26,7 +26,7 @@ enum StreamState : int32_t
     QUIT
 };
 
-void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config, Controller_Config const controllerConfig);
+void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfig const config, ControllerConfig const controllerConfig);
 
 void RunGamepadThread(std::string ip, uint16_t port);
 

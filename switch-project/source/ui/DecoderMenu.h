@@ -60,6 +60,7 @@ class DecoderMenu : public Menu
         Text currentPageHeader;
 
         void OrderAvailableFlags();
+        void LoadSettings();
 
         void Update();
         void UpdateFlags1();

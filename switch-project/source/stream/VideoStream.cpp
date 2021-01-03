@@ -140,19 +140,19 @@ void PrintDecoderContextSettings(AVCodecContext const & decoderContext)
 {
     std::cout << "HW Accel Flags\n";
     {
-        auto hwaccelFlags = HWAccelFlagsDescription(decoderContext.hwaccel_flags);
+        auto hwaccelFlags = HWAccelFlagsDescriptions(decoderContext.hwaccel_flags);
         for(auto& flag : hwaccelFlags)
             std::cout << flag.second << "\n";
     }
     std::cout << "Flag 1\n";
     {
-        auto flagsSet = DecoderFlags1Description(decoderContext.flags);
+        auto flagsSet = DecoderFlags1Descriptions(decoderContext.flags);
         for(auto& flag : flagsSet)
             std::cout << flag.second << "\n";
     }
     std::cout << "Flag 2\n";
     {
-        auto flags2Set = DecoderFlags2Description(decoderContext.flags2);
+        auto flags2Set = DecoderFlags2Descriptions(decoderContext.flags2);
         for(auto& flag : flags2Set)
             std::cout << flag.second << "\n";
     }

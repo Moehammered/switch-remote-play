@@ -1,11 +1,11 @@
-#ifndef __CONFIGURATIONSCREEN_H__
-#define __CONFIGURATIONSCREEN_H__
+#ifndef __ENCODERMENU_H__
+#define __ENCODERMENU_H__
 
 #include <array>
 #include "Menu.h"
 #include "../network/NetworkData.h"
 
-enum FfmpegConfigUiElements : int32_t
+enum EncoderMenuElements : int32_t
 {
     FRAMERATE = 0,
     DESKTOP_RES,
@@ -18,10 +18,10 @@ enum FfmpegConfigUiElements : int32_t
     CODEC,
     CONFIG_COUNT
 };
-class ConfigurationScreen : public Menu
+class EncoderMenu : public Menu
 {
     public:
-        ConfigurationScreen();
+        EncoderMenu();
 
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
@@ -30,14 +30,14 @@ class ConfigurationScreen : public Menu
         void DecreaseSetting();
         void SelectNext();
         void SelectPrevious();
-        FFMPEG_Config const Settings() const;
+        EncoderConfig const Settings() const;
 
     private:
         int settingIndex;
 
-        std::array<int, FfmpegConfigUiElements::CONFIG_COUNT> settingsIndices;
+        std::array<int, EncoderMenuElements::CONFIG_COUNT> settingsIndices;
 
-        std::array<Text, FfmpegConfigUiElements::CONFIG_COUNT> settingsText;
+        std::array<Text, EncoderMenuElements::CONFIG_COUNT> settingsText;
 
         void UpdateFramerate();
         void UpdateVideoRes();

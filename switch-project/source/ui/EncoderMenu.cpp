@@ -1,4 +1,4 @@
-#include "ConfigurationScreen.h"
+#include "EncoderMenu.h"
 #include <string>
 #include <iostream>
 #include "../system/Configuration.h"
@@ -44,10 +44,10 @@ const char* crfToString(int16_t value)
         return "Bad Quality";
 }
 
-ConfigurationScreen::ConfigurationScreen() 
+EncoderMenu::EncoderMenu() 
     : Menu(), settingIndex(0), settingsIndices{}, settingsText{}
 {
-    title.value = "Configuration Settings";
+    title.value = "Encoder Configuration";
     const int settingTextX = 100;
     const int yOffset = 200;
     const int ySpace = 45;
@@ -71,7 +71,7 @@ ConfigurationScreen::ConfigurationScreen()
             break;
         }
     }
-    settingsIndices[FfmpegConfigUiElements::FRAMERATE] = fpsInd;
+    settingsIndices[EncoderMenuElements::FRAMERATE] = fpsInd;
 
     auto desktopResInd = 2;
     for(auto i = 0U; i < desktopResolutions.size(); ++i)
@@ -83,7 +83,7 @@ ConfigurationScreen::ConfigurationScreen()
             break;
         }
     }
-    settingsIndices[FfmpegConfigUiElements::DESKTOP_RES] = desktopResInd;
+    settingsIndices[EncoderMenuElements::DESKTOP_RES] = desktopResInd;
 
     auto switchResInd = 0;
     for(auto i = 0U; i < switchResolutions.size(); ++i)
@@ -95,7 +95,7 @@ ConfigurationScreen::ConfigurationScreen()
             break;
         }
     }
-    settingsIndices[FfmpegConfigUiElements::SWITCH_RES] = switchResInd;
+    settingsIndices[EncoderMenuElements::SWITCH_RES] = switchResInd;
 
     auto bitrateInd = 9;
     for(auto i = 0U; i < bitratesKB.size(); ++i)
@@ -106,13 +106,13 @@ ConfigurationScreen::ConfigurationScreen()
             break;
         }
     }
-    settingsIndices[FfmpegConfigUiElements::BITRATE] = bitrateInd;
+    settingsIndices[EncoderMenuElements::BITRATE] = bitrateInd;
 
-    settingsIndices[FfmpegConfigUiElements::VSYNC] = ffmpeg.vsyncMode;
-    settingsIndices[FfmpegConfigUiElements::PRESET] = ffmpeg.preset;
-    settingsIndices[FfmpegConfigUiElements::CRF] = ffmpeg.constantRateFactor;
-    settingsIndices[FfmpegConfigUiElements::CODEC] = ffmpeg.videoCodecMode;
-    settingsIndices[FfmpegConfigUiElements::HWACCEL] = ffmpeg.hwaccelMode;
+    settingsIndices[EncoderMenuElements::VSYNC] = ffmpeg.vsyncMode;
+    settingsIndices[EncoderMenuElements::PRESET] = ffmpeg.preset;
+    settingsIndices[EncoderMenuElements::CRF] = ffmpeg.constantRateFactor;
+    settingsIndices[EncoderMenuElements::CODEC] = ffmpeg.videoCodecMode;
+    settingsIndices[EncoderMenuElements::HWACCEL] = ffmpeg.hwaccelMode;
 
     UpdateFramerate();
     UpdateVideoRes();
@@ -125,7 +125,7 @@ ConfigurationScreen::ConfigurationScreen()
     UpdateHWAccel();
 }
 
-void ConfigurationScreen::ProcessInput(PadState const & pad)
+void EncoderMenu::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
 
@@ -140,53 +140,53 @@ void ConfigurationScreen::ProcessInput(PadState const & pad)
         DecreaseSetting();
 }
 
-void ConfigurationScreen::IncreaseSetting()
+void EncoderMenu::IncreaseSetting()
 {
     auto currInd = settingsIndices[settingIndex];
 
     switch(settingIndex)
     {
-        case FfmpegConfigUiElements::FRAMERATE:
+        case EncoderMenuElements::FRAMERATE:
             if(++currInd >= framerates.size())
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::DESKTOP_RES:
+        case EncoderMenuElements::DESKTOP_RES:
             if(++currInd >= desktopResolutions.size())
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::SWITCH_RES:
+        case EncoderMenuElements::SWITCH_RES:
             if(++currInd >= switchResolutions.size())
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::BITRATE:
+        case EncoderMenuElements::BITRATE:
             if(++currInd >= bitratesKB.size())
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::VSYNC:
+        case EncoderMenuElements::VSYNC:
             if(++currInd >= VsyncMode::VSYNC_MODE_COUNT)
                 currInd = VsyncMode::VSYNC_AUTO;
         break;
 
-        case FfmpegConfigUiElements::PRESET:
+        case EncoderMenuElements::PRESET:
             if(++currInd >= ENCODER_PRESET_COUNT)
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::CRF:
+        case EncoderMenuElements::CRF:
             if(++currInd > maxCRF)
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::CODEC:
+        case EncoderMenuElements::CODEC:
             if(++currInd >= VideoCodecMode::VIDEOCODECMODE_COUNT)
                 currInd = 0;
         break;
 
-        case FfmpegConfigUiElements::HWACCEL:
+        case EncoderMenuElements::HWACCEL:
             if(++currInd >= HWAccelMode::CUDA)
                 currInd = 0;
         break;
@@ -205,53 +205,53 @@ void ConfigurationScreen::IncreaseSetting()
     UpdateHWAccel();
 }
 
-void ConfigurationScreen::DecreaseSetting()
+void EncoderMenu::DecreaseSetting()
 {
     auto currInd = settingsIndices[settingIndex];
 
     switch(settingIndex)
     {
-        case FfmpegConfigUiElements::FRAMERATE:
+        case EncoderMenuElements::FRAMERATE:
             if(--currInd < 0)
                 currInd = framerates.size() - 1;
         break;
 
-        case FfmpegConfigUiElements::DESKTOP_RES:
+        case EncoderMenuElements::DESKTOP_RES:
             if(--currInd < 0)
                 currInd = desktopResolutions.size() - 1;
         break;
 
-        case FfmpegConfigUiElements::SWITCH_RES:
+        case EncoderMenuElements::SWITCH_RES:
             if(--currInd < 0)
                 currInd = switchResolutions.size() - 1;
         break;
 
-        case FfmpegConfigUiElements::BITRATE:
+        case EncoderMenuElements::BITRATE:
             if(--currInd < 0)
                 currInd = bitratesKB.size() - 1;
         break;
 
-        case FfmpegConfigUiElements::VSYNC:
+        case EncoderMenuElements::VSYNC:
             if(--currInd < 0)
                 currInd = VsyncMode::VSYNC_MODE_COUNT - 1;
         break;
 
-        case FfmpegConfigUiElements::PRESET:
+        case EncoderMenuElements::PRESET:
             if(--currInd < 0)
                 currInd = EncoderPreset::ENCODER_PRESET_COUNT - 1;
         break;
 
-        case FfmpegConfigUiElements::CRF:
+        case EncoderMenuElements::CRF:
             if(--currInd < 0)
                 currInd = maxCRF;
         break;
 
-        case FfmpegConfigUiElements::CODEC:
+        case EncoderMenuElements::CODEC:
             if(--currInd < 0)
                 currInd = VideoCodecMode::VIDEOCODECMODE_COUNT - 1;
         break;
 
-        case FfmpegConfigUiElements::HWACCEL:
+        case EncoderMenuElements::HWACCEL:
             if(--currInd < 0)
                 currInd = HWAccelMode::CUDA - 1;
         break;
@@ -270,21 +270,21 @@ void ConfigurationScreen::DecreaseSetting()
     UpdateHWAccel();
 }
 
-void ConfigurationScreen::SelectNext()
+void EncoderMenu::SelectNext()
 {
     ++settingIndex;
     if(settingIndex >= settingsIndices.size())
         settingIndex = 0;
 }
 
-void ConfigurationScreen::SelectPrevious()
+void EncoderMenu::SelectPrevious()
 {
     --settingIndex;
     if(settingIndex < 0)
         settingIndex = settingsIndices.size() - 1;
 }
 
-void ConfigurationScreen::Render(SDL_Renderer * const renderer, FC_Font * const font)
+void EncoderMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
     title.Render(renderer, font);
     //use this later to render a rect behind the text elements
@@ -299,19 +299,19 @@ void ConfigurationScreen::Render(SDL_Renderer * const renderer, FC_Font * const 
     }
 }
 
-FFMPEG_Config const ConfigurationScreen::Settings() const
+EncoderConfig const EncoderMenu::Settings() const
 {
-    auto framerate = framerates[settingsIndices[FfmpegConfigUiElements::FRAMERATE]];
-    auto bitrate = bitratesKB[settingsIndices[FfmpegConfigUiElements::BITRATE]];
-    auto videoRes = desktopResolutions[settingsIndices[FfmpegConfigUiElements::DESKTOP_RES]];
-    auto scaleRes = switchResolutions[settingsIndices[FfmpegConfigUiElements::SWITCH_RES]];
-    auto vsMode = (VsyncMode)settingsIndices[FfmpegConfigUiElements::VSYNC];
-    auto crf = settingsIndices[FfmpegConfigUiElements::CRF];
-    auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
-    auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
-    auto videoCodecMode = (VideoCodecMode)settingsIndices[FfmpegConfigUiElements::CODEC];
+    auto framerate = framerates[settingsIndices[EncoderMenuElements::FRAMERATE]];
+    auto bitrate = bitratesKB[settingsIndices[EncoderMenuElements::BITRATE]];
+    auto videoRes = desktopResolutions[settingsIndices[EncoderMenuElements::DESKTOP_RES]];
+    auto scaleRes = switchResolutions[settingsIndices[EncoderMenuElements::SWITCH_RES]];
+    auto vsMode = (VsyncMode)settingsIndices[EncoderMenuElements::VSYNC];
+    auto crf = settingsIndices[EncoderMenuElements::CRF];
+    auto preset = (EncoderPreset)settingsIndices[EncoderMenuElements::PRESET];
+    auto hwaccel = (HWAccelMode)settingsIndices[EncoderMenuElements::HWACCEL];
+    auto videoCodecMode = (VideoCodecMode)settingsIndices[EncoderMenuElements::CODEC];
 
-    return FFMPEG_Config{
+    return EncoderConfig{
         .desiredFrameRate = framerate,
         .videoX = videoRes.width, .videoY = videoRes.height,
         .scaleX = scaleRes.width, .scaleY = scaleRes.height,
@@ -324,64 +324,64 @@ FFMPEG_Config const ConfigurationScreen::Settings() const
     };
 }
 
-void ConfigurationScreen::UpdateFramerate()
+void EncoderMenu::UpdateFramerate()
 {
-    const auto frInd = settingsIndices[FfmpegConfigUiElements::FRAMERATE];
+    const auto frInd = settingsIndices[EncoderMenuElements::FRAMERATE];
     const auto framerate = framerates[frInd];
 
-    settingsText[FfmpegConfigUiElements::FRAMERATE].value = "Desired Framerate:      " + std::to_string(framerate);
+    settingsText[EncoderMenuElements::FRAMERATE].value = "Desired Framerate:      " + std::to_string(framerate);
 }
 
-void ConfigurationScreen::UpdateVideoRes()
+void EncoderMenu::UpdateVideoRes()
 {
-    const auto vrInd = settingsIndices[FfmpegConfigUiElements::DESKTOP_RES];
+    const auto vrInd = settingsIndices[EncoderMenuElements::DESKTOP_RES];
     const auto res = desktopResolutions[vrInd];
 
-    settingsText[FfmpegConfigUiElements::DESKTOP_RES].value = "Desktop Resolution:     " + ResolutionToString(res);
+    settingsText[EncoderMenuElements::DESKTOP_RES].value = "Desktop Resolution:     " + ResolutionToString(res);
 }
 
-void ConfigurationScreen::UpdateVideoScale()
+void EncoderMenu::UpdateVideoScale()
 {
-    const auto vrInd = settingsIndices[FfmpegConfigUiElements::SWITCH_RES];
+    const auto vrInd = settingsIndices[EncoderMenuElements::SWITCH_RES];
     const auto res = switchResolutions[vrInd];
 
-    settingsText[FfmpegConfigUiElements::SWITCH_RES].value = "Switch Resolution:      " + ResolutionToString(res);
+    settingsText[EncoderMenuElements::SWITCH_RES].value = "Switch Resolution:      " + ResolutionToString(res);
 }
 
-void ConfigurationScreen::UpdateBitrate()
+void EncoderMenu::UpdateBitrate()
 {
-    const auto brInd = settingsIndices[FfmpegConfigUiElements::BITRATE];
+    const auto brInd = settingsIndices[EncoderMenuElements::BITRATE];
     const auto br = bitratesKB[brInd];
 
-    settingsText[FfmpegConfigUiElements::BITRATE].value = "Bitrate(KB/s):          " + std::to_string(br);
+    settingsText[EncoderMenuElements::BITRATE].value = "Bitrate(KB/s):          " + std::to_string(br);
 }
 
-void ConfigurationScreen::UpdateVsync()
+void EncoderMenu::UpdateVsync()
 {
-    const auto mode = (VsyncMode)settingsIndices[FfmpegConfigUiElements::VSYNC];
-    settingsText[FfmpegConfigUiElements::VSYNC].value = "Vsync Mode:             " + VsyncModeDescription(mode);
+    const auto mode = (VsyncMode)settingsIndices[EncoderMenuElements::VSYNC];
+    settingsText[EncoderMenuElements::VSYNC].value = "Vsync Mode:             " + VsyncModeDescription(mode);
 }
 
-void ConfigurationScreen::UpdatePreset()
+void EncoderMenu::UpdatePreset()
 {
-    const auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
-    settingsText[FfmpegConfigUiElements::PRESET].value = "Encoder Preset:         " + EncoderPresetDescription(preset);
+    const auto preset = (EncoderPreset)settingsIndices[EncoderMenuElements::PRESET];
+    settingsText[EncoderMenuElements::PRESET].value = "Encoder Preset:         " + EncoderPresetDescription(preset);
 }
 
-void ConfigurationScreen::UpdateCRF()
+void EncoderMenu::UpdateCRF()
 {
-    const auto crf = settingsIndices[FfmpegConfigUiElements::CRF];
-    settingsText[FfmpegConfigUiElements::CRF].value = "Quality Control Factor: " + std::to_string(crf) + " " + crfToString(crf);
+    const auto crf = settingsIndices[EncoderMenuElements::CRF];
+    settingsText[EncoderMenuElements::CRF].value = "Quality Control Factor: " + std::to_string(crf) + " " + crfToString(crf);
 }
 
-void ConfigurationScreen::UpdateCodec()
+void EncoderMenu::UpdateCodec()
 {
-    const auto codec = (VideoCodecMode)settingsIndices[FfmpegConfigUiElements::CODEC];
-    settingsText[FfmpegConfigUiElements::CODEC].value = "Video Codec:            " + VideoCodecModeDescription(codec);
+    const auto codec = (VideoCodecMode)settingsIndices[EncoderMenuElements::CODEC];
+    settingsText[EncoderMenuElements::CODEC].value = "Video Codec:            " + VideoCodecModeDescription(codec);
 }
 
-void ConfigurationScreen::UpdateHWAccel()
+void EncoderMenu::UpdateHWAccel()
 {
-    const auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
-    settingsText[FfmpegConfigUiElements::HWACCEL].value = "Hardware Accel Mode:    " + HWAccelDescription(hwaccel);
+    const auto hwaccel = (HWAccelMode)settingsIndices[EncoderMenuElements::HWACCEL];
+    settingsText[EncoderMenuElements::HWACCEL].value = "Hardware Accel Mode:    " + HWAccelDescription(hwaccel);
 }

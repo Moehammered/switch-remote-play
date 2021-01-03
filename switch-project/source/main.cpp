@@ -205,11 +205,14 @@ int main(int argc, char **argv)
                   
                     auto ffmpegConfig = menuScreens.GetFfmpegSettings();
                     auto controllerConfig = menuScreens.GetControllerSettings();
+                    auto decoderConfig = menuScreens.GetDecoderSettings();
                     auto configfile = Configuration{};
                     configfile.SaveFFMPEG(ffmpegConfig);
                     configfile.SaveController(controllerConfig);
+                    configfile.SaveDecoderConfig(decoderConfig);
+
                     RunStartConfiguredStreamCommand(ip, hostCommandPort, ffmpegConfig, controllerConfig);
-                    auto streamOn = stream.WaitForStream(menuScreens.GetDecoderSettings(), videoPort);
+                    auto streamOn = stream.WaitForStream(decoderConfig, videoPort);
 
                     if(streamOn)
                     {

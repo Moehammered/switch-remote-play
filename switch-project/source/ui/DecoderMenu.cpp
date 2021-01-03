@@ -1,4 +1,5 @@
 #include "DecoderMenu.h"
+#include "../system/Configuration.h"
 #include <iostream>
 
 int32_t constexpr maxThreadCountOption {4};
@@ -16,14 +17,14 @@ DecoderMenu::DecoderMenu() : Menu(),
     title.value = "Decoder Configuration";
     SDL_Color constexpr white {255,255,255,255};
     SDL_Color constexpr orange = { 255, 190, 90, 255 };
-    currentPageHeader.y = 210;
+    currentPageHeader.y = 220;
     currentPageHeader.colour = orange;
     currentPageHeader.x = 50;
 
     OrderAvailableFlags();
 
     // spacing
-    auto constexpr yOffset = 250;
+    auto constexpr yOffset = 260;
     auto constexpr ySpacing = 45;
 
     auto allDiscards = AllAVDiscardDescriptions();
@@ -44,6 +45,8 @@ DecoderMenu::DecoderMenu() : Menu(),
     }
     
     maxItems = flag1Buttons.size();
+
+    LoadSettings();
     Update();
 }
 
@@ -51,7 +54,7 @@ void DecoderMenu::OrderAvailableFlags()
 {
     SDL_Color constexpr white {255,255,255,255};
     auto constexpr xOffset = 100;
-    auto constexpr yOffset = 250;
+    auto constexpr yOffset = 260;
     auto constexpr ySpacing = 45;
 
     auto flag1Order = {
@@ -104,6 +107,36 @@ void DecoderMenu::OrderAvailableFlags()
         last.second.colour = white;
         hwY += ySpacing;
     }
+}
+
+void DecoderMenu::LoadSettings()
+{
+    auto config = Configuration{};
+    auto decoderSettings = config.DecoderData();
+
+    decoderFlags1 = decoderSettings.flag1;
+    decoderFlags2 = decoderSettings.flag2;
+    hwAccelFlags = decoderSettings.hwAccelFlags;
+    
+    for(auto i = 0U; i < skipLoopFilterOptions.size(); ++i)
+    {
+        if(skipLoopFilterOptions[i] == decoderSettings.skipLoopFilter)
+        {
+            selectedSkipLoopFilter = i;
+            break;
+        }
+    }
+
+    for(auto i = 0U; i < threadTypeOptions.size(); ++i)
+    {
+        if(threadTypeOptions[i] == decoderSettings.threadType)
+        {
+            selectedThreadType = i;
+            break;
+        }
+    }
+
+    threadCount = decoderSettings.threadCount;
 }
 
 void DecoderMenu::ProcessInput(PadState const & pad)
@@ -255,7 +288,7 @@ void DecoderMenu::Update()
 
 void DecoderMenu::UpdateFlags1()
 {
-    auto currentFlags = DecoderFlags1Description(decoderFlags1);
+    auto currentFlags = DecoderFlags1Descriptions(decoderFlags1);
     auto allF1s = AllDecoderFlag1Descriptions();
     for(auto& item : flag1Buttons)
     {
@@ -269,7 +302,7 @@ void DecoderMenu::UpdateFlags1()
 
 void DecoderMenu::UpdateFlags2()
 {
-    auto currentFlags = DecoderFlags2Description(decoderFlags2);
+    auto currentFlags = DecoderFlags2Descriptions(decoderFlags2);
     auto allF2s = AllDecoderFlag2Descriptions();
     for(auto& item : flag2Buttons)
     {
@@ -283,7 +316,7 @@ void DecoderMenu::UpdateFlags2()
 
 void DecoderMenu::UpdateHWAccelFlags()
 {
-    auto currentFlags = HWAccelFlagsDescription(hwAccelFlags);
+    auto currentFlags = HWAccelFlagsDescriptions(hwAccelFlags);
     auto allHwFlags = AllHWAccelFlagsDescriptions();
     for(auto& item : hwaccelFlagButtons)
     {

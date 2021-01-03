@@ -71,8 +71,8 @@ IDI_ICON1               ICON                    "switch_remote_play_icon_2hP_ico
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,7,6,0
- PRODUCTVERSION 0,7,6,0
+ FILEVERSION 0,8,0,0
+ PRODUCTVERSION 0,8,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -89,12 +89,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Moehammered"
             VALUE "FileDescription", "Switch Remote Play companion PC application"
-            VALUE "FileVersion", "0.7.6.0"
+            VALUE "FileVersion", "0.8.0.0"
             VALUE "InternalName", "switch-remote-play-host.exe"
             VALUE "LegalCopyright", "Copyright (C) 2020"
             VALUE "OriginalFilename", "switch-remote-play-host.exe"
             VALUE "ProductName", "Switch Remote Play Host"
-            VALUE "ProductVersion", "0.7.6.0"
+            VALUE "ProductVersion", "0.8.0.0"
         END
     END
     BLOCK "VarFileInfo"

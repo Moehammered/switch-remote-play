@@ -17,10 +17,10 @@ std::unordered_map<int32_t, std::string> AllDecoderFlag1Descriptions()
     };
 
     int32_t const * reinterp = (int32_t*)&allFlagged;
-    return DecoderFlags1Description(*reinterp);
+    return DecoderFlags1Descriptions(*reinterp);
 }
 
-std::unordered_map<int32_t, std::string> DecoderFlags1Description(int32_t flags)
+std::unordered_map<int32_t, std::string> DecoderFlags1Descriptions(int32_t flags)
 {
     std::unordered_map<int32_t, std::string> found{};
     std::unordered_map<int, std::string> flagToString{
@@ -54,7 +54,7 @@ std::unordered_map<int32_t, std::string> DecoderFlags1Description(int32_t flags)
     return found;
 }
 
-std::unordered_map<int32_t, std::string> DecoderFlags1ToString(int32_t flags)
+std::unordered_map<int32_t, std::string> DecoderFlags1ToStrings(int32_t flags)
 {
     std::unordered_map<int32_t, std::string> found{};
     std::unordered_map<int, std::string> flagToString{
@@ -133,10 +133,10 @@ std::unordered_map<int32_t, std::string> AllDecoderFlag2Descriptions()
         | AV_CODEC_FLAG2_SKIP_MANUAL | AV_CODEC_FLAG2_RO_FLUSH_NOOP
     };
 
-    return DecoderFlags2Description(allFlagged);
+    return DecoderFlags2Descriptions(allFlagged);
 }
 
-std::unordered_map<int32_t, std::string> DecoderFlags2Description(int32_t flags)
+std::unordered_map<int32_t, std::string> DecoderFlags2Descriptions(int32_t flags)
 {
     std::unordered_map<int32_t, std::string> found{};
     std::unordered_map<int, std::string> flagToString{
@@ -219,10 +219,10 @@ std::unordered_map<int32_t, std::string> AllHWAccelFlagsDescriptions()
         | AV_HWACCEL_FLAG_ALLOW_HIGH_DEPTH | AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH
     };
 
-    return HWAccelFlagsDescription(allFlagged);
+    return HWAccelFlagsDescriptions(allFlagged);
 }
 
-std::unordered_map<int32_t, std::string> HWAccelFlagsDescription(int32_t flags)
+std::unordered_map<int32_t, std::string> HWAccelFlagsDescriptions(int32_t flags)
 {
     std::unordered_map<int32_t, std::string> found{};
     std::unordered_map<int, std::string> flagToString{

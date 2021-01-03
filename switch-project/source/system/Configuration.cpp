@@ -7,6 +7,9 @@
 #include "../dataHelpers/EncoderPreset.h"
 #include "../dataHelpers/VideoCodecMode.h"
 #include "../dataHelpers/ControllerMode.h"
+#include "../dataHelpers/WordDelimiter.h"
+#include <sstream>
+#include <iterator>
 #include <iostream>
 
 auto constexpr MANUAL_IP_TAG = "manual_ip";
@@ -23,6 +26,12 @@ auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
 auto constexpr CONTROLLER_MODE_TAG = "controller_mode";
 auto constexpr CONTROLLER_BTN_MAP_TAG = "controller_map";
 auto constexpr MOUSE_ON_CONNECT_TAG = "mouse_on_connect";
+auto constexpr DECODER_FLAG1_TAG = "decoder_flags1";
+auto constexpr DECODER_FLAG2_TAG = "decoder_flags2";
+auto constexpr DECODER_HWACCEL_FLAG_TAG = "decoder_hwaccelflags";
+auto constexpr DECODER_SKIP_LOOP_FILTER_TAG = "decoder_skip_loop_filter";
+auto constexpr DECODER_THREAD_TYPE_TAG = "decoder_thread_type";
+auto constexpr DECODER_THREAD_COUNT_TAG = "decoder_thread_count";
 
 Configuration::Configuration() : data{}
 {
@@ -51,9 +60,9 @@ bool Configuration::SaveManualIP(std::string const ip)
     }
 }
 
-FFMPEG_Config const Configuration::FFMPEGData() const
+EncoderConfig const Configuration::FFMPEGData() const
 {
-    auto temp = FFMPEG_Config{};
+    auto temp = EncoderConfig{};
 
     auto fpsText = std::string{};
     if(ExtractVariable(data, FPS_TAG, fpsText))
@@ -139,7 +148,7 @@ FFMPEG_Config const Configuration::FFMPEGData() const
     return temp;
 }
 
-bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
+bool Configuration::SaveFFMPEG(EncoderConfig const data)
 {
     auto newData = std::string{this->data};
     
@@ -227,9 +236,9 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
     return SaveConfigFile(newData);
 }
 
-Controller_Config const Configuration::ControllerData() const
+ControllerConfig const Configuration::ControllerData() const
 {
-    auto temp = Controller_Config{};
+    auto temp = ControllerConfig{};
 
     {
         std::string controllerMode{};
@@ -266,7 +275,7 @@ Controller_Config const Configuration::ControllerData() const
     return temp;
 }
 
-bool Configuration::SaveController(Controller_Config const data)
+bool Configuration::SaveController(ControllerConfig const data)
 {
     auto newData = std::string{this->data};
     
@@ -303,6 +312,147 @@ bool Configuration::SaveController(Controller_Config const data)
         {
             std::cout << MOUSE_SENS_TAG << " variable not found. Appended to config.\n";
             newData += std::string{MOUSE_SENS_TAG} + "=" + mouseSensitivity + ";\n";
+        }
+    }
+
+    return SaveConfigFile(newData);
+}
+
+DecoderConfiguration const Configuration::DecoderData() const
+{
+    auto temp = DecoderConfiguration{};
+
+    {
+        std::string flag1{};
+        if(ExtractVariable(data, DECODER_FLAG1_TAG, flag1))
+        {
+            auto flags = split(flag1, ',');
+            temp.flag1 = ParseDecoderFlags1Strings(flags);
+        }
+        else
+            temp.flag1 = DefaultDecoderFlags1;
+    }
+
+    {
+        std::cout << "Flag 2 loading...\n";
+        std::string flag2{};
+        if(ExtractVariable(data, DECODER_FLAG2_TAG, flag2))
+        {
+            auto flags = split(flag2, ',');
+            temp.flag2 = ParseDecoderFlags2Strings(flags);
+        }
+        else
+            temp.flag2 = DefaultDecoderFlags2;
+    }
+
+    {
+        std::string hwFlags{};
+        if(ExtractVariable(data, DECODER_HWACCEL_FLAG_TAG, hwFlags))
+        {
+            auto flags = split(hwFlags, ',');
+            temp.hwAccelFlags = ParseHWAccelFlagStrings(flags);
+        }
+        else
+            temp.hwAccelFlags = DefaultHWAccelFlags;
+    }
+
+    {
+        std::string skipLoopFilter{};
+        if(ExtractVariable(data, DECODER_SKIP_LOOP_FILTER_TAG, skipLoopFilter))
+            temp.skipLoopFilter = ParseAVDiscardString(skipLoopFilter);
+        else
+            temp.skipLoopFilter = DefaultSkipLoopFilter;
+    }
+
+    {
+        std::string threadType{};
+        if(ExtractVariable(data, DECODER_THREAD_TYPE_TAG, threadType))
+            temp.threadType = ParseThreadTypeString(threadType);
+        else
+            temp.threadType = DefaultThreadType;
+    }
+
+    {
+        std::string threadCount{};
+        if(ExtractVariable(data, DECODER_THREAD_COUNT_TAG, threadCount))
+            temp.threadCount = atoi(threadCount.c_str());
+        else
+            temp.threadCount = DefaultThreadCount;
+    }
+
+    return temp;
+}
+
+bool Configuration::SaveDecoderConfig(DecoderConfiguration const data)
+{
+    auto newData = std::string{this->data};
+    
+    {
+        auto flag1 = DecoderFlags1ToStrings(data.flag1);
+        std::string commaSeparatedFlags {};
+        for(auto& f : flag1)
+            commaSeparatedFlags += f.second + ",";
+
+        commaSeparatedFlags = commaSeparatedFlags.substr(0, commaSeparatedFlags.size() - 1);
+        if(!ReplaceVariable(newData, DECODER_FLAG1_TAG, commaSeparatedFlags, newData))
+        {
+            std::cout << DECODER_FLAG1_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DECODER_FLAG1_TAG} + "=" + commaSeparatedFlags + ";\n";
+        }
+    }
+
+    {
+        auto flag2 = DecoderFlags2ToStrings(data.flag2);
+        std::string commaSeparatedFlags {};
+        for(auto& f : flag2)
+            commaSeparatedFlags += f.second + ",";
+
+        commaSeparatedFlags = commaSeparatedFlags.substr(0, commaSeparatedFlags.size() - 1);
+        if(!ReplaceVariable(newData, DECODER_FLAG2_TAG, commaSeparatedFlags, newData))
+        {
+            std::cout << DECODER_FLAG2_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DECODER_FLAG2_TAG} + "=" + commaSeparatedFlags + ";\n";
+        }
+    }
+
+    {
+        auto hwFlags = HWAccelFlagsToStrings(data.hwAccelFlags);
+        std::string commaSeparatedFlags {};
+        for(auto& f : hwFlags)
+            commaSeparatedFlags += f.second + ",";
+
+        commaSeparatedFlags = commaSeparatedFlags.substr(0, commaSeparatedFlags.size() - 1);
+        if(!ReplaceVariable(newData, DECODER_HWACCEL_FLAG_TAG, commaSeparatedFlags, newData))
+        {
+            std::cout << DECODER_HWACCEL_FLAG_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DECODER_HWACCEL_FLAG_TAG} + "=" + commaSeparatedFlags + ";\n";
+        }
+    }
+
+    {
+        auto skipLoopFilter = AVDiscardToString(data.skipLoopFilter);
+        if(!ReplaceVariable(newData, DECODER_SKIP_LOOP_FILTER_TAG, skipLoopFilter, newData))
+        {
+            std::cout << DECODER_SKIP_LOOP_FILTER_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DECODER_SKIP_LOOP_FILTER_TAG} + "=" + skipLoopFilter + ";\n";
+        }
+    }
+
+    {
+        auto threadType = ThreadTypeToString(data.threadType);
+        if(!ReplaceVariable(newData, DECODER_THREAD_TYPE_TAG, threadType, newData))
+        {
+            std::cout << DECODER_THREAD_TYPE_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DECODER_THREAD_TYPE_TAG} + "=" + threadType + ";\n";
+        }
+    }
+
+    {
+        auto threadCount = std::to_string(data.threadCount);
+        if(!ReplaceVariable(newData, DECODER_THREAD_COUNT_TAG, threadCount, newData))
+        {
+            std::cout << DECODER_THREAD_COUNT_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{DECODER_THREAD_COUNT_TAG} + "=" + threadCount + ";\n";
         }
     }
 

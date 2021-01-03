@@ -42,7 +42,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
    return data;
 }
 
-std::thread StartGamepadListener(Controller_Config controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
+std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
 {
    using namespace std;
    thread workerThread{};

@@ -96,7 +96,7 @@ void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font *
     }
 }
 
-FFMPEG_Config const MenuSelection::GetFfmpegSettings()
+EncoderConfig const MenuSelection::GetFfmpegSettings()
 {
     return encoderScreen.Settings();
 }
@@ -106,7 +106,7 @@ DecoderConfiguration const MenuSelection::GetDecoderSettings()
     return decoderScreen.DecoderSettings();
 }
 
-Controller_Config const MenuSelection::GetControllerSettings()
+ControllerConfig const MenuSelection::GetControllerSettings()
 {
     return controllerScreen.Settings();
 }

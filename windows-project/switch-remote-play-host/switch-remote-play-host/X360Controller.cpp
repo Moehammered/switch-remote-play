@@ -12,10 +12,10 @@ const Switch_HidControllerKeys ButtonsToCheck_X360[] = {
 };
 
 std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> const SWITCH_TO_X360_FACE_BTNS{
-	{ KEY_A, XUSB_GAMEPAD_A },
-	{ KEY_B, XUSB_GAMEPAD_B },
-	{ KEY_X, XUSB_GAMEPAD_X },
-	{ KEY_Y, XUSB_GAMEPAD_Y }
+	{ KEY_A, XUSB_GAMEPAD_B },
+	{ KEY_B, XUSB_GAMEPAD_A },
+	{ KEY_X, XUSB_GAMEPAD_Y },
+	{ KEY_Y, XUSB_GAMEPAD_X }
 };
 
 std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BTNS{
@@ -109,15 +109,15 @@ void X360Controller::MapFaceButtons(ControllerButtonMap map)
 			auto y = KEY_Y;
 			auto originalX = faceButtons.at(x);
 			auto originalY = faceButtons.at(y);
-			SWITCH_TO_XUSB_BTNS[x] = originalY;
-			SWITCH_TO_XUSB_BTNS[y] = originalX;
+			SWITCH_TO_XUSB_BTNS[x] = originalX;
+			SWITCH_TO_XUSB_BTNS[y] = originalY;
 
 			auto a = KEY_A;
 			auto b = KEY_B;
 			auto originalA = faceButtons.at(a);
 			auto originalB = faceButtons.at(b);
-			SWITCH_TO_XUSB_BTNS[a] = originalB;
-			SWITCH_TO_XUSB_BTNS[b] = originalA;
+			SWITCH_TO_XUSB_BTNS[a] = originalA;
+			SWITCH_TO_XUSB_BTNS[b] = originalB;
 		}
 		break;
 

@@ -2,6 +2,7 @@
 #define __CONFIGURATION_H__
 
 #include "../network/NetworkData.h"
+#include "../dataHelpers/DecoderFlags.h"
 #include <string>
 /* Configuration File Layout
 
@@ -26,11 +27,14 @@ public:
     std::string const ManualIP() const;
     bool SaveManualIP(std::string const ip);
 
-    FFMPEG_Config const FFMPEGData() const;
-    bool SaveFFMPEG(FFMPEG_Config const data);
+    EncoderConfig const FFMPEGData() const;
+    bool SaveFFMPEG(EncoderConfig const data);
 
-    Controller_Config const ControllerData() const;
-    bool SaveController(Controller_Config const data);
+    ControllerConfig const ControllerData() const;
+    bool SaveController(ControllerConfig const data);
+
+    DecoderConfiguration const DecoderData() const;
+    bool SaveDecoderConfig(DecoderConfiguration const data);
 
 private:
     auto static constexpr parentFolder = "sdmc:/switch/switch-remote-play";
