@@ -203,13 +203,13 @@ int main(int argc, char **argv)
                     else
                         ip = network.IPAddress();
                   
-                    auto ffmpegConfig = GetFfmpegSettings();
-                    auto controllerConfig = GetControllerSettings();
+                    auto ffmpegConfig = menuScreens.GetFfmpegSettings();
+                    auto controllerConfig = menuScreens.GetControllerSettings();
                     auto configfile = Configuration{};
                     configfile.SaveFFMPEG(ffmpegConfig);
                     configfile.SaveController(controllerConfig);
-                    RunStartConfiguredStreamCommand(ip, hostCommandPort, GetFfmpegSettings(), GetControllerSettings());
-                    auto streamOn = stream.WaitForStream(videoPort);
+                    RunStartConfiguredStreamCommand(ip, hostCommandPort, ffmpegConfig, controllerConfig);
+                    auto streamOn = stream.WaitForStream(menuScreens.GetDecoderSettings(), videoPort);
 
                     if(streamOn)
                     {

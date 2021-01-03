@@ -2,18 +2,11 @@
 #define __NETWORKDATA_H__
 
 #include <stdint.h>
-
-enum ControllerMode : int16_t
-{
-   X360 = 0,
-   DS4,
-   CONTROLLER_MODE_COUNT
-};
-
-#include "../ffmpegHelpers/EncoderPreset.h"
-#include "../ffmpegHelpers/HWAccel.h"
-#include "../ffmpegHelpers/VideoCodecMode.h"
-#include "../ffmpegHelpers/VsyncMode.h"
+#include "../dataHelpers/EncoderPreset.h"
+#include "../dataHelpers/HWAccel.h"
+#include "../dataHelpers/VideoCodecMode.h"
+#include "../dataHelpers/VsyncMode.h"
+#include "../dataHelpers/ControllerMode.h"
 
 struct alignas(16) AudioConfig
 {

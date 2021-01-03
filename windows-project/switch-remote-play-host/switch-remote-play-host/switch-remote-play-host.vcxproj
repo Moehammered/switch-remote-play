@@ -170,7 +170,6 @@
     <ClCompile Include="SystemCalls.cpp" />
     <ClCompile Include="X360Controller.cpp" />
     <ClCompile Include="VideoCodecMode.cpp" />
-    <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VsyncMode.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -184,9 +183,6 @@
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="resource1.h" />
-    <ClInclude Include="resource2.h" />
-    <ClInclude Include="resource3.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />

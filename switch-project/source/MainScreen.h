@@ -7,6 +7,7 @@
 #include "ui/HelpMenu.h"
 #include "ui/NetworkMenu.h"
 #include "ui/DecoderMenu.h"
+#include "ui/ControllerMenu.h"
 #include "ui/ConfigurationScreen.h"
 #include "network/NetworkDiscovery.h"
 
@@ -46,6 +47,8 @@ class MenuSelection : public Menu
 
         DecoderConfiguration const GetDecoderSettings();
 
+        Controller_Config const GetControllerSettings();
+
         bool UseManualIP();
 
         std::string const GetManualIPAddress();
@@ -56,6 +59,7 @@ class MenuSelection : public Menu
         Text streamPendingText;
         HelpMenu helpScreen;
         DecoderMenu decoderScreen;
+        ControllerMenu controllerScreen;
         ConfigurationScreen encoderScreen;
         NetworkMenu networkScreen;
         std::unordered_map<MenuScreen, Menu*> menus;

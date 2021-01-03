@@ -13,7 +13,7 @@ enum ControllerMenuItems : int32_t
     CONTROLLER_MENU_COUNT
 };
 
-class ControllerMenu : Menu
+class ControllerMenu : public Menu
 {
     public:
         ControllerMenu();

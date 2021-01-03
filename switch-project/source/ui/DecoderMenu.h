@@ -2,7 +2,7 @@
 #define __DECODERMENU_H__
 
 #include "Menu.h"
-#include "../ffmpegHelpers/DecoderFlags.h"
+#include "../dataHelpers/DecoderFlags.h"
 #include <unordered_map>
 #include <array>
 #include <vector>

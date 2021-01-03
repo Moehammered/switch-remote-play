@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include "../system/Configuration.h"
-#include "../ffmpegHelpers/Resolution.h"
+#include "../dataHelpers/Resolution.h"
 
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};

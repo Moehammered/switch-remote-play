@@ -10,7 +10,7 @@ extern "C"
 #include <string>
 #include <atomic>
 #include "../ScreenRenderer.h"
-#include "../ffmpegHelpers/DecoderFlags.h"
+#include "../dataHelpers/DecoderFlags.h"
 
 class VideoStream
 {

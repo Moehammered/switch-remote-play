@@ -1,11 +1,12 @@
 #include "Configuration.h"
 #include "FileOperations.h"
 #include "../network/NetworkData.h"
-#include "../ffmpegHelpers/HWAccel.h"
-#include "../ffmpegHelpers/VsyncMode.h"
-#include "../ffmpegHelpers/Resolution.h"
-#include "../ffmpegHelpers/EncoderPreset.h"
-#include "../ffmpegHelpers/VideoCodecMode.h"
+#include "../dataHelpers/HWAccel.h"
+#include "../dataHelpers/VsyncMode.h"
+#include "../dataHelpers/Resolution.h"
+#include "../dataHelpers/EncoderPreset.h"
+#include "../dataHelpers/VideoCodecMode.h"
+#include "../dataHelpers/ControllerMode.h"
 #include <iostream>
 
 auto constexpr MANUAL_IP_TAG = "manual_ip";
@@ -21,27 +22,7 @@ auto constexpr HWACCEL_TAG = "hwaccel_mode";
 auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
 auto constexpr CONTROLLER_MODE_TAG = "controller_mode";
 
-std::string ControllerModeEnumToText(ControllerMode controllerMode)
-{
-    switch(controllerMode)
-    {
-        default:
-        case ControllerMode::X360:
-            return "x360";
-        case ControllerMode::DS4:
-            return "ds4";
-    }
-}
 
-ControllerMode ControllerModeTextToEnum(std::string s)
-{
-    if(s == "x360")
-        return ControllerMode::X360;
-    else if(s == "ds4")
-        return ControllerMode::DS4;
-    else
-        return ControllerMode::X360;
-}
 
 Configuration::Configuration() : data{}
 {
@@ -269,7 +250,7 @@ Controller_Config const Configuration::ControllerData() const
     {
         std::string controllerMode{};
         if(ExtractVariable(data, CONTROLLER_MODE_TAG, controllerMode))
-            temp.controllerMode = ControllerModeTextToEnum(controllerMode);
+            temp.controllerMode = ParseControllerModeString(controllerMode);
         else
             temp.controllerMode = ControllerMode::X360;
     }
@@ -282,7 +263,7 @@ bool Configuration::SaveController(Controller_Config const data)
     auto newData = std::string{this->data};
     
     {
-        auto controllerMode = ControllerModeEnumToText(data.controllerMode);
+        auto controllerMode = ControllerModeToString(data.controllerMode);
         if(!ReplaceVariable(newData, CONTROLLER_MODE_TAG, controllerMode, newData))
         {
             std::cout << CONTROLLER_MODE_TAG << " variable not found. Appended to config.\n";

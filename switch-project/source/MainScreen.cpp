@@ -7,11 +7,13 @@ auto constexpr defaultControlMessage = "'ZL'/'ZR' - cycle screens | 'A'/'B' - ch
 MenuSelection::MenuSelection() : Menu(), 
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
-    decoderScreen{}, encoderScreen{}, networkScreen{},
+    decoderScreen{}, controllerScreen{},
+    encoderScreen{}, networkScreen{},
     menus{}, selectedMenu{HELP}
 {
     menus[MenuScreen::HELP] = &helpScreen;
     menus[MenuScreen::DECODER_CONFIG] = &decoderScreen;
+    menus[MenuScreen::CONTROLLER] = &controllerScreen;
     menus[MenuScreen::CONFIG] = &encoderScreen;
     menus[MenuScreen::IP_SET] = &networkScreen;
 
@@ -65,9 +67,9 @@ void MenuSelection::RenderTitle(SDL_Renderer * const renderer, FC_Font * const f
 
 void MenuSelection::RenderPendingConnection(SDL_Renderer * const renderer, FC_Font * const font)
 {
-    title.Render(renderer, systemFont);
-    controlText.Render(renderer, systemFont);
-    currentScreenText.Render(renderer, systemFont);
+    title.Render(renderer, font);
+    controlsText.Render(renderer, font);
+    streamPendingText.Render(renderer, font);
 }
 
 void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network)
@@ -102,6 +104,11 @@ FFMPEG_Config const MenuSelection::GetFfmpegSettings()
 DecoderConfiguration const MenuSelection::GetDecoderSettings()
 {
     return decoderScreen.DecoderSettings();
+}
+
+Controller_Config const MenuSelection::GetControllerSettings()
+{
+    return {};
 }
 
 bool MenuSelection::UseManualIP()

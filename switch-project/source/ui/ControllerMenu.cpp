@@ -6,23 +6,10 @@
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};
 
-std::string ControllerModeToString(ControllerMode mode)
-{
-    switch(mode)
-    {
-        case ControllerMode::X360:
-            return "X360";
-        case ControllerMode::DS4:
-            return "DS4";
-
-        default:
-            return "unknown";
-    }
-}
-
 ControllerMenu::ControllerMenu() 
     : Menu(), settingIndex(0), settingsIndices{}, settingsText{}
 {
+    title.value = "Controller Configuration";
     const int settingTextX = 100;
     const int yOffset = 200;
     const int ySpace = 45;
@@ -108,6 +95,7 @@ void ControllerMenu::SelectPrevious()
 
 void ControllerMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
+    title.Render(renderer, font);
     //use this later to render a rect behind the text elements
     //SDL_SetRenderDrawColor(renderer, backgroundColour.r, backgroundColour.g, backgroundColour.b, backgroundColour.a);
     //sdl fill rect here
@@ -133,5 +121,5 @@ Controller_Config const ControllerMenu::Settings()
 void ControllerMenu::UpdateControllerMode()
 {
     const auto controllerMode = (ControllerMode)settingsIndices[ControllerMenuItems::CONTROLLER_MODE];
-    settingsText[ControllerMenuItems::CONTROLLER_MODE].value = "ControllerMode:            " + ControllerModeToString(controllerMode);
+    settingsText[ControllerMenuItems::CONTROLLER_MODE].value = "ControllerMode:            " + ControllerModeDescription(controllerMode);
 }
