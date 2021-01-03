@@ -2,12 +2,16 @@
 #include <string>
 #include <iostream>
 #include "../system/Configuration.h"
+#include "../dataHelpers/ControllerButtonMap.h"
 
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};
+constexpr int maxMouseSensitivity = 30;
+constexpr int minMouseSensitivity = 3;
+
 
 ControllerMenu::ControllerMenu() 
-    : Menu(), settingIndex(0), settingsIndices{}, settingsText{}
+    : Menu(), selectedItem{}, settingsIndices{}, settingsText{}
 {
     title.value = "Controller Configuration";
     const int settingTextX = 100;
@@ -25,8 +29,11 @@ ControllerMenu::ControllerMenu()
     auto controller = config.ControllerData();
 
     settingsIndices[ControllerMenuItems::CONTROLLER_MODE] = controller.controllerMode;
+    settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP] = controller.controllerMap;
+    settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] = controller.mouseOnConnect;
+    settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY] = controller.mouseSensitivity;
 
-    UpdateControllerMode();
+    Update();
 }
 
 void ControllerMenu::ProcessInput(PadState const & pad)
@@ -46,50 +53,84 @@ void ControllerMenu::ProcessInput(PadState const & pad)
 
 void ControllerMenu::IncreaseSetting()
 {
-    auto currInd = settingsIndices[settingIndex];
+    auto currInd = settingsIndices[selectedItem];
 
-    switch(settingIndex)
+    switch(selectedItem)
     {
         case ControllerMenuItems::CONTROLLER_MODE:
             if(++currInd >= ControllerMode::CONTROLLER_MODE_COUNT)
                 currInd = 0;
         break;
+
+        case ControllerMenuItems::CONTROLLER_BTN_MAP:
+            if(++currInd >= ControllerButtonMap::CONTROLLER_MAP_COUNT)
+                currInd = 0;
+        break;
+
+        case ControllerMenuItems::MOUSE_ON_CONNECT:
+            if(++currInd > 1)
+                currInd = 0;
+        break;
+
+        case ControllerMenuItems::MOUSE_SENSITIVITY:
+            if(++currInd > maxMouseSensitivity)
+                currInd = minMouseSensitivity;
+        break;
     }
 
-    settingsIndices[settingIndex] = currInd;
+    settingsIndices[selectedItem] = currInd;
 
-    UpdateControllerMode();
+    Update();
 }
 
 void ControllerMenu::DecreaseSetting()
 {
-    auto currInd = settingsIndices[settingIndex];
+    auto currInd = settingsIndices[selectedItem];
 
-    switch(settingIndex)
+    switch(selectedItem)
     {
         case ControllerMenuItems::CONTROLLER_MODE:
             if(--currInd < 0)
                 currInd = ControllerMode::CONTROLLER_MODE_COUNT - 1;
         break;
+
+        case ControllerMenuItems::CONTROLLER_BTN_MAP:
+            if(--currInd < 0)
+                currInd = ControllerButtonMap::CONTROLLER_MAP_COUNT - 1;
+        break;
+
+        case ControllerMenuItems::MOUSE_ON_CONNECT:
+            if(--currInd < 0)
+                currInd = 1;
+        break;
+
+        case ControllerMenuItems::MOUSE_SENSITIVITY:
+            if(--currInd < minMouseSensitivity)
+                currInd = maxMouseSensitivity;
+        break;
     }
 
-    settingsIndices[settingIndex] = currInd;
+    settingsIndices[selectedItem] = currInd;
 
-    UpdateControllerMode();
+    Update();
 }
 
 void ControllerMenu::SelectNext()
 {
-    ++settingIndex;
-    if(settingIndex >= settingsIndices.size())
-        settingIndex = 0;
+    auto selected = (int32_t)selectedItem;
+    ++selected;
+    if(selected >= ControllerMenuItems::CONTROLLER_MENU_COUNT)
+        selected = 0;
+    selectedItem = (ControllerMenuItems)selected;
 }
 
 void ControllerMenu::SelectPrevious()
 {
-    --settingIndex;
-    if(settingIndex < 0)
-        settingIndex = settingsIndices.size() - 1;
+    auto selected = (int32_t)selectedItem;
+    --selected;
+    if(selected < 0)
+        selected = ControllerMenuItems::CONTROLLER_MENU_COUNT - 1;
+    selectedItem = (ControllerMenuItems)selected;
 }
 
 
@@ -99,9 +140,9 @@ void ControllerMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
     //use this later to render a rect behind the text elements
     //SDL_SetRenderDrawColor(renderer, backgroundColour.r, backgroundColour.g, backgroundColour.b, backgroundColour.a);
     //sdl fill rect here
-    for(auto i = 0; i < settingsText.size(); ++i)
+    for(auto i = 0U; i < settingsText.size(); ++i)
     {
-        if(i != settingIndex)
+        if(i != selectedItem)
             settingsText[i].Render(renderer, font);
         else
             settingsText[i].Render(renderer, font, highlightColour);
@@ -111,15 +152,31 @@ void ControllerMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 Controller_Config const ControllerMenu::Settings()
 {
     auto controllerMode = (ControllerMode)settingsIndices[ControllerMenuItems::CONTROLLER_MODE];
+    auto const controllerMap = (ControllerButtonMap)settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP];
+    auto const mouseOnConnect = settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] == 1;
+    auto const sensitivity = settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY];
 
     return Controller_Config{
         .controllerMode = controllerMode,
+        .controllerMap = controllerMap,
+        .mouseSensitivity = sensitivity,
+        .mouseOnConnect = mouseOnConnect
     };
 }
 
 
-void ControllerMenu::UpdateControllerMode()
+void ControllerMenu::Update()
 {
     const auto controllerMode = (ControllerMode)settingsIndices[ControllerMenuItems::CONTROLLER_MODE];
-    settingsText[ControllerMenuItems::CONTROLLER_MODE].value = "ControllerMode:            " + ControllerModeDescription(controllerMode);
+    settingsText[ControllerMenuItems::CONTROLLER_MODE].value = "Controller Mode:        " + ControllerModeDescription(controllerMode);
+
+    auto const controllerMap = (ControllerButtonMap)settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP];
+    settingsText[ControllerMenuItems::CONTROLLER_BTN_MAP].value = "Controller Mapping:     " + ControllerButtonMapDescription(controllerMap);
+
+    auto const mouseOnConnect = settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] == 1;
+    std::string parsedBool = mouseOnConnect ? "Yes" : "No";
+    settingsText[ControllerMenuItems::MOUSE_ON_CONNECT].value = "Mouse on Connect:       " + parsedBool;
+
+    auto const sensitivity = settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY];
+    settingsText[ControllerMenuItems::MOUSE_SENSITIVITY].value = "Mouse Sensitivity:      " + std::to_string(sensitivity);
 }

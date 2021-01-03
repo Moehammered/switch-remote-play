@@ -16,7 +16,7 @@
 #include "Broadcast.h"
 #include "MasterVolume.h"
 
-auto constexpr applicationVersion = "0.7.6";
+auto constexpr applicationVersion = "0.8.0";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
                         if (switchHandshakeConnection != nullptr)
                             switchHandshakeConnection->Shutdown();
 
-                        gamepadThread = StartGamepadListener(lastPayload.configData.mouseSensitivity, killStream, gamepadActive, gamepadPort, lastPayload.controllerData.controllerMode);
+                        gamepadThread = StartGamepadListener(lastPayload.controllerData, killStream, gamepadActive, gamepadPort);
 #ifdef RELEASE
                         if(IsWindowVisible(GetConsoleWindow()))
                             ShowWindow(GetConsoleWindow(), SW_MINIMIZE);

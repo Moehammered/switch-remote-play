@@ -7,6 +7,7 @@
 #include "../dataHelpers/VideoCodecMode.h"
 #include "../dataHelpers/VsyncMode.h"
 #include "../dataHelpers/ControllerMode.h"
+#include "../dataHelpers/ControllerButtonMap.h"
 
 struct alignas(16) AudioConfig
 {
@@ -30,14 +31,17 @@ struct alignas(8) FFMPEG_Config
     EncoderPreset   preset;
     HWAccelMode     hwaccelMode;
     VideoCodecMode  videoCodecMode;
-    int16_t         mouseSensitivity;
+    int8_t          padding[2];
 };
 
 constexpr int FFMPEG_CONFIG_SIZE = sizeof(FFMPEG_Config);
 
 struct alignas(2) Controller_Config
 {
-    ControllerMode   controllerMode;
+    ControllerMode      controllerMode;
+    ControllerButtonMap controllerMap;
+    int16_t             mouseSensitivity;
+    bool                mouseOnConnect;
 };
 
 constexpr int CONTROLLER_CONFIG_SIZE = sizeof(Controller_Config);
@@ -61,7 +65,7 @@ struct alignas(32) CommandPayload
     Controller_Config  controllerData;
     Command            commandCode;
     //fill the struct to pad it out to 32 bytes
-    int8_t             padding[32 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
+    int8_t             padding[64 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
 
     // int16_t dataBufferSize;
     // char dataBuffer[255];

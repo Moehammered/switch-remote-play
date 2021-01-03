@@ -21,8 +21,8 @@ auto constexpr VIDEO_CODEC_TAG = "video_codec";
 auto constexpr HWACCEL_TAG = "hwaccel_mode";
 auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
 auto constexpr CONTROLLER_MODE_TAG = "controller_mode";
-
-
+auto constexpr CONTROLLER_BTN_MAP_TAG = "controller_map";
+auto constexpr MOUSE_ON_CONNECT_TAG = "mouse_on_connect";
 
 Configuration::Configuration() : data{}
 {
@@ -136,13 +136,6 @@ FFMPEG_Config const Configuration::FFMPEGData() const
             temp.hwaccelMode = HWAccelMode::AUTO;
     }
 
-    {
-        std::string mouse{};
-        if(ExtractVariable(data, MOUSE_SENS_TAG, mouse))
-            temp.mouseSensitivity = atoi(mouse.c_str());
-        else
-            temp.mouseSensitivity = 10;
-    }
     return temp;
 }
 
@@ -231,15 +224,6 @@ bool Configuration::SaveFFMPEG(FFMPEG_Config const data)
         }
     }
 
-    {
-        auto mouse = std::to_string(data.mouseSensitivity);
-        if(!ReplaceVariable(newData, MOUSE_SENS_TAG, mouse, newData))
-        {
-            std::cout << MOUSE_SENS_TAG << " variable not found. Appended to config.\n";
-            newData += std::string{MOUSE_SENS_TAG} + "=" + mouse + ";\n";
-        }
-    }
-
     return SaveConfigFile(newData);
 }
 
@@ -255,6 +239,30 @@ Controller_Config const Configuration::ControllerData() const
             temp.controllerMode = ControllerMode::X360;
     }
 
+    {
+        std::string controllerMap{};
+        if(ExtractVariable(data, CONTROLLER_BTN_MAP_TAG, controllerMap))
+            temp.controllerMap = ParseControllerButtonMapString(controllerMap);
+        else
+            temp.controllerMap = ControllerButtonMap::CONTROLLER_MAP_DEFAULT;
+    }
+
+    {
+        std::string mouseSensitivity{};
+        if(ExtractVariable(data, MOUSE_SENS_TAG, mouseSensitivity))
+            temp.mouseSensitivity = atoi(mouseSensitivity.c_str());
+        else
+            temp.mouseSensitivity = 10;
+    }
+
+    {
+        std::string mouseOnConnect{};
+        if(ExtractVariable(data, MOUSE_ON_CONNECT_TAG, mouseOnConnect))
+            temp.mouseOnConnect = mouseOnConnect == "yes" ? true : false;
+        else
+            temp.mouseOnConnect = false;
+    }
+
     return temp;
 }
 
@@ -268,6 +276,33 @@ bool Configuration::SaveController(Controller_Config const data)
         {
             std::cout << CONTROLLER_MODE_TAG << " variable not found. Appended to config.\n";
             newData += std::string{CONTROLLER_MODE_TAG} + "=" + controllerMode + ";\n";
+        }
+    }
+
+    {
+        auto controllerMap = ControllerButtonMapToString(data.controllerMap);
+        if(!ReplaceVariable(newData, CONTROLLER_BTN_MAP_TAG, controllerMap, newData))
+        {
+            std::cout << CONTROLLER_BTN_MAP_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{CONTROLLER_BTN_MAP_TAG} + "=" + controllerMap + ";\n";
+        }
+    }
+
+    {
+        auto mouseOnConnect = data.mouseOnConnect ? "yes" : "no";
+        if(!ReplaceVariable(newData, MOUSE_ON_CONNECT_TAG, mouseOnConnect, newData))
+        {
+            std::cout << MOUSE_ON_CONNECT_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{MOUSE_ON_CONNECT_TAG} + "=" + mouseOnConnect + ";\n";
+        }
+    }
+
+    {
+        auto mouseSensitivity = std::to_string(data.mouseSensitivity);
+        if(!ReplaceVariable(newData, MOUSE_SENS_TAG, mouseSensitivity, newData))
+        {
+            std::cout << MOUSE_SENS_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{MOUSE_SENS_TAG} + "=" + mouseSensitivity + ";\n";
         }
     }
 

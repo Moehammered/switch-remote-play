@@ -10,6 +10,9 @@
 enum ControllerMenuItems : int32_t
 {
     CONTROLLER_MODE = 0,
+    CONTROLLER_BTN_MAP,
+    MOUSE_SENSITIVITY,
+    MOUSE_ON_CONNECT,
     CONTROLLER_MENU_COUNT
 };
 
@@ -28,13 +31,13 @@ class ControllerMenu : public Menu
         Controller_Config const Settings();
 
     private:
-        int settingIndex;
+        ControllerMenuItems selectedItem;
 
-        std::array<int, ControllerMenuItems::CONTROLLER_MENU_COUNT> settingsIndices;
+        std::array<int32_t, ControllerMenuItems::CONTROLLER_MENU_COUNT> settingsIndices;
 
         std::array<Text, ControllerMenuItems::CONTROLLER_MENU_COUNT> settingsText;
 
-        void UpdateControllerMode();
+        void Update();
 };
 
 #endif

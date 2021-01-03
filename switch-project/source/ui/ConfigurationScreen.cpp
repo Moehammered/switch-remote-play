@@ -113,7 +113,6 @@ ConfigurationScreen::ConfigurationScreen()
     settingsIndices[FfmpegConfigUiElements::CRF] = ffmpeg.constantRateFactor;
     settingsIndices[FfmpegConfigUiElements::CODEC] = ffmpeg.videoCodecMode;
     settingsIndices[FfmpegConfigUiElements::HWACCEL] = ffmpeg.hwaccelMode;
-    settingsIndices[FfmpegConfigUiElements::MOUSE_SENSITIVITY] = ffmpeg.mouseSensitivity;
 
     UpdateFramerate();
     UpdateVideoRes();
@@ -124,7 +123,6 @@ ConfigurationScreen::ConfigurationScreen()
     UpdateCRF();
     UpdateCodec();
     UpdateHWAccel();
-    UpdateMouseSensitivity();
 }
 
 void ConfigurationScreen::ProcessInput(PadState const & pad)
@@ -192,11 +190,6 @@ void ConfigurationScreen::IncreaseSetting()
             if(++currInd >= HWAccelMode::CUDA)
                 currInd = 0;
         break;
-
-        case FfmpegConfigUiElements::MOUSE_SENSITIVITY:
-            if(++currInd > maxMouseSensitivity)
-                    currInd = minMouseSensitivity;
-        break;
     }
 
     settingsIndices[settingIndex] = currInd;
@@ -210,7 +203,6 @@ void ConfigurationScreen::IncreaseSetting()
     UpdateCRF();
     UpdateCodec();
     UpdateHWAccel();
-    UpdateMouseSensitivity();
 }
 
 void ConfigurationScreen::DecreaseSetting()
@@ -263,11 +255,6 @@ void ConfigurationScreen::DecreaseSetting()
             if(--currInd < 0)
                 currInd = HWAccelMode::CUDA - 1;
         break;
-
-        case FfmpegConfigUiElements::MOUSE_SENSITIVITY:
-            if(--currInd < minMouseSensitivity)
-                currInd = maxMouseSensitivity;
-        break;
     }
 
     settingsIndices[settingIndex] = currInd;
@@ -281,7 +268,6 @@ void ConfigurationScreen::DecreaseSetting()
     UpdateCRF();
     UpdateCodec();
     UpdateHWAccel();
-    UpdateMouseSensitivity();
 }
 
 void ConfigurationScreen::SelectNext()
@@ -324,7 +310,6 @@ FFMPEG_Config const ConfigurationScreen::Settings() const
     auto preset = (EncoderPreset)settingsIndices[FfmpegConfigUiElements::PRESET];
     auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
     auto videoCodecMode = (VideoCodecMode)settingsIndices[FfmpegConfigUiElements::CODEC];
-    auto mouseSens = settingsIndices[FfmpegConfigUiElements::MOUSE_SENSITIVITY];
 
     return FFMPEG_Config{
         .desiredFrameRate = framerate,
@@ -335,8 +320,7 @@ FFMPEG_Config const ConfigurationScreen::Settings() const
         .constantRateFactor = crf,
         .preset = preset,
         .hwaccelMode = hwaccel,
-        .videoCodecMode = videoCodecMode,
-        .mouseSensitivity = mouseSens
+        .videoCodecMode = videoCodecMode
     };
 }
 
@@ -401,10 +385,3 @@ void ConfigurationScreen::UpdateHWAccel()
     const auto hwaccel = (HWAccelMode)settingsIndices[FfmpegConfigUiElements::HWACCEL];
     settingsText[FfmpegConfigUiElements::HWACCEL].value = "Hardware Accel Mode:    " + HWAccelDescription(hwaccel);
 }
-
-void ConfigurationScreen::UpdateMouseSensitivity()
-{
-    const auto mouseSens = settingsIndices[FfmpegConfigUiElements::MOUSE_SENSITIVITY];
-    settingsText[FfmpegConfigUiElements::MOUSE_SENSITIVITY].value = "Mouse Sensitivity:      " + std::to_string(mouseSens);
-}
-

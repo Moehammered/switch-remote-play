@@ -108,7 +108,7 @@ DecoderConfiguration const MenuSelection::GetDecoderSettings()
 
 Controller_Config const MenuSelection::GetControllerSettings()
 {
-    return {};
+    return controllerScreen.Settings();
 }
 
 bool MenuSelection::UseManualIP()

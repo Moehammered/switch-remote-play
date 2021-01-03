@@ -16,7 +16,6 @@ enum FfmpegConfigUiElements : int32_t
     HWACCEL,
     PRESET,
     CODEC,
-    MOUSE_SENSITIVITY,
     CONFIG_COUNT
 };
 class ConfigurationScreen : public Menu
@@ -49,7 +48,6 @@ class ConfigurationScreen : public Menu
         void UpdateCRF();
         void UpdateCodec();
         void UpdateHWAccel();
-        void UpdateMouseSensitivity();
 };
 
 #endif

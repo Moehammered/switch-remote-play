@@ -1,50 +1,150 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="AtomicTest.cpp" />
-    <ClCompile Include="Broadcast.cpp" />
-    <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="DS4Controller.cpp" />
-    <ClCompile Include="EncoderPreset.cpp" />
-    <ClCompile Include="FFMPEGHelper.cpp" />
-    <ClCompile Include="HWAccel.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MasterVolume.cpp" />
-    <ClCompile Include="Resolution.cpp" />
-    <ClCompile Include="SwitchStream.cpp" />
-    <ClCompile Include="SystemCalls.cpp" />
-    <ClCompile Include="X360Controller.cpp" />
-    <ClCompile Include="VideoCodecMode.cpp" />
-    <ClCompile Include="VsyncMode.cpp" />
+    <ClCompile Include="AtomicTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Broadcast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Connection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerButtonMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DS4Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EncoderPreset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FFMPEGHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HWAccel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterVolume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Resolution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SwitchStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemCalls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoCodecMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VsyncMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="X360Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VirtualController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AtomicTest.h" />
-    <ClInclude Include="Broadcast.h" />
-    <ClInclude Include="Connection.h" />
-    <ClInclude Include="EncoderPreset.h" />
-    <ClInclude Include="FFMPEGHelper.h" />
-    <ClInclude Include="HWAccel.h" />
-    <ClInclude Include="MasterVolume.h" />
-    <ClInclude Include="NetworkData.h" />
-    <ClInclude Include="Resolution.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="SwitchControlsDefinitions.h" />
-    <ClInclude Include="SwitchStream.h" />
-    <ClInclude Include="SystemCalls.h" />
-    <ClInclude Include="VideoCodecMode.h" />
-    <ClInclude Include="VirtualController.h" />
-    <ClInclude Include="VsyncMode.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="switch-remote-play-host.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="switch_remote_play_icon_2hP_icon.ico" />
+    <ClInclude Include="AtomicTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Broadcast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Connection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EncoderPreset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFMPEGHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerButtonMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HWAccel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterVolume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemCalls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoCodecMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VirtualController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VsyncMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchControlsDefinitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="X360Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DS4Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="WindowsCodeNotes.txt" />
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{e09aa040-c8f6-4dfb-b707-9992bc0d2ff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{37edfc1e-ae56-4a54-bddc-fe9e5ec71075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{f5a6af4c-fdf6-4653-afec-d5c390151fd1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="switch_remote_play_icon_2hP_icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="WindowsCodeNotes.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="switch-remote-play-host.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

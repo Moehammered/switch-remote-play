@@ -2,9 +2,11 @@
 
 #include <processthreadsapi.h>
 #include "SwitchControlsDefinitions.h"
-#include "VirtualController.h"
+#include "X360Controller.h"
+#include "DS4Controller.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
+#include <memory>
 #include <chrono>
 
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
@@ -40,7 +42,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
    return data;
 }
 
-std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port, ControllerMode controllerMode)
+std::thread StartGamepadListener(Controller_Config controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
 {
    using namespace std;
    thread workerThread{};
@@ -50,7 +52,7 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
       gamepadActive.store(false, memory_order_release);
    }
 
-   workerThread = thread([&, gamepadPort = port] {
+   workerThread = thread([&, gamepadPort = port, inputConfig = controllerConfig] {
 
       while (gamepadActive.load(memory_order_acquire)) //don't let it continue if a previous gamepadThread is running
       {
@@ -67,17 +69,18 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
             for (auto& c : padData.padding)
                c = 0;
 
-            IVirtualController* controller = nullptr;
+            std::unique_ptr<IVirtualController> controller{};
 
-            switch (controllerMode) {
-            default:
-            case ControllerMode::X360:
-               controller = new X360Controller{};
-               break;
+            switch (inputConfig.controllerMode)
+            {
+                default:
+                case ControllerMode::X360:
+                    controller = make_unique<X360Controller>();
+                   break;
 
-            case ControllerMode::DS4:
-               controller = new DS4Controller{};
-               break;
+                case ControllerMode::DS4:
+                    controller = make_unique<DS4Controller>();
+                   break;
             }
 
             if (controller->Create())
@@ -88,11 +91,12 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                auto const maxRetries = 5;
                auto retryCount = maxRetries;
 
+               controller->MapFaceButtons(inputConfig.controllerMap);
                auto constexpr mouseToggleNano = 3000000000;
                auto lastTime = std::chrono::high_resolution_clock::now();
-               auto mouseMode{ true };
+               auto mouseMode{ inputConfig.mouseOnConnect };
+               auto mouseSensitivity{ inputConfig.mouseSensitivity };
                auto constexpr mouseToggleBtnCombo = KEY_ZL | KEY_ZR | KEY_B;
-               auto constexpr abxyToggleBtnCombo = KEY_ZL | KEY_ZR | KEY_X;
                auto mouseBtnFlags = 0;
                double constexpr joystickExtent = 0xFFFF / 2;
                do
@@ -162,7 +166,7 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                      else if (padData.keys != 0x0 || (padData.ljx | padData.ljy | padData.rjx | padData.rjy) != 0)
                      {
                         controller->ConvertPayload(padData);
-                        // controller.Print();
+                        //controller->Print();
                         controller->UpdateState();
                         controller->UpdateController();
                      }
@@ -205,28 +209,6 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                            lastTime = std::chrono::high_resolution_clock::now();
                         }
                      }
-                     else if (padData.keys == abxyToggleBtnCombo)
-                     {
-                        auto timePassed = std::chrono::high_resolution_clock::now() - lastTime;
-                        if (timePassed.count() >= mouseToggleNano)
-                        {
-                           controller->ResetController();
-                           controller->UpdateController();
-
-                           if (controller->abxyMap == ABXYMap::POS)
-                           {
-                              controller->abxyMap = ABXYMap::FUN;
-                              MessageBeep(MB_OK);
-                           }
-                           else
-                           {
-                              controller->abxyMap = ABXYMap::POS;
-                              MessageBeep(MB_ICONERROR);
-                           }
-
-                           lastTime = std::chrono::high_resolution_clock::now();
-                        }
-                     }
                      else
                         lastTime = std::chrono::high_resolution_clock::now();
                   }
@@ -257,7 +239,6 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
                controller->ResetController();
                controller->UpdateController();
                controller->Disconnect();
-               delete controller;
             }
          }
       }
@@ -266,7 +247,7 @@ std::thread StartGamepadListener(int16_t mouseSensitivity, std::atomic_bool& kil
 
       killStream.store(true, memory_order_release);
       gamepadActive.store(false, memory_order_release);
-      });
+    });
 
    return workerThread;
 }

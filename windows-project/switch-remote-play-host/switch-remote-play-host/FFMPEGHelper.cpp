@@ -18,7 +18,7 @@ std::string CreateVideoCommandLineArg(FFMPEG_Config const config, std::string co
 {
     using namespace std;
 
-    auto filePath = ffmpegPath;
+    auto const & filePath = ffmpegPath;
 
     auto vsyncMode = "1";
     switch (config.vsyncMode)
@@ -70,7 +70,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
 {
     using namespace std;
 
-    auto filePath = ffmpegPath;
+    auto const & filePath = ffmpegPath;
 
     auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
     auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";
