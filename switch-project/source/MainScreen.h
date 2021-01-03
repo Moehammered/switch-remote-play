@@ -1,15 +1,19 @@
 #ifndef __MAINSCREEN_H__
 #define __MAINSCREEN_H__
 
-#include <SDL2/SDL_render.h>
 #include <string>
-#include "network/NetworkDiscovery.h"
-#include "SDL_FontCache.h"
+#include <unordered_map>
+#include "ui/Menu.h"
+#include "ui/HelpMenu.h"
+#include "ui/NetworkMenu.h"
+#include "ui/DecoderMenu.h"
 #include "ui/ConfigurationScreen.h"
+#include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
 {
-    MAIN,
+    HELP,
+    DECODER_CONFIG,
     CONFIG,
     CONTROLLER,
     IP_SET,
@@ -23,26 +27,40 @@ SDL_Color constexpr red = { 200, 100, 100, 255 };
 SDL_Color constexpr blue = {100, 100, 200, 255};
 SDL_Color constexpr white = {255, 255, 255, 255};
 
-void NextScreen();
-void PreviousScreen();
+class MenuSelection : public Menu
+{
+    public:
+        MenuSelection();
 
-void ProcessScreenInput(PadState const & pad);
+        void ProcessInput(PadState const & pad) override;
 
-void SetupMainScreen();
+        void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
-void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont);
+        void RenderTitle(SDL_Renderer * const renderer, FC_Font * const font);
 
-void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const * network);
-void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const & network);
+        void RenderPendingConnection(SDL_Renderer * const renderer, FC_Font * const font);
 
-void RenderPendingConnectionScreen(SDL_Renderer * const renderer, FC_Font * const systemFont);
+        void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network);
+    
+        FFMPEG_Config const GetFfmpegSettings();
 
-FFMPEG_Config const GetFfmpegSettings();
+        DecoderConfiguration const GetDecoderSettings();
 
-Controller_Config const GetControllerSettings();
+        bool UseManualIP();
 
-bool UseManualIP();
+        std::string const GetManualIPAddress();
 
-std::string const GetManualIPAddress();
+    private:
+        Text controlsText;
+        Text hostConnectionText;
+        Text streamPendingText;
+        HelpMenu helpScreen;
+        DecoderMenu decoderScreen;
+        ConfigurationScreen encoderScreen;
+        NetworkMenu networkScreen;
+        std::unordered_map<MenuScreen, Menu*> menus;
+
+        MenuScreen selectedMenu;
+};
 
 #endif

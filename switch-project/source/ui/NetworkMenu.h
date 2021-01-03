@@ -1,10 +1,9 @@
-#ifndef __MANUALNETWORKCONFIG_H__
-#define __MANUALNETWORKCONFIG_H__
+#ifndef __NETWORKMENU_H__
+#define __NETWORKMENU_H__
 
 #include "Menu.h"
 #include <string>
 #include <array>
-#include "Text.h"
 
 enum NetworkMenuItems : int32_t
 {
@@ -17,7 +16,7 @@ enum NetworkMenuItems : int32_t
     NETWORK_MENU_ITEM_COUNT
 };
 
-class NetworkMenu : Menu
+class NetworkMenu : public Menu
 {
     public:
         NetworkMenu();
@@ -26,9 +25,9 @@ class NetworkMenu : Menu
 
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
-        bool UseManualIP();
+        bool UseManualIP() const;
 
-        std::string const ManualIPAddress();
+        std::string const ManualIPAddress() const;
 
     private:
         Text warningText;

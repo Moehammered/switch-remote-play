@@ -33,66 +33,6 @@ bool ConnectTo(std::string ip, uint16_t port, int& connectionSock)
     return true;
 }
 
-bool SendCode(const int connectionSock, Command commandCode)
-{
-    static_assert(COMMAND_CODE_SIZE == 2);
-    static_assert(FFMPEG_CONFIG_SIZE == 24);
-    static_assert(COMMAND_PAYLOAD_SIZE == 32);
-    CommandPayload payload;
-    payload.commandCode = commandCode;
-
-    //for now always send config data to test
-    FFMPEG_Config config;
-    config.vsyncMode = 0;
-    config.desiredFrameRate = 0;
-    config.videoX = 0; config.videoY = 0;
-    config.scaleX = 0; config.scaleY = 0;
-    config.bitrateKB = 0;
-   
-    Controller_Config controllerConfig;
-    controllerConfig.controllerMode = ControllerMode::X360;
-
-    payload.configData = config;
-    payload.controllerData = controllerConfig;
-
-    char* dataPtr = (char*)&payload;
-
-    std::cout << "Sending payload of size: " << COMMAND_PAYLOAD_SIZE << " bytes" << std::endl;
-
-    auto result = send(connectionSock, dataPtr, COMMAND_PAYLOAD_SIZE, 0);
-    if(result < 0)
-    {
-        std::cout << "Failed to send data code: " << strerror(errno) << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
-bool SendStreamConfig(const int connectionSock, FFMPEG_Config config)
-{
-    static_assert(COMMAND_CODE_SIZE == 2);
-    static_assert(FFMPEG_CONFIG_SIZE == 24);
-    static_assert(COMMAND_PAYLOAD_SIZE == 32);
-    CommandPayload payload;
-    payload.commandCode = Command::UPDATE_FFMPEG_CONFIG;
-
-    payload.configData = config;
-
-    char* dataPtr = (char*)&payload;
-
-    std::cout << "Sending payload of size: " << COMMAND_PAYLOAD_SIZE << " bytes" << std::endl;
-
-    auto result = send(connectionSock, dataPtr, COMMAND_PAYLOAD_SIZE, 0);
-    if(result < 0)
-    {
-        std::cout << "Failed to send data code: " << strerror(errno) << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
 bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
 {
     static_assert(COMMAND_CODE_SIZE == 2);

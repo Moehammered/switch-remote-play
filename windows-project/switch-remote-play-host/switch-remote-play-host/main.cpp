@@ -16,7 +16,7 @@
 #include "Broadcast.h"
 #include "MasterVolume.h"
 
-auto constexpr applicationVersion = "0.8.0";
+auto constexpr applicationVersion = "0.7.6";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };

@@ -1,249 +1,115 @@
 #include "MainScreen.h"
-#include "ui/Menu.h"
-#include "ui/ConfigurationScreen.h"
-#include "ui/ManualNetworkConfig.h"
-#include "ui/ControllerMenu.h"
 #include <iostream>
-#include "system/Configuration.h"
 
 auto constexpr noHostInfoMessage = "Host IP: Not yet found. Press 'L' to start search...";
 auto constexpr defaultControlMessage = "'ZL'/'ZR' - cycle screens | 'A'/'B' - change settings | 'R' - start stream";
 
-auto constexpr instructions =
-"1. Please make sure the switch-remote-play-host application is running on your Windows PC.\n\
-2. Please connect to a 5GHZ wifi network if you can. (e.g. homewifi_5GHz).\n\
-3. Please make sure ports 19999 to 20004 aren't blocked or occupied on your PC.\n\
-4. Please make sure Windows Firewall isn't blocking ffmpeg or switch-remote-play-host.\n\n\
-Stream tips:\n\
-- Hold '+' for more than 3 seconds to close the stream.\n\
-- Hold 'ZL+ZR+B' or touch the screen for 3 seconds to toggle mouse/ps4 controller.\n\
-- Favor lower desktop resolution to reduce latency.\n\
-- You can mute your PC and audio will still stream to the switch.\
-";
-
-Text const title{
-    .x = 400, .y = 20, .colour = green,
-    .value = "Switch Remote Play \\(^.^)/"
-};
-Text const controlText{
-    .x = 100, .y = 60, .colour = green, 
-    .value = defaultControlMessage
-};
-
-Text const placeholderInstructions{
-    .x = 10, .y = 250, .colour = orange, 
-    .value = instructions
-};
-
-Text hostConnectionText{};
-Text currentScreenText{};
-Text const streamPendingText{
-    .x = 100, .y = 600, .colour = red,
-    .value = "Stream Pending Connection..." 
-};
-ConfigurationScreen configurator;
-ControllerMenu controllerMenu;
-NetworkMenu networkScreen;
-MenuScreen currentMenu {MAIN};
-Configuration config;
-
-void UpdateScreens()
+MenuSelection::MenuSelection() : Menu(), 
+    controlsText{},hostConnectionText{}, 
+    streamPendingText{}, helpScreen{},
+    decoderScreen{}, encoderScreen{}, networkScreen{},
+    menus{}, selectedMenu{HELP}
 {
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-            currentScreenText.value = "Help Screen";
-        break;
+    menus[MenuScreen::HELP] = &helpScreen;
+    menus[MenuScreen::DECODER_CONFIG] = &decoderScreen;
+    menus[MenuScreen::CONFIG] = &encoderScreen;
+    menus[MenuScreen::IP_SET] = &networkScreen;
 
-        case CONFIG:
-            currentScreenText.value = "Configuration Screen";
-        break;
+    title.x = 400; title.y = 20;
+    title.colour = green;
+    title.value = "Switch Remote Play \\(^.^)/";
 
-        case CONTROLLER:
-            currentScreenText.value = "Controller Screen";
-        break;
+    controlsText.x = 100; controlsText.y = 60;
+    controlsText.colour = green;
+    controlsText.value = defaultControlMessage;
 
-        case IP_SET:
-            // render manual IP setting
-            currentScreenText.value = "Manual IP Screen";
-        break;
-    }
+    hostConnectionText.x = 250; hostConnectionText.y = 120;
+    hostConnectionText.colour = red;
+    hostConnectionText.value = noHostInfoMessage;
 
-    config = Configuration{};
+    streamPendingText.x = 100; streamPendingText.y = 600;
+    streamPendingText.colour = red;
+    streamPendingText.value = "Stream Pending Connection...";
 }
 
-void SetupMainScreen()
-{
-    hostConnectionText = Text{
-        .x = 250, .y = 120, .colour = red,
-        .value = noHostInfoMessage
-    };
-
-    currentScreenText = Text{
-        .x = 440, .y = 180, .colour = white,
-        .value = "Help Screen"
-    };
-
-    config = Configuration{};
-    controllerMenu = ControllerMenu{};
-    networkScreen = NetworkMenu{};
-
-    UpdateScreens();
-}
-
-void ProcessScreenInput(PadState const & pad)
+void MenuSelection::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
 
+    auto selected = (int32_t)selectedMenu;
     if(kDown & KEY_ZL)
-        PreviousScreen();
+        --selected;
     else if(kDown & KEY_ZR)
-        NextScreen();
+        ++selected;
 
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-        break;
+    if(selected < 0)
+        selected = MenuScreen::COUNT - 1;
+    else if(selected >= MenuScreen::COUNT)
+        selected = 0;
 
-        case CONFIG:
-            configurator.ProcessInput(pad);
-        break;
+    selectedMenu = (MenuScreen)selected;
 
-        case CONTROLLER:
-            controllerMenu.ProcessInput(pad);
-        break;
-
-        case IP_SET:
-            networkScreen.ProcessInput(pad);
-        break;
-    }
+    menus[selectedMenu]->ProcessInput(pad);
 }
 
-void NextScreen()
+void MenuSelection::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
-    auto menu = (int32_t)currentMenu;
-    ++menu;
-    if(menu >= (int32_t)COUNT)
-        menu = MAIN;
-    
-    currentMenu = (MenuScreen)menu;
-    UpdateScreens();
+    menus[selectedMenu]->Render(renderer, font);
 }
 
-void PreviousScreen()
+void MenuSelection::RenderTitle(SDL_Renderer * const renderer, FC_Font * const font)
 {
-    auto menu = (int32_t)currentMenu;
-    --menu;
-    if(menu < (int32_t)MAIN)
-        menu = COUNT - 1;
-    
-    currentMenu = (MenuScreen)menu;
-    UpdateScreens();
+    title.Render(renderer, font);
+    controlsText.Render(renderer, font);
 }
 
-void RenderMainScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
+void MenuSelection::RenderPendingConnection(SDL_Renderer * const renderer, FC_Font * const font)
 {
     title.Render(renderer, systemFont);
     controlText.Render(renderer, systemFont);
     currentScreenText.Render(renderer, systemFont);
-
-    switch(currentMenu)
-    {
-        default:
-        case MAIN:
-            placeholderInstructions.Render(renderer, systemFont);
-        break;
-
-        case CONFIG:
-            configurator.Render(renderer, systemFont);
-        break;
-
-        case CONTROLLER:
-            controllerMenu.Render(renderer, systemFont);
-        break;
-
-        case IP_SET:
-            // render manual IP setting
-            networkScreen.Render(renderer, systemFont);
-        break;
-    }
 }
 
-void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const * network)
+void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network)
 {
     if(networkScreen.UseManualIP())
     {
         hostConnectionText.value = "Host IP: (Manual)" + networkScreen.ManualIPAddress();
-        hostConnectionText.Render(renderer, systemFont, orange);
-    }
-    else if(network != nullptr && network->HostFound())
-    {
-        hostConnectionText.value = "Host IP: " + network->IPAddress();
-        hostConnectionText.Render(renderer, systemFont, green);
-    }
-    else if(network != nullptr && network->Searching())
-    {
-        hostConnectionText.value = "Host IP: Searching...";
-        hostConnectionText.Render(renderer, systemFont, blue);
-    }
-    else
-    {
-        hostConnectionText.value = noHostInfoMessage;
-        hostConnectionText.Render(renderer, systemFont);
-    }
-}
-
-void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const systemFont, NetworkDiscovery const & network)
-{
-    if(networkScreen.UseManualIP())
-    {
-        hostConnectionText.value = "Host IP: (Manual)" + networkScreen.ManualIPAddress();
-        hostConnectionText.Render(renderer, systemFont, orange);
+        hostConnectionText.Render(renderer, font, orange);
     }
     else if(network.HostFound())
     {
         hostConnectionText.value = "Host IP: " + network.IPAddress();
-        hostConnectionText.Render(renderer, systemFont, green);
+        hostConnectionText.Render(renderer, font, green);
     }
     else if(network.Searching())
     {
         hostConnectionText.value = "Host IP: Searching...";
-        hostConnectionText.Render(renderer, systemFont, blue);
+        hostConnectionText.Render(renderer, font, blue);
     }
     else
     {
         hostConnectionText.value = noHostInfoMessage;
-        hostConnectionText.Render(renderer, systemFont);
+        hostConnectionText.Render(renderer, font);
     }
 }
 
-void RenderPendingConnectionScreen(SDL_Renderer * const renderer, FC_Font * const systemFont)
+FFMPEG_Config const MenuSelection::GetFfmpegSettings()
 {
-    title.Render(renderer, systemFont);
-    controlText.Render(renderer, systemFont);
-    hostConnectionText.Render(renderer, systemFont);
-    
-    streamPendingText.Render(renderer, systemFont);
+    return encoderScreen.Settings();
 }
 
-FFMPEG_Config const GetFfmpegSettings()
+DecoderConfiguration const MenuSelection::GetDecoderSettings()
 {
-    return configurator.Settings();
+    return decoderScreen.DecoderSettings();
 }
 
-Controller_Config const GetControllerSettings()
-{
-   return controllerMenu.Settings();
-}
-
-bool UseManualIP()
+bool MenuSelection::UseManualIP()
 {
     return networkScreen.UseManualIP();
 }
 
-std::string const GetManualIPAddress()
+std::string const MenuSelection::GetManualIPAddress()
 {
     return networkScreen.ManualIPAddress();
 }

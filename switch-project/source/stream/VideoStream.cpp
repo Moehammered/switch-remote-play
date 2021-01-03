@@ -41,7 +41,7 @@ std::string SkipLoopFilterToString(AVDiscard discard)
     }
 }
 
-std::string HWAccelFlagToString(uint32_t flags)
+std::string HWAccelFlagsDescription(uint32_t flags)
 {
     std::string setFlags{};
     std::unordered_map<int, std::string> flagToString{
@@ -67,7 +67,7 @@ std::string HWAccelFlagToString(uint32_t flags)
     Flag propeties and examples
     https://ffmpeg.org/doxygen/4.0/group__lavc__core.html#ga1a6a486e686ab6c581ffffcb88cb31b3
 */
-std::string DecoderFlag2ToString(uint32_t flags)
+std::string DecoderFlags2Description(uint32_t flags)
 {
     std::string setFlags{};
     std::unordered_map<int, std::string> flagToString{
@@ -99,7 +99,7 @@ std::string DecoderFlag2ToString(uint32_t flags)
     Flag propeties and examples
     https://ffmpeg.org/doxygen/4.0/group__lavc__core.html#ga1a6a486e686ab6c581ffffcb88cb31b3
 */
-std::string DecoderFlag1ToString(uint32_t flags)
+std::string DecoderFlags1Description(uint32_t flags)
 {
     std::string setFlags{};
     std::unordered_map<int, std::string> flagToString{
@@ -140,18 +140,21 @@ void PrintDecoderContextSettings(AVCodecContext const & decoderContext)
 {
     std::cout << "HW Accel Flags\n";
     {
-        auto hwaccelFlags = HWAccelFlagToString(decoderContext.hwaccel_flags);
-        std::cout << hwaccelFlags << "\n";
+        auto hwaccelFlags = HWAccelFlagsDescription(decoderContext.hwaccel_flags);
+        for(auto& flag : hwaccelFlags)
+            std::cout << flag.second << "\n";
     }
     std::cout << "Flag 1\n";
     {
-        auto flagsSet = DecoderFlag1ToString(decoderContext.flags);
-        std::cout << flagsSet << "\n";
+        auto flagsSet = DecoderFlags1Description(decoderContext.flags);
+        for(auto& flag : flagsSet)
+            std::cout << flag.second << "\n";
     }
     std::cout << "Flag 2\n";
     {
-        auto flags2Set = DecoderFlag2ToString(decoderContext.flags2);
-        std::cout << flags2Set << "\n";
+        auto flags2Set = DecoderFlags2Description(decoderContext.flags2);
+        for(auto& flag : flags2Set)
+            std::cout << flag.second << "\n";
     }
     std::cout << "Skip Loop Filter: " << SkipLoopFilterToString(decoderContext.skip_loop_filter);
     std::cout << "\nThread Count: " << decoderContext.thread_count << "\n";
@@ -172,7 +175,7 @@ VideoStream::VideoStream()
 {   
 }
 
-bool VideoStream::WaitForStream(uint16_t port)
+bool VideoStream::WaitForStream(DecoderConfiguration decoderSettings, uint16_t port)
 {
     int ret = 0;
 
@@ -240,29 +243,34 @@ bool VideoStream::WaitForStream(uint16_t port)
         return false;
     }
 
-    std::cout << "Found Decoder default settings\n";
-    // I NEED TO MAKE THIS CONFIGURABLE FOR THE USER!! :D 
+    decoderContext->flags = decoderSettings.flag1;
+    decoderContext->flags2 = decoderSettings.flag2;
+    decoderContext->hwaccel_flags = decoderSettings.hwAccelFlags;
+    decoderContext->skip_loop_filter = decoderSettings.skipLoopFilter;
+    decoderContext->thread_type = decoderSettings.threadType;
+    decoderContext->thread_count = decoderSettings.threadCount;
+
     PrintDecoderContextSettings(*decoderContext);
 
-    if(decoderContext->flags & AV_CODEC_FLAG_LOW_DELAY)
-        std::cout << "Decoder already flagged for low delay\n";
-    else
-	    decoderContext->flags |= AV_CODEC_FLAG_LOW_DELAY;
+    // if(decoderContext->flags & AV_CODEC_FLAG_LOW_DELAY)
+    //     std::cout << "Decoder already flagged for low delay\n";
+    // else
+	//     decoderContext->flags |= AV_CODEC_FLAG_LOW_DELAY;
 
-    if(decoderContext->flags2 & AV_CODEC_FLAG2_FAST)
-        std::cout <<"Decoder already flagged for fast\n";
-    else
-	    decoderContext->flags2 |= AV_CODEC_FLAG2_FAST;
+    // if(decoderContext->flags2 & AV_CODEC_FLAG2_FAST)
+    //     std::cout <<"Decoder already flagged for fast\n";
+    // else
+	//     decoderContext->flags2 |= AV_CODEC_FLAG2_FAST;
     
-    /*
-        https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#a7651614f4309122981d70e06a4b42fcb
-        Considering we never supply more than 1 frame at a time, we should set it to SLICE
-        as FRAME incurs a 1 frame delay per thread
-    */
-    decoderContext->thread_type = FF_THREAD_SLICE;
-    decoderContext->thread_count = 4;
+    // /*
+    //     https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#a7651614f4309122981d70e06a4b42fcb
+    //     Considering we never supply more than 1 frame at a time, we should set it to SLICE
+    //     as FRAME incurs a 1 frame delay per thread
+    // */
+    // decoderContext->thread_type = FF_THREAD_SLICE;
+    // decoderContext->thread_count = 4;
 
-	decoderContext->skip_loop_filter = AVDISCARD_ALL;
+	// decoderContext->skip_loop_filter = AVDISCARD_ALL;
 
     std::cout << "Decoder settings after alteration\n";
     PrintDecoderContextSettings(*decoderContext);

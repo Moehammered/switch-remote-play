@@ -43,6 +43,19 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="X360Controller.cpp">
+    <ClCompile Include="EncoderPreset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HWAccel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Resolution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoCodecMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VsyncMode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,6 +100,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EncoderPreset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HWAccel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoCodecMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VsyncMode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,8 +3,6 @@
     Remote PC connection focused on allowing PC games to be played on the switch
 */
 
-#define PCM_AUDIO
-
 #include <string>
 #include <iostream>
 #include <thread>
@@ -94,8 +92,6 @@ int main(int argc, char **argv)
     ScreenRenderer screen;
     std::cout << "Initialising Screen\n";
     bool initOK = screen.Initialise(1280, 720, false);
-    std::cout << "Initialising Text\n";
-    SetupMainScreen();
 
     if(!initOK)
     {
@@ -148,8 +144,8 @@ int main(int argc, char **argv)
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     padInitializeDefault(&mainPad);
 
-    auto constexpr increaseKeys = KEY_A | KEY_DRIGHT;
-    auto constexpr decreaseKeys = KEY_B | KEY_DLEFT;
+    std::cout << "Creating menu selection screens\n";
+    auto menuScreens = MenuSelection{};
     
     while(appletMainLoop() && runApp)
     {
@@ -171,7 +167,7 @@ int main(int argc, char **argv)
                 else if(kDown & KEY_R)
                     streamState.store(StreamState::REQUESTED, std::memory_order_release);
 
-                ProcessScreenInput(mainPad);
+                menuScreens.ProcessInput(mainPad);
                 
                 if(kDown & KEY_L)
                 {
@@ -179,8 +175,9 @@ int main(int argc, char **argv)
                         network.Search();
                 }
 
-                RenderMainScreen(screen.Renderer(), systemFont);
-                RenderNetworkStatus(screen.Renderer(), systemFont, network);
+                menuScreens.RenderTitle(screen.Renderer(), systemFont);
+                menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
+                menuScreens.Render(screen.Renderer(), systemFont);
                 screen.PresentScreen();
                 
                 // no point thrashing the screen to refresh text
@@ -192,19 +189,20 @@ int main(int argc, char **argv)
             {
                 //display on the screen a connection is pending
                 screen.ClearScreen(pendingStreamBgCol);
-                
-                RenderPendingConnectionScreen(screen.Renderer(), systemFont);
-                RenderNetworkStatus(screen.Renderer(), systemFont, network);
+                menuScreens.RenderTitle(screen.Renderer(), systemFont);
+                menuScreens.RenderPendingConnection(screen.Renderer(), systemFont);
+                menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 
                 screen.PresentScreen();
 
-                if(network.HostFound() || UseManualIP())
+                if(network.HostFound() || menuScreens.UseManualIP())
                 {
                     auto ip = std::string{};
-                    if(UseManualIP())
-                        ip = GetManualIPAddress();
+                    if(menuScreens.UseManualIP())
+                        ip = menuScreens.GetManualIPAddress();
                     else
                         ip = network.IPAddress();
+                  
                     auto ffmpegConfig = GetFfmpegSettings();
                     auto controllerConfig = GetControllerSettings();
                     auto configfile = Configuration{};

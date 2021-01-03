@@ -3,14 +3,7 @@
 
 #include <array>
 #include "Menu.h"
-#include "Text.h"
 #include "../network/NetworkData.h"
-
-struct Resolution
-{
-    int16_t width;
-    int16_t height;
-};
 
 enum FfmpegConfigUiElements : int32_t
 {
@@ -26,8 +19,7 @@ enum FfmpegConfigUiElements : int32_t
     MOUSE_SENSITIVITY,
     CONFIG_COUNT
 };
-
-class ConfigurationScreen : Menu
+class ConfigurationScreen : public Menu
 {
     public:
         ConfigurationScreen();
@@ -39,7 +31,7 @@ class ConfigurationScreen : Menu
         void DecreaseSetting();
         void SelectNext();
         void SelectPrevious();
-        FFMPEG_Config const Settings();
+        FFMPEG_Config const Settings() const;
 
     private:
         int settingIndex;

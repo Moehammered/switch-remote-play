@@ -6,19 +6,6 @@
 #include "network/CommandSender.h"
 #include <sys/socket.h>
 
-void RunStopCommandThread(std::string ip, uint16_t port)
-{
-    int commandSocket = -1;
-    if(ConnectTo(ip, port, commandSocket))
-    {
-        if(SendCode(commandSocket, Command::CLOSE_SERVER))
-            std::cout << "Sent Close server command payload" << std::endl;
-        else
-            std::cout << "Error sending close server command payload" << std::endl;
-    }
-    close(commandSocket);
-}
-
 void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, FFMPEG_Config const config, Controller_Config const controllerConfig)
 {
     int commandSocket = -1;

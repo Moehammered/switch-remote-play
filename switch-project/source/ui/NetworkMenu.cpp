@@ -1,10 +1,12 @@
-#include "ManualNetworkConfig.h"
-#include <iostream>
+#include "NetworkMenu.h"
 #include "../system/Configuration.h"
+
+#include <iostream>
 
 NetworkMenu::NetworkMenu() : Menu(),
     warningText{}, textElements{}, ip{}, useManualIP{false}
 { 
+    title.value = "Network Configuration";
     warningText.x = 75; warningText.y = 220;
     warningText.colour = {255, 50, 0, 255};
     warningText.value = "Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button.";
@@ -60,6 +62,7 @@ void NetworkMenu::ProcessInput(PadState const & pad)
 
 void NetworkMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
+    title.Render(renderer, font);
     warningText.Render(renderer, font);
     for(auto i = 0U; i < textElements.size(); ++i)
     {
@@ -70,12 +73,12 @@ void NetworkMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
     }
 }
 
-bool NetworkMenu::UseManualIP()
+bool NetworkMenu::UseManualIP() const
 {
     return useManualIP;
 }
 
-std::string const NetworkMenu::ManualIPAddress()
+std::string const NetworkMenu::ManualIPAddress() const
 {
     auto period = std::string{"."};
     return textElements[NetworkMenuItems::IP_SEG_1].value + period
