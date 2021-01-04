@@ -4,21 +4,21 @@
 #include <string>
 #include <unordered_map>
 
-const Switch_HidControllerKeys ButtonsToCheck_X360[] = {
+const HidControllerKeys ButtonsToCheck_X360[] = {
    KEY_A, KEY_B, KEY_X, KEY_Y,
    KEY_L, KEY_R, KEY_MINUS, KEY_PLUS,
    KEY_LSTICK, KEY_RSTICK,
    KEY_DUP, KEY_DDOWN, KEY_DLEFT, KEY_DRIGHT
 };
 
-std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> const SWITCH_TO_X360_FACE_BTNS{
+std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> const SWITCH_TO_X360_FACE_BTNS{
 	{ KEY_A, XUSB_GAMEPAD_B },
 	{ KEY_B, XUSB_GAMEPAD_A },
 	{ KEY_X, XUSB_GAMEPAD_Y },
 	{ KEY_Y, XUSB_GAMEPAD_X }
 };
 
-std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BTNS{
+std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BTNS{
    { KEY_A, XUSB_GAMEPAD_B },
    { KEY_B, XUSB_GAMEPAD_A },
    { KEY_X, XUSB_GAMEPAD_Y },

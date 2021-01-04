@@ -45,6 +45,8 @@
    ![Switch Remote Play app](srp-app.jpg)
 
 2. Press **'L'** to start network discovery
+    - **NOTE:** Currently the network discovery requires a subnet mask of 255.255.255.0 and assumes your network gateway is 192.168.0.1
+      - If you don't know what all this is please go to the [figure out PC IP section](#pc-ip---figuring-out-network-configuration) if network discovery doesn't work.
     - **You should see your PC's IP address (*'Host IP: 192.168.XXX.XXX'* in green)**
     ![Network Discovery](network-discovery.jpg)
     - **And you should see your Switch's IP on the PC application**
@@ -78,7 +80,21 @@ Please confirm by trying to perform the network discovery in the switch app. **Y
 ![Network Discovery](network-discovery.jpg)
 ![PC Switch Discovery](host-handshake-success.png)
 
-If you perform the network discovery feature and you don't see your Switch's IP on the PC application, Windows Firewall is blocking it, you're on a different network than your PC, your router is blocking the ports, or a PC app is already using the ports 19999 - 20004 (until the ports are configurable, you will need to find the app using those ports and stop it).
+If you perform the network discovery feature and you don't see your Switch's IP on the PC application, Windows Firewall is blocking it, you're on a different network than your PC, your router is blocking the ports, the subnet mask doesn't match the assumed subnet, or a PC app is already using the ports 19999 - 20004 (until the ports are configurable, you will need to find the app using those ports and stop it).
+
+### PC IP - Figuring out Network Configuration
+
+**The PC application assumes a subnet mask of 255.255.255.0 and a gateway of 192.168.0.1**. It does so to filter out network traffic when listening for the switch to broadcast itself for network discovery.
+
+Open **Powershell** or **command prompt** and type ***ipconfig*** then press *Enter*. You should see a list of network interfaces. Look for the one that has **IPv4 Address, Subnet Mask, and Default Gateway**.
+
+![pc-ip-config](pc-ip-configuration.png)
+
+- If you want to connect through **Manual IP Mode**, use the **IPv4 address** that shows up for you in **Powershell** or **command prompt**.
+- If you want to connect automatically through **Network Discovery**, your router needs to be configured to have:
+  - **Subnet Mask:** 255.255.255.0
+  - **Default Gateway:** 192.168.0.1
+- If you cannot re-configure your router or don't know how, then you will need to use **Manual IP Mode.**
 
 ### Stuck on Pending Connection
 

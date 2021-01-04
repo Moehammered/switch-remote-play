@@ -4,20 +4,20 @@
 #include <string>
 #include <unordered_map>
 
-const Switch_HidControllerKeys ButtonsToCheck_DS4[] = {
+const HidControllerKeys ButtonsToCheck_DS4[] = {
    KEY_A, KEY_B, KEY_Y, KEY_X,
    KEY_L, KEY_R, KEY_MINUS, KEY_PLUS,
    KEY_LSTICK, KEY_RSTICK
 };
 
-std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> const SWITCH_TO_DS4_FACE_BTNS{
+std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> const SWITCH_TO_DS4_FACE_BTNS{
    { KEY_A, DS4_BUTTON_CIRCLE },
    { KEY_B, DS4_BUTTON_CROSS },
    { KEY_X, DS4_BUTTON_TRIANGLE },
    { KEY_Y, DS4_BUTTON_SQUARE }
 };
 
-std::unordered_map<Switch_HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_DS4_BTNS{
+std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_DS4_BTNS{
    { KEY_A, DS4_BUTTON_CIRCLE },
    { KEY_B, DS4_BUTTON_CROSS },
    { KEY_X, DS4_BUTTON_TRIANGLE },

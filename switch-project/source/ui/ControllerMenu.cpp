@@ -3,12 +3,16 @@
 #include <iostream>
 #include "../system/Configuration.h"
 #include "../dataHelpers/ControllerButtonMap.h"
+#include "../dataHelpers/SwitchButtons.h"
 
 SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 SDL_Color constexpr backgroundColour {.r = 100, .g = 100, .b = 100, .a = 255};
 constexpr int maxMouseSensitivity = 30;
 constexpr int minMouseSensitivity = 3;
 
+std::array<uint32_t, 4> mouseButtonOptions {
+    KEY_L, KEY_ZL, KEY_R, KEY_ZR
+};
 
 ControllerMenu::ControllerMenu() 
     : Menu(), selectedItem{}, settingsIndices{}, settingsText{}
@@ -30,6 +34,27 @@ ControllerMenu::ControllerMenu()
 
     settingsIndices[ControllerMenuItems::CONTROLLER_MODE] = controller.controllerMode;
     settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP] = controller.controllerMap;
+    
+    settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK] = 0;
+    for(auto i = 0; i < mouseButtonOptions.size(); ++i)
+    {
+        if(mouseButtonOptions[i] == controller.leftClickButton)
+        {
+            settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK] = i;
+            break;
+        }
+    }
+
+    settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK] = 2;
+    for(auto i = 0; i < mouseButtonOptions.size(); ++i)
+    {
+        if(mouseButtonOptions[i] == controller.rightClickButton)
+        {
+            settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK] = i;
+            break;
+        }
+    }
+
     settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] = controller.mouseOnConnect;
     settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY] = controller.mouseSensitivity;
 
@@ -67,6 +92,22 @@ void ControllerMenu::IncreaseSetting()
                 currInd = 0;
         break;
 
+        case ControllerMenuItems::MOUSE_LEFT_CLICK:
+            do
+            {
+                if(++currInd >= mouseButtonOptions.size())
+                    currInd = 0;
+            } while (currInd == settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK]);
+        break;
+
+        case ControllerMenuItems::MOUSE_RIGHT_CLICK:
+            do
+            {
+                if(++currInd >= mouseButtonOptions.size())
+                    currInd = 0;
+            } while (currInd == settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK]);
+        break;
+
         case ControllerMenuItems::MOUSE_ON_CONNECT:
             if(++currInd > 1)
                 currInd = 0;
@@ -97,6 +138,22 @@ void ControllerMenu::DecreaseSetting()
         case ControllerMenuItems::CONTROLLER_BTN_MAP:
             if(--currInd < 0)
                 currInd = ControllerButtonMap::CONTROLLER_MAP_COUNT - 1;
+        break;
+
+        case ControllerMenuItems::MOUSE_LEFT_CLICK:
+            do
+            {
+                if(--currInd < 0)
+                    currInd = mouseButtonOptions.size() - 1;
+            } while (currInd == settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK]);
+        break;
+
+        case ControllerMenuItems::MOUSE_RIGHT_CLICK:
+            do
+            {
+                if(--currInd < 0)
+                    currInd = mouseButtonOptions.size() - 1;
+            } while (currInd == settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK]);
         break;
 
         case ControllerMenuItems::MOUSE_ON_CONNECT:
@@ -153,12 +210,16 @@ ControllerConfig const ControllerMenu::Settings()
 {
     auto controllerMode = (ControllerMode)settingsIndices[ControllerMenuItems::CONTROLLER_MODE];
     auto const controllerMap = (ControllerButtonMap)settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP];
+    auto const leftClickButton = mouseButtonOptions[settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK]];
+    auto const rightClickButton = mouseButtonOptions[settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK]];
     auto const mouseOnConnect = settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] == 1;
     auto const sensitivity = settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY];
 
     return ControllerConfig{
         .controllerMode = controllerMode,
         .controllerMap = controllerMap,
+        .leftClickButton = leftClickButton,
+        .rightClickButton = rightClickButton,
         .mouseSensitivity = sensitivity,
         .mouseOnConnect = mouseOnConnect
     };
@@ -172,6 +233,12 @@ void ControllerMenu::Update()
 
     auto const controllerMap = (ControllerButtonMap)settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP];
     settingsText[ControllerMenuItems::CONTROLLER_BTN_MAP].value = "Controller Mapping:     " + ControllerButtonMapDescription(controllerMap);
+
+    auto const leftClickButton = mouseButtonOptions[settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK]];
+    settingsText[ControllerMenuItems::MOUSE_LEFT_CLICK].value = "Left-Click Button:      " + SwitchButtonToString(leftClickButton);;
+
+    auto const rightClickButton = mouseButtonOptions[settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK]];
+    settingsText[ControllerMenuItems::MOUSE_RIGHT_CLICK].value = "Right-Click Button:     " + SwitchButtonToString(rightClickButton);;
 
     auto const mouseOnConnect = settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] == 1;
     std::string parsedBool = mouseOnConnect ? "Yes" : "No";

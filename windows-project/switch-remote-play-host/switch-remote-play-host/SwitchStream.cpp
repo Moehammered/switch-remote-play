@@ -98,6 +98,9 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                auto mouseSensitivity{ inputConfig.mouseSensitivity };
                auto constexpr mouseToggleBtnCombo = KEY_ZL | KEY_ZR | KEY_B;
                auto mouseBtnFlags = 0;
+               auto leftClickBtn = inputConfig.leftClickButton;
+               auto rightClickBtn = inputConfig.rightClickButton;
+
                double constexpr joystickExtent = 0xFFFF / 2;
                do
                {
@@ -139,24 +142,24 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                         mouseInput.mi.dy = (long)(mouseSensitivity * (y / joystickExtent));
 
                         // left mouse button
-                        if (padData.keys & KEY_L && !(mouseBtnFlags & MOUSEEVENTF_LEFTDOWN))
+                        if (padData.keys & leftClickBtn && !(mouseBtnFlags & MOUSEEVENTF_LEFTDOWN))
                         {
                            mouseInput.mi.dwFlags |= MOUSEEVENTF_LEFTDOWN;
                            mouseBtnFlags |= MOUSEEVENTF_LEFTDOWN;
                         }
-                        else if (!(padData.keys & KEY_L) && (mouseBtnFlags & MOUSEEVENTF_LEFTDOWN))
+                        else if (!(padData.keys & leftClickBtn) && (mouseBtnFlags & MOUSEEVENTF_LEFTDOWN))
                         {
                            mouseInput.mi.dwFlags |= MOUSEEVENTF_LEFTUP;
                            mouseBtnFlags &= ~MOUSEEVENTF_LEFTDOWN;
                         }
 
                         // right mouse button
-                        if (padData.keys & KEY_R && !(mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN))
+                        if (padData.keys & rightClickBtn && !(mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN))
                         {
                            mouseInput.mi.dwFlags |= MOUSEEVENTF_RIGHTDOWN;
                            mouseBtnFlags |= MOUSEEVENTF_RIGHTDOWN;
                         }
-                        else if (!(padData.keys & KEY_R) && (mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN))
+                        else if (!(padData.keys & rightClickBtn) && (mouseBtnFlags & MOUSEEVENTF_RIGHTDOWN))
                         {
                            mouseInput.mi.dwFlags |= MOUSEEVENTF_RIGHTUP;
                            mouseBtnFlags &= ~MOUSEEVENTF_RIGHTDOWN;

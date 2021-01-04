@@ -8,9 +8,11 @@
 #include "../dataHelpers/VideoCodecMode.h"
 #include "../dataHelpers/ControllerMode.h"
 #include "../dataHelpers/WordDelimiter.h"
+#include "../dataHelpers/SwitchButtons.h"
 #include <sstream>
 #include <iterator>
 #include <iostream>
+#include <switch/services/hid.h>
 
 auto constexpr MANUAL_IP_TAG = "manual_ip";
 auto constexpr FPS_TAG = "desired_framerate";
@@ -25,6 +27,8 @@ auto constexpr HWACCEL_TAG = "hwaccel_mode";
 auto constexpr MOUSE_SENS_TAG = "mouse_sensitivity";
 auto constexpr CONTROLLER_MODE_TAG = "controller_mode";
 auto constexpr CONTROLLER_BTN_MAP_TAG = "controller_map";
+auto constexpr MOUSE_LEFT_CLICK_TAG = "mouse_left_click";
+auto constexpr MOUSE_RIGHT_CLICK_TAG = "mouse_right_click";
 auto constexpr MOUSE_ON_CONNECT_TAG = "mouse_on_connect";
 auto constexpr DECODER_FLAG1_TAG = "decoder_flags1";
 auto constexpr DECODER_FLAG2_TAG = "decoder_flags2";
@@ -257,6 +261,22 @@ ControllerConfig const Configuration::ControllerData() const
     }
 
     {
+        std::string leftClick{};
+        if(ExtractVariable(data, MOUSE_LEFT_CLICK_TAG, leftClick))
+            temp.leftClickButton = ParseSwitchButtonString(leftClick);
+        else
+            temp.leftClickButton = KEY_L;
+    }
+
+    {
+        std::string rightClick{};
+        if(ExtractVariable(data, MOUSE_RIGHT_CLICK_TAG, rightClick))
+            temp.rightClickButton = ParseSwitchButtonString(rightClick);
+        else
+            temp.rightClickButton = KEY_R;
+    }
+
+    {
         std::string mouseSensitivity{};
         if(ExtractVariable(data, MOUSE_SENS_TAG, mouseSensitivity))
             temp.mouseSensitivity = atoi(mouseSensitivity.c_str());
@@ -294,6 +314,24 @@ bool Configuration::SaveController(ControllerConfig const data)
         {
             std::cout << CONTROLLER_BTN_MAP_TAG << " variable not found. Appended to config.\n";
             newData += std::string{CONTROLLER_BTN_MAP_TAG} + "=" + controllerMap + ";\n";
+        }
+    }
+
+    {
+        auto leftClickButton = SwitchButtonToString(data.leftClickButton);
+        if(!ReplaceVariable(newData, MOUSE_LEFT_CLICK_TAG, leftClickButton, newData))
+        {
+            std::cout << MOUSE_LEFT_CLICK_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{MOUSE_LEFT_CLICK_TAG} + "=" + leftClickButton + ";\n";
+        }
+    }
+
+    {
+        auto rightClickButton = SwitchButtonToString(data.rightClickButton);
+        if(!ReplaceVariable(newData, MOUSE_RIGHT_CLICK_TAG, rightClickButton, newData))
+        {
+            std::cout << MOUSE_RIGHT_CLICK_TAG << " variable not found. Appended to config.\n";
+            newData += std::string{MOUSE_RIGHT_CLICK_TAG} + "=" + rightClickButton + ";\n";
         }
     }
 

@@ -36,12 +36,15 @@ struct alignas(8) EncoderConfig
 
 constexpr int ENCODER_CONFIG_SIZE = sizeof(EncoderConfig);
 
-struct alignas(2) ControllerConfig
+struct alignas(4) ControllerConfig
 {
     ControllerMode      controllerMode;
     ControllerButtonMap controllerMap;
+    uint32_t            leftClickButton;
+    uint32_t            rightClickButton;
     int16_t             mouseSensitivity;
     bool                mouseOnConnect;
+    char                padding;
 };
 
 constexpr int CONTROLLER_CONFIG_SIZE = sizeof(ControllerConfig);
