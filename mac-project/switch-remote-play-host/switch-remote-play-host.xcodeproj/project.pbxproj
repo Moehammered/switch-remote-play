@@ -1,0 +1,423 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F8090F7225ADB0DE00C0F731 /* DisplayData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8090F7025ADB0DE00C0F731 /* DisplayData.cpp */; };
+		F832816625AAED4F0005B8D9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F832816525AAED4F0005B8D9 /* CoreGraphics.framework */; };
+		F88D608125AD867A009CE4FF /* VirtualMouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F88D607F25AD867A009CE4FF /* VirtualMouse.cpp */; };
+		F88D608425AD86C7009CE4FF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F88D608325AD86C7009CE4FF /* CoreFoundation.framework */; };
+		F8E9512725A96E3200F70E2C /* SystemCalls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8E9512625A96E3200F70E2C /* SystemCalls.cpp */; };
+		F8F1E10325A9BA1700387D8E /* Process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8F1E10225A9BA1700387D8E /* Process.cpp */; };
+		F8FD302425A7DC3D00E4CBEF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD302325A7DC3D00E4CBEF /* main.cpp */; };
+		F8FD305125A7DD7A00E4CBEF /* VideoCodecMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD302D25A7DD7A00E4CBEF /* VideoCodecMode.cpp */; };
+		F8FD305225A7DD7A00E4CBEF /* Resolution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD302F25A7DD7A00E4CBEF /* Resolution.cpp */; };
+		F8FD305325A7DD7A00E4CBEF /* X360Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD303125A7DD7A00E4CBEF /* X360Controller.cpp */; };
+		F8FD305425A7DD7A00E4CBEF /* DS4Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD303325A7DD7A00E4CBEF /* DS4Controller.cpp */; };
+		F8FD305525A7DD7A00E4CBEF /* VirtualController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD303425A7DD7A00E4CBEF /* VirtualController.cpp */; };
+		F8FD305625A7DD7A00E4CBEF /* VsyncMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD303525A7DD7A00E4CBEF /* VsyncMode.cpp */; };
+		F8FD305825A7DD7A00E4CBEF /* HWAccel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304025A7DD7A00E4CBEF /* HWAccel.cpp */; };
+		F8FD305925A7DD7A00E4CBEF /* ControllerButtonMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304125A7DD7A00E4CBEF /* ControllerButtonMap.cpp */; };
+		F8FD305A25A7DD7A00E4CBEF /* FFMPEGHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304325A7DD7A00E4CBEF /* FFMPEGHelper.cpp */; };
+		F8FD305C25A7DD7A00E4CBEF /* Connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304625A7DD7A00E4CBEF /* Connection.cpp */; };
+		F8FD305D25A7DD7A00E4CBEF /* EncoderPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304725A7DD7A00E4CBEF /* EncoderPreset.cpp */; };
+		F8FD305E25A7DD7A00E4CBEF /* AtomicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304A25A7DD7A00E4CBEF /* AtomicTest.cpp */; };
+		F8FD305F25A7DD7A00E4CBEF /* ControllerMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304C25A7DD7A00E4CBEF /* ControllerMode.cpp */; };
+		F8FD306025A7DD7A00E4CBEF /* SwitchStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD304D25A7DD7A00E4CBEF /* SwitchStream.cpp */; };
+		F8FD306125A7DD7A00E4CBEF /* Broadcast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8FD305025A7DD7A00E4CBEF /* Broadcast.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F8FD301E25A7DC3D00E4CBEF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		F8090F7025ADB0DE00C0F731 /* DisplayData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DisplayData.cpp; sourceTree = "<group>"; };
+		F8090F7125ADB0DE00C0F731 /* DisplayData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisplayData.h; sourceTree = "<group>"; };
+		F832816525AAED4F0005B8D9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		F88D607F25AD867A009CE4FF /* VirtualMouse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VirtualMouse.cpp; sourceTree = "<group>"; };
+		F88D608025AD867A009CE4FF /* VirtualMouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirtualMouse.h; sourceTree = "<group>"; };
+		F88D608325AD86C7009CE4FF /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		F8B1B1CE25A9C41500ABC682 /* Process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Process.h; sourceTree = "<group>"; };
+		F8E9512525A96E3200F70E2C /* SystemCalls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemCalls.h; sourceTree = "<group>"; };
+		F8E9512625A96E3200F70E2C /* SystemCalls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SystemCalls.cpp; sourceTree = "<group>"; };
+		F8E9512A25A980B600F70E2C /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		F8F1E10225A9BA1700387D8E /* Process.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Process.cpp; sourceTree = "<group>"; };
+		F8FD302025A7DC3D00E4CBEF /* switch-remote-play-host */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "switch-remote-play-host"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8FD302325A7DC3D00E4CBEF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		F8FD302B25A7DD7A00E4CBEF /* AtomicTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AtomicTest.h; sourceTree = "<group>"; };
+		F8FD302C25A7DD7A00E4CBEF /* X360Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X360Controller.h; sourceTree = "<group>"; };
+		F8FD302D25A7DD7A00E4CBEF /* VideoCodecMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VideoCodecMode.cpp; sourceTree = "<group>"; };
+		F8FD302E25A7DD7A00E4CBEF /* Broadcast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Broadcast.h; sourceTree = "<group>"; };
+		F8FD302F25A7DD7A00E4CBEF /* Resolution.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Resolution.cpp; sourceTree = "<group>"; };
+		F8FD303125A7DD7A00E4CBEF /* X360Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = X360Controller.cpp; sourceTree = "<group>"; };
+		F8FD303225A7DD7A00E4CBEF /* EncoderPreset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncoderPreset.h; sourceTree = "<group>"; };
+		F8FD303325A7DD7A00E4CBEF /* DS4Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DS4Controller.cpp; sourceTree = "<group>"; };
+		F8FD303425A7DD7A00E4CBEF /* VirtualController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VirtualController.cpp; sourceTree = "<group>"; };
+		F8FD303525A7DD7A00E4CBEF /* VsyncMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VsyncMode.cpp; sourceTree = "<group>"; };
+		F8FD303725A7DD7A00E4CBEF /* NetworkData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkData.h; sourceTree = "<group>"; };
+		F8FD303825A7DD7A00E4CBEF /* VirtualController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirtualController.h; sourceTree = "<group>"; };
+		F8FD303925A7DD7A00E4CBEF /* ControllerMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerMode.h; sourceTree = "<group>"; };
+		F8FD303A25A7DD7A00E4CBEF /* VideoCodecMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoCodecMode.h; sourceTree = "<group>"; };
+		F8FD303B25A7DD7A00E4CBEF /* VsyncMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VsyncMode.h; sourceTree = "<group>"; };
+		F8FD303E25A7DD7A00E4CBEF /* Resolution.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resolution.h; sourceTree = "<group>"; };
+		F8FD303F25A7DD7A00E4CBEF /* HWAccel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HWAccel.h; sourceTree = "<group>"; };
+		F8FD304025A7DD7A00E4CBEF /* HWAccel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HWAccel.cpp; sourceTree = "<group>"; };
+		F8FD304125A7DD7A00E4CBEF /* ControllerButtonMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerButtonMap.cpp; sourceTree = "<group>"; };
+		F8FD304225A7DD7A00E4CBEF /* Connection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Connection.h; sourceTree = "<group>"; };
+		F8FD304325A7DD7A00E4CBEF /* FFMPEGHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFMPEGHelper.cpp; sourceTree = "<group>"; };
+		F8FD304525A7DD7A00E4CBEF /* SwitchControlsDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwitchControlsDefinitions.h; sourceTree = "<group>"; };
+		F8FD304625A7DD7A00E4CBEF /* Connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Connection.cpp; sourceTree = "<group>"; };
+		F8FD304725A7DD7A00E4CBEF /* EncoderPreset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EncoderPreset.cpp; sourceTree = "<group>"; };
+		F8FD304825A7DD7A00E4CBEF /* FFMPEGHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFMPEGHelper.h; sourceTree = "<group>"; };
+		F8FD304925A7DD7A00E4CBEF /* ControllerButtonMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerButtonMap.h; sourceTree = "<group>"; };
+		F8FD304A25A7DD7A00E4CBEF /* AtomicTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AtomicTest.cpp; sourceTree = "<group>"; };
+		F8FD304B25A7DD7A00E4CBEF /* DS4Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DS4Controller.h; sourceTree = "<group>"; };
+		F8FD304C25A7DD7A00E4CBEF /* ControllerMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerMode.cpp; sourceTree = "<group>"; };
+		F8FD304D25A7DD7A00E4CBEF /* SwitchStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SwitchStream.cpp; sourceTree = "<group>"; };
+		F8FD304E25A7DD7A00E4CBEF /* WindowsCodeNotes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WindowsCodeNotes.txt; sourceTree = "<group>"; };
+		F8FD304F25A7DD7A00E4CBEF /* SwitchStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwitchStream.h; sourceTree = "<group>"; };
+		F8FD305025A7DD7A00E4CBEF /* Broadcast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Broadcast.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F8FD301D25A7DC3D00E4CBEF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F88D608425AD86C7009CE4FF /* CoreFoundation.framework in Frameworks */,
+				F832816625AAED4F0005B8D9 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F832816425AAED4F0005B8D9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F88D608325AD86C7009CE4FF /* CoreFoundation.framework */,
+				F832816525AAED4F0005B8D9 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F8FD301725A7DC3D00E4CBEF = {
+			isa = PBXGroup;
+			children = (
+				F8E9512A25A980B600F70E2C /* info.plist */,
+				F8FD302225A7DC3D00E4CBEF /* switch-remote-play-host */,
+				F8FD302125A7DC3D00E4CBEF /* Products */,
+				F832816425AAED4F0005B8D9 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		F8FD302125A7DC3D00E4CBEF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F8FD302025A7DC3D00E4CBEF /* switch-remote-play-host */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F8FD302225A7DC3D00E4CBEF /* switch-remote-play-host */ = {
+			isa = PBXGroup;
+			children = (
+				F8090F7025ADB0DE00C0F731 /* DisplayData.cpp */,
+				F8090F7125ADB0DE00C0F731 /* DisplayData.h */,
+				F88D607F25AD867A009CE4FF /* VirtualMouse.cpp */,
+				F88D608025AD867A009CE4FF /* VirtualMouse.h */,
+				F8B1B1CE25A9C41500ABC682 /* Process.h */,
+				F8E9512625A96E3200F70E2C /* SystemCalls.cpp */,
+				F8E9512525A96E3200F70E2C /* SystemCalls.h */,
+				F8FD304A25A7DD7A00E4CBEF /* AtomicTest.cpp */,
+				F8FD302B25A7DD7A00E4CBEF /* AtomicTest.h */,
+				F8FD305025A7DD7A00E4CBEF /* Broadcast.cpp */,
+				F8FD302E25A7DD7A00E4CBEF /* Broadcast.h */,
+				F8FD304625A7DD7A00E4CBEF /* Connection.cpp */,
+				F8FD304225A7DD7A00E4CBEF /* Connection.h */,
+				F8FD304125A7DD7A00E4CBEF /* ControllerButtonMap.cpp */,
+				F8FD304925A7DD7A00E4CBEF /* ControllerButtonMap.h */,
+				F8FD304C25A7DD7A00E4CBEF /* ControllerMode.cpp */,
+				F8FD303925A7DD7A00E4CBEF /* ControllerMode.h */,
+				F8FD303325A7DD7A00E4CBEF /* DS4Controller.cpp */,
+				F8FD304B25A7DD7A00E4CBEF /* DS4Controller.h */,
+				F8FD304725A7DD7A00E4CBEF /* EncoderPreset.cpp */,
+				F8FD303225A7DD7A00E4CBEF /* EncoderPreset.h */,
+				F8FD304325A7DD7A00E4CBEF /* FFMPEGHelper.cpp */,
+				F8FD304825A7DD7A00E4CBEF /* FFMPEGHelper.h */,
+				F8FD304025A7DD7A00E4CBEF /* HWAccel.cpp */,
+				F8FD303F25A7DD7A00E4CBEF /* HWAccel.h */,
+				F8FD303725A7DD7A00E4CBEF /* NetworkData.h */,
+				F8FD302F25A7DD7A00E4CBEF /* Resolution.cpp */,
+				F8FD303E25A7DD7A00E4CBEF /* Resolution.h */,
+				F8FD304525A7DD7A00E4CBEF /* SwitchControlsDefinitions.h */,
+				F8FD304D25A7DD7A00E4CBEF /* SwitchStream.cpp */,
+				F8FD304F25A7DD7A00E4CBEF /* SwitchStream.h */,
+				F8FD302D25A7DD7A00E4CBEF /* VideoCodecMode.cpp */,
+				F8FD303A25A7DD7A00E4CBEF /* VideoCodecMode.h */,
+				F8FD303425A7DD7A00E4CBEF /* VirtualController.cpp */,
+				F8FD303825A7DD7A00E4CBEF /* VirtualController.h */,
+				F8FD303525A7DD7A00E4CBEF /* VsyncMode.cpp */,
+				F8FD303B25A7DD7A00E4CBEF /* VsyncMode.h */,
+				F8FD304E25A7DD7A00E4CBEF /* WindowsCodeNotes.txt */,
+				F8FD303125A7DD7A00E4CBEF /* X360Controller.cpp */,
+				F8FD302C25A7DD7A00E4CBEF /* X360Controller.h */,
+				F8FD302325A7DC3D00E4CBEF /* main.cpp */,
+				F8F1E10225A9BA1700387D8E /* Process.cpp */,
+			);
+			path = "switch-remote-play-host";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F8FD301F25A7DC3D00E4CBEF /* switch-remote-play-host */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F8FD302725A7DC3D00E4CBEF /* Build configuration list for PBXNativeTarget "switch-remote-play-host" */;
+			buildPhases = (
+				F8FD301C25A7DC3D00E4CBEF /* Sources */,
+				F8FD301D25A7DC3D00E4CBEF /* Frameworks */,
+				F8FD301E25A7DC3D00E4CBEF /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "switch-remote-play-host";
+			productName = "switch-remote-play-host";
+			productReference = F8FD302025A7DC3D00E4CBEF /* switch-remote-play-host */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F8FD301825A7DC3D00E4CBEF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1230;
+				TargetAttributes = {
+					F8FD301F25A7DC3D00E4CBEF = {
+						CreatedOnToolsVersion = 12.3;
+					};
+				};
+			};
+			buildConfigurationList = F8FD301B25A7DC3D00E4CBEF /* Build configuration list for PBXProject "switch-remote-play-host" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F8FD301725A7DC3D00E4CBEF;
+			productRefGroup = F8FD302125A7DC3D00E4CBEF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F8FD301F25A7DC3D00E4CBEF /* switch-remote-play-host */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F8FD301C25A7DC3D00E4CBEF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8FD305A25A7DD7A00E4CBEF /* FFMPEGHelper.cpp in Sources */,
+				F8FD305325A7DD7A00E4CBEF /* X360Controller.cpp in Sources */,
+				F8E9512725A96E3200F70E2C /* SystemCalls.cpp in Sources */,
+				F8FD306125A7DD7A00E4CBEF /* Broadcast.cpp in Sources */,
+				F8FD305525A7DD7A00E4CBEF /* VirtualController.cpp in Sources */,
+				F8FD305825A7DD7A00E4CBEF /* HWAccel.cpp in Sources */,
+				F8FD305C25A7DD7A00E4CBEF /* Connection.cpp in Sources */,
+				F8FD305E25A7DD7A00E4CBEF /* AtomicTest.cpp in Sources */,
+				F8090F7225ADB0DE00C0F731 /* DisplayData.cpp in Sources */,
+				F88D608125AD867A009CE4FF /* VirtualMouse.cpp in Sources */,
+				F8FD302425A7DC3D00E4CBEF /* main.cpp in Sources */,
+				F8FD305125A7DD7A00E4CBEF /* VideoCodecMode.cpp in Sources */,
+				F8FD306025A7DD7A00E4CBEF /* SwitchStream.cpp in Sources */,
+				F8FD305925A7DD7A00E4CBEF /* ControllerButtonMap.cpp in Sources */,
+				F8FD305225A7DD7A00E4CBEF /* Resolution.cpp in Sources */,
+				F8F1E10325A9BA1700387D8E /* Process.cpp in Sources */,
+				F8FD305F25A7DD7A00E4CBEF /* ControllerMode.cpp in Sources */,
+				F8FD305D25A7DD7A00E4CBEF /* EncoderPreset.cpp in Sources */,
+				F8FD305425A7DD7A00E4CBEF /* DS4Controller.cpp in Sources */,
+				F8FD305625A7DD7A00E4CBEF /* VsyncMode.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F8FD302525A7DC3D00E4CBEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F8FD302625A7DC3D00E4CBEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F8FD302825A7DC3D00E4CBEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = "$(SRCROOT)/info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F8FD302925A7DC3D00E4CBEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = "$(SRCROOT)/info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F8FD301B25A7DC3D00E4CBEF /* Build configuration list for PBXProject "switch-remote-play-host" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8FD302525A7DC3D00E4CBEF /* Debug */,
+				F8FD302625A7DC3D00E4CBEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F8FD302725A7DC3D00E4CBEF /* Build configuration list for PBXNativeTarget "switch-remote-play-host" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8FD302825A7DC3D00E4CBEF /* Debug */,
+				F8FD302925A7DC3D00E4CBEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F8FD301825A7DC3D00E4CBEF /* Project object */;
+}

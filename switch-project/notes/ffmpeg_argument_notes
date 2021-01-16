@@ -63,6 +63,7 @@ seems GDI can't grab the desktop properly without proper help from the API as th
 .\ffmpeg.exe -probesize 32 -hwaccel vaapi -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -f h264 -vf "scale=1280x720" -preset medium -tune zerolatency -pix_fmt yuv420p b:v 5M -minrate 5M -maxrate 5M -bufsize 2M test.mp4
 
 // hw accel tests using amf codec for AMD
+
 ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync drop -video_size 1280x720 -i desktop -f h264 -vcodec h264_amf -usage 0 -quality 1 -rc 2 -frame_skipping true -vf "scale=1280x720" -preset medium -crf 17 -tune zerolatency -pix_fmt yuv420p -b:v 5120k -minrate 5120k -maxrate 5120k -bufsize 5120k tcp://192.168.0.17:20003
  -- had the following warnings
 Codec AVOption tune (The metric that the encoder tunes for. Automatically chosen by the encoder by default) specified for output file #0 (tcp://192.168.0.17:20003) has not been used for any stream. The most likely reason is either wrong type (e.g. a video option with no video streams) or that it is a private option of some encoder which was not actually used for any stream.
@@ -73,9 +74,13 @@ Codec AVOption crf (Select the quality for constant quality mode) specified for 
 ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync vfr -video_size 1280x720 -i desktop -f h264 -vf "scale=1280x720" -preset ultrafast -crf 17 -tune zerolatency -pix_fmt yuv420p -x264-params "nal-hrd=vbr" -b:v 5120k -minrate 5120k -maxrate 5120k -bufsize 5120k tcp://192.168.0.17:20003
 
 ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync vfr -video_size 1280x720 -i desktop -f h264 -vf "scale=1280x720" -preset medium -crf 17 -tune zerolatency -pix_fmt yuv420p -x264-params "nal-hrd=vbr" -b:v 5120k -minrate 5120k -maxrate 5120k -bufsize 5120k tcp://192.168.0.17:20003
-
+ 
 ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync vfr -video_size 1280x720 -i desktop -f h264 -vf "scale=1280x720" -preset medium -crf 17 -tune zerolatency -pix_fmt yuv420p -x264-params "nal-hrd=vbr:opencl=true" -b:v 5120k -minrate 5120k -maxrate 5120k -bufsize 5120k tcp://192.168.0.17:20003
 
 ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync vfr -video_size 1280x720 -i desktop -f h264 -vf "scale=1280x720" -preset fast -crf 17 -tune zerolatency -pix_fmt yuv420p -x264-params "nal-hrd=vbr:opencl=true" -b:v 5120k -minrate 5120k -maxrate 5120k -bufsize 5120k tcp://192.168.0.17:20003
 
 ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync drop -video_size 1280x720 -i desktop -f h264 -vf "scale=1280x720" -preset veryfast -crf 17 -tune zerolatency -pix_fmt yuv420p -x264-params "nal-hrd=vbr:opencl=true" -b:v 5120k -minrate 5120k -maxrate 5120k -bufsize 5120k tcp://192.168.0.17:20003
+
+
+// for different encoder parameter descriptions
+    https://support.medialooks.com/hc/en-us/articles/360000210192-H-264-encoding-options
