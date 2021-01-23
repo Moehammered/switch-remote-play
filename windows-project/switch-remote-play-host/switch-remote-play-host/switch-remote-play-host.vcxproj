@@ -98,7 +98,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IPHLPAPI.lib;setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\ExtraDependencies\ViGEmClient-1.16.28.0\lib\debug\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -117,7 +117,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IPHLPAPI.lib;setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\ExtraDependencies\ViGEmClient-1.16.28.0\lib\release\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -132,7 +132,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IPHLPAPI.lib;setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\ExtraDependencies\ViGEmClient-1.16.28.0\lib\debug\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -151,7 +151,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IPHLPAPI.lib;setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\ExtraDependencies\ViGEmClient-1.16.28.0\lib\release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -167,6 +167,7 @@
     <ClCompile Include="HWAccel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
+    <ClCompile Include="NetworkAdapter.cpp" />
     <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="FFMPEGHelper.h" />
     <ClInclude Include="HWAccel.h" />
     <ClInclude Include="MasterVolume.h" />
+    <ClInclude Include="NetworkAdapter.h" />
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />

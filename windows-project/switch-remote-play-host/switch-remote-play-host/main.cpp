@@ -15,6 +15,7 @@
 #include "FFMPEGHelper.h"
 #include "Broadcast.h"
 #include "MasterVolume.h"
+#include "NetworkAdapter.h"
 
 auto constexpr applicationVersion = "0.8.1";
 
@@ -47,6 +48,11 @@ int main(int argc, char* argv[])
         Sleep(2000);
         return -1;
     }
+
+    /*NetworkAdapter a{};
+    a.PrintAdaptersInfo();
+    system("pause");
+    return 0;*/
 
     std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")\n" << std::endl;
 

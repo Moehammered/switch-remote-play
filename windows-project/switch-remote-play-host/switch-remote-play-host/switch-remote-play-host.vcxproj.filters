@@ -55,6 +55,9 @@
     <ClCompile Include="VirtualController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkAdapter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtomicTest.h">
@@ -115,6 +118,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DS4Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkAdapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
