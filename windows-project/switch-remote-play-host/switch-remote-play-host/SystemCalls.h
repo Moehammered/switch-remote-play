@@ -11,6 +11,8 @@ extern Connection* switchCommandListener;
 
 MONITORINFOEX DefaultMonitorInfo();
 
+void PrintMonitorInfo(MONITORINFOEX const& monitor);
+
 bool ChangeResolution(int width, int height);
 
 void StopStreamProcesses();
@@ -18,3 +20,5 @@ void StopStreamProcesses();
 BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType);
 
 bool WinsockReady();
+
+bool VirtualControllerDriverAvailable();

@@ -48,7 +48,7 @@ bool Connection::Ready() const
 /// <returns></returns>
 bool Connection::WaitForConnection()
 {
-    std::cout << "waiting for connection to server..." << std::endl << std::endl;
+    std::cout << "waiting for connection..." << std::endl << std::endl;
 
     sockaddr_in clientInfo;
     int infoSize = sizeof(clientInfo);

@@ -243,6 +243,11 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                controller->UpdateController();
                controller->Disconnect();
             }
+            else
+            {
+                std::cout << "Error: Virtual Controller could not be created. Please make sure the Virtual Controller driver is installed correctly.\n";
+                std::cout << "    Stream will shutdown now...\n\n";
+            }
          }
       }
 

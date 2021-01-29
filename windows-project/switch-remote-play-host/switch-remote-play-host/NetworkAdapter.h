@@ -14,6 +14,7 @@ struct AdapterInfo
 	std::vector<std::wstring> multicastAddresses;
 	std::vector<std::wstring> gatewayAddresses;
 	std::vector<std::wstring> dnsAddresses;
+	std::vector<std::string> subnetMasks;
 	std::wstring dnsSuffix;
 	std::vector<uint16_t> physicalAddress;
 	uint64_t flags;
@@ -24,20 +25,29 @@ struct AdapterInfo
 	uint64_t receiveSpeed;
 };
 
+std::vector<std::string> split(std::string const token, std::string const& s);
+std::string CreateBroadcastAddress(std::string const gateway, std::string const subnetMask);
+bool ScanNetworkConnections(std::string& subnet);
+
+void PrintAdapterName(AdapterInfo const & adapter);
+void PrintInterfaceInfo(AdapterInfo const& adapter);
+void PrintSimpleAdapterInfo(AdapterInfo const& adapter);
+std::vector<std::string> GetAdapterFlagsInfo(uint64_t flags);
+std::string GetInterfaceType(uint64_t type);
+std::string GetStatus(uint64_t status);
+
 class NetworkAdapter
 {
 public:
 	NetworkAdapter();
 
-	void PrintAdaptersInfo();
+	std::vector<AdapterInfo> const ActiveAdapters();
+	void PrintActiveAdaptersInfo();
 	
 private:
 	std::vector<AdapterInfo> adapters;
 	std::vector<AdapterInfo> FindAdapterInfo();
-
-	std::vector<std::string> GetAdapterFlagsInfo(uint64_t flags);
-	std::string GetInterfaceType(uint64_t type);
-	std::string GetStatus(uint64_t status);
+	void FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters);
 
 	bool IsActive(uint64_t status);
 };

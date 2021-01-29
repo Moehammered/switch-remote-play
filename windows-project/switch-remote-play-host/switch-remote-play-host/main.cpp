@@ -49,20 +49,32 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    /*NetworkAdapter a{};
-    a.PrintAdaptersInfo();
-    system("pause");
-    return 0;*/
-
     std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")\n" << std::endl;
 
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
     auto const initialWidth = initialMonitorSettings.rcMonitor.right - initialMonitorSettings.rcMonitor.left;
+    PrintMonitorInfo(initialMonitorSettings);
+
+    auto subnet = std::string{ "192.168.0.255" };
+    ScanNetworkConnections(subnet);
+
+    if (VirtualControllerDriverAvailable())
+        std::cout << "\n    Virtual Controller driver seems to be installed correctly.\n\n";
+    else
+    {
+        std::cout << "\n\n!!! Virtual Controller driver seems to be having issues. Please make sure it is installed correctly. !!!\n";
+        std::cout << "If the problem persists, please try uninstalling the driver and installing the latest virtual controller driver\n\n";
+        std::cout << "\n\n==== Press enter to close the program... ====\n\n";
+
+        std::cin.get();
+        return -1;
+    }
+    /*system("pause");
+    return 0;*/
 
     std::string switchIP{};
     std::atomic_bool ipFound{ false };
-    auto subnet = "192.168.0.255";
 
     uint16_t constexpr handshakePort = 19999;
     uint16_t constexpr broadcastPort = 20000;
@@ -140,6 +152,7 @@ int main(int argc, char* argv[])
     auto masterVolume = MasterVolume{};
     auto originalMuteState = masterVolume.IsMuted();
 
+    std::cout << "---- Connection ----\n";
     do
     {
         killStream.store(false, std::memory_order_release);

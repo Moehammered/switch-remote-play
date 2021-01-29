@@ -1,6 +1,6 @@
 #include <winsock2.h> // to get the windows definitions made so 'ChangeDisplaySettings' can be defined
 #include "SystemCalls.h"
-
+#include "VirtualController.h"
 #include <iostream>
 
 MONITORINFOEX DefaultMonitorInfo()
@@ -15,6 +15,23 @@ MONITORINFOEX DefaultMonitorInfo()
     GetMonitorInfo(handle, &monitorInfo);
 
     return monitorInfo;
+}
+
+void PrintMonitorInfo(MONITORINFOEX const& monitor)
+{
+    std::cout << "\n---- Monitor ----\n";
+    std::cout << "Printing found monitor info...\n";
+    std::wcout << "    " << monitor.szDevice << "\n";
+    if (monitor.dwFlags == MONITORINFOF_PRIMARY)
+        std::cout << "        Primary monitor\n";
+    else
+        std::cout << "        Secondary monitor\n";
+
+    std::cout << "        Display Area: " << monitor.rcMonitor.left << "," << monitor.rcMonitor.top << " - " << monitor.rcMonitor.right << "," << monitor.rcMonitor.bottom << "\n";
+
+    auto const x = monitor.rcMonitor.right - monitor.rcMonitor.left;
+    auto const y = monitor.rcMonitor.bottom - monitor.rcMonitor.top;
+    std::cout << "        Resolution:   " << x << " x " << y << "\n\n";
 }
 
 bool ChangeResolution(int width, int height)
@@ -114,5 +131,62 @@ bool WinsockReady()
         return false;
     }
 
+    return true;
+}
+
+bool VirtualControllerDriverAvailable()
+{
+    using namespace std;
+    cout << "\n---- Virtual Controller ----\n";
+    cout << "Testing for correct Virtual Controller driver installation...\n\n";
+    auto client = vigem_alloc();
+
+    if (client == nullptr)
+    {
+        cout << "    Failed to connect to driver" << endl;
+        return false;
+    }
+    cout << "    Client allocation successful.\n";
+    const auto result = vigem_connect(client);
+    if (!VIGEM_SUCCESS(result))
+    {
+        vigem_free(client);
+        cout << "    Virtual Controller connection failed with error code: 0x" << std::hex << result << endl;
+        return false;
+    }
+
+    auto pad = vigem_target_ds4_alloc();
+
+    const auto pluginEvent = vigem_target_add(client, pad);
+
+    if (!VIGEM_SUCCESS(pluginEvent))
+    {
+        cout << "    Virtual Controller plugin failed with error code: 0x" << std::hex << pluginEvent << endl;
+        vigem_disconnect(client);
+        vigem_free(client);
+        vigem_target_free(pad);
+
+        return false;
+    }
+    
+    cout << "    Successfully created, connected, and plugged in a virtual PS4 controller. Cleaning up now...\n";
+    DS4_REPORT state{};
+    ZeroMemory(&state, sizeof(DS4_REPORT));
+    DS4_REPORT_INIT(&state);
+
+    this_thread::sleep_for(chrono::duration<int, milli>(1000));
+    auto unplugEvent = vigem_target_remove(client, pad);
+    if (!VIGEM_SUCCESS(unplugEvent))
+    {
+        vigem_target_free(pad);
+        cout << "    Virtual Controller unplug failed with error code: 0x" << std::hex << unplugEvent << endl;
+        vigem_disconnect(client);
+        vigem_free(client);
+
+        return false;
+    }
+
+    vigem_disconnect(client);
+    vigem_free(client);
     return true;
 }
