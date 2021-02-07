@@ -19,7 +19,6 @@
 #include "system/Configuration.h"
 
 auto constexpr handshakeKey = "let-me-play";
-auto constexpr subnet = "192.168.0.255";
 
 uint16_t constexpr handshakePort = 19999;
 uint16_t constexpr broadcastPort = 20000;
@@ -118,8 +117,14 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    std::string broadcastAddress{};
     std::cout << "Initialising Network Discovery\n";
-    NetworkDiscovery network {handshakePort, subnet, broadcastPort};
+    {
+        auto config = Configuration{};
+        broadcastAddress = config.BroadcastAddress();
+        std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";
+    }
+    NetworkDiscovery network {handshakePort, broadcastAddress, broadcastPort};
     
     std::thread gamepadThread{};
     

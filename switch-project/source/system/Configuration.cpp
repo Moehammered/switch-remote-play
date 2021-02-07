@@ -14,6 +14,8 @@
 #include <iostream>
 #include <switch/services/hid.h>
 
+auto constexpr MANUAL_IP_ENABLED_TAG ="use_manual_mode";
+auto constexpr BROADCAST_ADDRESS_TAG ="broadcast_address";
 auto constexpr MANUAL_IP_TAG = "manual_ip";
 auto constexpr FPS_TAG = "desired_framerate";
 auto constexpr DESKTOP_RES_TAG = "desktop_resolution";
@@ -42,6 +44,29 @@ Configuration::Configuration() : data{}
     data = ReadConfigFile(absolutePath);
 }
 
+bool Configuration::ManualIPEnabled() const
+{
+    auto option = std::string{};
+    if(ExtractVariable(data, MANUAL_IP_ENABLED_TAG, option))
+        return option == "yes";
+    else
+        return false;
+}
+
+bool Configuration::SaveManualIPEnabled(bool enabled)
+{
+    auto newData = std::string{};
+    auto option = std::string{enabled ? "yes" : "no"};
+    if(ReplaceVariable(data, MANUAL_IP_ENABLED_TAG, option, newData))
+        return SaveConfigFile(newData);
+    else
+    {
+        newData = std::string{MANUAL_IP_ENABLED_TAG} + "=" + option + ";\n";
+        newData += data;
+        return SaveConfigFile(newData);
+    }
+}
+
 std::string const Configuration::ManualIP() const
 {
     auto ip = std::string{};
@@ -62,6 +87,29 @@ bool Configuration::SaveManualIP(std::string const ip)
         newData += data;
         return SaveConfigFile(newData);
     }
+}
+
+std::string Configuration::BroadcastAddress() const
+{
+    auto addr = std::string{};
+    if(ExtractVariable(data, BROADCAST_ADDRESS_TAG, addr))
+    {
+        auto dotCount = 0;
+        for(auto const & c : addr)
+        {
+            if(c == '.')
+                ++dotCount;
+        }
+        if(dotCount == 3)
+            return addr;
+        else
+        {
+            std::cout << "Invalid broadcast address format! Defaulting to 192.168.0.255";
+            return "192.168.0.255";
+        }
+    }
+    else
+        return "192.168.0.255";
 }
 
 EncoderConfig const Configuration::FFMPEGData() const

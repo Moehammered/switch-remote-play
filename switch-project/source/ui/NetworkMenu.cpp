@@ -34,7 +34,10 @@ NetworkMenu::NetworkMenu() : Menu(),
     auto& manualToggle = textElements[NetworkMenuItems::MANUAL_TOGGLE];
     manualToggle.x = 550; manualToggle.y = 400;
     manualToggle.colour = white;
-    manualToggle.value = "Manual IP Disabled";
+
+    auto cfg = Configuration{};
+    useManualIP = cfg.ManualIPEnabled();
+    manualToggle.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
 }
 
 void NetworkMenu::ProcessInput(PadState const & pad)
@@ -150,6 +153,10 @@ void NetworkMenu::ProcessIncrease()
                 std::cout << "Failed to manually save IP\n";
             else
                 std::cout << "Saved manual IP " << ip << "\n";
+            if(!cfg.SaveManualIPEnabled(useManualIP))
+                std::cout << "Failed to save manual IP mode option\n";
+            else
+                std::cout << "Saved manual IP mode option " << useManualIP << "\n";
         }
         break;
 

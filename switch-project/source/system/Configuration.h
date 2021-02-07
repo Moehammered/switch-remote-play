@@ -24,8 +24,13 @@ class Configuration
 public:
     Configuration();
 
+    bool ManualIPEnabled() const;
+    bool SaveManualIPEnabled(bool enabled);
+
     std::string const ManualIP() const;
     bool SaveManualIP(std::string const ip);
+
+    std::string BroadcastAddress() const;
 
     EncoderConfig const FFMPEGData() const;
     bool SaveFFMPEG(EncoderConfig const data);

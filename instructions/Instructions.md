@@ -36,6 +36,11 @@
     - Once it is open, you should see *"Ready to receive a connection from the switch..."* and *"Waiting for connection to server"*
     ![application firewall prompt](firewall-prompt.png)
 
+3. The *switch-remote-play-host.exe* program will output basic diagnostic info. It will also output your **network configuration**. This is required to setup auto Network Discovery.
+   ![network diagnositcs](network-diagnostics-output.png)
+   - Please follow the instructions in the console to configure network discovery.
+   - If the network diagnostic output fails or reports an issue, you will only be able to connect via Manual IP Mode.
+
 ### Switch Usage
 
 0. Make sure **Flight Mode is OFF** and your Switch and PC are connected on the **same network**
@@ -44,9 +49,14 @@
 1. Open the *switch-remote-play* app
    ![Switch Remote Play app](srp-app.jpg)
 
-2. Press **'L'** to start network discovery
-    - **NOTE:** Currently the network discovery requires a subnet mask of 255.255.255.0 and assumes your network gateway is 192.168.0.1
-      - If you don't know what all this is please go to the [figure out PC IP section](#pc-ip---figuring-out-network-configuration) if network discovery doesn't work.
+2. Press **'ZL/ZR'** to move between configuration screens. There is an **Encoder Configuration** screen that lets you control the video stream options. Play around with them to control quality and latency.
+   ![encoder configuration screen](config-screen.jpg)
+   - **NOTE:** Quality and latency is entirely dependent on your CPU and network. Please experiment with the configuration options to find what works for your machine.
+
+3. Press **'L'** to start network discovery
+    - **NOTE:** If your network subnet is not 255.255.255.0 and your default gateway is not 192.168.0.1 then you will be required to add a configuration option to the switch application's config file.
+      - If the **network diagnostic output reported an error** or issue then you can **only use Manual IP Mode**.
+      - If you don't know what all this is please go to the [figure out PC IP section](#pc-ip---figuring-out-network-configuration) if network discovery or Manual IP doesn't work.
     - **You should see your PC's IP address (*'Host IP: 192.168.XXX.XXX'* in green)**
     ![Network Discovery](network-discovery.jpg)
     - **And you should see your Switch's IP on the PC application**
@@ -54,12 +64,12 @@
     - **If this doesn't work**, or stays stuck on *'Searching'* please check the [firewall section](#firewall)
     ![Network Searching](searching-network.jpg)
 
-3. Press **'R'** to **connect**
+4. Press **'R'** to **connect**
     - Once connected, the default control mode is **'Mouse'** mode.
       - L = left click, R = right click, analogs for movement
     - **Hold** the **touch screen** or **'ZL+ZR+B'** for more than **3 seconds** to switch to PS4 controller mode. You'll hear a sound on your PC play.
 
-4. To **stop** the stream, hold **'+'** button for more than 3 seconds
+5. To **stop** the stream, hold **'+'** button for more than 3 seconds
 
 ## Help it's not working
 
@@ -73,28 +83,39 @@ Please confirm that the Windows Firewall rules **allows both ffmpeg and switch r
 
 ### Network
 
-Please make sure your switch and PC are on the same network. If you try to perform a network search and your PC IP doesn't show up, then it means they're not on the same network or they're being blocked by Windows Firewall.
+Please make sure your switch and PC are on the same network. If you try to perform a network search and your PC IP doesn't show up, then it means they're not on the same network, the broadcast address hasn't been configured, or they're being blocked by Windows Firewall.
 
 Please confirm by trying to perform the network discovery in the switch app. **You should see your Switch display your PC's IP and your PC display your Switch's IP.**
 
 ![Network Discovery](network-discovery.jpg)
 ![PC Switch Discovery](host-handshake-success.png)
 
-If you perform the network discovery feature and you don't see your Switch's IP on the PC application, Windows Firewall is blocking it, you're on a different network than your PC, your router is blocking the ports, the subnet mask doesn't match the assumed subnet, or a PC app is already using the ports 19999 - 20004 (until the ports are configurable, you will need to find the app using those ports and stop it).
+If you perform the network discovery feature and you don't see your Switch's IP on the PC application, Windows Firewall is blocking it, you're on a different network than your PC, your router is blocking the ports, or the broadcast address configuration option doesn't match, or a PC app is already using the ports 19999 - 20004.
 
 ### PC IP - Figuring out Network Configuration
 
-**The PC application assumes a subnet mask of 255.255.255.0 and a gateway of 192.168.0.1**. It does so to filter out network traffic when listening for the switch to broadcast itself for network discovery.
+The PC application figures out the subnet mask and broadcast address of your active network connecton. It is listed in the console on startup.
 
-Open **Powershell** or **command prompt** and type ***ipconfig*** then press *Enter*. You should see a list of network interfaces. Look for the one that has **IPv4 Address, Subnet Mask, and Default Gateway**.
+![network diagnostics output](network-diagnostics-output.png)
+
+It does so to filter out network traffic when listening for the switch to broadcast itself for network discovery. **The PC application defaults to a subnet mask of 255.255.255.0 and a gateway of 192.168.0.1 if network diagnostic output fails**.
+
+- If you want to connect through **Manual IP Mode**, use the **IP Address** that shows up for you in the **Network** output of *switch-remote-play-host.exe*.
+- If you want to connect automatically through **Network Discovery**, you will need to add the line the program mentions in the **Network** output to your Switch app's configuration file.
+  - **Location:** *'sdcard/switch/switch-remote-play/config.ini'*
+    - If it doesn't exist, you can create it yourself
+
+    ![config file location](switch-app-config-file.png)
+
+  - **Broadcast Address:** *192.168.0.255* (<-- your broadcast address will be shown to you when you run *switch-remote-play-host.exe*)
+
+    ![config file broadcast address](switch-app-config-broadcast-addr.png)
+
+If the above doesn't work or the Network diagnost output reports an issue, then open **Powershell** or **command prompt** and type ***ipconfig*** then press *Enter*. You should see a list of network interfaces. Look for the one that has **IPv4 Address, Subnet Mask, and Default Gateway**.
 
 ![pc-ip-config](pc-ip-configuration.png)
 
-- If you want to connect through **Manual IP Mode**, use the **IPv4 address** that shows up for you in **Powershell** or **command prompt**.
-- If you want to connect automatically through **Network Discovery**, your router needs to be configured to have:
-  - **Subnet Mask:** 255.255.255.0
-  - **Default Gateway:** 192.168.0.1
-- If you cannot re-configure your router or don't know how, then you will need to use **Manual IP Mode.**
+- Use the **IPv4 address** to connect via **Manual IP Mode**.
 
 ### Stuck on Pending Connection
 
