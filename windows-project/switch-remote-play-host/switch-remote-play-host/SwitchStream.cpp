@@ -108,9 +108,19 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                   padData.keys = 0;
                   padData.ljx = padData.ljy = 0;
                   padData.rjx = padData.rjy = 0;
-
-                  auto result = recv(connection.ConnectedSocket(), (char*)&padData, GamepadDataPayloadSize, 0);
-                  if (result == SOCKET_ERROR)
+                  auto bytesRead = 0;
+                  do
+                  {
+                      auto received = recv(connection.ConnectedSocket(), ((char*)&padData)+bytesRead, GamepadDataPayloadSize-bytesRead, 0);
+                      if (received == SOCKET_ERROR || received == 0)
+                      {
+                          bytesRead = received;
+                          break;
+                      }
+                      else
+                          bytesRead += received;
+                  } while (bytesRead < GamepadDataPayloadSize);
+                  if (bytesRead == SOCKET_ERROR)
                   {
                      cout << "Failed to receive data for gamepad stream" << endl;
                      std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
@@ -122,7 +132,7 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                         streamDead = true;
                      }
                   }
-                  else if (result > 0)
+                  else if (bytesRead == GamepadDataPayloadSize)
                   {
                      if (padData.keys == 0xFFFF)
                      {
@@ -215,7 +225,7 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                      else
                         lastTime = std::chrono::high_resolution_clock::now();
                   }
-                  else if (result == 0)
+                  else if (bytesRead == 0)
                   {
                      // connection closed, cleanup
                      killStream.store(true, memory_order_release);

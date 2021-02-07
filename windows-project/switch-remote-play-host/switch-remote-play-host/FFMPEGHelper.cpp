@@ -1,9 +1,8 @@
 #include "FFMPEGHelper.h"
 #include <iostream>
 #include <sstream>
+#include "Configuration.h"
 
-auto ffmpegProcessFlag{ 0 }; // 0 - in parent process window
-auto audioProcessFlag{ CREATE_NO_WINDOW };
 std::string parentDirectory{};
 std::string ffmpegPath{};
 
@@ -86,7 +85,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
 }
 
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
-PROCESS_INFORMATION StartStream(EncoderConfig const config, std::string const ip, uint16_t port, bool& started)
+PROCESS_INFORMATION StartStream(EncoderConfig const config, std::string const ip, uint16_t port, bool showEncoderOutput, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -96,6 +95,11 @@ PROCESS_INFORMATION StartStream(EncoderConfig const config, std::string const ip
     si.cb = sizeof(si);
 
     auto args = CreateVideoCommandLineArg(config, ip, port);
+    
+    auto configFile = Configuration{ parentDirectory };
+    auto ffmpegProcessFlag = 0;
+    if (!showEncoderOutput)
+        ffmpegProcessFlag = CREATE_NO_WINDOW;
 
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, ffmpegProcessFlag, NULL, NULL, &si, &pi))
     {
@@ -118,7 +122,7 @@ PROCESS_INFORMATION StartStream(EncoderConfig const config, std::string const ip
     return pi;
 }
 
-PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool& started)
+PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAudioEncoderWindow, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -136,6 +140,9 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool& starte
     auto constexpr data_size = inputSampleCount * channels * bitrate/8;
     
     auto const args = CreateAudioCommandLineArg(samplerate, data_size, ip, port);
+    auto audioProcessFlag = CREATE_NO_WINDOW;
+    if (showAudioEncoderWindow)
+        audioProcessFlag = CREATE_NEW_CONSOLE;
 
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, audioProcessFlag, NULL, NULL, &si, &pi))
     {

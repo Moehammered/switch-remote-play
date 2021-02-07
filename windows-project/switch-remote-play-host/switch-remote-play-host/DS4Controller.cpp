@@ -228,9 +228,9 @@ SHORT DS4Controller::ConvertAnalog(int32_t const switchAnalog)
 {
 	//std::cout << "Raw switch analog: " << switchAnalog;
 	auto absolute = switchAnalog < 0 ? -switchAnalog : switchAnalog;
-	const auto scale = (double)(0xFFFF / 2.0);
+	const auto scale = (double)SHRT_MAX;
 	double magnitude = absolute / scale;
-	double scaled = magnitude * 128;
+	double scaled = magnitude * CHAR_MAX;
 	BYTE result = 0x80;
 
 	if (switchAnalog < 0)

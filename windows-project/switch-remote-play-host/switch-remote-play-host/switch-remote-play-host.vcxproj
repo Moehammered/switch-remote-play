@@ -158,12 +158,14 @@
   <ItemGroup>
     <ClCompile Include="AtomicTest.cpp" />
     <ClCompile Include="Broadcast.cpp" />
+    <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="ControllerButtonMap.cpp" />
     <ClCompile Include="ControllerMode.cpp" />
     <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="EncoderPreset.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
+    <ClCompile Include="FileOperations.cpp" />
     <ClCompile Include="HWAccel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
@@ -179,12 +181,14 @@
   <ItemGroup>
     <ClInclude Include="AtomicTest.h" />
     <ClInclude Include="Broadcast.h" />
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ControllerButtonMap.h" />
     <ClInclude Include="ControllerMode.h" />
     <ClInclude Include="DS4Controller.h" />
     <ClInclude Include="EncoderPreset.h" />
     <ClInclude Include="FFMPEGHelper.h" />
+    <ClInclude Include="FileOperations.h" />
     <ClInclude Include="HWAccel.h" />
     <ClInclude Include="MasterVolume.h" />
     <ClInclude Include="NetworkAdapter.h" />
@@ -217,6 +221,15 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="switch-remote-play-host.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="config.ini">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,8 +16,9 @@
 #include "Broadcast.h"
 #include "MasterVolume.h"
 #include "NetworkAdapter.h"
+#include "Configuration.h"
 
-auto constexpr applicationVersion = "0.8.1";
+auto constexpr applicationVersion = "0.8.3";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -56,13 +57,22 @@ int main(int argc, char* argv[])
     auto const initialWidth = initialMonitorSettings.rcMonitor.right - initialMonitorSettings.rcMonitor.left;
     PrintMonitorInfo(initialMonitorSettings);
 
-    auto subnet = std::string{ "192.168.0.255" };
-    ScanNetworkConnections(subnet);
+    auto broadcastAddress = std::string{ "192.168.0.255" };
+    if (ScanNetworkConnections(broadcastAddress))
+    {
+        std::cout << "Broadcast address for network discovery is: " << broadcastAddress << "\n\n";
+        std::cout << "Please add the line below to the switch application's config file if you wish to use the network discovery feature:\n";
+        std::cout << "broadcast_address=" << broadcastAddress << "; <-- Do not forget the semi-colon! (;)\n\n";
+        std::cout << "The switch configuration file is located at 'switch/switch-remote-play/config.ini'. If it doesn't exist, create it.\n";
+    }
+    else
+        std::cout << "Couldn't determine broadcast address. If you cannot connect, please use Manual IP Mode in the Switch app.\n";
 
     if (VirtualControllerDriverAvailable())
         std::cout << "\n    Virtual Controller driver seems to be installed correctly.\n\n";
     else
     {
+        //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x5B);
         std::cout << "\n\n!!! Virtual Controller driver seems to be having issues. Please make sure it is installed correctly. !!!\n";
         std::cout << "If the problem persists, please try uninstalling the driver and installing the latest virtual controller driver\n\n";
         std::cout << "\n\n==== Press enter to close the program... ====\n\n";
@@ -106,7 +116,7 @@ int main(int argc, char* argv[])
     };
 
     auto receiverProcedure = [&] {
-        auto broadcaster = Broadcast(subnet, broadcastPort);
+        auto broadcaster = Broadcast(broadcastAddress, broadcastPort);
         switchBroadcastListener = &broadcaster;
 
         if (broadcaster.ReadyToRecv())
@@ -197,8 +207,9 @@ int main(int argc, char* argv[])
                     std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
                     ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
                     // make sure this function takes in the IP of the switch dynamically from the handshake
-                    streamProcessInfo = StartStream(lastPayload.configData, switchIP, videoPort, ffmpegStarted);
-                    audioProcessInfo = StartAudio(switchIP, audioPort, audioStarted);
+                    auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
+                    streamProcessInfo = StartStream(lastPayload.configData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
+                    audioProcessInfo = StartAudio(switchIP, audioPort, configFile.ShowFfmpegAudioEncoderOutputWindow(), audioStarted);
 
                     if (ffmpegStarted)
                     {

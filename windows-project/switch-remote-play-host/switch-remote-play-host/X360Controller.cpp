@@ -25,7 +25,7 @@ std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_XUS
    { KEY_Y, XUSB_GAMEPAD_X },
    { KEY_L, XUSB_GAMEPAD_LEFT_SHOULDER },
    { KEY_R, XUSB_GAMEPAD_RIGHT_SHOULDER },
-   { KEY_MINUS, XUSB_GAMEPAD_GUIDE },
+   { KEY_MINUS, XUSB_GAMEPAD_BACK },
    { KEY_PLUS , XUSB_GAMEPAD_START },
    { KEY_LSTICK , XUSB_GAMEPAD_LEFT_THUMB },
    { KEY_RSTICK , XUSB_GAMEPAD_RIGHT_THUMB },
@@ -43,6 +43,7 @@ const std::unordered_map < XUSB_BUTTON, std::string, std::hash<uint32_t> > XUSB_
    { XUSB_GAMEPAD_LEFT_SHOULDER , "L1" },
    { XUSB_GAMEPAD_RIGHT_SHOULDER, "R1" },
    { XUSB_GAMEPAD_GUIDE, "GUIDE" },
+   { XUSB_GAMEPAD_BACK, "BACK" },
    { XUSB_GAMEPAD_START, "START" },
    { XUSB_GAMEPAD_LEFT_THUMB , "LEFT STICK" },
    { XUSB_GAMEPAD_RIGHT_THUMB, "RIGHT STICK" },
@@ -244,9 +245,9 @@ SHORT X360Controller::ConvertAnalog(int32_t const switchAnalog)
 {
 	//std::cout << "Raw switch analog: " << switchAnalog;
 	auto absolute = switchAnalog < 0 ? -switchAnalog : switchAnalog;
-	const auto scale = (double)(0xFFFF / 2.0);
+	const auto scale = (double)SHRT_MAX;
 	double magnitude = absolute / scale;
-	double scaled = magnitude * 32768;
+	double scaled = magnitude * SHRT_MAX;
 	SHORT result = 0x0000;
 
 	if (switchAnalog < 0)

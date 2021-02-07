@@ -43,7 +43,7 @@ std::string CreateBroadcastAddress(std::string const gateway, std::string const 
     return broadcastAddr.substr(0, broadcastAddr.size() - 1);
 }
 
-bool ScanNetworkConnections(std::string& subnet)
+bool ScanNetworkConnections(std::string& broadcastAddress)
 {
     std::cout << "\n---- Network ----\n";
     std::cout << "Looking for active network interfaces...\n\n";
@@ -64,7 +64,7 @@ bool ScanNetworkConnections(std::string& subnet)
             auto gateway = std::string(adapter.gatewayAddresses[0].begin(), adapter.gatewayAddresses[0].end());
             auto broadcastAddr = CreateBroadcastAddress(gateway, adapter.subnetMasks[0]);
             std::cout << "    Broadcast:   " << broadcastAddr << "\n\n";
-            subnet = broadcastAddr;
+            broadcastAddress = broadcastAddr;
         }
         return true;
     }
@@ -78,7 +78,7 @@ bool ScanNetworkConnections(std::string& subnet)
             auto gateway = std::string(adapter.gatewayAddresses[0].begin(), adapter.gatewayAddresses[0].end());
             auto broadcastAddr = CreateBroadcastAddress(gateway, adapter.subnetMasks[0]);
             std::cout << "    Broadcast:   " << broadcastAddr << "\n\n";
-            subnet = broadcastAddr;
+            broadcastAddress = broadcastAddr;
         }
         std::cout << "Please make sure your Switch is on the same network as this network connection\n\n";
         return true;
@@ -89,7 +89,7 @@ bool ScanNetworkConnections(std::string& subnet)
         std::cout << "Please make sure your PC is connected to a network.\n";
         std::cout << "Also make sure your Switch is connected to the same network!\n\n";
 
-        std::cout << "Assuming default broadcast address: " << subnet << "\n\n";
+        std::cout << "Assuming default broadcast address: " << broadcastAddress << "\n\n";
 
         std::cout << "If you cannot connect, please check your network connection and try restarting the application\n\n";
 
