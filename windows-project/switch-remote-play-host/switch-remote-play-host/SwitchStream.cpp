@@ -6,6 +6,7 @@
 #include "DS4Controller.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
+#include "WSAHelper.h"
 #include <memory>
 #include <chrono>
 
@@ -123,6 +124,7 @@ std::thread StartGamepadListener(ControllerConfig controllerConfig, std::atomic_
                   if (bytesRead == SOCKET_ERROR)
                   {
                      cout << "Failed to receive data for gamepad stream" << endl;
+                     cout << "Winsock error: \n    " << WSAErrorToStr(WSAGetLastError()) << "\n";
                      std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
                      --retryCount;
                      if (retryCount == 0)

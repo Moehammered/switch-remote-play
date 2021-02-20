@@ -1,0 +1,94 @@
+ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync drop -video_size 1280x720 -i desktop -f h264 -vcodec h264_amf -usage 1 -profile main -level auto -quality 0 -rc -1 -frame_skipping true -vf "scale=1280x720" -pix_fmt yuv420p test.mp4
+
+-desktop capture (for streaming need to append -f h264 so ffmpeg can decode it on switch)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 1 -profile:v main -level auto -quality 0 -rc -1 -frame_skipping true -vf "scale=1280x720" test.mp4
+
+-amazing quality (lossless)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 2 -rc -1 -frame_skipping true -qp_i 0 -qp_p 0 -qp_b 0 -vf "scale=1280x720" test.mp4
+
+-amazing quality with less file size
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 2 -rc -1 -frame_skipping true -qp_i 0 -vf "scale=1280x720" test.mp4   
+
+-amazing quality with huge file size
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 2 -rc -1 -frame_skipping true -qp_p 0 -vf "scale=1280x720" test.mp4  
+
+-amazing quality with less file size
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 2 -rc -1 -frame_skipping true -qp_b 0 -vf "scale=1280x720" test.mp4  
+
+tldr: qp_p frames are huge in lossless mode
+
+-streaming range for quality values
+-great quality with high transfer size
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 2 -rc -1 -frame_skipping true -qp_i 10 -qp_p -1 -qp_b 10 -vf "scale=1280x720" test.mp4
+
+-ok quality with decent transfer size
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 0 -rc -1 -frame_skipping true -qp_i 10 -qp_p -1 -qp_b 10 -vf "scale=1280x720" test.mp4
+
+-nice balance
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_amf -usage 2 -profile:v high -level auto -quality 0 -rc -1 -frame_skipping true -qp_i 5 -qp_p -1 -qp_b 5 -vf "scale=1280x720" test.mp4
+
+tldr: seems when quality param is set to quality it will make the qp_* params lean further towards lossless
+
+h264_amf AVOptions:
+  -usage             <int>        E..V.... Encoder Usage (from 0 to 3) (default transcoding)
+     transcoding                  E..V.... Generic Transcoding
+     ultralowlatency              E..V.... 
+     lowlatency                   E..V.... 
+     webcam                       E..V.... Webcam
+  -profile           <int>        E..V.... Profile (from 66 to 257) (default main)
+     main                         E..V.... 
+     high                         E..V.... 
+     constrained_baseline              E..V.... 
+     constrained_high              E..V.... 
+  -level             <int>        E..V.... Profile Level (from 0 to 62) (default auto)
+     auto                         E..V.... 
+     1.0                          E..V.... 
+     1.1                          E..V.... 
+     1.2                          E..V.... 
+     1.3                          E..V.... 
+     2.0                          E..V.... 
+     2.1                          E..V.... 
+     2.2                          E..V.... 
+     3.0                          E..V.... 
+     3.1                          E..V.... 
+     3.2                          E..V.... 
+     4.0                          E..V.... 
+     4.1                          E..V.... 
+     4.2                          E..V.... 
+     5.0                          E..V.... 
+     5.1                          E..V.... 
+     5.2                          E..V.... 
+     6.0                          E..V.... 
+     6.1                          E..V.... 
+     6.2                          E..V.... 
+  -quality           <int>        E..V.... Quality Preference (from 0 to 2) (default speed)
+     speed                        E..V.... Prefer Speed
+     balanced                     E..V.... Balanced
+     quality                      E..V.... Prefer Quality
+  -rc                <int>        E..V.... Rate Control Method (from -1 to 3) (default -1)
+     cqp                          E..V.... Constant Quantization Parameter
+     cbr                          E..V.... Constant Bitrate
+     vbr_peak                     E..V.... Peak Contrained Variable Bitrate
+     vbr_latency                  E..V.... Latency Constrained Variable Bitrate
+  -enforce_hrd       <boolean>    E..V.... Enforce HRD (default false)
+  -filler_data       <boolean>    E..V.... Filler Data Enable (default false)
+  -vbaq              <boolean>    E..V.... Enable VBAQ (default false)
+  -frame_skipping    <boolean>    E..V.... Rate Control Based Frame Skip (default false)
+  -qp_i              <int>        E..V.... Quantization Parameter for I-Frame (from -1 to 51) (default -1)
+  -qp_p              <int>        E..V.... Quantization Parameter for P-Frame (from -1 to 51) (default -1)
+  -qp_b              <int>        E..V.... Quantization Parameter for B-Frame (from -1 to 51) (default -1)
+  -preanalysis       <boolean>    E..V.... Pre-Analysis Mode (default false)
+  -max_au_size       <int>        E..V.... Maximum Access Unit Size for rate control (in bits) (from 0 to INT_MAX) (default 0)
+  -header_spacing    <int>        E..V.... Header Insertion Spacing (from -1 to 1000) (default -1)
+  -bf_delta_qp       <int>        E..V.... B-Picture Delta QP (from -10 to 10) (default 4)
+  -bf_ref            <boolean>    E..V.... Enable Reference to B-Frames (default true)
+  -bf_ref_delta_qp   <int>        E..V.... Reference B-Picture Delta QP (from -10 to 10) (default 4)
+  -intra_refresh_mb  <int>        E..V.... Intra Refresh MBs Number Per Slot in Macroblocks (from 0 to INT_MAX) (default 0)
+  -coder             <int>        E..V.... Coding Type (from 0 to 2) (default auto)
+     auto                         E..V.... Automatic
+     cavlc                        E..V.... Context Adaptive Variable-Length Coding
+     cabac                        E..V.... Context Adaptive Binary Arithmetic Coding
+  -me_half_pel       <boolean>    E..V.... Enable ME Half Pixel (default true)
+  -me_quarter_pel    <boolean>    E..V.... Enable ME Quarter Pixel (default true)
+  -aud               <boolean>    E..V.... Inserts AU Delimiter NAL unit (default false)
+  -log_to_dbg        <boolean>    E..V.... Enable AMF logging to debug output (default false)

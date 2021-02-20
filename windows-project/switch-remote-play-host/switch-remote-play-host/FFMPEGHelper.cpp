@@ -72,13 +72,13 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
     auto const & filePath = ffmpegPath;
 
     auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
-    auto const inputArgs = " -y  -f dshow -i audio=\"virtual-audio-capturer\" ";
-    auto const qualityArgs = "-f s16le ";
+    auto const inputArgs = " -y -f dshow -audio_buffer_size 30 -i audio=\"virtual-audio-capturer\" ";
+    auto const qualityArgs = "-f s16le "; //s16le
     auto const sampleRateArg = "-ar ";
-    auto const channelArgs = " -ac 2 -c:a pcm_s16le ";
+    auto const channelArgs = " -ac 2 "; //s8 -- -c:a pcm_s16le 
     auto const packetArg = "pkt_size=";
     stringstream args;
-    args << filePath << inputArgs << qualityArgs << sampleRateArg << sampleRate << channelArgs;
+    args << filePath << inputArgs << qualityArgs /*<< sampleRateArg << sampleRate << channelArgs*/;
     args << connectionIP;// << "?" << packetArg << packetSize;
 
     return args.str();
@@ -140,7 +140,10 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
     auto constexpr data_size = inputSampleCount * channels * bitrate/8;
     
     auto const args = CreateAudioCommandLineArg(samplerate, data_size, ip, port);
-    auto audioProcessFlag = CREATE_NO_WINDOW;
+
+    std::cout << "audio--\n\n" << args << "\n\n";
+
+    auto audioProcessFlag = 0;
     if (showAudioEncoderWindow)
         audioProcessFlag = CREATE_NEW_CONSOLE;
 

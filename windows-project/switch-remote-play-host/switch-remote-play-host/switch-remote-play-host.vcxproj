@@ -174,6 +174,7 @@
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
     <ClCompile Include="VirtualController.cpp" />
+    <ClCompile Include="WSAHelper.cpp" />
     <ClCompile Include="X360Controller.cpp" />
     <ClCompile Include="VideoCodecMode.cpp" />
     <ClCompile Include="VsyncMode.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="VideoCodecMode.h" />
     <ClInclude Include="VirtualController.h" />
     <ClInclude Include="VsyncMode.h" />
+    <ClInclude Include="WSAHelper.h" />
     <ClInclude Include="X360Controller.h" />
   </ItemGroup>
   <ItemGroup>
