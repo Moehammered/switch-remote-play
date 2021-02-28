@@ -9,6 +9,7 @@
 #include "ui/DecoderMenu.h"
 #include "ui/EncoderMenu.h"
 #include "ui/ControllerMenu.h"
+#include "ui/H264Menu.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
@@ -65,6 +66,7 @@ class MenuSelection : public Menu
         std::unordered_map<MenuScreen, Menu*> menus;
 
         MenuScreen selectedMenu;
+        H264Menu h264Menu;
 };
 
 #endif

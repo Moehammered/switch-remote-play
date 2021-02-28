@@ -9,12 +9,13 @@ MenuSelection::MenuSelection() : Menu(),
     streamPendingText{}, helpScreen{},
     decoderScreen{}, controllerScreen{},
     encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{HELP}
+    menus{}, selectedMenu{HELP},
+    h264Menu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;
     menus[MenuScreen::DECODER_CONFIG] = &decoderScreen;
     menus[MenuScreen::CONTROLLER] = &controllerScreen;
-    menus[MenuScreen::CONFIG] = &encoderScreen;
+    menus[MenuScreen::CONFIG] = &h264Menu;
     menus[MenuScreen::IP_SET] = &networkScreen;
 
     title.x = 400; title.y = 20;

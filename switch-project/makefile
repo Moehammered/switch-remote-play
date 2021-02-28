@@ -40,7 +40,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #TARGET		:=	$(notdir $(CURDIR))
 TARGET		:=	switch-remote-play
 BUILD		:=	build
-SOURCES		:=	source source/network source/ui source/system source/stream source/dataHelpers
+SOURCES		:=	source source/network source/ui source/system source/stream source/dataHelpers source/codec
 DATA		:=	data
 INCLUDES	:=	include
 ROMFS		:=	romfs
