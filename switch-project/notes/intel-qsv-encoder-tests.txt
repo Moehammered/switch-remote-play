@@ -1,0 +1,76 @@
+Intel H264_QSV codec encoder tests
+
+/*
+	All tests will have vsync removed to allow for quality comparisons for now to see how parameters influence quality
+*/
+
+// baseline -- quality was bad, (framerate '60' but lots of frames dropped)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset medium test_baseline_medium.mp4
+
+// veryfast preset -- quality was OK but noticeable blur when movement occured (framerate '60' but lots of frames dropped)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset veryfast test_pre-vf.mp4
+
+// fast preset -- quality was good and consistent with movement (framerate '60' but lots of frames dropped)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast test_pre-f.mp4
+
+// fast preset high profile -- quality was good and consistent with movement (framerate '60' but lots of frames dropped)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v high test_pre-f_pro-h.mp4
+
+// fast preset look_ahead -- quality was good and consistent with movement, faster? placebo maybe (framerate '60' but lots of frames dropped)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -look_ahead 1 test_pre-f_la.mp4
+
+// fast preset avbr accuracy -- quality was good and consistent with movement, faster? placebo maybe (framerate '60' but lots of frames dropped)
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -avbr_accuracy 100 test_pre-f_avbra-100.mp4
+
+// fast preset adaptive i -- quality was OK
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -adaptive_i 1 test_pre-f_adap-i.mp4
+
+// fast preset adaptive i + b -- quality was good
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -adaptive_i 1 -adaptive_b 1 test_pre-f_adap-i_adap-b.mp4
+
+// fast preset look ahead depth + sampling -- quality was good
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -look_ahead 1 -look_ahead_depth 2 -look_ahead_downsampling 2 test_pre-f_la_ladep-2_ladow-2.mp4
+
+// fast preset adaptive i + b repeat pps -- quality was good
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -adaptive_i 1 -adaptive_b 1 -repeat_pps true test_pre-f_adap-i_adap-b_pps.mp4
+
+
+// fast preset frame size limit 170 -- no noticeable difference
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -max_frame_size 170 test_pre-f_frsize-170.mp4
+
+// fast preset frame size limit 34000 -- noticeable quality degradation clamped to ~2000kbits/sec
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -max_frame_size 34000 test_pre-f_frsize-34000.mp4
+
+// fast preset frame size limit 17500 -- very noticeable quality degradation clamped to ~1000kbits/sec
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -max_frame_size 17500 test_pre-f_frsize-17500.mp4
+
+---- old tests ----
+
+// works
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_qsv -profile:v high -vf "scale=1280x720" test.mp4
+
+// for streaming...
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_qsv -profile:v high -vf "scale=1280x720" -f h264 -pix_fmt yuv420p test.mp4
+
+// scales output properly
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -vf "scale=1280x720" test.mp4
+
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -a53cc 0 -vf "scale=1280x720" test.mp4
+
+// fast preset seems to work ok with motion
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -a53cc 0 test.mp4
+
+// very fast artifacts with many movements
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset veryfast -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -a53cc 0 test.mp4
+
+// artifacts + chokes framerate
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset veryfast -profile:v high -look_ahead 1 -a53cc 0 test_nolimit_high_veryfast.mp4
+
+// artifacts + frame drop
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v main -look_ahead 1 -a53cc 0 test_nolimit_main_fast.mp4
+
+// same as above...
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v main -bitrate_limit 1 -a53cc 0 test_nolookahead_bitlimit_main_fast.mp4
+
+// framerate improves... so it's just a throughput / resolution issue
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1280x1024 -i desktop -c:v h264_qsv -preset fast -profile:v main -bitrate_limit 1 -a53cc 0 test_nolookahead_bitlimit_main_fast_lowres.mp4

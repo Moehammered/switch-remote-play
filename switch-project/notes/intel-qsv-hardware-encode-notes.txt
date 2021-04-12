@@ -1,0 +1,89 @@
+
+// works
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_qsv -profile:v high -vf "scale=1280x720" test.mp4
+
+// for streaming...
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1920x1080 -i desktop -c:v h264_qsv -profile:v high -vf "scale=1280x720" -f h264 -pix_fmt yuv420p test.mp4
+
+// scales output properly
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -vf "scale=1280x720" test.mp4
+
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -a53cc 0 -vf "scale=1280x720" test.mp4
+
+// fast preset seems to work ok with motion
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -a53cc 0 test.mp4
+
+// very fast artifacts with many movements
+./ffmpeg.exe -probesize 512 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset veryfast -profile:v high -look_ahead 1 -bitrate_limit 1 -mbbrc 1 -a53cc 0 test.mp4
+
+// artifacts + chokes framerate
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset veryfast -profile:v high -look_ahead 1 -a53cc 0 test_nolimit_high_veryfast.mp4
+
+// artifacts + frame drop
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v main -look_ahead 1 -a53cc 0 test_nolimit_main_fast.mp4
+
+// same as above...
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 2560x1600 -i desktop -c:v h264_qsv -preset fast -profile:v main -bitrate_limit 1 -a53cc 0 test_nolookahead_bitlimit_main_fast.mp4
+
+// framerate improves... so it's just a throughput / resolution issue
+./ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync 2 -video_size 1280x1024 -i desktop -c:v h264_qsv -preset fast -profile:v main -bitrate_limit 1 -a53cc 0 test_nolookahead_bitlimit_main_fast_lowres.mp4
+
+
+(Found on nico_lab github gist)
+
+Encoder h264_qsv [H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (Intel Quick Sync Video acceleration)]:
+    General capabilities: delay hybrid 
+    Threading capabilities: none
+    Supported hardware devices: qsv qsv qsv 
+    Supported pixel formats: nv12 p010le qsv
+h264_qsv encoder AVOptions:
+  -async_depth       <int>        E..V...... Maximum processing parallelism (from 1 to INT_MAX) (default 4)
+  -avbr_accuracy     <int>        E..V...... Accuracy of the AVBR ratecontrol (from 0 to INT_MAX) (default 0)
+  -avbr_convergence  <int>        E..V...... Convergence of the AVBR ratecontrol (from 0 to INT_MAX) (default 0)
+  -preset            <int>        E..V...... (from 1 to 7) (default medium)
+     veryfast        7            E..V......
+     faster          6            E..V......
+     fast            5            E..V......
+     medium          4            E..V......
+     slow            3            E..V......
+     slower          2            E..V......
+     veryslow        1            E..V......
+  -rdo               <int>        E..V...... Enable rate distortion optimization (from -1 to 1) (default -1)
+  -max_frame_size    <int>        E..V...... Maximum encoded frame size in bytes (from -1 to 65535) (default -1)
+  -max_slice_size    <int>        E..V...... Maximum encoded slice size in bytes (from -1 to 65535) (default -1)
+  -bitrate_limit     <int>        E..V...... Toggle bitrate limitations (from -1 to 1) (default -1)
+  -mbbrc             <int>        E..V...... MB level bitrate control (from -1 to 1) (default -1)
+  -extbrc            <int>        E..V...... Extended bitrate control (from -1 to 1) (default -1)
+  -adaptive_i        <int>        E..V...... Adaptive I-frame placement (from -1 to 1) (default -1)
+  -adaptive_b        <int>        E..V...... Adaptive B-frame placement (from -1 to 1) (default -1)
+  -b_strategy        <int>        E..V...... Strategy to choose between I/P/B-frames (from -1 to 1) (default -1)
+  -forced_idr        <boolean>    E..V...... Forcing I frames as IDR frames (default false)
+  -low_power         <boolean>    E..V...... enable low power mode(experimental: many limitations by mfx version, BRC modes, etc.) (default false)
+  -cavlc             <int>        E..V...... Enable CAVLC (from 0 to 1) (default 0)
+  -vcm               <int>        E..V...... Use the video conferencing mode ratecontrol (from 0 to 1) (default 0)
+  -idr_interval      <int>        E..V...... Distance (in I-frames) between IDR frames (from 0 to INT_MAX) (default 0)
+  -pic_timing_sei    <int>        E..V...... Insert picture timing SEI with pic_struct_syntax element (from 0 to 1) (default 1)
+  -single_sei_nal_unit <int>        E..V...... Put all the SEI messages into one NALU (from -1 to 1) (default -1)
+  -max_dec_frame_buffering <int>        E..V...... Maximum number of frames buffered in the DPB (from 0 to 65535) (default 0)
+  -look_ahead        <int>        E..V...... Use VBR algorithm with look ahead (from 0 to 1) (default 0)
+  -look_ahead_depth  <int>        E..V...... Depth of look ahead in number frames (from 0 to 100) (default 0)
+  -look_ahead_downsampling <int>        E..V...... Downscaling factor for the frames saved for the lookahead analysis (from 0 to 3) (default unknown)
+     unknown         0            E..V......
+     auto            0            E..V......
+     off             1            E..V......
+     2x              2            E..V......
+     4x              3            E..V......
+  -int_ref_type      <int>        E..V...... Intra refresh type (from -1 to 65535) (default -1)
+     none            0            E..V......
+     vertical        1            E..V......
+  -int_ref_cycle_size <int>        E..V...... Number of frames in the intra refresh cycle (from -1 to 65535) (default -1)
+  -int_ref_qp_delta  <int>        E..V...... QP difference for the refresh MBs (from -32768 to 32767) (default -32768)
+  -recovery_point_sei <int>        E..V...... Insert recovery point SEI messages (from -1 to 1) (default -1)
+  -profile           <int>        E..V...... (from 0 to INT_MAX) (default unknown)
+     unknown         0            E..V......
+     baseline        66           E..V......
+     main            77           E..V......
+     high            100          E..V......
+  -a53cc             <int>        E..V...... Use A53 Closed Captions (if available) (from 0 to 1) (default 1)
+  -aud               <int>        E..V...... Insert the Access Unit Delimiter NAL (from 0 to 1) (default 0)
+  -repeat_pps        <boolean>    E..V...... repeat pps for every frame (default false)

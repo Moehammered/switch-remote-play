@@ -3,7 +3,7 @@
 
 #include "Menu.h"
 #include <array>
-#include "../codec/H264Options.h"
+#include "../codec/h264/H264Options.h"
 #include "../dataHelpers/Circulator.h"
 
 class H264Menu : public Menu
@@ -20,7 +20,7 @@ class H264Menu : public Menu
                     std::unordered_map<h264::EncoderPreset, std::string>>  PresetSelection;
         int32_t constantRateFactor;
 
-        std::array<Text, h264::Parameters::ParamCount> textElements;
+        std::array<Text, 2> textElements;
 
         void IncreaseSetting();
         void DecreaseSetting();

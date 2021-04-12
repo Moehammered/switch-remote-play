@@ -1,5 +1,5 @@
 #include "H264Options.h"
-#include "../dataHelpers/EnumStrTemplate.h"
+#include "EnumMapper.h"
 
 namespace h264
 {
@@ -57,4 +57,32 @@ namespace h264
         return enumToStr(EncoderPresetDescMap, preset);
     }
 
+    std::unordered_map<Parameters, std::string> CodecParamsToStr(H264Data const data)
+    {
+        auto values = std::unordered_map<Parameters, std::string>{};
+
+        values[Parameters::ConstantRateFactor] = ConstantRateFactorIntToStr(data.ConstantRateFactor);
+        values[Parameters::Preset] = EncoderPresetToStr(data.Preset);
+
+        return values;
+    }
+
+    H264Data CodecParamsFromStr(std::unordered_map<Parameters, std::string> const& map)
+    {
+        auto data = H264Data();
+
+        auto parse = [&](Parameters p, auto& member, auto def, auto strToEnum)
+        {
+            auto itr = map.find(p);
+            if (itr != map.end())
+                member = strToEnum(itr->second);
+            else
+                member = def;
+        };
+
+        parse(Parameters::ConstantRateFactor, data.ConstantRateFactor, DefaultCRF, ConstantRateFactorStrToInt);
+        parse(Parameters::Preset, data.Preset, EncoderPreset::UltraFast, EncoderPresetStrToEnum);
+
+        return data;
+    }
 }

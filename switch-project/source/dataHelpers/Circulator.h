@@ -64,7 +64,7 @@ inline Circulator<valueType, container> & Circulator<valueType, container>::oper
 template<class valueType, class container>
 inline Circulator<valueType, container> Circulator<valueType, container>::operator++(int)
 {
-	auto temp = Circulator(this[0]);
+	auto temp = Circulator(cont);
 	Increment();
 	return temp;
 }
@@ -79,7 +79,7 @@ inline Circulator<valueType, container> & Circulator<valueType, container>::oper
 template<class valueType, class container>
 inline Circulator<valueType, container> Circulator<valueType, container>::operator--(int)
 {
-	auto temp = Circulator(this[0]);
+	auto temp = Circulator(cont);
 	Decrement();
 	return temp;
 }

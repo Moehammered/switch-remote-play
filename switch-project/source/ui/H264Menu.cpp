@@ -48,7 +48,7 @@ void H264Menu::Render(SDL_Renderer * const renderer, FC_Font * const font)
     //sdl fill rect here
     for(auto i = 0; i < textElements.size(); ++i)
     {
-        if(i != selected)
+        if(i != (int)selected)
             textElements[i].Render(renderer, font);
         else
             textElements[i].Render(renderer, font, highlightColour);
@@ -103,7 +103,7 @@ void H264Menu::UpdateUI(h264::Parameters param)
         case h264::Parameters::ConstantRateFactor:
             {
                 auto crfStr = h264::ConstantRateFactorToDesc(constantRateFactor);
-                textElements[param].value = prefix + ": " + crfStr;
+                textElements[(int)param].value = prefix + ": " + crfStr;
             }
         break;
 
@@ -111,7 +111,7 @@ void H264Menu::UpdateUI(h264::Parameters param)
             {
                 auto preset = *PresetSelection;
                 auto presetStr = h264::EncoderPresetToDesc(preset.first);
-                textElements[param].value = prefix + ": " + presetStr;
+                textElements[(int)param].value = prefix + ": " + presetStr;
             }
         break;
     }

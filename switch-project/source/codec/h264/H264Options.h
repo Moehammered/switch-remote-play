@@ -7,11 +7,10 @@
 
 namespace h264
 {
-    enum Parameters
+    enum class Parameters : int
     {
         ConstantRateFactor,
-        Preset,
-        ParamCount
+        Preset
     };
 
     static std::vector<Parameters> const ParamsList
@@ -25,12 +24,6 @@ namespace h264
         { Parameters::Preset, "Preset" }
     };
 
-    static std::unordered_map<Parameters, std::string> const ParamsToStr
-    {
-        { Parameters::ConstantRateFactor, "constant_rate_factor" },
-        { Parameters::Preset, "preset" }
-    };
-
     int32_t constexpr MaxCRF {30};
     int32_t constexpr MinCRF {0};
     int32_t constexpr DefaultCRF {15};
@@ -39,7 +32,7 @@ namespace h264
     std::string ConstantRateFactorIntToStr(int32_t crf);
     std::string ConstantRateFactorToDesc(int32_t crf);
 
-    enum EncoderPreset
+    enum class EncoderPreset
     {
         UltraFast = 0,
         VeryFast,
@@ -73,6 +66,15 @@ namespace h264
     EncoderPreset EncoderPresetStrToEnum(std::string s);
     std::string EncoderPresetToStr(EncoderPreset preset);
     std::string EncoderPresetToDesc(EncoderPreset preset);
+
+    struct H264Data
+    {
+        EncoderPreset   Preset;
+        int32_t         ConstantRateFactor;
+    };
+
+    std::unordered_map<Parameters, std::string> CodecParamsToStr(H264Data const data);
+    H264Data CodecParamsFromStr(std::unordered_map<Parameters, std::string> const& map);
 }
 
 #endif
