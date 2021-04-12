@@ -1,5 +1,19 @@
 # How-To Instructions
 
+## Table of Contents
+- [Install](#install)
+  - [Switch Install](#switch-install)
+  - [PC Install](#pc-install)
+- [Usage](#usage)
+  - [PC Usage](#pc-usage)
+  - [Switch Usage](#switch-usage)
+- [Help it's not working](#help-its-not-working)
+  - [Firewall](#firewall)
+  - [Network](#network)
+  - [PC IP - Figuring out Network Configuration](#pc-ip---figuring-out-network-configuration)
+  - [Stuck on Pending Connection](#stuck-on-pending-connection)
+  - [Virus Thread Detected](#virus-threat-detected)
+
 ## Install
 
 ### Switch Install
@@ -128,6 +142,8 @@ Please make sure that **if you're using manual IP mode**, that your **Switch and
 ![manual-ip-mode](manual-ip-screen.jpg)
 
 ### Virus Threat Detected
+
+**If the below instructions do not help, please see [this issue](https://github.com/Moehammered/switch-remote-play/issues/19) for more details and potential solutions.**
 
 The release build seems to trigger more flags than the debug build.
 
