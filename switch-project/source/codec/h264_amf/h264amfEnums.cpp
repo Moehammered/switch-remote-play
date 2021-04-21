@@ -1,6 +1,6 @@
 #include "h264amfEnums.h"
 #include <unordered_map>
-#include "EnumMapper.h"
+#include "../../utils/EnumMapper.h"
 
 namespace h264amf
 {

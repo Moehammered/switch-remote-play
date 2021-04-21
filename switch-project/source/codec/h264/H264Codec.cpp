@@ -23,6 +23,11 @@ h264::H264Data const H264Codec::Data() const
 	return data;
 }
 
+h264::Parameters H264Codec::Current()
+{
+	return *cursor;
+}
+
 h264::Parameters H264Codec::Next()
 {
 	++cursor;

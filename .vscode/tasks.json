@@ -36,6 +36,21 @@
 			},
 			"group": "none",
 			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "yuzu: run application in emulator",
+			"windows": {
+				"command": "C:\\Users\\Moehammered\\AppData\\Local\\yuzu\\yuzu-windows-msvc\\yuzu.exe"
+			},
+			"args": [
+				"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro"
+			],
+			"options": {
+				"cwd": "C:\\Users\\Moehammered\\AppData\\Local\\yuzu\\yuzu-windows-msvc"
+			},
+			"group": "none",
+			"problemMatcher": []
 		}
 	]
 }

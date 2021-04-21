@@ -16,7 +16,7 @@ enum MenuScreen : int32_t
 {
     HELP,
     DECODER_CONFIG,
-    CONFIG,
+    ENCODER_CONFIG,
     CONTROLLER,
     IP_SET,
     COUNT

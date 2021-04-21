@@ -3,9 +3,9 @@
 
 #include "h264amfEnums.h"
 #include "h264amfOptions.h"
-#include "ArrayCirculator.h"
-#include "UnorderedMapCirculator.h"
-#include "RangedIterator.h"
+#include "../../utils/ArrayCirculator.h"
+#include "../../utils/UnorderedMapCirculator.h"
+#include "../../utils/RangedIterator.h"
 
 class H264AmfCodec
 {
@@ -14,13 +14,14 @@ public:
 
 	void Set(h264amf::H264AMFData const data);
 
+	h264amf::Parameters Current();
 	h264amf::Parameters Next();
 	h264amf::Parameters Prev();
 
 	h264amf::H264AMFData Data() const;
 
-	void Up();
-	void Down();
+	void Increase();
+	void Decrease();
 
 private:
 	// selection cursor

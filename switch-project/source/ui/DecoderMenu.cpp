@@ -1,5 +1,5 @@
 #include "DecoderMenu.h"
-#include "../system/Configuration.h"
+#include "../system/Configuration_Old.h"
 #include <iostream>
 
 int32_t constexpr maxThreadCountOption {4};
@@ -14,7 +14,7 @@ DecoderMenu::DecoderMenu() : Menu(),
     extraButtons{}, selectedItem {0}, maxItems{0},
     currentPage {DMP_FLAG1}, currentPageHeader{}
 {
-    title.value = "Decoder Configuration";
+    title.value = "Decoder Configuration_Old";
     SDL_Color constexpr white {255,255,255,255};
     SDL_Color constexpr orange = { 255, 190, 90, 255 };
     currentPageHeader.y = 220;
@@ -111,7 +111,7 @@ void DecoderMenu::OrderAvailableFlags()
 
 void DecoderMenu::LoadSettings()
 {
-    auto config = Configuration{};
+    auto config = Configuration_Old{};
     auto decoderSettings = config.DecoderData();
 
     decoderFlags1 = decoderSettings.flag1;

@@ -216,7 +216,7 @@ inline UnorderedMapCirculator<key, value, extraArgs...>& operator++(UnorderedMap
 template<typename key, typename value, typename ...extraArgs>
 inline UnorderedMapCirculator<key, value, extraArgs...> operator++(UnorderedMapCirculator<key, value, extraArgs...>& a, int)
 {
-	auto copy = UnorderedMapCirculator<key, value, extraArgs...>&(a);
+	auto copy = UnorderedMapCirculator<key, value, extraArgs...>(a);
 	a.Increment();
 	return copy;
 }

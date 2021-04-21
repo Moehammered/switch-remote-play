@@ -13,7 +13,7 @@ class Menu
         SDL_Color highlightColour;
 
         Menu();
-        //virtual ~Menu();
+        // virtual ~Menu();
         
         virtual void ProcessInput(PadState const & pad);
 

@@ -1,4 +1,4 @@
-#include "Configuration.h"
+#include "Configuration_Old.h"
 #include "FileOperations.h"
 #include "../network/NetworkData.h"
 #include "../dataHelpers/HWAccel.h"
@@ -39,12 +39,12 @@ auto constexpr DECODER_SKIP_LOOP_FILTER_TAG = "decoder_skip_loop_filter";
 auto constexpr DECODER_THREAD_TYPE_TAG = "decoder_thread_type";
 auto constexpr DECODER_THREAD_COUNT_TAG = "decoder_thread_count";
 
-Configuration::Configuration() : data{}
+Configuration_Old::Configuration_Old() : data{}
 {
     data = ReadConfigFile(absolutePath);
 }
 
-bool Configuration::ManualIPEnabled() const
+bool Configuration_Old::ManualIPEnabled() const
 {
     auto option = std::string{};
     if(ExtractVariable(data, MANUAL_IP_ENABLED_TAG, option))
@@ -53,7 +53,7 @@ bool Configuration::ManualIPEnabled() const
         return false;
 }
 
-bool Configuration::SaveManualIPEnabled(bool enabled)
+bool Configuration_Old::SaveManualIPEnabled(bool enabled)
 {
     auto newData = std::string{};
     auto option = std::string{enabled ? "yes" : "no"};
@@ -67,7 +67,7 @@ bool Configuration::SaveManualIPEnabled(bool enabled)
     }
 }
 
-std::string const Configuration::ManualIP() const
+std::string const Configuration_Old::ManualIP() const
 {
     auto ip = std::string{};
     if(ExtractVariable(data, MANUAL_IP_TAG, ip))
@@ -76,7 +76,7 @@ std::string const Configuration::ManualIP() const
         return std::string{};
 }
 
-bool Configuration::SaveManualIP(std::string const ip)
+bool Configuration_Old::SaveManualIP(std::string const ip)
 {
     auto newData = std::string{};
     if(ReplaceVariable(data, MANUAL_IP_TAG, ip, newData))
@@ -89,7 +89,7 @@ bool Configuration::SaveManualIP(std::string const ip)
     }
 }
 
-std::string Configuration::BroadcastAddress() const
+std::string Configuration_Old::BroadcastAddress() const
 {
     auto addr = std::string{};
     if(ExtractVariable(data, BROADCAST_ADDRESS_TAG, addr))
@@ -112,7 +112,7 @@ std::string Configuration::BroadcastAddress() const
         return "192.168.0.255";
 }
 
-EncoderConfig const Configuration::FFMPEGData() const
+EncoderConfig const Configuration_Old::FFMPEGData() const
 {
     auto temp = EncoderConfig{};
 
@@ -200,7 +200,7 @@ EncoderConfig const Configuration::FFMPEGData() const
     return temp;
 }
 
-bool Configuration::SaveFFMPEG(EncoderConfig const data)
+bool Configuration_Old::SaveFFMPEG(EncoderConfig const data)
 {
     auto newData = std::string{this->data};
     
@@ -288,7 +288,7 @@ bool Configuration::SaveFFMPEG(EncoderConfig const data)
     return SaveConfigFile(newData);
 }
 
-ControllerConfig const Configuration::ControllerData() const
+ControllerConfig const Configuration_Old::ControllerData() const
 {
     auto temp = ControllerConfig{};
 
@@ -343,7 +343,7 @@ ControllerConfig const Configuration::ControllerData() const
     return temp;
 }
 
-bool Configuration::SaveController(ControllerConfig const data)
+bool Configuration_Old::SaveController(ControllerConfig const data)
 {
     auto newData = std::string{this->data};
     
@@ -404,7 +404,7 @@ bool Configuration::SaveController(ControllerConfig const data)
     return SaveConfigFile(newData);
 }
 
-DecoderConfiguration const Configuration::DecoderData() const
+DecoderConfiguration const Configuration_Old::DecoderData() const
 {
     auto temp = DecoderConfiguration{};
 
@@ -469,7 +469,7 @@ DecoderConfiguration const Configuration::DecoderData() const
     return temp;
 }
 
-bool Configuration::SaveDecoderConfig(DecoderConfiguration const data)
+bool Configuration_Old::SaveDecoderConfig(DecoderConfiguration const data)
 {
     auto newData = std::string{this->data};
     
@@ -545,14 +545,14 @@ bool Configuration::SaveDecoderConfig(DecoderConfiguration const data)
     return SaveConfigFile(newData);
 }
 
-std::string Configuration::ReadConfigFile(std::string const path)
+std::string Configuration_Old::ReadConfigFile(std::string const path)
 {
     auto temp = std::string{};
     readFileAsText(path, temp);
     return temp;
 }
 
-bool Configuration::SaveConfigFile(std::string const & data)
+bool Configuration_Old::SaveConfigFile(std::string const & data)
 {
     if(saveTextToFile(absolutePath, data))
     {
@@ -563,7 +563,7 @@ bool Configuration::SaveConfigFile(std::string const & data)
     return false;
 }
 
-bool Configuration::ExtractVariable(std::string const data, std::string const variable, std::string& result) const
+bool Configuration_Old::ExtractVariable(std::string const data, std::string const variable, std::string& result) const
 {
     auto location = data.find(variable+"=", 0);
     result = std::string{};
@@ -586,7 +586,7 @@ bool Configuration::ExtractVariable(std::string const data, std::string const va
         return false;
 }
 
-bool Configuration::ReplaceVariable(std::string const data, std::string const variable, std::string const value, std::string& newData) const
+bool Configuration_Old::ReplaceVariable(std::string const data, std::string const variable, std::string const value, std::string& newData) const
 {
     auto variableStart = data.find(variable+"=", 0);
 

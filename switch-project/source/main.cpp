@@ -16,7 +16,7 @@
 #include "stream/StreamDecoder.h"
 #include "stream/PcmStream.h"
 #include "system/SystemSetup.h"
-#include "system/Configuration.h"
+#include "system/Configuration_Old.h"
 
 auto constexpr handshakeKey = "let-me-play";
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     std::string broadcastAddress{};
     std::cout << "Initialising Network Discovery\n";
     {
-        auto config = Configuration{};
+        auto config = Configuration_Old{};
         broadcastAddress = config.BroadcastAddress();
         std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";
     }
@@ -211,7 +211,7 @@ int main(int argc, char **argv)
                     auto ffmpegConfig = menuScreens.GetFfmpegSettings();
                     auto controllerConfig = menuScreens.GetControllerSettings();
                     auto decoderConfig = menuScreens.GetDecoderSettings();
-                    auto configfile = Configuration{};
+                    auto configfile = Configuration_Old{};
                     configfile.SaveFFMPEG(ffmpegConfig);
                     configfile.SaveController(controllerConfig);
                     configfile.SaveDecoderConfig(decoderConfig);

@@ -2,7 +2,7 @@
 #define __H264AMFCONFIGURATION_H__
 
 #include <string>
-#include "Configuration.h"
+#include "../../utils/Configuration.h"
 #include "h264amfOptions.h"
 
 class H264AmfConfiguration

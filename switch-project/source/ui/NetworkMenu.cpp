@@ -1,12 +1,12 @@
 #include "NetworkMenu.h"
-#include "../system/Configuration.h"
+#include "../system/Configuration_Old.h"
 
 #include <iostream>
 
 NetworkMenu::NetworkMenu() : Menu(),
     warningText{}, textElements{}, ip{}, useManualIP{false}
 { 
-    title.value = "Network Configuration";
+    title.value = "Network Configuration_Old";
     warningText.x = 75; warningText.y = 220;
     warningText.colour = {255, 50, 0, 255};
     warningText.value = "Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button.";
@@ -35,7 +35,7 @@ NetworkMenu::NetworkMenu() : Menu(),
     manualToggle.x = 550; manualToggle.y = 400;
     manualToggle.colour = white;
 
-    auto cfg = Configuration{};
+    auto cfg = Configuration_Old{};
     useManualIP = cfg.ManualIPEnabled();
     manualToggle.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
 }
@@ -92,7 +92,7 @@ std::string const NetworkMenu::ManualIPAddress() const
 
 std::array<int16_t, 4> NetworkMenu::LoadManualIP()
 {
-    auto cfg = Configuration{};
+    auto cfg = Configuration_Old{};
     auto manualIP = cfg.ManualIP();
 
     if(manualIP.size() > 0)
@@ -148,7 +148,7 @@ void NetworkMenu::ProcessIncrease()
         case NetworkMenuItems::SAVE_BUTTON:
         {
             auto ip = ManualIPAddress();
-            auto cfg = Configuration{};
+            auto cfg = Configuration_Old{};
             if(!cfg.SaveManualIP(ip))
                 std::cout << "Failed to manually save IP\n";
             else

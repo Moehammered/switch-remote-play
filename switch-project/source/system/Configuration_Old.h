@@ -19,10 +19,10 @@ video_codec=h264;
 quality_control_factor=16;
 */
 
-class Configuration
+class Configuration_Old
 {
 public:
-    Configuration();
+    Configuration_Old();
 
     bool ManualIPEnabled() const;
     bool SaveManualIPEnabled(bool enabled);

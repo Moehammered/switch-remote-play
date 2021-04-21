@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "Configuration.h"
+#include "../../utils/Configuration.h"
 #include "H264Options.h"
 
 class H264Configuration

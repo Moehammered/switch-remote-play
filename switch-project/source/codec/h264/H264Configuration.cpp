@@ -1,5 +1,5 @@
 #include "H264Configuration.h"
-#include "StringUtils.h"
+#include "../../utils/StringUtils.h"
 
 H264Configuration::H264Configuration(std::string const file)
 	: configFile{ file }

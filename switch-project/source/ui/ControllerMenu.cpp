@@ -1,7 +1,7 @@
 #include "ControllerMenu.h"
 #include <string>
 #include <iostream>
-#include "../system/Configuration.h"
+#include "../system/Configuration_Old.h"
 #include "../dataHelpers/ControllerButtonMap.h"
 #include "../dataHelpers/SwitchButtons.h"
 
@@ -17,7 +17,7 @@ std::array<uint32_t, 4> mouseButtonOptions {
 ControllerMenu::ControllerMenu() 
     : Menu(), selectedItem{}, settingsIndices{}, settingsText{}
 {
-    title.value = "Controller Configuration";
+    title.value = "Controller Configuration_Old";
     const int settingTextX = 100;
     const int yOffset = 200;
     const int ySpace = 45;
@@ -29,7 +29,7 @@ ControllerMenu::ControllerMenu()
         t.y = yOffset + ySpace * counter++;
     }
 
-    auto config = Configuration{};
+    auto config = Configuration_Old{};
     auto controller = config.ControllerData();
 
     settingsIndices[ControllerMenuItems::CONTROLLER_MODE] = controller.controllerMode;

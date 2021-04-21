@@ -2,9 +2,9 @@
 #define __H264MENU_H__
 
 #include "Menu.h"
-#include <array>
-#include "../codec/h264/H264Options.h"
-#include "../dataHelpers/Circulator.h"
+#include "../codec/h264/H264Codec.h"
+#include "../utils/ArrayCirculator.h"
+#include "../utils/UnorderedMapCirculator.h"
 
 class H264Menu : public Menu
 {
@@ -15,17 +15,13 @@ class H264Menu : public Menu
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
     private:
-        Circulator<h264::Parameters, std::vector<h264::Parameters>> ParamSelection;
-        Circulator<std::pair<h264::EncoderPreset, std::string>, 
-                    std::unordered_map<h264::EncoderPreset, std::string>>  PresetSelection;
-        int32_t constantRateFactor;
-
-        std::array<Text, 2> textElements;
-
-        void IncreaseSetting();
-        void DecreaseSetting();
+        std::unordered_map<h264::Parameters, Text> textElements;
+        H264Codec codec;
+        h264::Parameters selected;
 
         void UpdateUI(h264::Parameters param);
+
+        void SetupText();
 };
 
 #endif

@@ -36,6 +36,11 @@ void H264AmfCodec::Set(h264amf::H264AMFData const data)
     logToDebug = data.logToDbg;
 }
 
+h264amf::Parameters H264AmfCodec::Current()
+{
+	return *cursor;
+}
+
 h264amf::Parameters H264AmfCodec::Next()
 {
 	++cursor;
@@ -72,12 +77,12 @@ h264amf::H264AMFData H264AmfCodec::Data() const
     return data;
 }
 
-void H264AmfCodec::Up()
+void H264AmfCodec::Increase()
 {
     ShiftParam(1);
 }
 
-void H264AmfCodec::Down()
+void H264AmfCodec::Decrease()
 {
     ShiftParam(-1);
 }

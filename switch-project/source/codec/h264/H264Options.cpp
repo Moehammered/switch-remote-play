@@ -1,5 +1,5 @@
 #include "H264Options.h"
-#include "EnumMapper.h"
+#include "../../utils/EnumMapper.h"
 
 namespace h264
 {
@@ -7,6 +7,7 @@ namespace h264
     {
         if(s.empty())
             return DefaultCRF;
+        else
         {
             auto casted = std::stoi(s);
             if(casted < MinCRF || casted > MaxCRF)

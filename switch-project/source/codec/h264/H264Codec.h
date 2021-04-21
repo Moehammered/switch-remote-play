@@ -1,9 +1,9 @@
 #ifndef __H264CODEC_H__
 #define __H264CODEC_H__
 
-#include "ArrayCirculator.h"
-#include "RangedIterator.h"
-#include "UnorderedMapCirculator.h"
+#include "../../utils/ArrayCirculator.h"
+#include "../../utils/RangedIterator.h"
+#include "../../utils/UnorderedMapCirculator.h"
 #include "H264Options.h"
 #include <vector>
 #include <string>
@@ -16,6 +16,7 @@ public:
 	void Set(h264::H264Data const data);
 	h264::H264Data const Data() const;
 
+	h264::Parameters Current();
 	h264::Parameters Next();
 	h264::Parameters Prev();
 
