@@ -21,14 +21,14 @@ HelpMenu::HelpMenu() : Menu(), pages{}, currentPageHeader{}, selectedPage{0}
     SDL_Color constexpr orange = { 255, 190, 90, 255 };
     for(auto& page : pages)
     {
-        page.x = 10; page.y = 260;
+        page.x = 10; page.y = title.y + 100;
         page.colour = orange;
     }
 
     pages[HelpPageItems::NETWORK_PAGE].value = networkPage;
     pages[HelpPageItems::STREAM_PAGE].value = streamPage;
 
-    currentPageHeader.y = 220;
+    currentPageHeader.y = title.y + 60;
     currentPageHeader.colour = orange;
     currentPageHeader.x = 50;
 

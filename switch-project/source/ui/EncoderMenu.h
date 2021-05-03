@@ -4,10 +4,11 @@
 #include "Menu.h"
 #include "../network/NetworkData.h"
 #include <vector>
-#include "../utils/ArrayCirculator.h"
+#include <unordered_map>
 #include "H264Menu.h"
 #include "H264AmfMenu.h"
-#include "../system/SystemSetup.h"
+#include "GenericCodecMenu.h"
+
 class EncoderMenu : public Menu
 {
     public:
@@ -21,8 +22,12 @@ class EncoderMenu : public Menu
     private:
         H264Menu h264Menu;
         H264AmfMenu amdMenu;
-        std::vector<Menu*> menus;
-        ArrayCirculator<Menu*, std::vector> menuCursor;
+        GenericCodecMenu generalMenu;
+        std::unordered_map<VideoCodec, Menu*> const menus;
+        bool advancedOptions;
+        Text pageText;
+        // std::vector<Menu*> menus;
+        // ArrayCirculator<Menu*, std::vector> menuCursor;
 };
 
 #endif

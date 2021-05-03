@@ -5,7 +5,7 @@
 #include "../dataHelpers/VsyncMode.h"
 #include "../dataHelpers/Resolution.h"
 #include "../dataHelpers/EncoderPreset.h"
-#include "../dataHelpers/VideoCodecMode.h"
+#include "../dataHelpers/VideoCodec.h"
 #include "../dataHelpers/ControllerMode.h"
 #include "../dataHelpers/WordDelimiter.h"
 #include "../dataHelpers/SwitchButtons.h"
@@ -160,7 +160,7 @@ EncoderConfig const Configuration_Old::FFMPEGData() const
     {
         auto vsyncText = std::string{};
         if(ExtractVariable(data, VSYNC_TAG, vsyncText))
-            temp.vsyncMode = ParseVsyncModeString(vsyncText);
+            temp.vsyncMode = VsyncModeStrToEnum(vsyncText);
         else
             temp.vsyncMode = VsyncMode::VARIABLE_FPS;
     }
@@ -184,15 +184,15 @@ EncoderConfig const Configuration_Old::FFMPEGData() const
     {
         std::string codec{};
         if(ExtractVariable(data, VIDEO_CODEC_TAG, codec))
-            temp.videoCodecMode = ParseVideoCodecModeString(codec);
+            temp.videoCodecMode = VideoCodecStrToEnum(codec);
         else
-            temp.videoCodecMode = VideoCodecMode::H264;
+            temp.videoCodecMode = VideoCodec::H264;
     }
 
     {
         std::string hwaccel{};
         if(ExtractVariable(data, HWACCEL_TAG, hwaccel))
-            temp.hwaccelMode = ParseHWAccelString(hwaccel);
+            temp.hwaccelMode = HWAccelStrToEnum(hwaccel);
         else
             temp.hwaccelMode = HWAccelMode::AUTO;
     }
@@ -241,7 +241,7 @@ bool Configuration_Old::SaveFFMPEG(EncoderConfig const data)
     }
 
     {
-        auto vsync = VsyncModeToString(data.vsyncMode);
+        auto vsync = VsyncModeToStr(data.vsyncMode);
         if(!ReplaceVariable(newData, VSYNC_TAG, vsync, newData))
         {
             std::cout << VSYNC_TAG << " variable not found. Appended to config.\n";
@@ -268,7 +268,7 @@ bool Configuration_Old::SaveFFMPEG(EncoderConfig const data)
     }
 
     {
-        auto codec = VideoCodecModeToString(data.videoCodecMode);
+        auto codec = VideoCodecToStr(data.videoCodecMode);
         if(!ReplaceVariable(newData, VIDEO_CODEC_TAG, codec, newData))
         {
             std::cout << VIDEO_CODEC_TAG << " variable not found. Appended to config.\n";
@@ -277,7 +277,7 @@ bool Configuration_Old::SaveFFMPEG(EncoderConfig const data)
     }
 
     {
-        auto hwaccel = HWAccelModeToString(data.hwaccelMode);
+        auto hwaccel = HWAccelModeToStr(data.hwaccelMode);
         if(!ReplaceVariable(newData, HWACCEL_TAG, hwaccel, newData))
         {
             std::cout << HWACCEL_TAG << " variable not found. Appended to config.\n";

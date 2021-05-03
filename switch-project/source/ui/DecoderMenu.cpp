@@ -17,14 +17,14 @@ DecoderMenu::DecoderMenu() : Menu(),
     title.value = "Decoder Configuration_Old";
     SDL_Color constexpr white {255,255,255,255};
     SDL_Color constexpr orange = { 255, 190, 90, 255 };
-    currentPageHeader.y = 220;
+    currentPageHeader.y = title.y + 60;
     currentPageHeader.colour = orange;
     currentPageHeader.x = 50;
 
     OrderAvailableFlags();
 
     // spacing
-    auto constexpr yOffset = 260;
+    auto const yOffset = title.y + 100;
     auto constexpr ySpacing = 45;
 
     auto allDiscards = AllAVDiscardDescriptions();

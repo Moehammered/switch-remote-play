@@ -19,7 +19,7 @@ ControllerMenu::ControllerMenu()
 {
     title.value = "Controller Configuration_Old";
     const int settingTextX = 100;
-    const int yOffset = 200;
+    const int yOffset = title.y + 40;
     const int ySpace = 45;
     int counter = 1;
     for(auto &t : settingsText)

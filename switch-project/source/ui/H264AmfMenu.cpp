@@ -5,8 +5,29 @@ textElements{}, codec{}, selected{}
 {
     title.value = "H264 Codec - AMD GPU";
     title.y += 30;
-    SetupText();
     selected = codec.Current();
+
+    using namespace h264amf;
+    codec.Set(H264AMFData{
+        .usage = DefaultUsage,
+        .profile = DefaultProfile,
+        .level = levelDefault,
+        .quality = DefaultQuality,
+        .rateControl = DefaultRateControl,
+        .qp_i = qpFrameDefault,
+        .qp_p = qpFrameDefault,
+        .qp_b = qpFrameDefault,
+        .qp_bfDelta = frameDeltaDefault,
+        .qp_bfRefDelta = frameDeltaDefault,
+        .enforceHRD = false,
+        .fillerData = false,
+        .vbaq = false,
+        .frameskip = false,
+        .bfRef = false,
+        .logToDbg = false
+    });
+
+    SetupText();
 }
 
 void H264AmfMenu::ProcessInput(PadState const & pad)

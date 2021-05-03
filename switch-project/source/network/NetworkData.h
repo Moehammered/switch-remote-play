@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "../dataHelpers/EncoderPreset.h"
 #include "../dataHelpers/HWAccel.h"
-#include "../dataHelpers/VideoCodecMode.h"
+#include "../dataHelpers/VideoCodec.h"
 #include "../dataHelpers/VsyncMode.h"
 #include "../dataHelpers/ControllerMode.h"
 #include "../dataHelpers/ControllerButtonMap.h"
@@ -30,7 +30,7 @@ struct alignas(8) EncoderConfig
     int16_t         constantRateFactor;
     EncoderPreset   preset;
     HWAccelMode     hwaccelMode;
-    VideoCodecMode  videoCodecMode;
+    VideoCodec      videoCodecMode;
     int8_t          padding[2];
 };
 

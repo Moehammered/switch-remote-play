@@ -14,6 +14,7 @@ class Text
         float y;
         SDL_Color colour;
         std::string value;
+        bool centered;
 };
 
 #endif

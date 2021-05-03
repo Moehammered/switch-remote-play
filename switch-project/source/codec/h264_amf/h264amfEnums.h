@@ -15,6 +15,8 @@ namespace h264amf
         WEBCAM
     };
 
+    auto constexpr DefaultUsage {H264AMF_USAGE::LOWLATENCY};
+
     enum class H264AMF_PROFILE : int16_t
     {
         MAIN = 66,
@@ -23,12 +25,16 @@ namespace h264amf
         CONSTRAINED_HIGH
     };
 
+    auto constexpr DefaultProfile {H264AMF_PROFILE::HIGH};
+
     enum class H264AMF_QUALITY : int16_t
     {
         SPEED = 0,
         BALANCED,
         QUALITY
     };
+
+    auto constexpr DefaultQuality {H264AMF_QUALITY::BALANCED};
 
     enum class H264AMF_RATECONTROL : int16_t
     {
@@ -37,6 +43,8 @@ namespace h264amf
         VBR_PEAK,
         VBR_LATENCY
     };
+
+    auto constexpr DefaultRateControl {H264AMF_RATECONTROL::CQP};
 
     static std::unordered_map<H264AMF_USAGE, std::string> usageMap
     {

@@ -88,7 +88,7 @@ namespace h264amf
         {Parameters::FillerData, "Filler Data"},
         {Parameters::VBAQ, "VBAQ"},
         {Parameters::Frameskip, "Frameskip"},
-        {Parameters::BFrameRef, "F-Frame Ref Delta"},
+        {Parameters::BFrameRef, "B-Frame Ref Delta"},
         {Parameters::LogToDbg, "Log to Debug"}
     };
 

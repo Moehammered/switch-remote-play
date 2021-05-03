@@ -7,7 +7,7 @@ NetworkMenu::NetworkMenu() : Menu(),
     warningText{}, textElements{}, ip{}, useManualIP{false}
 { 
     title.value = "Network Configuration_Old";
-    warningText.x = 75; warningText.y = 220;
+    warningText.x = 75; warningText.y = title.y + 60;
     warningText.colour = {255, 50, 0, 255};
     warningText.value = "Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button.";
 

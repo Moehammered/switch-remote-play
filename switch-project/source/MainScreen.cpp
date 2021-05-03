@@ -17,15 +17,15 @@ MenuSelection::MenuSelection() : Menu(),
     menus[MenuScreen::ENCODER_CONFIG] = &encoderScreen;
     menus[MenuScreen::IP_SET] = &networkScreen;
 
-    title.x = 400; title.y = 20;
+    title.x = 400; title.y = 5;
     title.colour = green;
     title.value = "Switch Remote Play \\(^.^)/";
 
-    controlsText.x = 100; controlsText.y = 60;
+    controlsText.x = 100; controlsText.y = 45;
     controlsText.colour = green;
     controlsText.value = defaultControlMessage;
 
-    hostConnectionText.x = 250; hostConnectionText.y = 120;
+    hostConnectionText.x = 100; hostConnectionText.y = 85;
     hostConnectionText.colour = red;
     hostConnectionText.value = noHostInfoMessage;
 
