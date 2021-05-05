@@ -51,6 +51,18 @@
 			},
 			"group": "none",
 			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "explorer: open yuzu sd card directory",
+			"windows": {
+				"command": "explorer.exe"
+			},
+			"args": [
+				"C:\\Users\\Moehammered\\AppData\\Roaming\\yuzu\\sdmc\\"
+			],
+			"group": "none",
+			"problemMatcher": []
 		}
 	]
 }

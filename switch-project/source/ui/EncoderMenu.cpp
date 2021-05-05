@@ -7,7 +7,6 @@ EncoderMenu::EncoderMenu()
         {VideoCodec::H264_AMF, &amdMenu}
     },
     advancedOptions{false}, pageText{}
-    // menus{}, menuCursor{menus}
 {
     title.value = "Encoder Configuration";
     pageText.value = "General (pg 1/2) - <--/-->";
@@ -16,10 +15,6 @@ EncoderMenu::EncoderMenu()
     pageText.colour = { 255, 190, 90, 255 };
     // auto config = Configuration_Old{};
     // auto ffmpeg = config.FFMPEGData();
-
-    // menus.push_back(&generalMenu);
-    // menus.push_back(&h264Menu);
-    // menus.push_back(&amdMenu);
 }
 
 void EncoderMenu::ProcessInput(PadState const & pad)
@@ -58,14 +53,6 @@ void EncoderMenu::ProcessInput(PadState const & pad)
         pageText.value = "General (pg 1/2) - <--/-->";
         generalMenu.ProcessInput(pad);
     }
-    // cursor impl
-    // if(kDown & KEY_DLEFT)
-    //     --menuCursor;
-    // else if(kDown & KEY_DRIGHT)
-    //     ++menuCursor;
-
-    // auto menu = *menuCursor;
-    // menu->ProcessInput(pad);
 }
 
 void EncoderMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
@@ -82,12 +69,24 @@ void EncoderMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
     }
     else
         generalMenu.Render(renderer, font);
-    // cursor impl
-    // auto menu = *menuCursor;
-    // menu->Render(renderer, font);
 }
 
 EncoderConfig const EncoderMenu::Settings() const
 {
-    return {};
+    auto data = EncoderConfig{};
+    data.commonSettings = generalMenu.VideoCodecSettings();
+    
+    switch(data.commonSettings.videoCodec)
+    {
+        default:
+        case VideoCodec::H264:
+            data.cpuSettings = h264Menu.Settings();
+        break;
+        
+        case VideoCodec::H264_AMF:
+            data.amdSettings = amdMenu.Settings();
+        break;
+    }
+
+    return data;
 }

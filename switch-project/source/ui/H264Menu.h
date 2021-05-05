@@ -14,6 +14,8 @@ class H264Menu : public Menu
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
+        h264::H264Data const Settings() const;
+
     private:
         std::unordered_map<h264::Parameters, Text> textElements;
         H264Codec codec;

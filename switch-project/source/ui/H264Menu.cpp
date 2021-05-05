@@ -1,10 +1,15 @@
 #include "H264Menu.h"
+#include "../codec/h264/H264Configuration.h"
 
 H264Menu::H264Menu() : Menu(),
 textElements{}, codec{}, selected{}
 {
     title.value = "H264 Codec - CPU";
     title.y += 30;
+
+    auto config = H264Configuration{"sdmc:/switch/switch-remote-play/h264_cpu.ini"};
+    codec.Set(config.Data());
+
     SetupText();
     selected = codec.Current();
 }
@@ -41,6 +46,12 @@ void H264Menu::Render(SDL_Renderer * const renderer, FC_Font * const font)
             t.second.Render(renderer, font);
     }
 }
+
+h264::H264Data const H264Menu::Settings() const
+{
+    return codec.Data();
+}
+
 
 void H264Menu::UpdateUI(h264::Parameters param)
 {

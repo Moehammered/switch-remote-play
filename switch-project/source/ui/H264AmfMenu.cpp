@@ -1,4 +1,5 @@
 #include "H264AmfMenu.h"
+#include "../codec/h264_amf/H264AmfConfiguration.h"
 
 H264AmfMenu::H264AmfMenu() : Menu(),
 textElements{}, codec{}, selected{}
@@ -7,25 +8,28 @@ textElements{}, codec{}, selected{}
     title.y += 30;
     selected = codec.Current();
 
-    using namespace h264amf;
-    codec.Set(H264AMFData{
-        .usage = DefaultUsage,
-        .profile = DefaultProfile,
-        .level = levelDefault,
-        .quality = DefaultQuality,
-        .rateControl = DefaultRateControl,
-        .qp_i = qpFrameDefault,
-        .qp_p = qpFrameDefault,
-        .qp_b = qpFrameDefault,
-        .qp_bfDelta = frameDeltaDefault,
-        .qp_bfRefDelta = frameDeltaDefault,
-        .enforceHRD = false,
-        .fillerData = false,
-        .vbaq = false,
-        .frameskip = false,
-        .bfRef = false,
-        .logToDbg = false
-    });
+    auto config = H264AmfConfiguration{"sdmc:/switch/switch-remote-play/h264_amd.ini"};
+    codec.Set(config.Data());
+
+    // using namespace h264amf;
+    // codec.Set(H264AMFData{
+    //     .usage = DefaultUsage,
+    //     .profile = DefaultProfile,
+    //     .level = levelDefault,
+    //     .quality = DefaultQuality,
+    //     .rateControl = DefaultRateControl,
+    //     .qp_i = qpFrameDefault,
+    //     .qp_p = qpFrameDefault,
+    //     .qp_b = qpFrameDefault,
+    //     .qp_bfDelta = frameDeltaDefault,
+    //     .qp_bfRefDelta = frameDeltaDefault,
+    //     .enforceHRD = false,
+    //     .fillerData = false,
+    //     .vbaq = false,
+    //     .frameskip = false,
+    //     .bfRef = false,
+    //     .logToDbg = false
+    // });
 
     SetupText();
 }
@@ -61,6 +65,11 @@ void H264AmfMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
         else
             t.second.Render(renderer, font);
     }
+}
+
+h264amf::H264AMFData const H264AmfMenu::Settings() const
+{
+    return codec.Data();
 }
 
 void H264AmfMenu::UpdateUI(h264amf::Parameters param)

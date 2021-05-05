@@ -1,4 +1,5 @@
 #include "GenericCodecMenu.h"
+#include "../codec/general/GenericCodecConfiguration.h"
 
 GenericCodecMenu::GenericCodecMenu() : Menu(),
 textElements{}, codec{}, selected{}
@@ -7,15 +8,8 @@ textElements{}, codec{}, selected{}
     title.y += 30;
     selected = codec.Current();
 
-    //defaults
-    codec.Set(VideoData{
-        .desktopResolution = hdRes,
-        .switchResolution = hdRes,
-        .desiredFrameRate = Framerates.front(),
-        .vsyncMode = DefaultVsyncMode,
-        .hwaccelMode = DefaultHWAccelMode,
-        .videoCodec = DefaultVideoCodec
-    });
+    auto config = GenericCodecConfiguration{"sdmc:/switch/switch-remote-play/common.ini"};
+    codec.Set(config.Data());
     
     SetupText();
 }

@@ -2,6 +2,10 @@
 #define __NETWORKDATA_H__
 
 #include <stdint.h>
+#include "../codec/general/GenericOptions.h"
+#include "../codec/h264/H264Options.h"
+#include "../codec/h264_amf/h264amfOptions.h"
+#include "../dataHelpers/Resolution.h"
 #include "../dataHelpers/EncoderPreset.h"
 #include "../dataHelpers/HWAccel.h"
 #include "../dataHelpers/VideoCodec.h"
@@ -20,18 +24,12 @@ struct alignas(16) AudioConfig
 int constexpr AUDIO_CONFIG_SIZE = {sizeof(AudioConfig)};
 struct alignas(8) EncoderConfig
 {
-    int16_t         desiredFrameRate;
-    int16_t         videoX;
-    int16_t         videoY;
-    int16_t         scaleX;
-    int16_t         scaleY;
-    uint16_t        bitrateKB;
-    VsyncMode       vsyncMode;
-    int16_t         constantRateFactor;
-    EncoderPreset   preset;
-    HWAccelMode     hwaccelMode;
-    VideoCodec      videoCodecMode;
-    int8_t          padding[2];
+    VideoData       commonSettings;
+    union
+    {
+        h264::H264Data cpuSettings;
+        h264amf::H264AMFData amdSettings;
+    };
 };
 
 constexpr int ENCODER_CONFIG_SIZE = sizeof(EncoderConfig);
@@ -61,17 +59,14 @@ enum Command : int16_t
 
 constexpr int COMMAND_CODE_SIZE = sizeof(Command);
 
-struct alignas(32) CommandPayload
+struct alignas(8) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member
     EncoderConfig       encoderData;
     ControllerConfig    controllerData;
     Command             commandCode;
-    //fill the struct to pad it out to 32 bytes
-    int8_t              padding[64 - ENCODER_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
-
-    // int16_t dataBufferSize;
-    // char dataBuffer[255];
+    //fill the struct to pad it out to 72 bytes
+    int8_t              padding[72 - ENCODER_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
 };
 
 constexpr int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);

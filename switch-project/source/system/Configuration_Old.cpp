@@ -115,7 +115,7 @@ std::string Configuration_Old::BroadcastAddress() const
 EncoderConfig const Configuration_Old::FFMPEGData() const
 {
     auto temp = EncoderConfig{};
-
+/*
     auto fpsText = std::string{};
     if(ExtractVariable(data, FPS_TAG, fpsText))
         temp.desiredFrameRate = atoi(fpsText.c_str());
@@ -196,14 +196,14 @@ EncoderConfig const Configuration_Old::FFMPEGData() const
         else
             temp.hwaccelMode = HWAccelMode::AUTO;
     }
-
+*/
     return temp;
 }
 
 bool Configuration_Old::SaveFFMPEG(EncoderConfig const data)
 {
     auto newData = std::string{this->data};
-    
+/*
     {
         auto fps = std::to_string(data.desiredFrameRate);
         if(!ReplaceVariable(newData, FPS_TAG, fps, newData))
@@ -284,7 +284,7 @@ bool Configuration_Old::SaveFFMPEG(EncoderConfig const data)
             newData += std::string{HWACCEL_TAG} + "=" + hwaccel + ";\n";
         }
     }
-
+*/
     return SaveConfigFile(newData);
 }
 

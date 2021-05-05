@@ -36,9 +36,9 @@ bool ConnectTo(std::string ip, uint16_t port, int& connectionSock)
 bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
 {
     static_assert(COMMAND_CODE_SIZE == 2);
-    static_assert(ENCODER_CONFIG_SIZE == 24);
+    static_assert(ENCODER_CONFIG_SIZE == 48);
     static_assert(CONTROLLER_CONFIG_SIZE == 16);
-    static_assert(COMMAND_PAYLOAD_SIZE == 64);
+    static_assert(COMMAND_PAYLOAD_SIZE == 72);
 
     char* dataPtr = (char*)&payload;
 

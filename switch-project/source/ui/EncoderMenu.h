@@ -26,8 +26,6 @@ class EncoderMenu : public Menu
         std::unordered_map<VideoCodec, Menu*> const menus;
         bool advancedOptions;
         Text pageText;
-        // std::vector<Menu*> menus;
-        // ArrayCirculator<Menu*, std::vector> menuCursor;
 };
 
 #endif

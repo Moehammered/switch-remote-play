@@ -14,6 +14,8 @@ class H264AmfMenu : public Menu
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
+        h264amf::H264AMFData const Settings() const;
+
     private:
         std::unordered_map<h264amf::Parameters, Text> textElements;
         H264AmfCodec codec;

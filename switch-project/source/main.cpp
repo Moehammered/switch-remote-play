@@ -17,6 +17,9 @@
 #include "stream/PcmStream.h"
 #include "system/SystemSetup.h"
 #include "system/Configuration_Old.h"
+#include "codec/general/GenericCodecConfiguration.h"
+#include "codec/h264/H264Configuration.h"
+#include "codec/h264_amf/H264AmfConfiguration.h"
 
 auto constexpr handshakeKey = "let-me-play";
 
@@ -199,6 +202,30 @@ int main(int argc, char **argv)
                 menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 
                 screen.PresentScreen();
+
+                //testing here -- delete later
+                auto ffmpegConfig = menuScreens.GetFfmpegSettings();
+                auto generalConf = GenericCodecConfiguration{"sdmc:/switch/switch-remote-play/common.ini"};
+                generalConf.Save(ffmpegConfig.commonSettings);
+
+                // switch(ffmpegConfig.commonSettings.videoCodec)
+                { 
+                    // default:
+                    // case VideoCodec::H264:
+                    {
+                        auto conf = H264Configuration{"sdmc:/switch/switch-remote-play/h264_cpu.ini"};
+                        conf.Save(ffmpegConfig.cpuSettings);
+                    }
+                    // break;
+
+                    // case VideoCodec::H264_AMF:
+                    {
+                        auto conf = H264AmfConfiguration{"sdmc:/switch/switch-remote-play/h264_amd.ini"};
+                        conf.Save(ffmpegConfig.amdSettings);
+                    }
+                    // break;
+                }
+                //testing here -- delete later
 
                 if(network.HostFound() || menuScreens.UseManualIP())
                 {
