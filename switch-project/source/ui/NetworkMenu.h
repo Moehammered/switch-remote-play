@@ -40,6 +40,8 @@ class NetworkMenu : public Menu
         void ProcessDecrease();
 
         NetworkMenuItems selectedItem;
+
+        Text broadcastIP;
 };
 
 #endif

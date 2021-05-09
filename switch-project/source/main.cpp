@@ -17,6 +17,7 @@
 #include "stream/PcmStream.h"
 #include "system/SystemSetup.h"
 #include "system/Configuration_Old.h"
+#include "configuration/NetworkConfiguration.h"
 #include "codec/general/GenericCodecConfiguration.h"
 #include "codec/h264/H264Configuration.h"
 #include "codec/h264_amf/H264AmfConfiguration.h"
@@ -123,7 +124,8 @@ int main(int argc, char **argv)
     std::string broadcastAddress{};
     std::cout << "Initialising Network Discovery\n";
     {
-        auto config = Configuration_Old{};
+        // auto config = Configuration_Old{};
+        auto config = NetworkConfiguration{"sdmc:/switch/switch-remote-play/network.ini"};
         broadcastAddress = config.BroadcastAddress();
         std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";
     }

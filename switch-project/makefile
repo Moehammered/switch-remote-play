@@ -43,14 +43,14 @@ BUILD		:=	build
 SOURCES		:=	source source/network source/ui \
 				source/system source/stream source/dataHelpers \
 				source/codec source/codec/h264 source/codec/h264_amf \
-				source/codec/general source/utils
+				source/codec/general source/utils source/configuration
 DATA		:=	data
 INCLUDES	:=	include
 ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered
 ICON		:=	switch-remote-play-icon.jpg
-APP_VERSION	:=	0.8.6
+APP_VERSION	:=	0.8.7
 
 #---------------------------------------------------------------------------------
 # options for code generation
