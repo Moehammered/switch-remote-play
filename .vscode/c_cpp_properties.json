@@ -32,7 +32,7 @@
             "includePath": [
                 "${workspaceFolder}/switch-project/**",
                 "C:\\mingw-w64\\switch\\devkitPro\\libnx\\include",
-                "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\10.2.0\\include",
+                "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\11.1.0\\include",
                 "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
                 "C:\\mingw-w64\\switch\\devkitPro\\portlibs\\switch\\include"
             ],
@@ -52,7 +52,7 @@
                 "path": [
                     "${workspaceFolder}/switch-project/**",
                     "C:\\mingw-w64\\switch\\devkitPro\\libnx\\include",
-                    "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\10.2.0\\include",
+                    "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\11.1.0\\include",
                     "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
                     "C:\\mingw-w64\\switch\\devkitPro\\portlibs\\switch\\include"
                 ],

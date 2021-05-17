@@ -43,7 +43,8 @@ BUILD		:=	build
 SOURCES		:=	source source/network source/ui \
 				source/system source/stream source/dataHelpers \
 				source/codec source/codec/h264 source/codec/h264_amf \
-				source/codec/general source/utils source/configuration
+				source/codec/general source/utils source/configuration \
+				source/decoder
 DATA		:=	data
 INCLUDES	:=	include
 ROMFS		:=	romfs
