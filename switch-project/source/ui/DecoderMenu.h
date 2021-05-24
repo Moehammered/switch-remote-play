@@ -6,6 +6,9 @@
 #include <unordered_map>
 #include <array>
 #include <vector>
+#include "DecoderFlag1Menu.h"
+#include "DecoderFlag2Menu.h"
+
 
 enum DecoderMenuPage : int32_t
 {
@@ -58,6 +61,8 @@ class DecoderMenu : public Menu
 
         DecoderMenuPage currentPage;
         Text currentPageHeader;
+        DecoderFlag1Menu newFlag1Menu;
+        DecoderFlag2Menu newFlag2Menu;
 
         void OrderAvailableFlags();
         void LoadSettings();

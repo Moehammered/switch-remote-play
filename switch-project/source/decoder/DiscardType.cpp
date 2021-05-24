@@ -28,7 +28,7 @@ std::unordered_map<AVDiscard, std::string> const& DiscardType::Options() const
     return discardOptions;
 }
 
-std::unordered_map<AVDiscard, std::string> const& DiscardType::Options() const
+std::unordered_map<AVDiscard, std::string> const& DiscardType::Descriptions() const
 {
     return discardDesc;
 }

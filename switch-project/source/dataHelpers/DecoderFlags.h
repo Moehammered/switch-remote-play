@@ -25,7 +25,7 @@ int32_t constexpr DefaultDecoderFlags1 = AV_CODEC_FLAG_LOW_DELAY;
 int32_t constexpr DefaultDecoderFlags2 = AV_CODEC_FLAG2_FAST;
 AVDiscard constexpr DefaultSkipLoopFilter = AVDiscard::AVDISCARD_ALL;
 int32_t constexpr DefaultThreadType = FF_THREAD_SLICE;
-int32_t constexpr DefaultThreadCount = 4;
+// int32_t constexpr DefaultThreadCount = 4;
 
 /*
     AVCodecContext - https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html

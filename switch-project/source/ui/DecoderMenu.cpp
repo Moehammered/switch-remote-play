@@ -3,6 +3,7 @@
 #include <iostream>
 
 int32_t constexpr maxThreadCountOption {4};
+bool firstMenu {false};
 
 DecoderMenu::DecoderMenu() : Menu(), 
     flag1Buttons{}, decoderFlags1{},
@@ -12,7 +13,8 @@ DecoderMenu::DecoderMenu() : Menu(),
     threadTypeOptions{FF_THREAD_FRAME, FF_THREAD_SLICE},
     selectedThreadType {1}, threadCount {4},
     extraButtons{}, selectedItem {0}, maxItems{0},
-    currentPage {DMP_FLAG1}, currentPageHeader{}
+    currentPage {DMP_FLAG1}, currentPageHeader{},
+    newFlag1Menu{}, newFlag2Menu{}
 {
     title.value = "Decoder Configuration_Old";
     SDL_Color constexpr white {255,255,255,255};
@@ -142,6 +144,16 @@ void DecoderMenu::LoadSettings()
 void DecoderMenu::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
+    if(kDown & (KEY_DLEFT | KEY_DRIGHT))
+        firstMenu = !firstMenu;
+
+    if(firstMenu)
+        newFlag1Menu.ProcessInput(pad);
+    else
+        newFlag2Menu.ProcessInput(pad);
+
+    return;
+
 
     if(kDown & KEY_DLEFT)
     {
@@ -187,6 +199,11 @@ void DecoderMenu::ProcessInput(PadState const & pad)
 void DecoderMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
     title.Render(renderer, font);
+    if(firstMenu)
+        newFlag1Menu.Render(renderer, font);
+    else
+        newFlag2Menu.Render(renderer, font);
+    return;
     currentPageHeader.Render(renderer, font);
 
     switch(currentPage)

@@ -459,6 +459,7 @@ DecoderConfiguration const Configuration_Old::DecoderData() const
     }
 
     {
+        auto DefaultThreadCount {4};
         std::string threadCount{};
         if(ExtractVariable(data, DECODER_THREAD_COUNT_TAG, threadCount))
             temp.threadCount = atoi(threadCount.c_str());

@@ -9,10 +9,10 @@ MenuSelection::MenuSelection() : Menu(),
     streamPendingText{}, helpScreen{},
     decoderScreen{}, controllerScreen{},
     encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{ENCODER_CONFIG}
+    menus{}, selectedMenu{ENCODER_CONFIG},newDecoderMenu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;
-    menus[MenuScreen::DECODER_CONFIG] = &decoderScreen;
+    menus[MenuScreen::DECODER_CONFIG] = &newDecoderMenu;
     menus[MenuScreen::CONTROLLER] = &controllerScreen;
     menus[MenuScreen::ENCODER_CONFIG] = &encoderScreen;
     menus[MenuScreen::IP_SET] = &networkScreen;
