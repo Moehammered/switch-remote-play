@@ -16,11 +16,11 @@
 #include "stream/StreamDecoder.h"
 #include "stream/PcmStream.h"
 #include "system/SystemSetup.h"
-#include "system/Configuration_Old.h"
 #include "configuration/NetworkConfiguration.h"
 #include "codec/general/GenericCodecConfiguration.h"
 #include "codec/h264/H264Configuration.h"
 #include "codec/h264_amf/H264AmfConfiguration.h"
+#include "decoder/DecoderConfiguration.h"
 
 auto constexpr handshakeKey = "let-me-play";
 
@@ -204,30 +204,30 @@ int main(int argc, char **argv)
                 menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 
                 screen.PresentScreen();
+                {
+                    //testing here -- delete later
+                    auto ffmpegConfig = menuScreens.GetFfmpegSettings();
+                    {
+                        auto generalConf = GenericCodecConfiguration{"sdmc:/switch/switch-remote-play/common.ini"};
+                        generalConf.Save(ffmpegConfig.commonSettings);
+                    }
 
-                //testing here -- delete later
-                auto ffmpegConfig = menuScreens.GetFfmpegSettings();
-                auto generalConf = GenericCodecConfiguration{"sdmc:/switch/switch-remote-play/common.ini"};
-                generalConf.Save(ffmpegConfig.commonSettings);
+                    {
+                        auto decoderConf = DecoderConfiguration{"sdmc:/switch/switch-remote-play/decoder.ini"};
+                        decoderConf.Save(menuScreens.GetDecoderSettings());
+                    }
 
-                // switch(ffmpegConfig.commonSettings.videoCodec)
-                { 
-                    // default:
-                    // case VideoCodec::H264:
                     {
                         auto conf = H264Configuration{"sdmc:/switch/switch-remote-play/h264_cpu.ini"};
                         conf.Save(ffmpegConfig.cpuSettings);
                     }
-                    // break;
-
-                    // case VideoCodec::H264_AMF:
+                    
                     {
                         auto conf = H264AmfConfiguration{"sdmc:/switch/switch-remote-play/h264_amd.ini"};
                         conf.Save(ffmpegConfig.amdSettings);
                     }
-                    // break;
+                    //testing here -- delete later
                 }
-                //testing here -- delete later
 
                 if(network.HostFound() || menuScreens.UseManualIP())
                 {
@@ -240,10 +240,6 @@ int main(int argc, char **argv)
                     auto ffmpegConfig = menuScreens.GetFfmpegSettings();
                     auto controllerConfig = menuScreens.GetControllerSettings();
                     auto decoderConfig = menuScreens.GetDecoderSettings();
-                    auto configfile = Configuration_Old{};
-                    configfile.SaveFFMPEG(ffmpegConfig);
-                    configfile.SaveController(controllerConfig);
-                    configfile.SaveDecoderConfig(decoderConfig);
 
                     RunStartConfiguredStreamCommand(ip, hostCommandPort, ffmpegConfig, controllerConfig);
                     auto streamOn = stream.WaitForStream(decoderConfig, videoPort);

@@ -138,24 +138,24 @@ std::string DecoderFlags1Description(uint32_t flags)
 
 void PrintDecoderContextSettings(AVCodecContext const & decoderContext)
 {
-    std::cout << "HW Accel Flags\n";
-    {
-        auto hwaccelFlags = HWAccelFlagsDescriptions(decoderContext.hwaccel_flags);
-        for(auto& flag : hwaccelFlags)
-            std::cout << flag.second << "\n";
-    }
-    std::cout << "Flag 1\n";
-    {
-        auto flagsSet = DecoderFlags1Descriptions(decoderContext.flags);
-        for(auto& flag : flagsSet)
-            std::cout << flag.second << "\n";
-    }
-    std::cout << "Flag 2\n";
-    {
-        auto flags2Set = DecoderFlags2Descriptions(decoderContext.flags2);
-        for(auto& flag : flags2Set)
-            std::cout << flag.second << "\n";
-    }
+    // std::cout << "HW Accel Flags\n";
+    // {
+    //     auto hwaccelFlags = HWAccelFlagsDescriptions(decoderContext.hwaccel_flags);
+    //     for(auto& flag : hwaccelFlags)
+    //         std::cout << flag.second << "\n";
+    // }
+    // std::cout << "Flag 1\n";
+    // {
+    //     auto flagsSet = DecoderFlags1Descriptions(decoderContext.flags);
+    //     for(auto& flag : flagsSet)
+    //         std::cout << flag.second << "\n";
+    // }
+    // std::cout << "Flag 2\n";
+    // {
+    //     auto flags2Set = DecoderFlags2Descriptions(decoderContext.flags2);
+    //     for(auto& flag : flags2Set)
+    //         std::cout << flag.second << "\n";
+    // }
     std::cout << "Skip Loop Filter: " << SkipLoopFilterToString(decoderContext.skip_loop_filter);
     std::cout << "\nThread Count: " << decoderContext.thread_count << "\n";
     std::cout << "Threading Type\n";
@@ -175,7 +175,7 @@ VideoStream::VideoStream()
 {   
 }
 
-bool VideoStream::WaitForStream(DecoderConfiguration decoderSettings, uint16_t port)
+bool VideoStream::WaitForStream(DecoderData decoderSettings, uint16_t port)
 {
     int ret = 0;
 
@@ -243,10 +243,10 @@ bool VideoStream::WaitForStream(DecoderConfiguration decoderSettings, uint16_t p
         return false;
     }
 
-    decoderContext->flags = decoderSettings.flag1;
-    decoderContext->flags2 = decoderSettings.flag2;
-    decoderContext->hwaccel_flags = decoderSettings.hwAccelFlags;
-    decoderContext->skip_loop_filter = decoderSettings.skipLoopFilter;
+    decoderContext->flags = decoderSettings.flags1;
+    decoderContext->flags2 = decoderSettings.flags2;
+    decoderContext->hwaccel_flags = decoderSettings.accelFlags;
+    decoderContext->skip_loop_filter = decoderSettings.discardFilter;
     decoderContext->thread_type = decoderSettings.threadType;
     decoderContext->thread_count = decoderSettings.threadCount;
 

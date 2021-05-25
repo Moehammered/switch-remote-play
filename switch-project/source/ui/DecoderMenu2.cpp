@@ -43,13 +43,6 @@ void DecoderMenu2::ProcessInput(PadState const & pad)
         selected = *cursor;
     }
 
-    //test saving
-    if(kDown & HidNpadButton::HidNpadButton_X)
-    {
-        auto config = DecoderConfiguration{"sdmc:/switch/switch-remote-play/decoder.ini"};
-        config.Save(Settings());
-    }
-
     auto currentMenu = menus.find(selected);
     if(currentMenu != menus.end())
         currentMenu->second->ProcessInput(pad);

@@ -10,13 +10,13 @@ extern "C"
 #include <string>
 #include <atomic>
 #include "../ScreenRenderer.h"
-#include "../dataHelpers/DecoderFlags.h"
+#include "../decoder/DecoderOptions.h"
 
 class VideoStream
 {
     public:
         VideoStream();
-        bool WaitForStream(DecoderConfiguration decoderSettings, uint16_t port);
+        bool WaitForStream(DecoderData decoderSettings, uint16_t port);
 
         bool Read(AVPacket& output);
 

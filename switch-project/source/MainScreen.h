@@ -6,7 +6,6 @@
 #include "ui/Menu.h"
 #include "ui/HelpMenu.h"
 #include "ui/NetworkMenu.h"
-#include "ui/DecoderMenu.h"
 #include "ui/DecoderMenu2.h"
 #include "ui/EncoderMenu.h"
 #include "ui/ControllerMenu.h"
@@ -46,7 +45,7 @@ class MenuSelection : public Menu
     
         EncoderConfig const GetFfmpegSettings();
 
-        DecoderConfiguration const GetDecoderSettings();
+        DecoderData const GetDecoderSettings();
 
         ControllerConfig const GetControllerSettings();
 
@@ -59,7 +58,6 @@ class MenuSelection : public Menu
         Text hostConnectionText;
         Text streamPendingText;
         HelpMenu helpScreen;
-        DecoderMenu decoderScreen;
         ControllerMenu controllerScreen;
         EncoderMenu encoderScreen;
         NetworkMenu networkScreen;

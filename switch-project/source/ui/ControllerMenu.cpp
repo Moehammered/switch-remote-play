@@ -1,7 +1,6 @@
 #include "ControllerMenu.h"
 #include <string>
 #include <iostream>
-#include "../system/Configuration_Old.h"
 #include "../dataHelpers/ControllerButtonMap.h"
 #include "../dataHelpers/SwitchButtons.h"
 
@@ -29,16 +28,13 @@ ControllerMenu::ControllerMenu()
         t.y = yOffset + ySpace * counter++;
     }
 
-    auto config = Configuration_Old{};
-    auto controller = config.ControllerData();
-
-    settingsIndices[ControllerMenuItems::CONTROLLER_MODE] = controller.controllerMode;
-    settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP] = controller.controllerMap;
+    settingsIndices[ControllerMenuItems::CONTROLLER_MODE] = ControllerMode::X360;
+    settingsIndices[ControllerMenuItems::CONTROLLER_BTN_MAP] = ControllerButtonMap::CONTROLLER_MAP_DEFAULT;
     
     settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK] = 0;
     for(auto i = 0; i < mouseButtonOptions.size(); ++i)
     {
-        if(mouseButtonOptions[i] == controller.leftClickButton)
+        if(mouseButtonOptions[i] == KEY_R)
         {
             settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK] = i;
             break;
@@ -48,15 +44,15 @@ ControllerMenu::ControllerMenu()
     settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK] = 2;
     for(auto i = 0; i < mouseButtonOptions.size(); ++i)
     {
-        if(mouseButtonOptions[i] == controller.rightClickButton)
+        if(mouseButtonOptions[i] == KEY_ZR)
         {
             settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK] = i;
             break;
         }
     }
 
-    settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] = controller.mouseOnConnect;
-    settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY] = controller.mouseSensitivity;
+    settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] = true;
+    settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY] = 10;
 
     Update();
 }
@@ -213,7 +209,7 @@ ControllerConfig const ControllerMenu::Settings()
     auto const leftClickButton = mouseButtonOptions[settingsIndices[ControllerMenuItems::MOUSE_LEFT_CLICK]];
     auto const rightClickButton = mouseButtonOptions[settingsIndices[ControllerMenuItems::MOUSE_RIGHT_CLICK]];
     auto const mouseOnConnect = settingsIndices[ControllerMenuItems::MOUSE_ON_CONNECT] == 1;
-    auto const sensitivity = settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY];
+    auto const sensitivity = (int16_t)settingsIndices[ControllerMenuItems::MOUSE_SENSITIVITY];
 
     return ControllerConfig{
         .controllerMode = controllerMode,

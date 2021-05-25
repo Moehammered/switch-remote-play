@@ -7,9 +7,8 @@ auto constexpr defaultControlMessage = "'ZL'/'ZR' - cycle screens | 'A'/'B' - ch
 MenuSelection::MenuSelection() : Menu(), 
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
-    decoderScreen{}, controllerScreen{},
-    encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{ENCODER_CONFIG},newDecoderMenu{}
+    controllerScreen{}, encoderScreen{}, networkScreen{},
+    menus{}, selectedMenu{ENCODER_CONFIG}, newDecoderMenu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;
     menus[MenuScreen::DECODER_CONFIG] = &newDecoderMenu;
@@ -101,9 +100,9 @@ EncoderConfig const MenuSelection::GetFfmpegSettings()
     return encoderScreen.Settings();
 }
 
-DecoderConfiguration const MenuSelection::GetDecoderSettings()
+DecoderData const MenuSelection::GetDecoderSettings()
 {
-    return decoderScreen.DecoderSettings();
+    return newDecoderMenu.Settings();
 }
 
 ControllerConfig const MenuSelection::GetControllerSettings()
