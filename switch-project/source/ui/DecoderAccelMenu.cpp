@@ -50,6 +50,12 @@ void DecoderAccelMenu::Render(SDL_Renderer * const renderer, FC_Font * const fon
     }
 }
 
+void DecoderAccelMenu::SetFlags(int32_t flags)
+{
+    this->flags = flags;
+    UpdateUI(this->flags);
+}
+
 int32_t DecoderAccelMenu::Flags() const
 {
     return flags;

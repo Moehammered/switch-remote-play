@@ -51,6 +51,12 @@ void DecoderFlag1Menu::Render(SDL_Renderer * const renderer, FC_Font * const fon
     }
 }
 
+void DecoderFlag1Menu::SetFlags(int32_t flags)
+{
+    this->flags = flags;
+    UpdateUI(this->flags);
+}
+
 int32_t DecoderFlag1Menu::Flags() const
 {
     return flags;

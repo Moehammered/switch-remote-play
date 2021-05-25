@@ -8,7 +8,8 @@ extern "C"
     #include <libavcodec/avcodec.h>
 }
 
-DecoderAccel::DecoderAccel()
+DecoderAccel::
+DecoderAccel()
     : accelOptions{
         {AV_HWACCEL_CODEC_CAP_EXPERIMENTAL,  "experimental"},
         {AV_HWACCEL_FLAG_IGNORE_LEVEL,  "ignore level"},

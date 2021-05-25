@@ -1,4 +1,5 @@
 #include "DecoderMenu2.h"
+#include "../decoder/DecoderConfiguration.h"
 
 DecoderMenu2::DecoderMenu2() : Menu(),
 cursor{DecoderParameterList}, selected{},
@@ -9,6 +10,16 @@ menus{}
     title.value = "Decoder Menu 2";
 
     //config loading goes here
+    auto config = DecoderConfiguration{"sdmc:/switch/switch-remote-play/decoder.ini"};
+    auto settings = config.Data();
+    flag1Menu.SetFlags(settings.flags1);
+    flag2Menu.SetFlags(settings.flags2);
+
+    accelMenu.SetFlags(settings.accelFlags);
+
+    discardMenu.SetFlag(settings.discardFilter);
+    threadMenu.SetTypeFlag(settings.threadType);
+    threadMenu.SetThreadCount(settings.threadCount);
 
     menus[DecoderParameters::Flags1] = &flag1Menu;
     menus[DecoderParameters::Flags2] = &flag2Menu;
@@ -30,6 +41,13 @@ void DecoderMenu2::ProcessInput(PadState const & pad)
     {
         ++cursor;
         selected = *cursor;
+    }
+
+    //test saving
+    if(kDown & HidNpadButton::HidNpadButton_X)
+    {
+        auto config = DecoderConfiguration{"sdmc:/switch/switch-remote-play/decoder.ini"};
+        config.Save(Settings());
     }
 
     auto currentMenu = menus.find(selected);

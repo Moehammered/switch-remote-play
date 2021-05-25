@@ -47,6 +47,18 @@ void DecoderThreadMenu::Render(SDL_Renderer * const renderer, FC_Font * const fo
     }
 }
 
+void DecoderThreadMenu::SetTypeFlag(int32_t flag)
+{
+    cycleMap(typeCursor, flag);
+    UpdateUI(decoderUtils::DecoderThreadProp::Type);
+}
+
+void DecoderThreadMenu::SetThreadCount(int32_t count)
+{
+    threadCounter = NumberRange<int32_t, MinThreadCount, MaxThreadCount>(count);
+    UpdateUI(decoderUtils::DecoderThreadProp::Count);
+}
+
 int32_t DecoderThreadMenu::TypeFlag() const
 {
     return typeCursor.KeyPair().first;

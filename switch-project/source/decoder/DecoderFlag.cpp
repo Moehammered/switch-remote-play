@@ -54,7 +54,7 @@ int32_t DecoderFlag::Flags1(std::vector<std::string> const& flagStrings) const
 
 int32_t DecoderFlag::Flags2(std::vector<std::string> const& flagStrings) const
 {
-    return ToFlags(flagStrings, flag1Options);
+    return ToFlags(flagStrings, flag2Options);
 }
 
 std::unordered_map<int32_t, std::string> const DecoderFlag::ToStrings(int32_t flags, std::unordered_map<int32_t, std::string> const & map) const

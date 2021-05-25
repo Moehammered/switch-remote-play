@@ -16,7 +16,18 @@ enum class DecoderParameters
     Flags2,
     AccelFlags,
     DiscardFilter,
-    ThreadType
+    ThreadType,
+    ThreadCount
+};
+
+static std::unordered_map<DecoderParameters, std::string> const DecoderParamsDesc
+{
+    { DecoderParameters::Flags1, "Flags 1" },
+    { DecoderParameters::Flags2, "Flags 2" },
+    { DecoderParameters::AccelFlags, "Accel Flags" },
+    { DecoderParameters::DiscardFilter, "Discard Filtler" },
+    { DecoderParameters::ThreadType, "Thread Type" },
+    { DecoderParameters::ThreadCount, "Thread Count" }
 };
 
 static std::vector<DecoderParameters> const DecoderParameterList
@@ -77,5 +88,9 @@ static std::vector<int32_t> const AvailableThreadTypes
 int32_t constexpr MinThreadCount = 1;
 int32_t constexpr DefaultThreadCount = 4;
 int32_t constexpr MaxThreadCount = 24;
+
+std::unordered_map<DecoderParameters, std::string> DecoderParamsToStr(DecoderData const data);
+DecoderData DecoderParamsFromStr(std::unordered_map<DecoderParameters, std::string> const & map);
+
 
 #endif

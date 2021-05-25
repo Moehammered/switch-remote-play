@@ -46,6 +46,12 @@ void DecoderDiscardMenu::Render(SDL_Renderer * const renderer, FC_Font * const f
     }
 }
 
+void DecoderDiscardMenu::SetFlag(AVDiscard flag)
+{
+    selected = flag;
+    UpdateUI(selected);
+}
+
 AVDiscard DecoderDiscardMenu::Flag() const
 {
     return selected;

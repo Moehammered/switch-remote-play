@@ -15,6 +15,7 @@ public:
     void ProcessInput(PadState const & pad) override;
     void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
     
+    void SetFlags(int32_t flags);
     int32_t Flags() const;
 
 private:

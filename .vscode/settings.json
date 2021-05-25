@@ -62,6 +62,8 @@
         "map": "cpp",
         "set": "cpp",
         "list": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp"
     }
 }

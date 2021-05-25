@@ -30,6 +30,9 @@ public:
     void ProcessInput(PadState const & pad) override;
     void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
+    void SetTypeFlag(int32_t flag);
+    void SetThreadCount(int32_t count);
+
     int32_t TypeFlag() const;
     int32_t ThreadCount() const;
 
