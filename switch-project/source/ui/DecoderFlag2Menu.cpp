@@ -1,10 +1,9 @@
 #include "DecoderFlag2Menu.h"
+#include "../decoder/DecoderFlag.h"
 #include "../decoder/DecoderOptions.h"
 
 DecoderFlag2Menu::DecoderFlag2Menu() : Menu(),
-    textElements{}, codecFlags{}, 
-    flag2Desc{codecFlags.Flag2Descriptions()},
-    cursor{AvailableFlags2}, selected{},flags{}
+    textElements{}, cursor{AvailableFlags2}, selected{}, flags{}
 {
     title.value = "Decoder Flags 2 - Render Behaviour";
     title.y += 45;
@@ -75,8 +74,8 @@ void DecoderFlag2Menu::ToggleFlag(int32_t flag)
 
 void DecoderFlag2Menu::UpdateUI(int32_t flags)
 {
-    auto& all = flag2Desc;
-    auto const found = codecFlags.Flag2Descriptions(flags);
+    auto& all = decoder::flag2Desc;
+    auto const found = decoder::Flags2ToDescriptions(flags);
     for(auto& item : textElements)
     {
         if(auto active = found.find(item.first); active != found.end())

@@ -2,7 +2,6 @@
 #define __DECODERFLAG1MENU_H__
 
 #include "Menu.h"
-#include "../decoder/DecoderFlag.h"
 #include "../utils/ArrayCirculator.h"
 #include <unordered_map>
 #include <vector>
@@ -20,8 +19,6 @@ public:
 
 private:
     std::unordered_map<int32_t, Text> textElements;
-    DecoderFlag codecFlags;
-    std::unordered_map<int32_t, std::string> const flag1Desc;
     ArrayCirculator<int32_t, std::vector> cursor;
     int32_t selected;
     int32_t flags;

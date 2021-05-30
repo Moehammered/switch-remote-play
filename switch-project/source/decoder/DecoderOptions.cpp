@@ -10,9 +10,8 @@ std::unordered_map<DecoderParameters, std::string> DecoderParamsToStr(DecoderDat
 {
     auto values = std::unordered_map<DecoderParameters, std::string>{};
 
-    auto flags = DecoderFlag{};
-    auto f1Values = flags.Flag1Strings(data.flags1);
-    auto f2Values = flags.Flag2Strings(data.flags2);
+    auto f1Values = decoder::Flags1ToStrings(data.flags1);
+    auto f2Values = decoder::Flags2ToStrings(data.flags2);
 
     auto csv = [](auto const & map)
     {
@@ -24,23 +23,20 @@ std::unordered_map<DecoderParameters, std::string> DecoderParamsToStr(DecoderDat
         auto output = ss.str();
         return output.substr(0, output.length()-1);
     };
-
+    
     values[DecoderParameters::Flags1] = csv(f1Values);
     values[DecoderParameters::Flags2] = csv(f2Values);
 
-    auto accFlags = DecoderAccel{};
-    auto accValues = accFlags.ToStrings(data.accelFlags);
+    auto accValues = decoder::AccelFlagsToStrings(data.accelFlags);
     values[DecoderParameters::AccelFlags] = csv(accValues);
 
-    auto discFlags = DiscardType{};
-    auto discVal = discFlags.ToString(data.discardFilter);
+    auto discVal = decoder::AVDiscardToString(data.discardFilter);
     values[DecoderParameters::DiscardFilter] = discVal;
 
-    auto threadFlags = ThreadType{};
-    auto typeVal = threadFlags.ToString(data.threadType);
+    auto typeVal = decoder::ThreadTypeToString(data.threadType);
     values[DecoderParameters::ThreadType] = typeVal;
 
-    auto threadCount = std::to_string(data.threadCount);
+    auto threadCount = decoder::ThreadCountToString(data.threadCount);
     values[DecoderParameters::ThreadCount] = threadCount;
 
     return values;
@@ -73,34 +69,29 @@ DecoderData DecoderParamsFromStr(std::unordered_map<DecoderParameters, std::stri
     auto parseFlags1 = [&](auto const & csv)
     {
         auto flags = csvToList(csv);
-        auto parser = DecoderFlag{};
-        return parser.Flags1(flags);
+        return decoder::ParseFlags1Strings(flags);
     };
 
     auto parseFlags2 = [&](auto const & csv)
     {
         auto flags = csvToList(csv);
-        auto parser = DecoderFlag{};
-        return parser.Flags2(flags);
+        return decoder::ParseFlags2Strings(flags);
     };
 
     auto parseAccelFlags = [&](auto const & csv)
     {
         auto flags = csvToList(csv);
-        auto parser = DecoderAccel{};
-        return parser.Flags(flags);
+        return decoder::ParseAccelFlagStrings(flags);
     };
 
     auto parseDiscard = [](auto const & val)
     {
-        auto dc = DiscardType{};
-        return dc.Value(val);
+        return decoder::ParseAVDiscardString(val);
     };
 
     auto parseThreadType = [](auto const & val)
     {
-        auto tt = ThreadType{};
-        return tt.Flag(val);
+        return decoder::ParseThreadType(val);
     };
 
     parse(DecoderParameters::Flags1, data.flags1, 0, parseFlags1);
@@ -108,17 +99,18 @@ DecoderData DecoderParamsFromStr(std::unordered_map<DecoderParameters, std::stri
     parse(DecoderParameters::AccelFlags, data.accelFlags, 0, parseAccelFlags);
     parse(DecoderParameters::DiscardFilter, data.discardFilter, AVDiscard::AVDISCARD_DEFAULT, parseDiscard);
     parse(DecoderParameters::ThreadType, data.threadType, FF_THREAD_SLICE, parseThreadType);
+    parse(DecoderParameters::ThreadCount, data.threadCount, decoder::DefaultThreadCount, decoder::ParseThreadCount);
     
-    auto threadCountEntry = map.find(DecoderParameters::ThreadCount);
-    if(threadCountEntry != map.end())
-    {
-        auto casted = std::stoi(threadCountEntry->second);
-        casted = std::min(casted, MaxThreadCount);
-        casted = std::max(casted, MinThreadCount);
-        data.threadCount = casted;
-    }
-    else
-        data.threadCount = DefaultThreadCount;
+    // auto threadCountEntry = map.find(DecoderParameters::ThreadCount);
+    // if(threadCountEntry != map.end())
+    // {
+    //     auto casted = std::stoi(threadCountEntry->second);
+    //     casted = std::min(casted, MaxThreadCount);
+    //     casted = std::max(casted, MinThreadCount);
+    //     data.threadCount = casted;
+    // }
+    // else
+    //     data.threadCount = DefaultThreadCount;
 
     return data;
 }

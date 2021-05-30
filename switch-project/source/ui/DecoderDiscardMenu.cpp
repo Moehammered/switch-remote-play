@@ -2,8 +2,7 @@
 #include "../decoder/DecoderOptions.h"
 
 DecoderDiscardMenu::DecoderDiscardMenu() : Menu(),
-textElements{}, discard{}, discardDesc{discard.Descriptions()},
-cursor{AvailableDiscardFilters}, selected{AVDiscard::AVDISCARD_DEFAULT}
+textElements{}, cursor{AvailableDiscardFilters}, selected{AVDiscard::AVDISCARD_DEFAULT}
 {
     title.value = "Frame Discard Behaviour";
     title.y += 45;
@@ -59,8 +58,8 @@ AVDiscard DecoderDiscardMenu::Flag() const
 
 void DecoderDiscardMenu::UpdateUI(AVDiscard flag)
 {
-    auto& all = discardDesc;
-    auto const selectedDesc = discard.ToDescription(flag);
+    auto& all = decoder::discardDesc;
+    auto const selectedDesc = decoder::AVDiscardToDescription(flag);
     for(auto& item : textElements)
     {
         if(item.first == flag)

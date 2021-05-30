@@ -1,44 +1,41 @@
 #include "ThreadType.h"
 #include "../utils/EnumMapper.h"
 
-extern "C"
+namespace decoder
 {
-    #include <libavcodec/avcodec.h>
-}
-
-ThreadType::ThreadType()
-    : threadOptions{
-        { FF_THREAD_FRAME, "thread frame" },
-        { FF_THREAD_SLICE, "thread slice" }
-    }, 
-    threadDesc{
-        { FF_THREAD_FRAME, "Thread Frame (1 thread/frame - incurs a delay per thread)" },
-        { FF_THREAD_SLICE, "Thread Slice (many threads per frame)" }
+    std::string const ThreadTypeToString(int32_t flag)
+    {
+        return enumToStr(threadOptions, flag);
     }
-{
-}
 
-std::unordered_map<int32_t, std::string> const& ThreadType::Options() const
-{
-    return threadOptions;
-}
+    std::string const ThreadTypeToDescription(int32_t flag)
+    {
+        return enumToStr(threadDesc, flag);
+    }
+    
+    int32_t ParseThreadType(std::string const type)
+    {
+        return strToEnum(threadOptions, type);
+    }
 
-std::unordered_map<int32_t, std::string> const& ThreadType::Descriptions() const
-{
-    return threadDesc;
-}
+    std::string const ThreadCountToString(int32_t count)
+    {
+        auto filtered = std::min(count, MaxThreadCount);
+        filtered = std::max(MinThreadCount, count);
 
-std::string const ThreadType::ToString(int32_t type) const
-{
-    return enumToStr(threadOptions, type);
-}
+        return std::to_string(filtered);
+    }
 
-int32_t ThreadType::Flag(std::string const type) const
-{
-    return strToEnum(threadOptions, type);
-}
-
-std::string const ThreadType::ToDescription(int32_t type) const
-{
-    return enumToStr(threadDesc, type);
+    int32_t ParseThreadCount(std::string const count)
+    {
+        if(count.empty())
+            return DefaultThreadCount;
+        else
+        {
+            auto num = std::stoi(count);
+            auto filtered = std::min(num, MaxThreadCount);
+            filtered = std::max(MinThreadCount, num);
+            return filtered;
+        }
+    }
 }

@@ -31,6 +31,9 @@ private:
     DecoderThreadMenu threadMenu;
     
     std::unordered_map<DecoderParameters, Menu *> menus;
+    Text pageText;
+
+    void UpdatePageHeader(DecoderParameters param);
 };
 
 #endif

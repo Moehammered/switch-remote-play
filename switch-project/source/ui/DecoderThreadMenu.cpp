@@ -2,7 +2,7 @@
 
 DecoderThreadMenu::DecoderThreadMenu() : Menu(),
 textElements{}, itemCursor{decoderUtils::ThreadProperties},
-type{}, typeCursor{type.Descriptions()}, threadCounter{DefaultThreadCount}
+typeCursor{decoder::threadDesc}, threadCounter{DefaultThreadCount}
 {
     title.value = "Decoder Thread Behaviour";
     title.y += 45;

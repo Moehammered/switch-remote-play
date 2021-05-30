@@ -4,21 +4,35 @@
 #include <unordered_map>
 #include <string>
 
-class ThreadType
+extern "C"
 {
-public:
-    ThreadType();
+    #include <libavcodec/avcodec.h>
+}
 
-    std::unordered_map<int32_t, std::string> const& Options() const;
-    std::unordered_map<int32_t, std::string> const& Descriptions() const;
+namespace decoder
+{
+    std::string const ThreadTypeToString(int32_t flag);
+    std::string const ThreadTypeToDescription(int32_t flag);
+    int32_t ParseThreadType(std::string const type);
 
-    std::string const ToString(int32_t type) const;
-    int32_t Flag(std::string const type) const;
-    std::string const ToDescription(int32_t type) const;
+    static std::unordered_map<int32_t, std::string> threadOptions
+    {
+        { FF_THREAD_FRAME, "thread frame" },
+        { FF_THREAD_SLICE, "thread slice" }
+    };
 
-private:
-    std::unordered_map<int32_t, std::string> const threadOptions;
-    std::unordered_map<int32_t, std::string> const threadDesc;
-};
+    static std::unordered_map<int32_t, std::string> threadDesc
+    {
+        { FF_THREAD_FRAME, "Thread Frame (1 thread/frame - incurs a delay per thread)" },
+        { FF_THREAD_SLICE, "Thread Slice (many threads per frame)" }
+    };
+
+    int32_t constexpr MinThreadCount = 1;
+    int32_t constexpr DefaultThreadCount = 4;
+    int32_t constexpr MaxThreadCount = 24;
+
+    std::string const ThreadCountToString(int32_t count);
+    int32_t ParseThreadCount(std::string const count);
+}
 
 #endif

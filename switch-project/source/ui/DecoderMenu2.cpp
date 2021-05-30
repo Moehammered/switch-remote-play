@@ -4,8 +4,7 @@
 DecoderMenu2::DecoderMenu2() : Menu(),
 cursor{DecoderParameterList}, selected{},
 flag1Menu{}, flag2Menu{}, accelMenu{},
-discardMenu{},
-menus{}
+discardMenu{}, menus{}, pageText{}
 {
     title.value = "Decoder Menu 2";
 
@@ -26,6 +25,11 @@ menus{}
     menus[DecoderParameters::AccelFlags] = &accelMenu;
     menus[DecoderParameters::DiscardFilter] = &discardMenu;
     menus[DecoderParameters::ThreadType] = &threadMenu;
+
+    pageText.value = "(pg 1/5) - <--/-->";
+    pageText.y = title.y + 65;
+    pageText.x = 20;
+    pageText.colour = { 255, 190, 90, 255 };
 }
 
 void DecoderMenu2::ProcessInput(PadState const & pad)
@@ -36,11 +40,13 @@ void DecoderMenu2::ProcessInput(PadState const & pad)
     {
         --cursor;
         selected = *cursor;
+        UpdatePageHeader(selected);
     }
     else if (kDown & HidNpadButton::HidNpadButton_Right)
     {
         ++cursor;
         selected = *cursor;
+        UpdatePageHeader(selected);
     }
 
     auto currentMenu = menus.find(selected);
@@ -53,6 +59,8 @@ void DecoderMenu2::ProcessInput(PadState const & pad)
 void DecoderMenu2::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
     title.Render(renderer, font);
+    pageText.Render(renderer, font);
+
     auto currentMenu = menus.find(selected);
     if(currentMenu != menus.end())
         currentMenu->second->Render(renderer, font);
@@ -70,4 +78,35 @@ DecoderData const DecoderMenu2::Settings() const
         .threadType = threadMenu.TypeFlag(),
         .threadCount = threadMenu.ThreadCount()
     };
+}
+
+void DecoderMenu2::UpdatePageHeader(DecoderParameters param)
+{
+    switch(param)
+    {
+        case DecoderParameters::Flags1:
+            pageText.value = "(pg 1/5) - <--/-->";
+        break;
+        
+        case DecoderParameters::Flags2:
+            pageText.value = "(pg 2/5) - <--/-->";
+        break;
+        
+        case DecoderParameters::AccelFlags:
+            pageText.value = "(pg 3/5) - <--/-->";
+        break;
+        
+        case DecoderParameters::DiscardFilter:
+            pageText.value = "(pg 4/5) - <--/-->";
+        break;
+
+        case DecoderParameters::ThreadCount:
+        case DecoderParameters::ThreadType:
+            pageText.value = "(pg 5/5) - <--/-->";
+        break;
+
+        default:
+            pageText.value = "Unknown page value...";
+        break;
+    }
 }

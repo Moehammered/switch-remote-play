@@ -20,8 +20,6 @@ public:
 
 private:
     std::unordered_map<AVDiscard, Text> textElements;
-    DiscardType discard;
-    std::unordered_map<AVDiscard, std::string> const discardDesc;
     ArrayCirculator<AVDiscard, std::vector> cursor;
     AVDiscard selected;
 

@@ -39,7 +39,6 @@ public:
 private:
     std::unordered_map<decoderUtils::DecoderThreadProp, Text> textElements;
     ArrayCirculator<decoderUtils::DecoderThreadProp, std::vector> itemCursor;
-    ThreadType type;
     UnorderedMapCirculator<int32_t, std::string> typeCursor;
     NumberRange<int32_t, MinThreadCount, MaxThreadCount> threadCounter;
 

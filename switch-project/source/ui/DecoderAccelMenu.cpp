@@ -2,8 +2,7 @@
 #include "../decoder/DecoderOptions.h"
 
 DecoderAccelMenu::DecoderAccelMenu() : Menu(),
-textElements{}, accel{}, accelDesc{accel.Descriptions()},
-cursor{AvailableAccelFlags}, selected{}, flags{}
+textElements{}, cursor{AvailableAccelFlags}, selected{}, flags{}
 {
     title.value = "Decoder Accel Flags";
     title.y += 45;
@@ -74,8 +73,8 @@ void DecoderAccelMenu::ToggleFlag(int32_t flag)
 
 void DecoderAccelMenu::UpdateUI(int32_t flags)
 {
-    auto& all = accelDesc;
-    auto const found = accel.ToDescriptions(flags);
+    auto& all = decoder::accelDesc;
+    auto const found = decoder::AccelFlagsToDescriptions(flags);
     for(auto& item : textElements)
     {
         if(auto active = found.find(item.first); active != found.end())

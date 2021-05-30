@@ -1,10 +1,9 @@
 #include "DecoderFlag1Menu.h"
+#include "../decoder/DecoderFlag.h"
 #include "../decoder/DecoderOptions.h"
 
 DecoderFlag1Menu::DecoderFlag1Menu() : Menu(),
-    textElements{}, codecFlags{}, 
-    flag1Desc{codecFlags.Flag1Descriptions()},
-    cursor{AvailableFlags1}, selected{},flags{}
+    textElements{}, cursor{AvailableFlags1}, selected{}, flags{}
 {
     title.value = "Decoder Flags 1 - Frame Behaviour";
     title.y += 45;
@@ -75,8 +74,8 @@ void DecoderFlag1Menu::ToggleFlag(int32_t flag)
 
 void DecoderFlag1Menu::UpdateUI(int32_t flags)
 {
-    auto& all = flag1Desc;
-    auto const found = codecFlags.Flag1Descriptions(flags);
+    auto& all = decoder::flag1Desc;
+    auto const found = decoder::Flags1ToDescriptions(flags);
     for(auto& item : textElements)
     {
         if(auto active = found.find(item.first); active != found.end())
