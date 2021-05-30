@@ -8,7 +8,7 @@
 #include "ui/NetworkMenu.h"
 #include "ui/DecoderMenu2.h"
 #include "ui/EncoderMenu.h"
-#include "ui/ControllerMenu.h"
+#include "ui/ControllerMenu2.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
@@ -47,7 +47,7 @@ class MenuSelection : public Menu
 
         DecoderData const GetDecoderSettings();
 
-        ControllerConfig const GetControllerSettings();
+        controller::ControllerConfig const GetControllerSettings();
 
         bool UseManualIP();
 
@@ -58,13 +58,13 @@ class MenuSelection : public Menu
         Text hostConnectionText;
         Text streamPendingText;
         HelpMenu helpScreen;
-        ControllerMenu controllerScreen;
         EncoderMenu encoderScreen;
         NetworkMenu networkScreen;
         std::unordered_map<MenuScreen, Menu*> menus;
 
         MenuScreen selectedMenu;
         DecoderMenu2 newDecoderMenu;
+        ControllerMenu2 newControllerMenu;
 };
 
 #endif

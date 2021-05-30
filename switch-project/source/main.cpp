@@ -21,6 +21,7 @@
 #include "codec/h264/H264Configuration.h"
 #include "codec/h264_amf/H264AmfConfiguration.h"
 #include "decoder/DecoderConfiguration.h"
+#include "controller/ControllerConfiguration.h"
 
 auto constexpr handshakeKey = "let-me-play";
 
@@ -225,6 +226,11 @@ int main(int argc, char **argv)
                     {
                         auto conf = H264AmfConfiguration{"sdmc:/switch/switch-remote-play/h264_amd.ini"};
                         conf.Save(ffmpegConfig.amdSettings);
+                    }
+
+                    {
+                        auto conf = ControllerConfiguration{"sdmc:/switch/switch-remote-play/controller.ini"};
+                        conf.Save(menuScreens.GetControllerSettings());
                     }
                     //testing here -- delete later
                 }

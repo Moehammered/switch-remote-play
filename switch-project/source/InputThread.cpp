@@ -6,7 +6,7 @@
 #include "network/CommandSender.h"
 #include <sys/socket.h>
 
-void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfig const config, ControllerConfig const controllerConfig)
+void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfig const config, controller::ControllerConfig const controllerConfig)
 {
     int commandSocket = -1;
     if(ConnectTo(ip, port, commandSocket))

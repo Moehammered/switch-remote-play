@@ -7,12 +7,13 @@ auto constexpr defaultControlMessage = "'ZL'/'ZR' - cycle screens | 'A'/'B' - ch
 MenuSelection::MenuSelection() : Menu(), 
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
-    controllerScreen{}, encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{ENCODER_CONFIG}, newDecoderMenu{}
+    encoderScreen{}, networkScreen{},
+    menus{}, selectedMenu{CONTROLLER}, 
+    newDecoderMenu{}, newControllerMenu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;
     menus[MenuScreen::DECODER_CONFIG] = &newDecoderMenu;
-    menus[MenuScreen::CONTROLLER] = &controllerScreen;
+    menus[MenuScreen::CONTROLLER] = &newControllerMenu;
     menus[MenuScreen::ENCODER_CONFIG] = &encoderScreen;
     menus[MenuScreen::IP_SET] = &networkScreen;
 
@@ -105,9 +106,9 @@ DecoderData const MenuSelection::GetDecoderSettings()
     return newDecoderMenu.Settings();
 }
 
-ControllerConfig const MenuSelection::GetControllerSettings()
+controller::ControllerConfig const MenuSelection::GetControllerSettings()
 {
-    return controllerScreen.Settings();
+    return newControllerMenu.Settings();
 }
 
 bool MenuSelection::UseManualIP()
