@@ -8,6 +8,7 @@
 class H264Configuration
 {
 public:
+	H264Configuration();
 	H264Configuration(std::string const file);
 
 	bool Save(h264::H264Data const data);

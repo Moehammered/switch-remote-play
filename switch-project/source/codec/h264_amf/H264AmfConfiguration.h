@@ -8,6 +8,7 @@
 class H264AmfConfiguration
 {
 public:
+	H264AmfConfiguration();
 	H264AmfConfiguration(std::string const file);
 
 	bool Save(h264amf::H264AMFData const data);

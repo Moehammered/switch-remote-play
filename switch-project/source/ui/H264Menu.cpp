@@ -7,7 +7,7 @@ textElements{}, codec{}, selected{}
     title.value = "H264 Codec - CPU";
     title.y += 30;
 
-    auto config = H264Configuration{"sdmc:/switch/switch-remote-play/h264_cpu.ini"};
+    auto config = H264Configuration{};
     codec.Set(config.Data());
 
     SetupText();

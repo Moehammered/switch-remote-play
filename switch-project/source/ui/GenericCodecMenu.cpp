@@ -8,7 +8,7 @@ textElements{}, codec{}, selected{}
     title.y += 30;
     selected = codec.Current();
 
-    auto config = GenericCodecConfiguration{"sdmc:/switch/switch-remote-play/common.ini"};
+    auto config = GenericCodecConfiguration{};
     codec.Set(config.Data());
     
     SetupText();

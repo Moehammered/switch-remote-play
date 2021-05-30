@@ -13,7 +13,7 @@ mouseSensitivity{}, mouseOnConnect{false}
     title.value = "Controller Menu";
     title.y += 30;
 
-    auto config = ControllerConfiguration{"sdmc:/switch/switch-remote-play/controller.ini"};
+    auto config = ControllerConfiguration{};
     auto settings = config.Data();
     cycleMap(modeCursor, settings.controllerMode);
     cycleMap(buttonMapCursor, settings.controllerMap);

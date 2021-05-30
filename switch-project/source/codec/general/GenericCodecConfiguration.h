@@ -9,6 +9,7 @@
 class GenericCodecConfiguration
 {
 public:
+	GenericCodecConfiguration();
 	GenericCodecConfiguration(std::string const file);
 
 	bool Save(VideoData const data);

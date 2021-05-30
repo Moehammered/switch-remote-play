@@ -13,8 +13,6 @@ EncoderMenu::EncoderMenu()
     pageText.y = title.y + 35;
     pageText.x = 20;
     pageText.colour = { 255, 190, 90, 255 };
-    // auto config = Configuration_Old{};
-    // auto ffmpeg = config.FFMPEGData();
 }
 
 void EncoderMenu::ProcessInput(PadState const & pad)

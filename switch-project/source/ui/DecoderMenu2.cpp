@@ -8,8 +8,7 @@ discardMenu{}, menus{}, pageText{}
 {
     title.value = "Decoder Menu 2";
 
-    //config loading goes here
-    auto config = DecoderConfiguration{"sdmc:/switch/switch-remote-play/decoder.ini"};
+    auto config = DecoderConfiguration{};
     auto settings = config.Data();
     flag1Menu.SetFlags(settings.flags1);
     flag2Menu.SetFlags(settings.flags2);

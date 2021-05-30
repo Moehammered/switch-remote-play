@@ -1,6 +1,14 @@
 #include "NetworkConfiguration.h"
 #include <algorithm>
 
+NetworkConfiguration::NetworkConfiguration()
+    : configFile{"sdmc:/switch/switch-remote-play/network.ini"}, 
+    ManualIPTag{"Manual IP"},
+    ManualEnabledTag{"Manual Enabled"},
+    BroadcastAddressTag{"Broadcast Address"}
+{
+}
+
 NetworkConfiguration::NetworkConfiguration(std::string const file)
     : configFile{file}, 
     ManualIPTag{"Manual IP"},

@@ -2,6 +2,11 @@
 #include "../utils/StringUtils.h"
 #include "DecoderOptions.h"
 
+DecoderConfiguration::DecoderConfiguration()
+	: configFile{ "sdmc:/switch/switch-remote-play/decoder.ini" }
+{
+}
+
 DecoderConfiguration::DecoderConfiguration(std::string const file)
 	: configFile{ file }
 {

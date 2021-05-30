@@ -1,6 +1,11 @@
 #include "GenericCodecConfiguration.h"
 #include "../../utils/StringUtils.h"
 
+GenericCodecConfiguration::GenericCodecConfiguration()
+	: configFile{ "sdmc:/switch/switch-remote-play/common.ini" }
+{
+}
+
 GenericCodecConfiguration::GenericCodecConfiguration(std::string const file)
 	: configFile{ file }
 {

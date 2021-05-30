@@ -9,6 +9,7 @@
 class ControllerConfiguration
 {
 public:
+    ControllerConfiguration();
     ControllerConfiguration(std::string const file);
 
     bool Save(controller::ControllerConfig const data);

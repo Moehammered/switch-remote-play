@@ -9,6 +9,7 @@
 class DecoderConfiguration
 {
 public:
+    DecoderConfiguration();
     DecoderConfiguration(std::string const file);
 
     bool Save(DecoderData const data);

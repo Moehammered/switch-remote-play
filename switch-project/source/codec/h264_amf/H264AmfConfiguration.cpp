@@ -1,6 +1,11 @@
 #include "H264AmfConfiguration.h"
 #include "../../utils/StringUtils.h"
 
+H264AmfConfiguration::H264AmfConfiguration()
+	: configFile{ "sdmc:/switch/switch-remote-play/h264_amd.ini" }
+{
+}
+
 H264AmfConfiguration::H264AmfConfiguration(std::string const file)
 	: configFile{ file }
 {

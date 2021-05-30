@@ -209,27 +209,27 @@ int main(int argc, char **argv)
                     //testing here -- delete later
                     auto ffmpegConfig = menuScreens.GetFfmpegSettings();
                     {
-                        auto generalConf = GenericCodecConfiguration{"sdmc:/switch/switch-remote-play/common.ini"};
+                        auto generalConf = GenericCodecConfiguration{};
                         generalConf.Save(ffmpegConfig.commonSettings);
                     }
 
                     {
-                        auto decoderConf = DecoderConfiguration{"sdmc:/switch/switch-remote-play/decoder.ini"};
+                        auto decoderConf = DecoderConfiguration{};
                         decoderConf.Save(menuScreens.GetDecoderSettings());
                     }
 
                     {
-                        auto conf = H264Configuration{"sdmc:/switch/switch-remote-play/h264_cpu.ini"};
+                        auto conf = H264Configuration{};
                         conf.Save(ffmpegConfig.cpuSettings);
                     }
                     
                     {
-                        auto conf = H264AmfConfiguration{"sdmc:/switch/switch-remote-play/h264_amd.ini"};
+                        auto conf = H264AmfConfiguration{};
                         conf.Save(ffmpegConfig.amdSettings);
                     }
 
                     {
-                        auto conf = ControllerConfiguration{"sdmc:/switch/switch-remote-play/controller.ini"};
+                        auto conf = ControllerConfiguration{};
                         conf.Save(menuScreens.GetControllerSettings());
                     }
                     //testing here -- delete later

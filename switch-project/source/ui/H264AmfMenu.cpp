@@ -8,28 +8,8 @@ textElements{}, codec{}, selected{}
     title.y += 30;
     selected = codec.Current();
 
-    auto config = H264AmfConfiguration{"sdmc:/switch/switch-remote-play/h264_amd.ini"};
+    auto config = H264AmfConfiguration{};
     codec.Set(config.Data());
-
-    // using namespace h264amf;
-    // codec.Set(H264AMFData{
-    //     .usage = DefaultUsage,
-    //     .profile = DefaultProfile,
-    //     .level = levelDefault,
-    //     .quality = DefaultQuality,
-    //     .rateControl = DefaultRateControl,
-    //     .qp_i = qpFrameDefault,
-    //     .qp_p = qpFrameDefault,
-    //     .qp_b = qpFrameDefault,
-    //     .qp_bfDelta = frameDeltaDefault,
-    //     .qp_bfRefDelta = frameDeltaDefault,
-    //     .enforceHRD = false,
-    //     .fillerData = false,
-    //     .vbaq = false,
-    //     .frameskip = false,
-    //     .bfRef = false,
-    //     .logToDbg = false
-    // });
 
     SetupText();
 }

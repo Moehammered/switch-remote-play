@@ -1,6 +1,11 @@
 #include "ControllerConfiguration.h"
 #include "../utils/StringUtils.h"
 
+ControllerConfiguration::ControllerConfiguration()
+	: configFile{ "sdmc:/switch/switch-remote-play/controller.ini" }
+{
+}
+
 ControllerConfiguration::ControllerConfiguration(std::string const file)
 	: configFile{ file }
 {

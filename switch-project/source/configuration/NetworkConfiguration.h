@@ -7,6 +7,7 @@
 class NetworkConfiguration
 {
 public:
+    NetworkConfiguration();
     NetworkConfiguration(std::string const file);
 
     bool SaveManualIP(std::string const ip);

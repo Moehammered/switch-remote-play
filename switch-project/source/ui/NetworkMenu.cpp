@@ -1,7 +1,5 @@
 #include "NetworkMenu.h"
-// #include "../system/Configuration_Old.h"
 #include "../configuration/NetworkConfiguration.h"
-
 #include <iostream>
 
 NetworkMenu::NetworkMenu() : Menu(),
@@ -37,8 +35,7 @@ NetworkMenu::NetworkMenu() : Menu(),
     manualToggle.x = 550; manualToggle.y = y+50;
     manualToggle.colour = white;
 
-    // auto cfg = Configuration_Old{};
-    auto cfg = NetworkConfiguration{"sdmc:/switch/switch-remote-play/network.ini"};
+    auto cfg = NetworkConfiguration{};
     useManualIP = cfg.ManualIPEnabled();
     manualToggle.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
   
@@ -101,8 +98,7 @@ std::string const NetworkMenu::ManualIPAddress() const
 
 std::array<int16_t, 4> NetworkMenu::LoadManualIP()
 {
-    // auto cfg = Configuration_Old{};
-    auto cfg = NetworkConfiguration{"sdmc:/switch/switch-remote-play/network.ini"};
+    auto cfg = NetworkConfiguration{};
     auto manualIP = cfg.ManualIP();
 
     if(manualIP.size() > 0)
@@ -158,8 +154,7 @@ void NetworkMenu::ProcessIncrease()
         case NetworkMenuItems::SAVE_BUTTON:
         {
             auto ip = ManualIPAddress();
-            // auto cfg = Configuration_Old{};
-            auto cfg = NetworkConfiguration{"sdmc:/switch/switch-remote-play/network.ini"};
+            auto cfg = NetworkConfiguration{};
             if(!cfg.SaveManualIP(ip))
                 std::cout << "Failed to manually save IP\n";
             else

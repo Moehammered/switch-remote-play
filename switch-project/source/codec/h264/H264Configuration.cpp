@@ -1,6 +1,11 @@
 #include "H264Configuration.h"
 #include "../../utils/StringUtils.h"
 
+H264Configuration::H264Configuration()
+	: configFile{ "sdmc:/switch/switch-remote-play/h264_cpu.ini" }
+{
+}
+
 H264Configuration::H264Configuration(std::string const file)
 	: configFile{ file }
 {
