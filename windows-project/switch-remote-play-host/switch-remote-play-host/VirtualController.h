@@ -15,7 +15,7 @@ class IVirtualController
         IVirtualController();
 
         virtual bool Create() = 0;
-        virtual void MapFaceButtons(ControllerButtonMap map) = 0;
+        virtual void MapFaceButtons(controller::ControllerButtonMap map) = 0;
         virtual void UpdateController() = 0;
         virtual void Print() = 0;
         virtual void ConvertPayload(GamepadDataPayload const data) = 0;

@@ -8,7 +8,7 @@ public:
 
     bool Create() override;
     void Print() override;
-    void MapFaceButtons(ControllerButtonMap map) override;
+    void MapFaceButtons(controller::ControllerButtonMap map) override;
     void ConvertPayload(GamepadDataPayload const data) override;
     void UpdateState() override;
     void UpdateController() override;

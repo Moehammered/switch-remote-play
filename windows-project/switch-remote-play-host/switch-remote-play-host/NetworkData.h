@@ -3,43 +3,25 @@
 #include <windows.h>
 #include <stdint.h>
 
-#include "EncoderPreset.h"
+#include "GenericOptions.h"
+#include "H264Options.h"
+#include "h264amfOptions.h"
 #include "HWAccel.h"
 #include "VideoCodecMode.h"
 #include "VsyncMode.h"
-#include "ControllerMode.h"
-#include "ControllerButtonMap.h"
+#include "ControllerOptions.h"
 
 struct alignas(8) EncoderConfig
 {
-    int16_t         desiredFrameRate;
-    int16_t         videoX;
-    int16_t         videoY;
-    int16_t         scaleX;
-    int16_t         scaleY;
-    uint16_t        bitrateKB;
-    VsyncMode       vsyncMode;
-    int16_t         constantRateFactor;
-    EncoderPreset   preset;
-    HWAccelMode     hwaccelMode;
-    VideoCodecMode  videoCodecMode;
-    int8_t          padding[2];
+    VideoData       commonSettings;
+    union
+    {
+        h264::H264Data cpuSettings;
+        h264amf::H264AMFData amdSettings;
+    };
 };
 
-constexpr int FFMPEG_CONFIG_SIZE = sizeof(EncoderConfig);
-
-struct alignas(4) ControllerConfig
-{
-    ControllerMode      controllerMode;
-    ControllerButtonMap controllerMap;
-    uint32_t            leftClickButton;
-    uint32_t            rightClickButton;
-    int16_t             mouseSensitivity;
-    bool                mouseOnConnect;
-    char                padding;
-};
-
-constexpr int CONTROLLER_CONFIG_SIZE = sizeof(ControllerConfig);
+constexpr int ENCODER_CONFIG_SIZE = sizeof(EncoderConfig);
 
 enum Command : int16_t
 {
@@ -53,17 +35,17 @@ enum Command : int16_t
 
 constexpr int COMMAND_CODE_SIZE = sizeof(Command);
 
-struct alignas(32) CommandPayload
+constexpr int CONTROLLER_CONFIG_SIZE = sizeof(controller::ControllerConfig);
+
+auto constexpr PayloadPaddingSize = 72 - ENCODER_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE;
+struct alignas(8) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member
-    EncoderConfig       configData;
-    ControllerConfig    controllerData;
-    Command             commandCode;
-    //fill the struct to pad it out to 32 bytes
-    int8_t              padding[64 - FFMPEG_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE];
-
-    // int16_t dataBufferSize;
-    // char dataBuffer[255];
+    EncoderConfig                   encoderData;
+    controller::ControllerConfig    controllerData;
+    Command                         commandCode;
+    //fill the struct to pad it out to 72 bytes
+    int8_t                          padding[PayloadPaddingSize];
 };
 
 constexpr int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);

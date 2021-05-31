@@ -2,17 +2,32 @@
 #define __CONTROLLERMODE_H__
 
 #include <stdint.h>
+#include <unordered_map>
 #include <string>
 
-enum ControllerMode : int16_t
+namespace controller
 {
-   X360 = 0,
-   DS4,
-   CONTROLLER_MODE_COUNT
-};
+    enum class ControllerMode : int16_t
+    {
+        X360 = 0,
+        DS4
+    };
 
-std::string ControllerModeToString(ControllerMode mode);
-std::string ControllerModeDescription(ControllerMode mode);
-ControllerMode ParseControllerModeString(std::string s);
+    std::string ControllerModeToString(ControllerMode mode);
+    std::string ControllerModeDescription(ControllerMode mode);
+    ControllerMode ParseControllerModeString(std::string s);
+
+    static std::unordered_map<ControllerMode, std::string> const controllerModeOptions
+    {
+       { ControllerMode::X360, "x360" },
+       { ControllerMode::DS4, "ds4" }
+    };
+
+    static std::unordered_map<ControllerMode, std::string> const controllerModeDesc
+    {
+       { ControllerMode::X360, "Xbox 360 Controller" },
+       { ControllerMode::DS4, "Dualshock 4 Controller (PS4 Controller)" }
+    };
+}
 
 #endif

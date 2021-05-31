@@ -1,37 +1,20 @@
 #include "ControllerMode.h"
+#include "EnumMapper.h"
 
-std::string ControllerModeToString(ControllerMode mode)
+namespace controller
 {
-    switch(mode)
+    std::string ControllerModeToString(ControllerMode mode)
     {
-        default:
-        case ControllerMode::X360:
-            return "x360";
-        case ControllerMode::DS4:
-            return "ds4";
+        return enumToStr(controllerModeOptions, mode);
     }
-}
 
-std::string ControllerModeDescription(ControllerMode mode)
-{
-    switch(mode)
+    std::string ControllerModeDescription(ControllerMode mode)
     {
-        case ControllerMode::X360:
-            return "Xbox 360 Controller";
-        case ControllerMode::DS4:
-            return "DualShock 4 Controller (PS4 controller)";
-
-        default:
-            return "unknown";
+        return enumToStr(controllerModeDesc, mode);
     }
-}
 
-ControllerMode ParseControllerModeString(std::string s)
-{
-    if(s == "x360")
-        return ControllerMode::X360;
-    else if(s == "ds4")
-        return ControllerMode::DS4;
-    else
-        return ControllerMode::X360;
+    ControllerMode ParseControllerModeString(std::string s)
+    {
+        return strToEnum(controllerModeOptions, s);
+    }
 }

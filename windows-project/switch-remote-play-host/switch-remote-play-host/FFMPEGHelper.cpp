@@ -20,45 +20,49 @@ std::string CreateVideoCommandLineArg(EncoderConfig const config, std::string co
     auto const & filePath = ffmpegPath;
 
     auto vsyncMode = "1";
-    switch (config.vsyncMode)
+    switch (config.commonSettings.vsyncMode)
     {
-    case 0:
+    case VsyncMode::VSYNC_PASSTHROUGH:
         vsyncMode = "passthrough"; //each frame is passed to the muxer
         break;
-    case 1:
+    case VsyncMode::CONSTANT_FPS:
         vsyncMode = "cfr"; //constant fps
         break;
-    case 2:
+    case VsyncMode::VARIABLE_FPS:
         vsyncMode = "vfr"; //variable fps (prevent duplicate frames)
         break;
-    case 3:
+    case VsyncMode::VSYNC_DROP_TIME:
         vsyncMode = "drop"; //same as passthrough, but removes timestamps
         break;
-    case -1:
+    case VsyncMode::VSYNC_AUTO:
         vsyncMode = "-1"; //automatically choose between 1 or 2
         break;
     default:
-        vsyncMode = "drop";
+        vsyncMode = "vfr";
         break;
     }
 
     auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
+    auto const& cpuSettings = config.cpuSettings;
+    auto const& desktopRes = config.commonSettings.desktopResolution;
+    auto const& switchRes = config.commonSettings.switchResolution;
     stringstream args;
     args << filePath << " -probesize 32 ";
-    args << "-hwaccel " << HWAccelModeToString(config.hwaccelMode) << " ";
+    args << "-hwaccel " << HWAccelModeToStr(config.commonSettings.hwaccelMode) << " ";
     args << "-y -f gdigrab ";
-    args << "-framerate " << config.desiredFrameRate << " ";
+    args << "-framerate " << config.commonSettings.desiredFrameRate << " ";
     args << "-vsync " << vsyncMode << " ";
-    args << "-video_size " << config.videoX << "x" << config.videoY << " ";
+    args << "-video_size " << desktopRes.width << "x" << desktopRes.height << " ";
     args << "-i desktop -f h264 ";
-    args << "-vcodec " << VideoCodecModeToString(config.videoCodecMode) << " ";
-    args << "-vf \"scale=" << config.scaleX << "x" << config.scaleY << "\" ";
-    args << "-preset " << EncoderPresetToString(config.preset) << " ";
-    args << "-crf " << config.constantRateFactor << " ";
+    args << "-vcodec " << VideoCodecToStr(config.commonSettings.videoCodec) << " ";
+    args << "-vf \"scale=" << switchRes.width << "x" << switchRes.height << "\" ";
+    args << "-preset " << h264::EncoderPresetToStr(cpuSettings.Preset) << " ";
+    args << "-crf " << cpuSettings.ConstantRateFactor << " ";
     args << "-tune zerolatency -pix_fmt yuv420p ";//-profile:v baseline ";
     args << "-x264-params \"nal-hrd=vbr:opencl=true\" ";
-    args << "-b:v " << config.bitrateKB << "k -minrate " << config.bitrateKB << "k -maxrate " << config.bitrateKB << "k ";
-    args << "-bufsize " << config.bitrateKB << "k " << connectionIP;
+    /*args << "-b:v " << config.bitrateKB << "k -minrate " << config.bitrateKB << "k -maxrate " << config.bitrateKB << "k ";
+    args << "-bufsize " << config.bitrateKB << "k " << connectionIP;*/
+    args << connectionIP;
 
     std::cout << "\n" << args.str() << "\n";
 
@@ -172,21 +176,21 @@ std::string ConfigToString(EncoderConfig const config)
     using namespace std;
 
     auto vsyncText = "";
-    switch (config.vsyncMode)
+    switch (config.commonSettings.vsyncMode)
     {
-    case 0:
+    case VsyncMode::VSYNC_PASSTHROUGH:
         vsyncText = "passthrough"; //each frame is passed to the muxer
         break;
-    case 1:
+    case VsyncMode::CONSTANT_FPS:
         vsyncText = "constant frame rate"; //constant fps
         break;
-    case 2:
+    case VsyncMode::VARIABLE_FPS:
         vsyncText = "variable frame rate"; //variable fps (prevent duplicate frames)
         break;
-    case 3:
+    case VsyncMode::VSYNC_DROP_TIME:
         vsyncText = "drop duplicate frames"; //same as passthrough, but removes timestamps
         break;
-    case -1:
+    case VsyncMode::VSYNC_AUTO:
         vsyncText = "auto"; //automatically choose between 1 or 2
         break;
     default:
@@ -194,12 +198,16 @@ std::string ConfigToString(EncoderConfig const config)
         break;
     }
 
+    auto const& desktopRes = config.commonSettings.desktopResolution;
+    auto const& switchRes = config.commonSettings.switchResolution;
     stringstream args;
-    args << "Vsync Mode: " << config.vsyncMode << " (" << vsyncText << ")" << endl;
-    args << "Target Framerate: " << config.desiredFrameRate << " fps" << endl;
-    args << "Video Capture Size(x,y): " << config.videoX << ", " << config.videoY << endl;
-    args << "Stream Scale Size(x,y): " << config.scaleX << ", " << config.scaleY << endl;
-    args << "Target Stream Bitrate: " << config.bitrateKB << " kb/s" << endl;
+    args << "Vsync Mode: " << (int)config.commonSettings.vsyncMode << " (" << vsyncText << ")" << endl;
+    args << "Target Framerate: " << config.commonSettings.desiredFrameRate << " fps" << endl;
+    args << "Video Capture Size(x,y): " << desktopRes.width << ", " << desktopRes.height << endl;
+    args << "Stream Scale Size(x,y): " << switchRes.width << ", " << switchRes.height << endl;
+    args << "Preset: " << h264::EncoderPresetToStr(config.cpuSettings.Preset) << endl;
+    args << "CRF: " << config.cpuSettings.ConstantRateFactor << endl;
+    //args << "Target Stream Bitrate: " << config.bitrateKB << " kb/s" << endl;
 
     return args.str();
 }

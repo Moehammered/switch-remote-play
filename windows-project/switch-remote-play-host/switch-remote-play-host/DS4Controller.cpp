@@ -101,13 +101,13 @@ bool DS4Controller::Create()
 	return true;
 }
 
-void DS4Controller::MapFaceButtons(ControllerButtonMap map)
+void DS4Controller::MapFaceButtons(controller::ControllerButtonMap map)
 {
 	auto& faceButtons = SWITCH_TO_DS4_FACE_BTNS;
 	switch (map)
 	{
 		default:
-		case ControllerButtonMap::CONTROLLER_MAP_DEFAULT:
+		case controller::ControllerButtonMap::None:
 		{
 			auto x = KEY_X;
 			auto y = KEY_Y;
@@ -125,7 +125,7 @@ void DS4Controller::MapFaceButtons(ControllerButtonMap map)
 		}
 		break;
 
-		case ControllerButtonMap::CONTROLLER_MAP_INV_AB:
+		case controller::ControllerButtonMap::InvertAB:
 		{
 			auto a = KEY_A;
 			auto b = KEY_B;
@@ -136,7 +136,7 @@ void DS4Controller::MapFaceButtons(ControllerButtonMap map)
 		}
 		break;
 
-		case ControllerButtonMap::CONTROLLER_MAP_INV_XY:
+		case controller::ControllerButtonMap::InvertXY:
 		{
 			auto x = KEY_X;
 			auto y = KEY_Y;
@@ -147,7 +147,7 @@ void DS4Controller::MapFaceButtons(ControllerButtonMap map)
 		}
 		break;
 
-		case ControllerButtonMap::CONTROLLER_MAP_INV_XYAB:
+		case controller::ControllerButtonMap::InvertXYAB:
 		{
 			auto x = KEY_X;
 			auto y = KEY_Y;

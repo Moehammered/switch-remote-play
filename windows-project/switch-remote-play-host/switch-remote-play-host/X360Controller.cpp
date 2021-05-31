@@ -98,13 +98,13 @@ bool X360Controller::Create()
 	return true;
 }
 
-void X360Controller::MapFaceButtons(ControllerButtonMap map)
+void X360Controller::MapFaceButtons(controller::ControllerButtonMap map)
 {
 	auto const& faceButtons = SWITCH_TO_X360_FACE_BTNS;
 	switch (map)
 	{
 		default:
-		case ControllerButtonMap::CONTROLLER_MAP_DEFAULT:
+		case controller::ControllerButtonMap::None:
 		{
 			auto x = KEY_X;
 			auto y = KEY_Y;
@@ -122,7 +122,7 @@ void X360Controller::MapFaceButtons(ControllerButtonMap map)
 		}
 		break;
 
-		case ControllerButtonMap::CONTROLLER_MAP_INV_AB:
+		case controller::ControllerButtonMap::InvertAB:
 		{
 			auto a = KEY_A;
 			auto b = KEY_B;
@@ -133,7 +133,7 @@ void X360Controller::MapFaceButtons(ControllerButtonMap map)
 		}
 		break;
 
-		case ControllerButtonMap::CONTROLLER_MAP_INV_XY:
+		case controller::ControllerButtonMap::InvertXY:
 		{
 			auto x = KEY_X;
 			auto y = KEY_Y;
@@ -144,7 +144,7 @@ void X360Controller::MapFaceButtons(ControllerButtonMap map)
 		}
 		break;
 
-		case ControllerButtonMap::CONTROLLER_MAP_INV_XYAB:
+		case controller::ControllerButtonMap::InvertXYAB:
 		{
 			auto x = KEY_X;
 			auto y = KEY_Y;

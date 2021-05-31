@@ -2,19 +2,37 @@
 #define __CONTROLLERBUTTONMAP_H__
 
 #include <stdint.h>
+#include <unordered_map>
 #include <string>
 
-enum ControllerButtonMap : int16_t
+namespace controller
 {
-    CONTROLLER_MAP_DEFAULT = 0,
-    CONTROLLER_MAP_INV_XY,
-    CONTROLLER_MAP_INV_AB,
-    CONTROLLER_MAP_INV_XYAB,
-    CONTROLLER_MAP_COUNT
-};
+    enum class ControllerButtonMap : int16_t
+    {
+        None = 0,
+        InvertXY,
+        InvertAB,
+        InvertXYAB
+    };
 
-ControllerButtonMap ParseControllerButtonMapString(std::string s);
-std::string ControllerButtonMapToString(ControllerButtonMap map);
-std::string ControllerButtonMapDescription(ControllerButtonMap map);
+    ControllerButtonMap ParseControllerButtonMapString(std::string s);
+    std::string ControllerButtonMapToString(ControllerButtonMap map);
+    std::string ControllerButtonMapDescription(ControllerButtonMap map);
 
+    static std::unordered_map<ControllerButtonMap, std::string> const controlMapOptions
+    {
+        { ControllerButtonMap::None, "none" },
+        { ControllerButtonMap::InvertXY, "invert xy" },
+        { ControllerButtonMap::InvertAB, "invert ab" },
+        { ControllerButtonMap::InvertXYAB, "invert xyab" }
+    };
+
+    static std::unordered_map<ControllerButtonMap, std::string> const controlMapDesc
+    {
+        { ControllerButtonMap::None, "None (no inversion)" },
+        { ControllerButtonMap::InvertXY, "Invert XY (swap X and Y buttons)" },
+        { ControllerButtonMap::InvertAB, "Invert AB (swap A and B buttons)" },
+        { ControllerButtonMap::InvertXYAB, "Invert XYAB (swap X and Y buttons + swap A and B buttons)" }
+    };
+}
 #endif

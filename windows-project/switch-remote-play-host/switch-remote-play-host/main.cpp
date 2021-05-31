@@ -99,13 +99,15 @@ int main(int argc, char* argv[])
         //handshake method
         auto handshake = Connection(handshakePort);
         switchHandshakeConnection = &handshake;
+        std::cout << "starting handshake...\n";
 
         if (ipFound && handshake.Ready())
         {
             std::cout << "Connecting to: " << switchIP << std::endl;
             if (handshake.ConnectTo(switchIP))
             {
-                if (send(handshake.ConnectedSocket(), replyKey.c_str(), replyKey.length(), 0))
+                auto response = send(handshake.ConnectedSocket(), replyKey.c_str(), replyKey.length(), 0);
+                if (response == replyKey.length())
                     std::cout << "Sent reply to switch: " << replyKey << std::endl;
                 else
                     std::cout << "Failed to send to switch: " << WSAGetLastError() << std::endl;
@@ -121,10 +123,13 @@ int main(int argc, char* argv[])
 
         if (broadcaster.ReadyToRecv())
         {
+            std::cout << "waiting to receive a broadcast...\n";
             auto const replyKey = std::string{ "let-me-play" };
             auto const waitTime = std::chrono::duration<int, std::milli>(400);
             while (broadcaster.ReadyToRecv())
             {
+                std::cout << "inner loop waiting to receive a broadcast...\n";
+
                 auto receivedKey = std::string{};
                 if(!broadcaster.Recv(receivedKey))
                     std::cout << "Error recv'ing: " << WSAGetLastError() << std::endl;
@@ -204,11 +209,12 @@ int main(int argc, char* argv[])
                 if (ipFound)
                 {
                     std::cout << "Start stream with last received config from switch..." << std::endl;
-                    std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.configData) << std::endl;
-                    ChangeResolution(lastPayload.configData.videoX, lastPayload.configData.videoY);
+                    std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.encoderData) << std::endl;
+                    ChangeResolution(lastPayload.encoderData.commonSettings.desktopResolution.width,
+                        lastPayload.encoderData.commonSettings.desktopResolution.height);
                     // make sure this function takes in the IP of the switch dynamically from the handshake
                     auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
-                    streamProcessInfo = StartStream(lastPayload.configData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
+                    streamProcessInfo = StartStream(lastPayload.encoderData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
                     audioProcessInfo = StartAudio(switchIP, audioPort, configFile.ShowFfmpegAudioEncoderOutputWindow(), audioStarted);
 
                     if (ffmpegStarted)
