@@ -16,14 +16,12 @@
 #include "stream/StreamDecoder.h"
 #include "stream/PcmStream.h"
 #include "system/SystemSetup.h"
-#include "configuration/NetworkConfiguration.h"
+#include "network/NetworkConfiguration.h"
 #include "codec/general/GenericCodecConfiguration.h"
 #include "codec/h264/H264Configuration.h"
 #include "codec/h264_amf/H264AmfConfiguration.h"
 #include "decoder/DecoderConfiguration.h"
 #include "controller/ControllerConfiguration.h"
-
-auto constexpr handshakeKey = "let-me-play";
 
 uint16_t constexpr handshakePort = 19999;
 uint16_t constexpr broadcastPort = 20000;
@@ -125,7 +123,6 @@ int main(int argc, char **argv)
     std::string broadcastAddress{};
     std::cout << "Initialising Network Discovery\n";
     {
-        // auto config = Configuration_Old{};
         auto config = NetworkConfiguration{"sdmc:/switch/switch-remote-play/network.ini"};
         broadcastAddress = config.BroadcastAddress();
         std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";

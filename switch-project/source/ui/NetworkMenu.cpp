@@ -1,5 +1,5 @@
 #include "NetworkMenu.h"
-#include "../configuration/NetworkConfiguration.h"
+#include "../network/NetworkConfiguration.h"
 #include <iostream>
 
 NetworkMenu::NetworkMenu() : Menu(),

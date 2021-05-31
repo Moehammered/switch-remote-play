@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __ENUMMAPPER_H__
+#define __ENUMMAPPER_H__
 
 #include <unordered_map>
 #include <string>
@@ -66,3 +67,5 @@ e strToEnum(std::unordered_map<e, std::string> const& map, std::string str)
         return map.begin()->first;
     }
 }
+
+#endif

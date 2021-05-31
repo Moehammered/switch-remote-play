@@ -49,7 +49,7 @@ bool Connection::Ready() const
 /// <returns></returns>
 bool Connection::WaitForConnection()
 {
-    std::cout << "waiting for connection to server..." << std::endl << std::endl;
+    std::cout << "waiting for connection to server... " << listeningSocket << " port " << ntohs(serverAddr.sin_port) << std::endl << std::endl;
 
     sockaddr_in clientInfo{0};
     socklen_t infoSize = sizeof(clientInfo);

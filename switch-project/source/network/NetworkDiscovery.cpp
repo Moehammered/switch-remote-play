@@ -1,5 +1,6 @@
 #include "NetworkDiscovery.h"
 #include <chrono>
+#include <iostream>
 
 enum SearchState : int32_t
 {
@@ -21,6 +22,7 @@ void BroadcastIdentity(Broadcast& broadcaster, std::atomic_int32_t& searchState,
         do
         {
             broadcaster.Send(key);
+            std::cout << "broadcasted key: " << key << "\n";
             std::this_thread::sleep_for(waitTime);
         } while(searchState.load(std::memory_order_acquire) == SEARCHING);
     }
@@ -33,8 +35,10 @@ void Handshake(Connection& handshakeConnection, std::atomic_int32_t& searchState
     {
         do
         {
+            std::cout << "handshake start... " << "\n";
             if(handshakeConnection.WaitForConnection())
             {
+                std::cout << "handshake waiting... " << "\n";
                 //read and compare key here
                 char buffer[255];
                 for(auto& c : buffer)
@@ -50,8 +54,11 @@ void Handshake(Connection& handshakeConnection, std::atomic_int32_t& searchState
                     {
                         foundIP = std::string{handshakeConnection.ConnectedIP()};
                         searchState.store(FOUND, std::memory_order_release);
+                        std::cout << "handshake succeeded " << foundIP << "\n";
                     }
                 }
+
+                std::cout << "handshake completed: " << buffer << "\n";
             }
 
             handshakeConnection.Disconnect();
@@ -74,14 +81,14 @@ void NetworkDiscovery::Search()
     if(searchState == READY && handshakeConnection.Ready() && broadcaster.ReadyToSend())
     {
         searchState.store(SEARCHING, std::memory_order_release);
-        auto broadcastFunction = [&]{
-            BroadcastIdentity(broadcaster, searchState, handshakeKey);
-        };
-        broadcastThread = std::thread(broadcastFunction);
         auto handshakeFunction = [&] {
             Handshake(handshakeConnection, searchState, handshakeKey, foundIP);
         };
         handshakeThread = std::thread(handshakeFunction);
+        auto broadcastFunction = [&]{
+            BroadcastIdentity(broadcaster, searchState, handshakeKey);
+        };
+        broadcastThread = std::thread(broadcastFunction);
     }
 }
 

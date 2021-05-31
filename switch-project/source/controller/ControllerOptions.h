@@ -50,8 +50,6 @@ namespace controller
         char                padding;
     };
 
-    constexpr int CONTROLLER_CONFIG_SIZE = sizeof(ControllerConfig);
-
     std::unordered_map<controller::Parameters, std::string> const ControllerParamsToStr(ControllerConfig const data);
     ControllerConfig const ControllerParamsFromStr(std::unordered_map<controller::Parameters, std::string> const & map);
 }

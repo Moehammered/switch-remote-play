@@ -55,7 +55,7 @@ std::string const NetworkConfiguration::BroadcastAddress() const
 {
     auto result = LoadIP(BroadcastAddressTag);
     if(result.empty())
-        return "255.255.255.0";
+        return "192.168.0.255";
     else
         return result;
 }
