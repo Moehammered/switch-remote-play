@@ -164,6 +164,7 @@
     <ClCompile Include="ControllerMode.cpp" />
     <ClCompile Include="ControllerOptions.cpp" />
     <ClCompile Include="DS4Controller.cpp" />
+    <ClCompile Include="FfmpegArgParser.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
     <ClCompile Include="FileOperations.cpp" />
     <ClCompile Include="GenericOptions.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="ControllerOptions.h" />
     <ClInclude Include="DS4Controller.h" />
     <ClInclude Include="EnumMapper.h" />
+    <ClInclude Include="FfmpegArgParser.h" />
     <ClInclude Include="FFMPEGHelper.h" />
     <ClInclude Include="FileOperations.h" />
     <ClInclude Include="GenericOptions.h" />

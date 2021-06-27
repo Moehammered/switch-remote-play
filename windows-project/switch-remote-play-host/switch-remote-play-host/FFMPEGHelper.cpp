@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include "Configuration.h"
+#include "FfmpegArgParser.h"
 
 std::string parentDirectory{};
 std::string ffmpegPath{};
@@ -64,9 +65,15 @@ std::string CreateVideoCommandLineArg(EncoderConfig const config, std::string co
     args << "-bufsize " << config.bitrateKB << "k " << connectionIP;*/
     args << connectionIP;
 
-    std::cout << "\n" << args.str() << "\n";
+    //std::cout << "\n" << args.str() << "\n";
 
-    return args.str();
+    auto parser = FfmpegArgParser(config);
+    auto parsedArgs = parser.CompleteArgs() + " " + connectionIP;
+    auto completeCmd = filePath + " " + parsedArgs;
+
+    cout << "\n" << completeCmd << "\n";
+
+    return completeCmd;
 }
 
 std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::string const ip, uint16_t port)
@@ -147,7 +154,7 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
 
     std::cout << "audio--\n\n" << args << "\n\n";
 
-    auto audioProcessFlag = 0;
+    auto audioProcessFlag = CREATE_NO_WINDOW;
     if (showAudioEncoderWindow)
         audioProcessFlag = CREATE_NEW_CONSOLE;
 
