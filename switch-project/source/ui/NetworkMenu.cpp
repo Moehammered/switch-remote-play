@@ -50,9 +50,9 @@ void NetworkMenu::ProcessInput(PadState const & pad)
     auto kDown = padGetButtonsDown(&pad);
 
     auto selected = (int)selectedItem;
-    if(kDown & KEY_DUP)
+    if(kDown & HidNpadButton_Up)
         selected--;
-    else if(kDown & KEY_DDOWN)
+    else if(kDown & HidNpadButton_Down)
         selected++;
 
     if(selected < 0)
@@ -62,9 +62,9 @@ void NetworkMenu::ProcessInput(PadState const & pad)
 
     selectedItem = (NetworkMenuItems)selected;
 
-    if(kDown & KEY_A)
+    if(kDown & HidNpadButton_A)
         ProcessIncrease();
-    else if(kDown & KEY_B)
+    else if(kDown & HidNpadButton_B)
         ProcessDecrease();
 }
 

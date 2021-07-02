@@ -19,7 +19,7 @@ void EncoderMenu::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
 
-    if(kDown & (KEY_DLEFT | KEY_DRIGHT))
+    if(kDown & (HidNpadButton_Left | HidNpadButton_Right))
         advancedOptions = !advancedOptions;
 
     auto updatePageText = [&](VideoCodec codec)

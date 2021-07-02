@@ -170,14 +170,14 @@ int main(int argc, char **argv)
 
                 auto kDown = padGetButtonsDown(&mainPad);
 
-                if(kDown & KEY_PLUS)
+                if(kDown & HidNpadButton_Plus)
                     streamState.store(StreamState::QUIT, std::memory_order_release);
-                else if(kDown & KEY_R)
+                else if(kDown & HidNpadButton_R)
                     streamState.store(StreamState::REQUESTED, std::memory_order_release);
 
                 menuScreens.ProcessInput(mainPad);
                 
-                if(kDown & KEY_L)
+                if(kDown & HidNpadButton_L)
                 {
                     if(!network.Searching())
                         network.Search();

@@ -40,7 +40,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
         HidAnalogStickState lStick{0};
         HidAnalogStickState rStick{0};
 
-        SixAxisSensorValues sixaxis{0};
+        // SixAxisSensorValues sixaxis{0};
 
         const int dataSize = sizeof(GamepadDataPayload);
         auto inputData = GamepadDataPayload{0};
@@ -68,7 +68,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
             
             u32 kHeld = padGetButtons(&defaultPad);
 
-            if(kHeld & KEY_PLUS)
+            if(kHeld & HidNpadButton_Plus)
             {
                 quitHeldTime += delta;
                 if(quitHeldTime > quitTimer)
@@ -87,7 +87,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
             if(hidGetTouchScreenStates(&touchState, 1))
             {
                 if(touchState.count > 0)
-                    kHeld |= KEY_TOUCH;
+                    kHeld |= HidNpadButton_Palma;
             }
             inputData.keys = kHeld;
 
@@ -102,10 +102,10 @@ void RunGamepadThread(std::string ip, uint16_t port)
             // if(hidGetHandheldMode())
             //     hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_P1_AUTO, 1);
             // else
-            hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_PLAYER_1, 1);
+            // hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_PLAYER_1, 1);
             
-            inputData.accelerometer = sixaxis.accelerometer;
-            inputData.gryo = sixaxis.gyroscope;
+            // inputData.accelerometer = sixaxis.accelerometer;
+            // inputData.gryo = sixaxis.gyroscope;
 
             auto result = send(padSocket, (char*)&inputData, dataSize, 0);
             if(result < 0)

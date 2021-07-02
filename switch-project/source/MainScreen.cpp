@@ -39,9 +39,9 @@ void MenuSelection::ProcessInput(PadState const & pad)
     auto kDown = padGetButtonsDown(&pad);
 
     auto selected = (int32_t)selectedMenu;
-    if(kDown & KEY_ZL)
+    if(kDown & HidNpadButton_ZL)
         --selected;
-    else if(kDown & KEY_ZR)
+    else if(kDown & HidNpadButton_ZR)
         ++selected;
 
     if(selected < 0)

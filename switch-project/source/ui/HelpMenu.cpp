@@ -39,7 +39,7 @@ void HelpMenu::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
 
-    if(kDown & KEY_DRIGHT)
+    if(kDown & HidNpadButton_Right)
     {
         ++selectedPage;
         if(selectedPage >= HelpPageItems::HELP_PAGE_COUNT)
@@ -47,7 +47,7 @@ void HelpMenu::ProcessInput(PadState const & pad)
 
         Update();
     }
-    else if(kDown & KEY_DLEFT)
+    else if(kDown & HidNpadButton_Left)
     {
         --selectedPage;
         if(selectedPage < 0)
