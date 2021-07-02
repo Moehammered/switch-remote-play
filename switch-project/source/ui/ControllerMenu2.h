@@ -22,6 +22,8 @@ class ControllerMenu2 : public Menu
         ArrayCirculator<controller::Parameters, std::vector> paramCursor;
         UnorderedMapCirculator<controller::ControllerMode, std::string> modeCursor;
         UnorderedMapCirculator<controller::ControllerButtonMap, std::string> buttonMapCursor;
+        UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> leftAnalogMapCursor;
+        UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> rightAnalogMapCursor;
         UnorderedMapCirculator<HidNpadButton, std::string> leftMouseCursor;
         UnorderedMapCirculator<HidNpadButton, std::string> rightMouseCursor;
         NumberRange<int32_t, controller::MinMouseSensitivity, controller::MaxMouseSensitity> mouseSensitivity;

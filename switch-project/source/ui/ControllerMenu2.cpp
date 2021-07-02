@@ -6,6 +6,8 @@ ControllerMenu2::ControllerMenu2() : Menu(),
 textElements{}, paramCursor{controller::ParamsList},
 modeCursor{controller::controllerModeDesc},
 buttonMapCursor{controller::controlMapDesc},
+leftAnalogMapCursor{controller::analogMapDesc},
+rightAnalogMapCursor{controller::analogMapDesc},
 leftMouseCursor{controller::mouseButtonOptions},
 rightMouseCursor{controller::mouseButtonOptions},
 mouseSensitivity{}, mouseOnConnect{false}
@@ -17,6 +19,8 @@ mouseSensitivity{}, mouseOnConnect{false}
     auto settings = config.Data();
     cycleMap(modeCursor, settings.controllerMode);
     cycleMap(buttonMapCursor, settings.controllerMap);
+    cycleMap(leftAnalogMapCursor, settings.leftAnalogMap);
+    cycleMap(rightAnalogMapCursor, settings.rightAnalogMap);
     cycleMap(leftMouseCursor, settings.leftClickButton);
     cycleMap(rightMouseCursor, settings.rightClickButton);
     cycleNumber(mouseSensitivity, settings.mouseSensitivity);
@@ -67,6 +71,8 @@ controller::ControllerConfig const ControllerMenu2::Settings() const
     return controller::ControllerConfig{
         .controllerMode = modeCursor.KeyPair().first,
         .controllerMap = buttonMapCursor.KeyPair().first,
+        .leftAnalogMap = leftAnalogMapCursor.KeyPair().first,
+        .rightAnalogMap = rightAnalogMapCursor.KeyPair().first,
         .leftClickButton = leftMouseCursor.KeyPair().first,
         .rightClickButton = rightMouseCursor.KeyPair().first,
         .mouseSensitivity = (int16_t)*mouseSensitivity,
@@ -82,8 +88,16 @@ void ControllerMenu2::UpdateSetting(controller::Parameters param, int direction)
             modeCursor += direction;
         break;
 
-        case controller::Parameters::ButtomMapping:
+        case controller::Parameters::ButtonMapping:
             buttonMapCursor += direction;
+        break;
+
+        case controller::Parameters::LeftAnalogMapping:
+            leftAnalogMapCursor += direction;
+        break;
+              
+        case controller::Parameters::RightAnalogMapping:
+            rightAnalogMapCursor += direction;
         break;
 
         case controller::Parameters::LeftMouseButton:
@@ -129,8 +143,16 @@ void ControllerMenu2::UpdateUI(controller::Parameters param)
             element.value = desc + ": " + *modeCursor;
         break;
 
-        case controller::Parameters::ButtomMapping:
+        case controller::Parameters::ButtonMapping:
             element.value = desc + ": " + *buttonMapCursor;
+        break;
+
+        case controller::Parameters::LeftAnalogMapping:
+            element.value = desc + ": " + *leftAnalogMapCursor;
+        break;
+
+        case controller::Parameters::RightAnalogMapping:
+            element.value = desc + ": " + *rightAnalogMapCursor;
         break;
 
         case controller::Parameters::LeftMouseButton:

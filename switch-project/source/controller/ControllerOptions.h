@@ -4,6 +4,7 @@
 #include "SwitchButtons.h"
 #include "ControllerMode.h"
 #include "ControllerButtonMap.h"
+#include "ControllerAnalogMap.h"
 #include <vector>
 #include <unordered_map>
 
@@ -12,7 +13,9 @@ namespace controller
     enum class Parameters
     {
         Mode,
-        ButtomMapping,
+        ButtonMapping,
+        LeftAnalogMapping,
+        RightAnalogMapping,
         LeftMouseButton,
         RightMouseButton,
         MouseSensitivity,
@@ -21,7 +24,8 @@ namespace controller
 
     static std::vector<Parameters> const ParamsList
     {
-        Parameters::Mode, Parameters::ButtomMapping,
+        Parameters::Mode, Parameters::ButtonMapping,
+        Parameters::LeftAnalogMapping, Parameters::RightAnalogMapping,
         Parameters::LeftMouseButton, Parameters::RightMouseButton,
         Parameters::MouseSensitivity, Parameters::MouseOnConnect
     };
@@ -29,7 +33,9 @@ namespace controller
     static std::unordered_map<Parameters, std::string> const ParamsDesc
     {
         { Parameters::Mode, "Controller Mode" },
-        { Parameters::ButtomMapping, "Controller Mapping" },
+        { Parameters::ButtonMapping, "Controller Mapping" },
+        { Parameters::LeftAnalogMapping, "Left Analog Mapping" },
+        { Parameters::RightAnalogMapping, "Right Analog Mapping" },
         { Parameters::LeftMouseButton, "Left-Click Button" },
         { Parameters::RightMouseButton, "Right-Click Button" },
         { Parameters::MouseSensitivity, "Mouse Sensitivity" },
@@ -43,12 +49,16 @@ namespace controller
     {
         ControllerMode      controllerMode;
         ControllerButtonMap controllerMap;
+        ControllerAnalogMap leftAnalogMap;
+        ControllerAnalogMap rightAnalogMap;
         HidNpadButton       leftClickButton;
         HidNpadButton       rightClickButton;
         int16_t             mouseSensitivity;
         bool                mouseOnConnect;
         char                padding;
     };
+
+    constexpr int ControllerConfigSize = sizeof(controller::ControllerConfig);
 
     std::unordered_map<controller::Parameters, std::string> const ControllerParamsToStr(ControllerConfig const data);
     ControllerConfig const ControllerParamsFromStr(std::unordered_map<controller::Parameters, std::string> const & map);

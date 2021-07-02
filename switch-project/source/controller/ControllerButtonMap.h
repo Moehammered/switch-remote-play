@@ -35,4 +35,5 @@ namespace controller
         { ControllerButtonMap::InvertXYAB, "Invert XYAB (swap X and Y buttons + swap A and B buttons)" }
     };
 }
+
 #endif
