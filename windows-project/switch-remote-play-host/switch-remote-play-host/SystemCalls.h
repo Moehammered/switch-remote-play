@@ -13,7 +13,9 @@ MONITORINFOEX DefaultMonitorInfo();
 
 void PrintMonitorInfo(MONITORINFOEX const& monitor);
 
-bool ChangeResolution(int width, int height);
+int ChangeResolution(int width, int height);
+bool ResolutionChangeSuccessful(int const result);
+void PrintResolutionChangeResult(int const result);
 
 void StopStreamProcesses();
 

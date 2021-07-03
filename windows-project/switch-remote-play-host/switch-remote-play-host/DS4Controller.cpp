@@ -4,30 +4,32 @@
 #include <string>
 #include <unordered_map>
 
-const HidControllerKeys ButtonsToCheck_DS4[] = {
-   KEY_A, KEY_B, KEY_Y, KEY_X,
-   KEY_L, KEY_R, KEY_MINUS, KEY_PLUS,
-   KEY_LSTICK, KEY_RSTICK
+const HidNpadButton ButtonsToCheck_DS4[] = {
+   HidNpadButton::HidNpadButton_A, HidNpadButton::HidNpadButton_B,
+   HidNpadButton::HidNpadButton_Y, HidNpadButton::HidNpadButton_X,
+   HidNpadButton::HidNpadButton_L, HidNpadButton::HidNpadButton_R, 
+   HidNpadButton::HidNpadButton_Minus, HidNpadButton::HidNpadButton_Plus,
+   HidNpadButton::HidNpadButton_StickL, HidNpadButton::HidNpadButton_StickR
 };
 
-std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> const SWITCH_TO_DS4_FACE_BTNS{
-   { KEY_A, DS4_BUTTON_CIRCLE },
-   { KEY_B, DS4_BUTTON_CROSS },
-   { KEY_X, DS4_BUTTON_TRIANGLE },
-   { KEY_Y, DS4_BUTTON_SQUARE }
+std::unordered_map<HidNpadButton, USHORT, std::hash<uint32_t>> const SWITCH_TO_DS4_FACE_BTNS{
+   { HidNpadButton::HidNpadButton_A, DS4_BUTTON_CIRCLE },
+   { HidNpadButton::HidNpadButton_B, DS4_BUTTON_CROSS },
+   { HidNpadButton::HidNpadButton_X, DS4_BUTTON_TRIANGLE },
+   { HidNpadButton::HidNpadButton_Y, DS4_BUTTON_SQUARE }
 };
 
-std::unordered_map<HidControllerKeys, USHORT, std::hash<uint32_t>> SWITCH_TO_DS4_BTNS{
-   { KEY_A, DS4_BUTTON_CIRCLE },
-   { KEY_B, DS4_BUTTON_CROSS },
-   { KEY_X, DS4_BUTTON_TRIANGLE },
-   { KEY_Y, DS4_BUTTON_SQUARE },
-   { KEY_L, DS4_BUTTON_SHOULDER_LEFT },
-   { KEY_R, DS4_BUTTON_SHOULDER_RIGHT },
-   { KEY_MINUS, DS4_BUTTON_SHARE },
-   { KEY_PLUS , DS4_BUTTON_OPTIONS },
-   { KEY_LSTICK , DS4_BUTTON_THUMB_LEFT },
-   { KEY_RSTICK , DS4_BUTTON_THUMB_RIGHT }
+std::unordered_map<HidNpadButton, USHORT, std::hash<uint32_t>> SWITCH_TO_DS4_BTNS{
+   { HidNpadButton::HidNpadButton_A, DS4_BUTTON_CIRCLE },
+   { HidNpadButton::HidNpadButton_B, DS4_BUTTON_CROSS },
+   { HidNpadButton::HidNpadButton_X, DS4_BUTTON_TRIANGLE },
+   { HidNpadButton::HidNpadButton_Y, DS4_BUTTON_SQUARE },
+   { HidNpadButton::HidNpadButton_L, DS4_BUTTON_SHOULDER_LEFT },
+   { HidNpadButton::HidNpadButton_R, DS4_BUTTON_SHOULDER_RIGHT },
+   { HidNpadButton::HidNpadButton_Minus, DS4_BUTTON_SHARE },
+   { HidNpadButton::HidNpadButton_Plus, DS4_BUTTON_OPTIONS },
+   { HidNpadButton::HidNpadButton_StickL, DS4_BUTTON_THUMB_LEFT },
+   { HidNpadButton::HidNpadButton_StickR, DS4_BUTTON_THUMB_RIGHT }
 };
 
 const std::unordered_map < DS4_BUTTONS, std::string, std::hash<uint32_t> > DS4_BTN_STRINGS{
@@ -109,15 +111,15 @@ void DS4Controller::MapFaceButtons(controller::ControllerButtonMap map)
 		default:
 		case controller::ControllerButtonMap::None:
 		{
-			auto x = KEY_X;
-			auto y = KEY_Y;
+			auto x = HidNpadButton::HidNpadButton_X;
+			auto y = HidNpadButton::HidNpadButton_Y;
 			auto originalX = faceButtons.at(x);
 			auto originalY = faceButtons.at(y);
 			SWITCH_TO_DS4_BTNS[x] = originalX;
 			SWITCH_TO_DS4_BTNS[y] = originalY;
 
-			auto a = KEY_A;
-			auto b = KEY_B;
+			auto a = HidNpadButton::HidNpadButton_A;
+			auto b = HidNpadButton::HidNpadButton_B;
 			auto originalA = faceButtons.at(a);
 			auto originalB = faceButtons.at(b);
 			SWITCH_TO_DS4_BTNS[a] = originalA;
@@ -127,8 +129,8 @@ void DS4Controller::MapFaceButtons(controller::ControllerButtonMap map)
 
 		case controller::ControllerButtonMap::InvertAB:
 		{
-			auto a = KEY_A;
-			auto b = KEY_B;
+			auto a = HidNpadButton::HidNpadButton_A;
+			auto b = HidNpadButton::HidNpadButton_B;
 			auto originalA = faceButtons.at(a);
 			auto originalB = faceButtons.at(b);
 			SWITCH_TO_DS4_BTNS[a] = originalB;
@@ -138,8 +140,8 @@ void DS4Controller::MapFaceButtons(controller::ControllerButtonMap map)
 
 		case controller::ControllerButtonMap::InvertXY:
 		{
-			auto x = KEY_X;
-			auto y = KEY_Y;
+			auto x = HidNpadButton::HidNpadButton_X;
+			auto y = HidNpadButton::HidNpadButton_Y;
 			auto originalX = faceButtons.at(x);
 			auto originalY = faceButtons.at(y);
 			SWITCH_TO_DS4_BTNS[x] = originalY;
@@ -149,15 +151,15 @@ void DS4Controller::MapFaceButtons(controller::ControllerButtonMap map)
 
 		case controller::ControllerButtonMap::InvertXYAB:
 		{
-			auto x = KEY_X;
-			auto y = KEY_Y;
+			auto x = HidNpadButton::HidNpadButton_X;
+			auto y = HidNpadButton::HidNpadButton_Y;
 			auto originalX = faceButtons.at(x);
 			auto originalY = faceButtons.at(y);
 			SWITCH_TO_DS4_BTNS[x] = originalY;
 			SWITCH_TO_DS4_BTNS[y] = originalX;
 
-			auto a = KEY_A;
-			auto b = KEY_B;
+			auto a = HidNpadButton::HidNpadButton_A;
+			auto b = HidNpadButton::HidNpadButton_B;
 			auto originalA = faceButtons.at(a);
 			auto originalB = faceButtons.at(b);
 			SWITCH_TO_DS4_BTNS[a] = originalB;
@@ -171,15 +173,15 @@ void DS4Controller::ConvertPayload(GamepadDataPayload const data)
 {
 	directions = ConvertDpad(data);
 	buttons = ConvertButtons(data);
-	lx = (BYTE)ConvertAnalog(data.ljx);
-	ly = (BYTE)ConvertAnalog(-data.ljy);
-	rx = (BYTE)ConvertAnalog(data.rjx);
-	ry = (BYTE)ConvertAnalog(-data.rjy);
+	lx = (BYTE)ConvertAnalog(data.ljx * leftAxis.first);
+	ly = (BYTE)ConvertAnalog(-data.ljy * leftAxis.second);
+	rx = (BYTE)ConvertAnalog(data.rjx * rightAxis.first);
+	ry = (BYTE)ConvertAnalog(-data.rjy * rightAxis.second);
 
 	lt = 0; rt = 0;
-	if (data.keys & KEY_ZL)
+	if (data.keys & HidNpadButton::HidNpadButton_ZL)
 		lt = 255;
-	if (data.keys & KEY_ZR)
+	if (data.keys & HidNpadButton::HidNpadButton_ZR)
 		rt = 255;
 }
 
@@ -246,20 +248,20 @@ DS4_DPAD_DIRECTIONS DS4Controller::ConvertDpad(GamepadDataPayload const data)
 {
 	USHORT dpadInput = 0;
 	//handle dpad
-	if (data.keys & KEY_DDOWN)
+	if (data.keys & HidNpadButton::HidNpadButton_Down)
 	{
-		if (data.keys & KEY_DLEFT)
+		if (data.keys & HidNpadButton::HidNpadButton_Left)
 			dpadInput = DS4_BUTTON_DPAD_SOUTHWEST;
-		else if (data.keys & KEY_DRIGHT)
+		else if (data.keys & HidNpadButton::HidNpadButton_Right)
 			dpadInput = DS4_BUTTON_DPAD_SOUTHEAST;
 		else
 			dpadInput = DS4_BUTTON_DPAD_SOUTH;
 	}
-	else if (data.keys & KEY_DUP)
+	else if (data.keys & HidNpadButton::HidNpadButton_Up)
 	{
-		if (data.keys & KEY_DLEFT)
+		if (data.keys & HidNpadButton::HidNpadButton_Left)
 			dpadInput = DS4_BUTTON_DPAD_NORTHWEST;
-		else if (data.keys & KEY_DRIGHT)
+		else if (data.keys & HidNpadButton::HidNpadButton_Right)
 			dpadInput = DS4_BUTTON_DPAD_NORTHEAST;
 		else
 			dpadInput = DS4_BUTTON_DPAD_NORTH;
@@ -267,9 +269,9 @@ DS4_DPAD_DIRECTIONS DS4Controller::ConvertDpad(GamepadDataPayload const data)
 	else
 	{
 		// check for left / right
-		if (data.keys & KEY_DLEFT)
+		if (data.keys & HidNpadButton::HidNpadButton_Left)
 			dpadInput = DS4_BUTTON_DPAD_WEST;
-		else if (data.keys & KEY_DRIGHT)
+		else if (data.keys & HidNpadButton::HidNpadButton_Right)
 			dpadInput = DS4_BUTTON_DPAD_EAST;
 		else
 			dpadInput = DS4_BUTTON_DPAD_NONE;

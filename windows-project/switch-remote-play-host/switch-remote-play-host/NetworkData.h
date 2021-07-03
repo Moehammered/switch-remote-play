@@ -23,7 +23,7 @@ struct alignas(8) EncoderConfig
 
 constexpr int ENCODER_CONFIG_SIZE = sizeof(EncoderConfig);
 
-enum Command : int16_t
+enum class Command : int16_t
 {
     SHUTDOWN = -1,
     START_STREAM = 0,
@@ -35,9 +35,7 @@ enum Command : int16_t
 
 constexpr int COMMAND_CODE_SIZE = sizeof(Command);
 
-constexpr int CONTROLLER_CONFIG_SIZE = sizeof(controller::ControllerConfig);
-
-auto constexpr PayloadPaddingSize = 72 - ENCODER_CONFIG_SIZE - COMMAND_CODE_SIZE - CONTROLLER_CONFIG_SIZE;
+auto constexpr PayloadPaddingSize = 72 - ENCODER_CONFIG_SIZE - COMMAND_CODE_SIZE - controller::ControllerConfigSize;
 struct alignas(8) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member

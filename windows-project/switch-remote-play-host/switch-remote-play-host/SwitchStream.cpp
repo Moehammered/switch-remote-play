@@ -10,6 +10,11 @@
 #include <memory>
 #include <chrono>
 
+auto constexpr mouseToggleBtnCombo = HidNpadButton_ZL | HidNpadButton_ZR | HidNpadButton_B;
+auto constexpr mouseToggleNano = 3000000000;
+auto constexpr maxRetries = 5;
+double constexpr joystickExtent = 0xFFFF / 2;
+
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 {
    using namespace std;
@@ -89,20 +94,17 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
                auto streamDead = killStream.load(memory_order_acquire);
                gamepadActive.store(true, memory_order_release);
                auto active = true;
-               auto const maxRetries = 5;
                auto retryCount = maxRetries;
 
                controller->MapFaceButtons(inputConfig.controllerMap);
-               auto constexpr mouseToggleNano = 3000000000;
+               controller->MapAnalogAxis(inputConfig.leftAnalogMap, inputConfig.rightAnalogMap);
                auto lastTime = std::chrono::high_resolution_clock::now();
                auto mouseMode{ inputConfig.mouseOnConnect };
                auto mouseSensitivity{ inputConfig.mouseSensitivity };
-               auto constexpr mouseToggleBtnCombo = KEY_ZL | KEY_ZR | KEY_B;
                auto mouseBtnFlags = 0;
                auto leftClickBtn = inputConfig.leftClickButton;
                auto rightClickBtn = inputConfig.rightClickButton;
 
-               double constexpr joystickExtent = 0xFFFF / 2;
                do
                {
                   active = gamepadActive.load(memory_order_acquire);
@@ -192,7 +194,7 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
                      }
 
                      // figure out if we should toggle mouse mode
-                     if (padData.keys == mouseToggleBtnCombo || padData.keys & KEY_TOUCH)
+                     if (padData.keys == mouseToggleBtnCombo || padData.keys & HidNpadButton::HidNpadButton_Palma)
                      {
                         auto timePassed = std::chrono::high_resolution_clock::now() - lastTime;
                         if (timePassed.count() >= mouseToggleNano)

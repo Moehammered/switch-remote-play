@@ -15,6 +15,7 @@ class IVirtualController
         IVirtualController();
 
         virtual bool Create() = 0;
+        void MapAnalogAxis(controller::ControllerAnalogMap left, controller::ControllerAnalogMap right);
         virtual void MapFaceButtons(controller::ControllerButtonMap map) = 0;
         virtual void UpdateController() = 0;
         virtual void Print() = 0;
@@ -26,6 +27,9 @@ class IVirtualController
     protected:
         PVIGEM_CLIENT client;
         PVIGEM_TARGET pad;
+
+        std::pair<int32_t, int32_t> leftAxis;
+        std::pair<int32_t, int32_t> rightAxis;
 
         virtual USHORT ConvertButtons(GamepadDataPayload const data) = 0;
         virtual SHORT ConvertAnalog(int32_t const switchAnalog) = 0;

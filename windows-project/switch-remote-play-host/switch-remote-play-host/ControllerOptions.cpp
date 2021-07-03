@@ -12,7 +12,9 @@ namespace controller
         };
 
         values[Parameters::Mode] = ControllerModeToString(data.controllerMode);
-        values[Parameters::ButtomMapping] = ControllerButtonMapToString(data.controllerMap);
+        values[Parameters::ButtonMapping] = ControllerButtonMapToString(data.controllerMap);
+        values[Parameters::LeftAnalogMapping] = ControllerAnalogMapToString(data.leftAnalogMap);
+        values[Parameters::RightAnalogMapping] = ControllerAnalogMapToString(data.rightAnalogMap);
         values[Parameters::LeftMouseButton] = SwitchButtonToString(data.leftClickButton);
         values[Parameters::RightMouseButton] = SwitchButtonToString(data.rightClickButton);
         values[Parameters::MouseSensitivity] = std::to_string(data.mouseSensitivity);
@@ -21,7 +23,7 @@ namespace controller
         return values;
     }
 
-    ControllerConfig const ControllerParamsFromStr(std::unordered_map<controller::Parameters, std::string> const & map)
+    ControllerConfig const ControllerParamsFromStr(std::unordered_map<controller::Parameters, std::string> const& map)
     {
         auto data = ControllerConfig{};
 
@@ -35,7 +37,9 @@ namespace controller
         };
 
         parse(Parameters::Mode, data.controllerMode, ControllerMode::X360, ParseControllerModeString);
-        parse(Parameters::ButtomMapping, data.controllerMap, ControllerButtonMap::None, ParseControllerButtonMapString);
+        parse(Parameters::ButtonMapping, data.controllerMap, ControllerButtonMap::None, ParseControllerButtonMapString);
+        parse(Parameters::LeftAnalogMapping, data.leftAnalogMap, ControllerAnalogMap::None, ParseControllerAnalogMapString);
+        parse(Parameters::RightAnalogMapping, data.rightAnalogMap, ControllerAnalogMap::None, ParseControllerAnalogMapString);
         parse(Parameters::LeftMouseButton, data.leftClickButton, DefaultLeftMouseButton, ParseSwitchButtonString);
         parse(Parameters::RightMouseButton, data.rightClickButton, DefaultRightMouseButton, ParseSwitchButtonString);
 

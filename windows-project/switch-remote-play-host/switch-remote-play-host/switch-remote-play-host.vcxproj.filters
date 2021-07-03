@@ -88,6 +88,9 @@
     <ClCompile Include="FfmpegArgParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ControllerAnalogMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtomicTest.h">
@@ -184,6 +187,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FfmpegArgParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerAnalogMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

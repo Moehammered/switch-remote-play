@@ -43,8 +43,13 @@ int main(int argc, char* argv[])
 {
     SetParentDirectory(ExtractParentDirectory(argv[0]));
 
+    auto const stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    auto const defaultColour = 0 | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN;
+
     if (!WinsockReady())
     {
+        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+
         std::cout << "Failed to initialise windows network sockets. Please check your firewall rules for ports and try again or try restarting your machine.\n";
         Sleep(2000);
         return -1;
@@ -55,24 +60,33 @@ int main(int argc, char* argv[])
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
     auto const initialWidth = initialMonitorSettings.rcMonitor.right - initialMonitorSettings.rcMonitor.left;
+    SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN);
     PrintMonitorInfo(initialMonitorSettings);
 
     auto broadcastAddress = std::string{ "192.168.0.255" };
+    SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN | FOREGROUND_RED);
     if (ScanNetworkConnections(broadcastAddress))
     {
+        SetConsoleTextAttribute(stdHandle, FOREGROUND_BLUE| FOREGROUND_RED);
+
         std::cout << "Broadcast address for network discovery is: " << broadcastAddress << "\n\n";
         std::cout << "Please add the line below to the switch application's config file if you wish to use the network discovery feature:\n";
         std::cout << "broadcast_address=" << broadcastAddress << "; <-- Do not forget the semi-colon! (;)\n\n";
         std::cout << "The switch configuration file is located at 'switch/switch-remote-play/config.ini'. If it doesn't exist, create it.\n";
     }
     else
+    {
+        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
         std::cout << "Couldn't determine broadcast address. If you cannot connect, please use Manual IP Mode in the Switch app.\n";
+    }
 
+    SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN);
     if (VirtualControllerDriverAvailable())
         std::cout << "\n    Virtual Controller driver seems to be installed correctly.\n\n";
     else
     {
-        //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x5B);
+        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+
         std::cout << "\n\n!!! Virtual Controller driver seems to be having issues. Please make sure it is installed correctly. !!!\n";
         std::cout << "If the problem persists, please try uninstalling the driver and installing the latest virtual controller driver\n\n";
         std::cout << "\n\n==== Press enter to close the program... ====\n\n";
@@ -80,6 +94,8 @@ int main(int argc, char* argv[])
         std::cin.get();
         return -1;
     }
+    SetConsoleTextAttribute(stdHandle, defaultColour);
+
     /*system("pause");
     return 0;*/
 
@@ -210,8 +226,14 @@ int main(int argc, char* argv[])
                 {
                     std::cout << "Start stream with last received config from switch..." << std::endl;
                     std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.encoderData) << std::endl;
-                    ChangeResolution(lastPayload.encoderData.commonSettings.desktopResolution.width,
-                        lastPayload.encoderData.commonSettings.desktopResolution.height);
+                    auto desktopResolution = lastPayload.encoderData.commonSettings.desktopResolution;
+                    auto resolutionResult = ChangeResolution(desktopResolution.width, desktopResolution.height);
+                    if (!ResolutionChangeSuccessful(resolutionResult))
+                    {
+                        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+                        PrintResolutionChangeResult(resolutionResult);
+                        SetConsoleTextAttribute(stdHandle, defaultColour);
+                    }
                     // make sure this function takes in the IP of the switch dynamically from the handshake
                     auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
                     streamProcessInfo = StartStream(lastPayload.encoderData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);

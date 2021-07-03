@@ -160,6 +160,7 @@
     <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="ControllerAnalogMap.cpp" />
     <ClCompile Include="ControllerButtonMap.cpp" />
     <ClCompile Include="ControllerMode.cpp" />
     <ClCompile Include="ControllerOptions.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Broadcast.h" />
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="Connection.h" />
+    <ClInclude Include="ControllerAnalogMap.h" />
     <ClInclude Include="ControllerButtonMap.h" />
     <ClInclude Include="ControllerMode.h" />
     <ClInclude Include="ControllerOptions.h" />
