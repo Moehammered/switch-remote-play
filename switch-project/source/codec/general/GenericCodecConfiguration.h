@@ -23,6 +23,4 @@ private:
 	bool SaveCodecFile(VideoData const data, Configuration& config);
 };
 
-
-
 #endif

@@ -5,6 +5,7 @@ GenericCodec::GenericCodec()
     desktopResCursor{DesktopResolutions},
     switchResCursor{SwitchResolutions},
     fpsCursor{Framerates},
+    bitrateCursor{Bitrates},
     vsyncCursor{VsyncModeStrMap},
     hwaccelCursor{HWAccelModeStrMap},
     videoCursor{VideoCodecStrMap}
@@ -16,6 +17,7 @@ void GenericCodec::Set(VideoData const data)
 	cycleNumber(desktopResCursor, data.desktopResolution);
 	cycleNumber(switchResCursor, data.switchResolution);
 	cycleNumber(fpsCursor, data.desiredFrameRate);
+    cycleNumber(bitrateCursor, data.bitrateKB);
 
     cycleMap(vsyncCursor, data.vsyncMode);
     cycleMap(hwaccelCursor, data.hwaccelMode);
@@ -29,6 +31,7 @@ VideoData const GenericCodec::Data() const
 	data.desktopResolution = *desktopResCursor;
 	data.switchResolution = *switchResCursor;
     data.desiredFrameRate = *fpsCursor;
+    data.bitrateKB = *bitrateCursor;
     data.vsyncMode = vsyncCursor.KeyPair().first;
     data.hwaccelMode = hwaccelCursor.KeyPair().first;
     data.videoCodec = videoCursor.KeyPair().first;
@@ -77,6 +80,10 @@ void GenericCodec::ShiftParam(int direction)
 
     case VideoParameters::DesiredFramerate:
         fpsCursor += direction;
+        break;
+
+    case VideoParameters::BitrateKB:
+        bitrateCursor += direction;
         break;
 
     case VideoParameters::VsyncMode:

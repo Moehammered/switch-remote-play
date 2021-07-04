@@ -7,6 +7,7 @@ std::unordered_map<VideoParameters, std::string> VideoParamsToStr(VideoData cons
     values[VideoParameters::DesktopResolution] = ResolutionToString(data.desktopResolution);
     values[VideoParameters::SwitchResolution] = ResolutionToString(data.switchResolution);
     values[VideoParameters::DesiredFramerate] = std::to_string(data.desiredFrameRate);
+    values[VideoParameters::BitrateKB] = std::to_string(data.bitrateKB);
     values[VideoParameters::VsyncMode] = VsyncModeToStr(data.vsyncMode);
     values[VideoParameters::HWAccelMode] = HWAccelModeToStr(data.hwaccelMode);
     values[VideoParameters::VideoCodec] = VideoCodecToStr(data.videoCodec);
@@ -38,6 +39,19 @@ VideoData VideoParamsFromStr(std::unordered_map<VideoParameters, std::string> co
         data.desiredFrameRate = std::max(std::stoi(fpsEntry->second), (int)Framerates.front());
     else
         data.desiredFrameRate = Framerates.front();
+
+    auto bitrateEntry = map.find(VideoParameters::BitrateKB);
+    if(bitrateEntry != map.end())
+    {
+        auto highest = Bitrates.back();
+        auto lowest = Bitrates.front();
+        auto entry = std::stoi(bitrateEntry->second);
+        auto value = std::max(entry, (int)lowest);
+        value = std::min(value, (int)highest);
+        data.bitrateKB = (int16_t)value;
+    }
+    else
+        data.bitrateKB = Bitrates.front();
 
     return data;
 }

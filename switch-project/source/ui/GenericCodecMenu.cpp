@@ -80,6 +80,13 @@ void GenericCodecMenu::UpdateUI(VideoParameters param)
         }
         break;
 
+        case VideoParameters::BitrateKB:
+        {
+            auto str = std::to_string(data.bitrateKB);
+            textElements[param].value = prefix + ": " + str;
+        }
+        break;
+
         case VideoParameters::VsyncMode:
         {
             auto str = VsyncModeToDesc(data.vsyncMode);

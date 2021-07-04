@@ -31,6 +31,7 @@ private:
     ArrayCirculator<Resolution, std::vector> desktopResCursor;
     ArrayCirculator<Resolution, std::vector> switchResCursor;
     ArrayCirculator<int16_t, std::vector> fpsCursor;
+	ArrayCirculator<int16_t, std::vector> bitrateCursor;
 
 	//enum cursors
 	UnorderedMapCirculator<VsyncMode, std::string> vsyncCursor;

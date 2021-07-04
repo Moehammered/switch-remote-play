@@ -42,11 +42,12 @@ std::string const FfmpegArgParser::CompleteArgs()
 
 std::string const FfmpegArgParser::ParseCommon(VideoData const& data)
 {
-    auto vsync = (int)data.vsyncMode;//ParseVsyncMode(data.vsyncMode);
+    auto vsync = ParseVsyncMode(data.vsyncMode);
     auto hwaccel = HWAccelModeToStr(data.hwaccelMode);
     auto desktopRes = ResolutionToString(data.desktopResolution);
     auto switchRes = ResolutionToString(data.switchResolution);
     auto codec = VideoCodecToStr(data.videoCodec);
+    auto bitrate = std::to_string(data.bitrateKB) + "k";
 
     auto ss = std::stringstream{};
 
@@ -55,7 +56,10 @@ std::string const FfmpegArgParser::ParseCommon(VideoData const& data)
     ss << "-vsync " << vsync << " ";
     ss << "-video_size " << desktopRes << " -i desktop -f h264 ";
     ss << "-vcodec " << codec << " ";
-    ss << "-vf \"scale=" << switchRes << "\" ";
+    if(data.desktopResolution != data.switchResolution)
+        ss << "-vf \"scale=" << switchRes << "\" ";
+    ss << "-b:v " << bitrate << " -minrate " << bitrate << " -maxrate " << bitrate << " ";
+    ss << "-bufsize " << bitrate << " ";
 
 	return ss.str();
 }
@@ -88,7 +92,7 @@ std::string const FfmpegArgParser::ParseCpuSettings(h264::H264Data const& data)
     ss << "-preset " << preset << " ";
     ss << "-crf " << data.ConstantRateFactor << " ";
     ss << "-tune zerolatency -pix_fmt yuv420p ";
-    ss << "-x264-params \"nal-hrd=vbr:opencl=true\"";
+    ss << "-x264-params \"nal-hrd=cbr:opencl=true\"";
 
     return ss.str();
 }
@@ -114,14 +118,14 @@ std::string const FfmpegArgParser::ParseAmdSettings(h264amf::H264AMFData const& 
         }
     };
 
-    auto usage = (int)data.usage;//h264amf::amfUsageToStr(data.usage);
+    auto usage = h264amf::amfUsageToStr(data.usage);
     auto profile = h264amf::amfProfileToStr(data.profile);
     auto level = h264amf::amfLevelToStr(data.level);
-    auto quality = (int)data.quality;//h264amf::amfQualityToStr(data.quality);
+    auto quality = h264amf::amfQualityToStr(data.quality);
     auto rateControl = parseRateControl(data.rateControl);//(int)data.rateControl;
     auto frameskip = data.frameskip == true ? "true" : "false";
     auto iFrameQuality = h264amf::amfFrameQPToStr(data.qp_i);
-    auto pFrameQuality = "-1";//h264amf::amfFrameQPToStr(data.qp_p);
+    auto pFrameQuality = h264amf::amfFrameQPToStr(data.qp_p);
     auto bFrameQuality = h264amf::amfFrameQPToStr(data.qp_b);
 
     auto ss = std::stringstream{};

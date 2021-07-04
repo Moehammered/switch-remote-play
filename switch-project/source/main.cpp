@@ -85,6 +85,40 @@ void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& 
     }
 };
 
+void SaveConfigData(EncoderConfig const encoderData, DecoderData const decoderData, controller::ControllerConfig const controllerData)
+{
+    {
+        auto generalConf = GenericCodecConfiguration{};
+        generalConf.Save(encoderData.commonSettings);
+        switch(encoderData.commonSettings.videoCodec)
+        {
+            case VideoCodec::H264:
+            {
+                auto conf = H264Configuration{};
+                conf.Save(encoderData.cpuSettings);
+            }
+            break;
+
+            case VideoCodec::H264_AMF:
+            {
+                auto conf = H264AmfConfiguration{};
+                conf.Save(encoderData.amdSettings);
+            }
+            break;
+        }
+    }
+    
+    {
+        auto decoderConf = DecoderConfiguration{};
+        decoderConf.Save(decoderData);
+    }
+
+    {
+        auto conf = ControllerConfiguration{};
+        conf.Save(controllerData);
+    }
+}
+
 int main(int argc, char **argv)
 {
     std::cout << "Initialising Switch\n";
@@ -202,35 +236,7 @@ int main(int argc, char **argv)
                 menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 
                 screen.PresentScreen();
-                {
-                    //testing here -- delete later
-                    auto ffmpegConfig = menuScreens.GetFfmpegSettings();
-                    {
-                        auto generalConf = GenericCodecConfiguration{};
-                        generalConf.Save(ffmpegConfig.commonSettings);
-                    }
-
-                    {
-                        auto decoderConf = DecoderConfiguration{};
-                        decoderConf.Save(menuScreens.GetDecoderSettings());
-                    }
-
-                    {
-                        auto conf = H264Configuration{};
-                        conf.Save(ffmpegConfig.cpuSettings);
-                    }
-                    
-                    {
-                        auto conf = H264AmfConfiguration{};
-                        conf.Save(ffmpegConfig.amdSettings);
-                    }
-
-                    {
-                        auto conf = ControllerConfiguration{};
-                        conf.Save(menuScreens.GetControllerSettings());
-                    }
-                    //testing here -- delete later
-                }
+                SaveConfigData(menuScreens.GetFfmpegSettings(), menuScreens.GetDecoderSettings(), menuScreens.GetControllerSettings());
 
                 if(network.HostFound() || menuScreens.UseManualIP())
                 {
