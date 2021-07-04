@@ -105,6 +105,10 @@ void SaveConfigData(EncoderConfig const encoderData, DecoderData const decoderDa
                 conf.Save(encoderData.amdSettings);
             }
             break;
+
+            case VideoCodec::H264_NVENC:
+            case VideoCodec::H264_QSV:
+            break;
         }
     }
     

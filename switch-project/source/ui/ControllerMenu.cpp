@@ -1,8 +1,8 @@
-#include "ControllerMenu2.h"
+#include "ControllerMenu.h"
 #include "../utils/EnumMapper.h"
 #include "../controller/ControllerConfiguration.h"
 
-ControllerMenu2::ControllerMenu2() : Menu(),
+ControllerMenu::ControllerMenu() : Menu(),
 textElements{}, paramCursor{controller::ParamsList},
 modeCursor{controller::controllerModeDesc},
 buttonMapCursor{controller::controlMapDesc},
@@ -29,7 +29,7 @@ mouseSensitivity{}, mouseOnConnect{false}
     SetupText();
 }
 
-void ControllerMenu2::ProcessInput(PadState const & pad)
+void ControllerMenu::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
 
@@ -50,7 +50,7 @@ void ControllerMenu2::ProcessInput(PadState const & pad)
     }
 }
 
-void ControllerMenu2::Render(SDL_Renderer * const renderer, FC_Font * const font)
+void ControllerMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
     title.Render(renderer, font);
 
@@ -66,7 +66,7 @@ void ControllerMenu2::Render(SDL_Renderer * const renderer, FC_Font * const font
     }
 }
 
-controller::ControllerConfig const ControllerMenu2::Settings() const
+controller::ControllerConfig const ControllerMenu::Settings() const
 {
     return controller::ControllerConfig{
         .controllerMode = modeCursor.KeyPair().first,
@@ -80,7 +80,7 @@ controller::ControllerConfig const ControllerMenu2::Settings() const
     };
 }
 
-void ControllerMenu2::UpdateSetting(controller::Parameters param, int direction)
+void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
 {
     switch(param)
     {
@@ -128,7 +128,7 @@ void ControllerMenu2::UpdateSetting(controller::Parameters param, int direction)
     }
 }
 
-void ControllerMenu2::UpdateUI(controller::Parameters param)
+void ControllerMenu::UpdateUI(controller::Parameters param)
 {
     auto boolToStr = [](bool val)
     {
@@ -173,7 +173,7 @@ void ControllerMenu2::UpdateUI(controller::Parameters param)
     }
 }
 
-void ControllerMenu2::SetupText()
+void ControllerMenu::SetupText()
 {
     const int settingTextX = 100;
     const int yOffset = title.y + 15;

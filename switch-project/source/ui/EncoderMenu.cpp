@@ -9,7 +9,7 @@ EncoderMenu::EncoderMenu()
     advancedOptions{false}, pageText{}
 {
     title.value = "Encoder Configuration";
-    pageText.value = "General (pg 1/2) - <--/-->";
+    pageText.value = "General (pg 1/2) <--/-->";
     pageText.y = title.y + 35;
     pageText.x = 20;
     pageText.colour = { 255, 190, 90, 255 };
@@ -27,13 +27,13 @@ void EncoderMenu::ProcessInput(PadState const & pad)
         switch(codec)
         {
             case VideoCodec::H264:
-                pageText.value = "H264 (pg 2/2) - <--/-->";
+                pageText.value = "H264 (pg 2/2) <--/-->";
             break;
             case VideoCodec::H264_AMF:
-                pageText.value = "H264 AMD (pg 2/2) - <--/-->";
+                pageText.value = "H264 AMD (pg 2/2) <--/-->";
             break;
             default:
-                pageText.value = "UNSUPPORTED (pg 2/2) - <--/-->";
+                pageText.value = "UNSUPPORTED (pg 2/2) <--/-->";
             break;
         } 
     };
@@ -48,7 +48,7 @@ void EncoderMenu::ProcessInput(PadState const & pad)
     }
     else
     {
-        pageText.value = "General (pg 1/2) - <--/-->";
+        pageText.value = "General (pg 1/2) <--/-->";
         generalMenu.ProcessInput(pad);
     }
 }

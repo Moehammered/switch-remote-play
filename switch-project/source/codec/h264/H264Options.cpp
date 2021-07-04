@@ -33,13 +33,13 @@ namespace h264
         {
             auto val = ConstantRateFactorIntToStr(crf);
             if(crf == 0)
-                return val + " Lossless Quality";
-            else if(crf < 12)
-                return val + " Good Quality";
-            else if(crf < 23)
-                return val + " Average Quality";
+                return val + " (Lossless Quality)";
+            else if(crf < 18)
+                return val + " (Good Quality)";
+            else if(crf < 24)
+                return val + " (Average Quality)";
             else
-                return val + " Bad Quality";
+                return val + " (Bad Quality)";
         }
     }
 
@@ -58,12 +58,44 @@ namespace h264
         return enumToStr(EncoderPresetDescMap, preset);
     }
 
+    EncoderBitrateMode EncoderBitrateModeStrToEnum(std::string s)
+    {
+        return strToEnum(EncoderBitrateModeStrMap, s);
+    }
+
+    std::string EncoderBitrateModeToStr(EncoderBitrateMode mode)
+    {
+        return enumToStr(EncoderBitrateModeStrMap, mode);
+    }
+
+    std::string EncoderBitrateModeToDesc(EncoderBitrateMode mode)
+    {
+        return enumToStr(EncoderBitrateModeDescMap, mode);
+    }
+
+    EncoderProfile EncoderProfileStrToEnum(std::string s)
+    {
+        return strToEnum(EncoderProfileStrMap, s);
+    }
+
+    std::string EncoderProfileToStr(EncoderProfile profile)
+    {
+        return enumToStr(EncoderProfileStrMap, profile);
+    }
+
+    std::string EncoderProfileToDesc(EncoderProfile profile)
+    {
+        return enumToStr(EncoderProfileDescMap, profile);
+    }
+    
     std::unordered_map<Parameters, std::string> CodecParamsToStr(H264Data const data)
     {
         auto values = std::unordered_map<Parameters, std::string>{};
 
         values[Parameters::ConstantRateFactor] = ConstantRateFactorIntToStr(data.ConstantRateFactor);
         values[Parameters::Preset] = EncoderPresetToStr(data.Preset);
+        values[Parameters::RateControlMode] = EncoderBitrateModeToStr(data.BitrateMode);
+        values[Parameters::Profile] = EncoderProfileToStr(data.Profile);
 
         return values;
     }
@@ -83,6 +115,8 @@ namespace h264
 
         parse(Parameters::ConstantRateFactor, data.ConstantRateFactor, DefaultCRF, ConstantRateFactorStrToInt);
         parse(Parameters::Preset, data.Preset, EncoderPreset::UltraFast, EncoderPresetStrToEnum);
+        parse(Parameters::RateControlMode, data.BitrateMode, EncoderBitrateMode::VariableBitrate, EncoderBitrateModeStrToEnum);
+        parse(Parameters::Profile, data.Profile, EncoderProfile::Main, EncoderProfileStrToEnum);
 
         return data;
     }

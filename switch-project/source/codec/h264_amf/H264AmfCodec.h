@@ -34,20 +34,20 @@ private:
 	UnorderedMapCirculator<h264amf::H264AMF_RATECONTROL, std::string> rateControlCursor;
 
 	// integer parameter 'cursors'
-	NumberRange<int, h264amf::levelMin, h264amf::levelMax> level;
+	// NumberRange<int, h264amf::levelMin, h264amf::levelMax> level;
 	NumberRange<int, h264amf::qpFrameMin, h264amf::qpFrameMax> qp_i;
 	NumberRange<int, h264amf::qpFrameMin, h264amf::qpFrameMax> qp_p;
 	NumberRange<int, h264amf::qpFrameMin, h264amf::qpFrameMax> qp_b;
-	NumberRange<int, h264amf::frameDeltaMin, h264amf::frameDeltaMax> delta_qp_b;
-	NumberRange<int, h264amf::frameDeltaMin, h264amf::frameDeltaMax> delta_qp_b_ref;
+	// NumberRange<int, h264amf::frameDeltaMin, h264amf::frameDeltaMax> delta_qp_b;
+	// NumberRange<int, h264amf::frameDeltaMin, h264amf::frameDeltaMax> delta_qp_b_ref;
 
 	// boolean parameters
-	bool enforceHRD;
-	bool fillerData;
-	bool vbaq;
+	// bool enforceHRD;
+	// bool fillerData;
+	// bool vbaq;
 	bool frameskip;
-	bool bFrameRef;
-	bool logToDebug;
+	// bool bFrameRef;
+	// bool logToDebug;
 
 	void ShiftParam(int direction);
 };

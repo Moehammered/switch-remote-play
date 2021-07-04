@@ -29,6 +29,8 @@ private:
 
 	//enum cursors
 	UnorderedMapCirculator<h264::EncoderPreset, std::string> presetCursor;
+	UnorderedMapCirculator<h264::EncoderBitrateMode, std::string> rateModeCursor;
+	UnorderedMapCirculator<h264::EncoderProfile, std::string> profileCursor;
 
 	//number range cursors
 	NumberRange<int32_t, h264::MinCRF, h264::MaxCRF> crfCursor;

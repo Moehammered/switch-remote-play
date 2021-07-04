@@ -52,7 +52,6 @@ h264::H264Data const H264Menu::Settings() const
     return codec.Data();
 }
 
-
 void H264Menu::UpdateUI(h264::Parameters param)
 {
     auto prefix = h264::ParamsToDesc.at(param);
@@ -61,17 +60,31 @@ void H264Menu::UpdateUI(h264::Parameters param)
     switch(param)
     {
         case h264::Parameters::ConstantRateFactor:
-            {
-                auto crfStr = h264::ConstantRateFactorToDesc(data.ConstantRateFactor);
-                textElements[param].value = prefix + ": " + crfStr;
-            }
+        {
+            auto crfStr = h264::ConstantRateFactorToDesc(data.ConstantRateFactor);
+            textElements[param].value = prefix + ": " + crfStr;
+        }
         break;
 
         case h264::Parameters::Preset:
-            {
-                auto presetStr = h264::EncoderPresetToDesc(data.Preset);
-                textElements[param].value = prefix + ": " + presetStr;
-            }
+        {
+            auto presetStr = h264::EncoderPresetToDesc(data.Preset);
+            textElements[param].value = prefix + ": " + presetStr;
+        }
+        break;
+
+        case h264::Parameters::RateControlMode:
+        {
+            auto modeStr = h264::EncoderBitrateModeToDesc(data.BitrateMode);
+            textElements[param].value = prefix + ": " + modeStr;
+        }
+        break;
+
+        case h264::Parameters::Profile:
+        {
+            auto profileStr = h264::EncoderProfileToDesc(data.Profile);
+            textElements[param].value = prefix + ": " + profileStr;
+        }
         break;
     }
 }

@@ -1,5 +1,5 @@
-#ifndef __CONTROLLERMENU2_H__
-#define __CONTROLLERMENU2_H__
+#ifndef __CONTROLLERMENU_H__
+#define __CONTROLLERMENU_H__
 
 #include "Menu.h"
 #include "../controller/ControllerOptions.h"
@@ -7,10 +7,10 @@
 #include "../utils/UnorderedMapCirculator.h"
 #include "../utils/RangedIterator.h"
 
-class ControllerMenu2 : public Menu
+class ControllerMenu : public Menu
 {
     public:
-        ControllerMenu2();
+        ControllerMenu();
 
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;

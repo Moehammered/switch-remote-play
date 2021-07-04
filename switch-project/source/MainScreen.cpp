@@ -8,7 +8,7 @@ MenuSelection::MenuSelection() : Menu(),
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
     encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{CONTROLLER}, 
+    menus{}, selectedMenu{ENCODER_CONFIG}, 
     newDecoderMenu{}, newControllerMenu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;

@@ -3,6 +3,8 @@
 H264Codec::H264Codec()
 	: cursor{ h264::ParamsList },
 	presetCursor{ h264::EncoderPresetStrMap },
+	rateModeCursor{ h264::EncoderBitrateModeStrMap },
+	profileCursor{ h264::EncoderProfileStrMap },
 	crfCursor{ h264::DefaultCRF }
 {
 }
@@ -10,6 +12,8 @@ H264Codec::H264Codec()
 void H264Codec::Set(h264::H264Data const data)
 {
 	cycleMap(presetCursor, data.Preset);
+	cycleMap(rateModeCursor, data.BitrateMode);
+	cycleMap(profileCursor, data.Profile);
 	cycleNumber(crfCursor, data.ConstantRateFactor);
 }
 
@@ -19,6 +23,8 @@ h264::H264Data const H264Codec::Data() const
 
 	data.Preset = presetCursor.KeyPair().first;
 	data.ConstantRateFactor = *crfCursor;
+	data.BitrateMode = rateModeCursor.KeyPair().first;
+	data.Profile = profileCursor.KeyPair().first;
 
 	return data;
 }
@@ -60,6 +66,14 @@ void H264Codec::ShiftParam(int direction)
 
 	case h264::Parameters::ConstantRateFactor:
 		crfCursor += direction;
+		break;
+
+	case h264::Parameters::RateControlMode:
+		rateModeCursor += direction;
+		break;
+
+	case h264::Parameters::Profile:
+		profileCursor += direction;
 		break;
 	}
 }

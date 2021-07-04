@@ -1,5 +1,5 @@
-#ifndef __DECODERMENU2_H__
-#define __DECODERMENU2_H__
+#ifndef __DECODERMENU_H__
+#define __DECODERMENU_H__
 
 #include "Menu.h"
 #include "../utils/ArrayCirculator.h"
@@ -11,10 +11,10 @@
 #include "DecoderDiscardMenu.h"
 #include "DecoderThreadMenu.h"
 
-class DecoderMenu2 : public Menu
+class DecoderMenu : public Menu
 {
 public:
-    DecoderMenu2();
+    DecoderMenu();
 
     void ProcessInput(PadState const & pad) override;
     void Render(SDL_Renderer * const renderer, FC_Font * const font) override;

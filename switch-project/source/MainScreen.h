@@ -6,9 +6,9 @@
 #include "ui/Menu.h"
 #include "ui/HelpMenu.h"
 #include "ui/NetworkMenu.h"
-#include "ui/DecoderMenu2.h"
+#include "ui/DecoderMenu.h"
 #include "ui/EncoderMenu.h"
-#include "ui/ControllerMenu2.h"
+#include "ui/ControllerMenu.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
@@ -63,8 +63,8 @@ class MenuSelection : public Menu
         std::unordered_map<MenuScreen, Menu*> menus;
 
         MenuScreen selectedMenu;
-        DecoderMenu2 newDecoderMenu;
-        ControllerMenu2 newControllerMenu;
+        DecoderMenu newDecoderMenu;
+        ControllerMenu newControllerMenu;
 };
 
 #endif

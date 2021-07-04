@@ -75,8 +75,8 @@ void H264AmfMenu::UpdateUI(h264amf::Parameters param)
 
         case h264amf::Parameters::Level:
             {
-                auto str = h264amf::amfLevelToStr(data.level);
-                textElements[param].value = prefix + ": " + str;
+                // auto str = h264amf::amfLevelToStr(data.level);
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
@@ -117,36 +117,36 @@ void H264AmfMenu::UpdateUI(h264amf::Parameters param)
 
         case h264amf::Parameters::FrameQuant_BDelta:
             {
-                auto str = h264amf::amfBFrameDeltaQPToStr(data.qp_bfDelta);
-                textElements[param].value = prefix + ": " + str;
+                // auto str = h264amf::amfBFrameDeltaQPToStr(data.qp_bfDelta);
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
         case h264amf::Parameters::FrameQuant_BRefDelta:
             {
-                auto str = h264amf::amfBFrameDeltaQPToStr(data.qp_bfRefDelta);
-                textElements[param].value = prefix + ": " + str;
+                // auto str = h264amf::amfBFrameDeltaQPToStr(data.qp_bfRefDelta);
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
         case h264amf::Parameters::EnforceHRD:
             {
-                auto str = data.enforceHRD ? "yes" : "no";
-                textElements[param].value = prefix + ": " + str;
+                // auto str = data.enforceHRD ? "yes" : "no";
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
         case h264amf::Parameters::FillerData:
             {
-                auto str = data.fillerData ? "yes" : "no";
-                textElements[param].value = prefix + ": " + str;
+                // auto str = data.fillerData ? "yes" : "no";
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
         case h264amf::Parameters::VBAQ:
             {
-                auto str = data.vbaq ? "yes" : "no";
-                textElements[param].value = prefix + ": " + str;
+                // auto str = data.vbaq ? "yes" : "no";
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
@@ -159,15 +159,15 @@ void H264AmfMenu::UpdateUI(h264amf::Parameters param)
 
         case h264amf::Parameters::BFrameRef:
             {
-                auto str = data.bfRef ? "yes" : "no";
-                textElements[param].value = prefix + ": " + str;
+                // auto str = data.bfRef ? "yes" : "no";
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
 
         case h264amf::Parameters::LogToDbg:
             {
-                auto str = data.logToDbg ? "yes" : "no";
-                textElements[param].value = prefix + ": " + str;
+                // auto str = data.logToDbg ? "yes" : "no";
+                // textElements[param].value = prefix + ": " + str;
             }
         break;
     }

@@ -18,7 +18,7 @@
 #include "NetworkAdapter.h"
 #include "Configuration.h"
 
-auto constexpr applicationVersion = "0.8.9";
+auto constexpr applicationVersion = "0.9.0";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };

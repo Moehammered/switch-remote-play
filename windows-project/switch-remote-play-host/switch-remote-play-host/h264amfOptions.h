@@ -31,20 +31,20 @@ namespace h264amf
     {
         H264AMF_USAGE       usage;
         H264AMF_PROFILE     profile;
-        int16_t             level;
+        //int16_t             level;
         H264AMF_QUALITY     quality;
         H264AMF_RATECONTROL rateControl;
         int16_t             qp_i; //iframe quantization
         int16_t             qp_p; //pframe quantization
         int16_t             qp_b; //bframe quantization
-        int16_t             qp_bfDelta;
-        int16_t             qp_bfRefDelta;
-        bool                enforceHRD;
-        bool                fillerData;
-        bool                vbaq;
+        //int16_t             qp_bfDelta;
+        //int16_t             qp_bfRefDelta;
+        //bool                enforceHRD;
+        //bool                fillerData;
+        //bool                vbaq;
         bool                frameskip;
-        bool                bfRef;
-        bool                logToDbg;
+        //bool                bfRef;
+        //bool                logToDbg;
     };
 
     bool operator==(H264AMFData const a, H264AMFData const b);
@@ -65,38 +65,37 @@ namespace h264amf
 
     static std::vector<Parameters> const ParamsList
     {
-        Parameters::Usage, Parameters::Profile, Parameters::Level, Parameters::Quality,
+        Parameters::Usage, Parameters::Profile, Parameters::Quality,
         Parameters::RateControl, Parameters::FrameQuant_I, Parameters::FrameQuant_P,
-        Parameters::FrameQuant_B, Parameters::FrameQuant_BDelta, Parameters::FrameQuant_BRefDelta,
-        Parameters::EnforceHRD, Parameters::FillerData, Parameters::VBAQ, Parameters::Frameskip,
-        Parameters::BFrameRef, Parameters::LogToDbg  
+        Parameters::FrameQuant_B, Parameters::Frameskip
     };
 
     static std::unordered_map<Parameters, std::string> const ParamsDesc
     {
-        {Parameters::Usage, "Usage Hint"}, 
+        {Parameters::Usage, "Usage Hint"},
         {Parameters::Profile, "Profile"},
-        {Parameters::Level, "Profile Level"},
+        // {Parameters::Level, "Profile Level"},
         {Parameters::Quality, "Quality Hint"},
         {Parameters::RateControl, "Rate Control Method"},
-        {Parameters::FrameQuant_I, "I-Frame Rate"},
-        {Parameters::FrameQuant_P, "P-Frame Rate"},
-        {Parameters::FrameQuant_B, "B-Frame Rate"},
-        {Parameters::FrameQuant_BDelta, "B-Frame Delta Rate"},
-        {Parameters::FrameQuant_BRefDelta, "B-Frame Reference Delta Rate"},
-        {Parameters::EnforceHRD, "Enforce HRD"},
-        {Parameters::FillerData, "Filler Data"},
-        {Parameters::VBAQ, "VBAQ"},
+        {Parameters::FrameQuant_I, "I-Frame Control Factor"},
+        {Parameters::FrameQuant_P, "P-Frame Control Factor"},
+        {Parameters::FrameQuant_B, "B-Frame Control Factor"},
+        // {Parameters::FrameQuant_BDelta, "B-Frame Delta Rate"},
+        // {Parameters::FrameQuant_BRefDelta, "B-Frame Reference Delta Rate"},
+        // {Parameters::EnforceHRD, "Enforce HRD"},
+        // {Parameters::FillerData, "Filler Data"},
+        // {Parameters::VBAQ, "VBAQ"},
         {Parameters::Frameskip, "Frameskip"},
-        {Parameters::BFrameRef, "B-Frame Ref Delta"},
-        {Parameters::LogToDbg, "Log to Debug"}
+        // {Parameters::BFrameRef, "B-Frame Ref Delta"},
+        // {Parameters::LogToDbg, "Log to Debug"}
     };
 
     auto constexpr levelMin = 0;
     auto constexpr levelDefault = 0;
     auto constexpr levelMax = 62;
     auto constexpr qpFrameMin = -1;
-    auto constexpr qpFrameDefault = 15;
+    auto constexpr qpFrameDefault = 20;
+    auto constexpr qpFrameQDefault = -1;
     auto constexpr qpFrameMax = 51;
     auto constexpr frameDeltaMin = -10;
     auto constexpr frameDeltaDefault = 4;

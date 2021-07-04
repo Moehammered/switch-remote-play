@@ -6,10 +6,7 @@ H264AmfCodec::H264AmfCodec()
     profileCursor{ h264amf::profileMap },
     qualityCursor{ h264amf::qualityMap },
     rateControlCursor{ h264amf::rateControlMap },
-    level{}, qp_i{}, qp_p{}, qp_b{},
-    delta_qp_b{}, delta_qp_b_ref{},
-    enforceHRD{}, fillerData{}, vbaq{},
-    frameskip{}, bFrameRef{}, logToDebug{}
+    qp_i{}, qp_p{}, qp_b{}, frameskip{}
 {
 }
 
@@ -20,20 +17,20 @@ void H264AmfCodec::Set(h264amf::H264AMFData const data)
     cycleMap(qualityCursor, data.quality);
     cycleMap(rateControlCursor, data.rateControl);
 
-    cycleNumber(level, data.level);
+    // cycleNumber(level, data.level);
     cycleNumber(qp_i, data.qp_i);
     cycleNumber(qp_p, data.qp_p);
     cycleNumber(qp_b, data.qp_b);
-    cycleNumber(delta_qp_b, data.qp_bfDelta);
-    cycleNumber(delta_qp_b_ref, data.qp_bfRefDelta);
+    // cycleNumber(delta_qp_b, data.qp_bfDelta);
+    // cycleNumber(delta_qp_b_ref, data.qp_bfRefDelta);
 
     //check booleans here
-    enforceHRD = data.enforceHRD;
-    fillerData = data.fillerData;
-    vbaq = data.vbaq;
+    // enforceHRD = data.enforceHRD;
+    // fillerData = data.fillerData;
+    // vbaq = data.vbaq;
     frameskip = data.frameskip;
-    bFrameRef = data.bfRef;
-    logToDebug = data.logToDbg;
+    // bFrameRef = data.bfRef;
+    // logToDebug = data.logToDbg;
 }
 
 h264amf::Parameters H264AmfCodec::Current()
@@ -59,20 +56,20 @@ h264amf::H264AMFData H264AmfCodec::Data() const
 
     data.usage = usageCursor.KeyPair().first;
     data.profile = profileCursor.KeyPair().first;
-    data.level = *level;
+    // data.level = *level;
     data.quality = qualityCursor.KeyPair().first;
     data.rateControl = rateControlCursor.KeyPair().first;
     data.qp_i = *qp_i;
     data.qp_p = *qp_p;
     data.qp_b = *qp_b;
-    data.qp_bfDelta = *delta_qp_b;
-    data.qp_bfRefDelta = *delta_qp_b_ref;
-    data.enforceHRD = enforceHRD;
-    data.fillerData = fillerData;
-    data.vbaq = vbaq;
+    // data.qp_bfDelta = *delta_qp_b;
+    // data.qp_bfRefDelta = *delta_qp_b_ref;
+    // data.enforceHRD = enforceHRD;
+    // data.fillerData = fillerData;
+    // data.vbaq = vbaq;
     data.frameskip = frameskip;
-    data.bfRef = bFrameRef;
-    data.logToDbg = logToDebug;
+    // data.bfRef = bFrameRef;
+    // data.logToDbg = logToDebug;
 
     return data;
 }
@@ -106,7 +103,7 @@ void H264AmfCodec::ShiftParam(int direction)
         break;
     // integer based params
     case h264amf::Parameters::Level:
-        level += direction;
+        // level += direction;
         break;
     case h264amf::Parameters::FrameQuant_I:
         qp_i += direction;
@@ -118,29 +115,29 @@ void H264AmfCodec::ShiftParam(int direction)
         qp_b += direction;
         break;
     case h264amf::Parameters::FrameQuant_BDelta:
-        delta_qp_b += direction;
+        // delta_qp_b += direction;
         break;
     case h264amf::Parameters::FrameQuant_BRefDelta:
-        delta_qp_b_ref += direction;
+        // delta_qp_b_ref += direction;
         break;
     // boolean based params
     case h264amf::Parameters::EnforceHRD:
-        enforceHRD = !enforceHRD;
+        // enforceHRD = !enforceHRD;
         break;
     case h264amf::Parameters::FillerData:
-        fillerData = !fillerData;
+        // fillerData = !fillerData;
         break;
     case h264amf::Parameters::VBAQ:
-        vbaq = !vbaq;
+        // vbaq = !vbaq;
         break;
     case h264amf::Parameters::Frameskip:
         frameskip = !frameskip;
         break;
     case h264amf::Parameters::BFrameRef:
-        bFrameRef = !bFrameRef;
+        // bFrameRef = !bFrameRef;
         break;
     case h264amf::Parameters::LogToDbg:
-        logToDebug = !logToDebug;
+        // logToDebug = !logToDebug;
         break;
     default:
         break;

@@ -85,14 +85,32 @@ std::string const FfmpegArgParser::ParseVsyncMode(VsyncMode mode)
 
 std::string const FfmpegArgParser::ParseCpuSettings(h264::H264Data const& data)
 {
+    auto parseBitrateMode = [](h264::EncoderBitrateMode mode)
+    {
+        switch (mode)
+        {
+        default:
+        case h264::EncoderBitrateMode::VariableBitrate:
+            return "vbr";
+
+        case h264::EncoderBitrateMode::ConstantBitrate:
+            return "cbr";
+        }
+    };
+
     auto preset = h264::EncoderPresetToStr(data.Preset);
+    auto bitrateMode = parseBitrateMode(data.BitrateMode);
+    auto profile = h264::EncoderProfileToStr(data.Profile);
 
     auto ss = std::stringstream{};
 
     ss << "-preset " << preset << " ";
     ss << "-crf " << data.ConstantRateFactor << " ";
+    if(data.ConstantRateFactor != 0)
+        ss << "-profile:v " << profile << " ";
     ss << "-tune zerolatency -pix_fmt yuv420p ";
-    ss << "-x264-params \"nal-hrd=cbr:opencl=true\"";
+    
+    ss << "-x264-params \"nal-hrd=" << bitrateMode << ":opencl=true\"";
 
     return ss.str();
 }
@@ -120,9 +138,9 @@ std::string const FfmpegArgParser::ParseAmdSettings(h264amf::H264AMFData const& 
 
     auto usage = h264amf::amfUsageToStr(data.usage);
     auto profile = h264amf::amfProfileToStr(data.profile);
-    auto level = h264amf::amfLevelToStr(data.level);
+    //auto level = h264amf::amfLevelToStr(data.level);
     auto quality = h264amf::amfQualityToStr(data.quality);
-    auto rateControl = parseRateControl(data.rateControl);//(int)data.rateControl;
+    auto rateControl = parseRateControl(data.rateControl);
     auto frameskip = data.frameskip == true ? "true" : "false";
     auto iFrameQuality = h264amf::amfFrameQPToStr(data.qp_i);
     auto pFrameQuality = h264amf::amfFrameQPToStr(data.qp_p);
@@ -132,7 +150,7 @@ std::string const FfmpegArgParser::ParseAmdSettings(h264amf::H264AMFData const& 
 
     ss << "-usage " << usage << " ";
     ss << "-profile:v " << profile << " ";
-    ss << "-level " << level << " ";
+    //ss << "-level " << level << " ";
     ss << "-quality " << quality << " ";
     ss << "-rc " << rateControl << " ";
     ss << "-frame_skipping " << frameskip << " ";

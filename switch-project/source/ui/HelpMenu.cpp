@@ -69,11 +69,11 @@ void HelpMenu::Update()
     switch(selectedPage)
     {
         case HelpPageItems::NETWORK_PAGE:
-            currentPageHeader.value = "Network (pg 1/2) - dpad left/right";
+            currentPageHeader.value = "Network (pg 1/2) <--/-->";
         break;
 
         case HelpPageItems::STREAM_PAGE:
-            currentPageHeader.value = "Stream (pg 2/2) - dpad left/right";
+            currentPageHeader.value = "Stream (pg 2/2) <--/-->";
         break;
     }
 }
