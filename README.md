@@ -4,19 +4,15 @@
 
 Let the switch remotely play PC games (similar to steam link or remote play)
 
-For instructions, please see the [instructions](https://github.com/Moehammered/switch-remote-play/blob/master/instructions/Instructions.md) folder in the repo.
-
 This project is inspired by the github project [In-Home-Switching](https://github.com/jakibaki/In-Home-Switching) and [SkyNX](https://github.com/DevL0rd/SkyNX). The goal is to make a convenient streamer/client application to be used to remote play PC games on the switch.
 
 [In-Home-Switching](https://github.com/jakibaki/In-Home-Switching) and [SkyNX](https://github.com/DevL0rd/SkyNX) already offer the ability to do so, however there were some convenience features missing that I wanted to add. I also recently was studying multi-threading and when I saw the code, I thought 'this is the perfect chance to try writing it in C++'.
 
-## Note
+## Getting Started
 
-The video stream is CPU dependent as at the moment it uses the ffmpeg option of *hwaccel auto* which usually results in ffmpeg picking CPU for the screen capture process. In my initial prototyping phase I found choosing the AMD GPU option for ffmpeg led to inconsistent stream results. I will look at making the hwaccel option configurable in the future but for now just keep in mind CPU is important.
+For instructions and help, please see the [wiki](https://github.com/Moehammered/switch-remote-play/wiki).
 
-If you're playing a game that is CPU intensive then there's a high chance the stream will have skips or hiccups. If your CPU is weak, then it'll be hard for it to produce and push the frames quick enough.
-
-For my PC, when I play Nier Automata there are no hiccups and I can get near 60 fps depending on the stream settings (1280 x 720 desktop res, and 5mb/s bitrate). But when I tried playing RE3 2020 at 30 or 56fps I was getting hiccups and skips. So please keep this in mind.
+You can also visit the [gbatemp release thread](https://gbatemp.net/threads/switch-remote-play-stream-your-pc-to-your-switch.579541/) to share and interact with other users, or get help with any issues you might have.
 
 ## Features
 
@@ -27,20 +23,26 @@ For my PC, when I play Nier Automata there are no hiccups and I can get near 60 
 - [x] Automatically connect switch and PC stream applications
 - [x] Automatically mute PC when audio is streaming to the Switch
 - [x] Allow manual configuration of switch to PC connection
-- [x] Configure stream settings from switch
 - [x] Disconnect / Reconnect stream at will
 - [x] Toggle Input Mode to Mouse
 - [x] Toggle Input Mode to DS4(PS4) controller
 - [x] Toggle Input Mode to Xbox controller
+- [x] Rich configuration options for h264 CPU encoder
+- [x] Rich configuration options for h264 AMF encoder (AMD hardware encoder)
+- [ ] Multiple controller support
+- [ ] Touch screen emulate mouse support
+- [ ] Controller gyro support
+- [ ] Controller rumble support
 
 ## Switch-Project
 
 This project consists of an application written for the switch that will decode stream data received from [FFMPEG](https://github.com/FFmpeg/FFmpeg) and send its input to an application to emulate a controller. The rendering is done with SDL2 and the project is written in C++.
 
-Tested on:
+### Compatibility
 
-- **Atmosphere 0.14.1 - FW 10.1.0** (switch-remote-play 0.7.2)
-- **Atmosphere 0.16.2 - FW 10.1.0** (switch-remote-play 0.7.2)
+- Only **Atmosphere CFW** is supported. SX OS is not officially supported
+- Program is compiled with latest LibNX libraries (v4.1.3 at the time of this writing)
+  - Means it will work with newer firmwares
 
 ## Windows-Project
 
@@ -48,65 +50,9 @@ This project consists of an application written for Windows that will launch an 
 
 The Windows project is also written in C++ and uses Winsock to do socket communication with the switch application.
 
-Tested on:
-
-- **Windows 10 64 bit**
-  - Ryzen 5 2600 3.4GHz
-  - AMD Radeon RX 5600 XT 6GB
-  - 16GB RAM
-
 ## Mac-Project
 
-This is a simple prototype of the Windows Project ported to work on Mac OS. It is using XCode and C++. The Mac project works on M1 and Intel macs.
-
-- Only mouse input and video stream are supported. Nothing else.
-- It only works with the v0.8.1 Switch app.
-- No gamepad support.
-- Only supports limited settings from the Encoder configuration screen on the Switch app.
-
-See the instructions/mac/mac-instructions.md file for setup instructions.
-
-Tested on:
-
-- **Mac OS Big Sur**
-  - Macbook Air M1 2020
-- **Mac OS Catalina**
-  - VMWare Player Virtual Machine
-
-## Known Issues
-
-### Stream Performance
-
-The stream performance is heavily dependent on network connectivity and your PC CPU performance. Configuration settings will need to be played with the find what works well with your network + PC environment.
-
-I recommend playing with the 'Encoder Preset' and 'Quality Control Factor' values while keeping bitrate at 8192 or less.
-
-### General tips
-
-- Preset value controls how the encoder should work: ultrafast means the encoder performs to get the image out as fast as possible ignoring quality, and veryslow means the encoder can take its time to preserve image quality.
-- Codec value *can* help performance however I have tested both the AMF and standard h264 and don't notice much of a difference.
-- Quality control factor is what controls how good the image should be. The lower the value the harder your PC must work to maintain quality. **(this value and 'Preset' are what will dictate your CPU's workload)**
-- For more info see the [ffmpeg documentation](https://trac.ffmpeg.org/wiki/Encode/H.264).
-  
-### Config examples
-
-- Great image quality config:
-  - Preset - veryslow
-  - Quality control factor - less than 10 (0 = perfect image)
-  - Bitrate - around 5000 - 8000
-  - Vsync Mode - variable frame rate
-- Latency oriented config:
-  - Preset - ultrafast
-  - Quality control factor - 20+
-  - Bitrate - around 5000
-  - Vsync Mode - variable frame rate
-
-I haven't tested all configuration combinations **(and these are dependent on my PC specs)**, so if you find one that works great please feel free to send it to me with your PC specs and network environment configuration :)
-
-### Rare crash when opening some homebrew apps
-
-The crash issue in v0.7.2 has been found and patched. (it was due to the network discovery feature not being shutdown correctly)
-The app still crashes however it is harder to reproduce now and I haven't found a proper 100% way to reproduce the crash yet. The current crashing issue is rare and only crashes hbloader/hbmenu when opening an app after streaming for a certain while. I can't reproduce it but it's *gone* for now. If anyone figures out how to reproduce the crash, please let me know.
+See the 'mac-readme' file located in the repo's instructions/mac folder.
 
 ## Thanks
 

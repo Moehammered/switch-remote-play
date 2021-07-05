@@ -67,12 +67,12 @@ int main(int argc, char* argv[])
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN | FOREGROUND_RED);
     if (ScanNetworkConnections(broadcastAddress))
     {
-        SetConsoleTextAttribute(stdHandle, FOREGROUND_BLUE| FOREGROUND_RED);
+        SetConsoleTextAttribute(stdHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
         std::cout << "Broadcast address for network discovery is: " << broadcastAddress << "\n\n";
         std::cout << "Please add the line below to the switch application's config file if you wish to use the network discovery feature:\n";
-        std::cout << "broadcast_address=" << broadcastAddress << "; <-- Do not forget the semi-colon! (;)\n\n";
-        std::cout << "The switch configuration file is located at 'switch/switch-remote-play/config.ini'. If it doesn't exist, create it.\n";
+        std::cout << "Broadcast Address=" << broadcastAddress << "; <-- Do not forget the semi-colon! (;)\n\n";
+        std::cout << "The switch configuration file is located at 'switch/switch-remote-play/network.ini'. If it doesn't exist, create it.\n";
     }
     else
     {
