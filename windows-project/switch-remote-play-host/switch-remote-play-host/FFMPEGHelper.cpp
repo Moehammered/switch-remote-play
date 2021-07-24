@@ -18,58 +18,10 @@ std::string CreateVideoCommandLineArg(EncoderConfig const config, std::string co
 {
     using namespace std;
 
-    auto const & filePath = ffmpegPath;
-
-    auto vsyncMode = "1";
-    switch (config.commonSettings.vsyncMode)
-    {
-    case VsyncMode::VSYNC_PASSTHROUGH:
-        vsyncMode = "passthrough"; //each frame is passed to the muxer
-        break;
-    case VsyncMode::CONSTANT_FPS:
-        vsyncMode = "cfr"; //constant fps
-        break;
-    case VsyncMode::VARIABLE_FPS:
-        vsyncMode = "vfr"; //variable fps (prevent duplicate frames)
-        break;
-    case VsyncMode::VSYNC_DROP_TIME:
-        vsyncMode = "drop"; //same as passthrough, but removes timestamps
-        break;
-    case VsyncMode::VSYNC_AUTO:
-        vsyncMode = "-1"; //automatically choose between 1 or 2
-        break;
-    default:
-        vsyncMode = "vfr";
-        break;
-    }
-
-    auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
-    auto const& cpuSettings = config.cpuSettings;
-    auto const& desktopRes = config.commonSettings.desktopResolution;
-    auto const& switchRes = config.commonSettings.switchResolution;
-    stringstream args;
-    args << filePath << " -probesize 32 ";
-    args << "-hwaccel " << HWAccelModeToStr(config.commonSettings.hwaccelMode) << " ";
-    args << "-y -f gdigrab ";
-    args << "-framerate " << config.commonSettings.desiredFrameRate << " ";
-    args << "-vsync " << vsyncMode << " ";
-    args << "-video_size " << desktopRes.width << "x" << desktopRes.height << " ";
-    args << "-i desktop -f h264 ";
-    args << "-vcodec " << VideoCodecToStr(config.commonSettings.videoCodec) << " ";
-    args << "-vf \"scale=" << switchRes.width << "x" << switchRes.height << "\" ";
-    args << "-preset " << h264::EncoderPresetToStr(cpuSettings.Preset) << " ";
-    args << "-crf " << cpuSettings.ConstantRateFactor << " ";
-    args << "-tune zerolatency -pix_fmt yuv420p ";//-profile:v baseline ";
-    args << "-x264-params \"nal-hrd=vbr:opencl=true\" ";
-    /*args << "-b:v " << config.bitrateKB << "k -minrate " << config.bitrateKB << "k -maxrate " << config.bitrateKB << "k ";
-    args << "-bufsize " << config.bitrateKB << "k " << connectionIP;*/
-    args << connectionIP;
-
-    //std::cout << "\n" << args.str() << "\n";
-
     auto parser = FfmpegArgParser(config);
+    auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
     auto parsedArgs = parser.CompleteArgs() + " " + connectionIP;
-    auto completeCmd = filePath + " " + parsedArgs;
+    auto completeCmd = ffmpegPath + " " + parsedArgs;
 
     cout << "\n" << completeCmd << "\n";
 
@@ -89,7 +41,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
     auto const channelArgs = " -ac 2 "; //s8 -- -c:a pcm_s16le 
     auto const packetArg = "pkt_size=";
     stringstream args;
-    args << filePath << inputArgs << qualityArgs /*<< sampleRateArg << sampleRate << channelArgs*/;
+    args << filePath << inputArgs << qualityArgs << sampleRateArg << sampleRate << channelArgs;
     args << connectionIP;// << "?" << packetArg << packetSize;
 
     return args.str();
