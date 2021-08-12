@@ -23,7 +23,7 @@
 			"type": "shell",
 			"label": "nxlink: send application to netloader",
 			"windows": {
-				"command": "C:/mingw-w64/switch/nxlink.exe"
+				"command": "C:/mingw-w64/switch/devkitPro/tools/bin/nxlink.exe"
 			},
 			"args": [
 				"-s",
