@@ -24,3 +24,5 @@ BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType);
 bool WinsockReady();
 
 bool VirtualControllerDriverAvailable();
+
+bool StartupTouchContext();

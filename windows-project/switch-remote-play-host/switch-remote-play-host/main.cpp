@@ -18,7 +18,7 @@
 #include "NetworkAdapter.h"
 #include "Configuration.h"
 
-auto constexpr applicationVersion = "0.9.0";
+auto constexpr applicationVersion = "0.9.1";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -56,6 +56,8 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")\n" << std::endl;
+
+    StartupTouchContext();
 
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;

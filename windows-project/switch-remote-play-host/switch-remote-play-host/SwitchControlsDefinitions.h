@@ -53,6 +53,24 @@ typedef struct HidVector {
     float z;
 } HidVector;
 
+
+struct TouchState
+{
+    uint32_t fingerID;
+    uint32_t x;
+    uint32_t y;
+};
+
+auto constexpr TouchStateSize = sizeof(TouchState);
+
+struct alignas(8) TouchPayload
+{
+    int32_t count;
+    TouchState touches[5];
+};
+
+auto constexpr TouchPayloadSize = sizeof(TouchPayload);
+
 struct alignas(8) GamepadDataPayload
 {
     uint32_t keys;
@@ -64,3 +82,11 @@ struct alignas(8) GamepadDataPayload
 };
 
 auto constexpr GamepadDataPayloadSize = sizeof(GamepadDataPayload);
+
+struct InputDataPayload
+{
+    GamepadDataPayload  gamepad;
+    TouchPayload        touchScreen;
+};
+
+auto constexpr InputDataPayloadSize = sizeof(InputDataPayload);

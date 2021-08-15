@@ -57,4 +57,41 @@ struct alignas(8) CommandPayload
 
 constexpr int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);
 
+struct TouchState
+{
+    uint32_t fingerID;
+    uint32_t x;
+    uint32_t y;
+};
+
+auto constexpr TouchStateSize = sizeof(TouchState);
+
+struct alignas(8) TouchPayload
+{
+    int32_t count;
+    TouchState touches[5];
+};
+
+auto constexpr TouchPayloadSize = sizeof(TouchPayload);
+
+struct alignas(8) GamepadDataPayload
+{
+    uint32_t keys;
+    int32_t ljx, ljy;
+    int32_t rjx, rjy;
+    HidVector gryo;
+    HidVector accelerometer;
+    char padding[64 - sizeof(uint32_t) - sizeof(int32_t) * 4 - sizeof(HidVector) * 2];
+};
+
+auto constexpr GamepadDataPayloadSize = sizeof(GamepadDataPayload);
+
+struct InputDataPayload
+{
+    GamepadDataPayload  gamepad;
+    TouchPayload        touchScreen;
+};
+
+auto constexpr InputDataPayloadSize = sizeof(InputDataPayload);
+
 #endif

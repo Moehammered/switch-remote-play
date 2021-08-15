@@ -6,18 +6,6 @@
 #include "network/NetworkData.h"
 #include <switch.h>
 
-struct alignas(8) GamepadDataPayload
-{
-    uint32_t keys;
-    int32_t ljx, ljy;
-    int32_t rjx, rjy;
-    HidVector gryo;
-    HidVector accelerometer;
-    char padding[64 - sizeof(uint32_t) - sizeof(int32_t) * 4 - sizeof(HidVector) * 2];
-};
-
-auto constexpr GamepadDataPayloadSize = sizeof(GamepadDataPayload);
-
 enum StreamState : int32_t
 {
     INACTIVE,

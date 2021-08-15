@@ -232,3 +232,15 @@ bool VirtualControllerDriverAvailable()
 	vigem_free(client);
 	return true;
 }
+
+bool StartupTouchContext()
+{
+	auto result = InitializeTouchInjection(5, TOUCH_FEEDBACK_DEFAULT);
+	if (result == FALSE)
+	{
+		auto err = GetLastError();
+		std::cout << "Failed to initialise touch injection context with error code: " << err << "\n\n";
+	}
+
+	return result == TRUE;
+}

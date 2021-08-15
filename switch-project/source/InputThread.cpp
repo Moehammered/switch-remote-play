@@ -42,7 +42,7 @@ void RunGamepadThread(std::string ip, uint16_t port)
 
         // SixAxisSensorValues sixaxis{0};
 
-        const int dataSize = sizeof(GamepadDataPayload);
+        const int dataSize = InputDataPayloadSize;//sizeof(GamepadDataPayload);
         auto inputData = GamepadDataPayload{0};
         for(auto& c : inputData.padding)
             c = 0;
@@ -57,6 +57,8 @@ void RunGamepadThread(std::string ip, uint16_t port)
         auto const sleepDuration = std::chrono::duration<int, std::milli>(5);
 
         auto retryCount = 10;
+        auto inputPayload = InputDataPayload{0};
+        auto const payloadBuffer = (char*)&inputPayload;
         while(appletMainLoop())
         {
             std::this_thread::sleep_for(sleepDuration); // sleep a tiny bit between inputs
@@ -86,9 +88,22 @@ void RunGamepadThread(std::string ip, uint16_t port)
 
             if(hidGetTouchScreenStates(&touchState, 1))
             {
+                inputPayload.touchScreen.count = touchState.count;
+                for(auto i = 0; i < touchState.count && i < 5; ++i)
+                {
+                    auto const & touch = touchState.touches[i];
+                    auto& target = inputPayload.touchScreen.touches[i];
+                    target.fingerID = touch.finger_id;
+                    target.x = touch.x;
+                    target.y = touch.y;
+                }
+
                 if(touchState.count > 0)
-                    kHeld |= HidNpadButton_Palma;
+                    kHeld |= HidNpadButton_Palma; // this needs to go
             }
+            else
+                inputPayload.touchScreen.count = 0;
+
             inputData.keys = kHeld;
 
             lStick = padGetStickPos(&defaultPad, 0);
@@ -107,8 +122,15 @@ void RunGamepadThread(std::string ip, uint16_t port)
             // inputData.accelerometer = sixaxis.accelerometer;
             // inputData.gryo = sixaxis.gyroscope;
 
-            auto result = send(padSocket, (char*)&inputData, dataSize, 0);
-            if(result < 0)
+            inputPayload.gamepad = inputData;
+
+            auto sent = 0;
+            do
+            {
+                sent = send(padSocket, payloadBuffer, dataSize - sent, 0);
+            } while (sent > 0 && sent < dataSize);
+            
+            if(sent < 0)
             {
                 std::cout << "Error sending pad data" << std::endl;
                 if(--retryCount < 0)
