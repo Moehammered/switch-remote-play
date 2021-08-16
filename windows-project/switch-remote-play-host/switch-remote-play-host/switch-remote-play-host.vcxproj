@@ -183,6 +183,7 @@
     <ClCompile Include="VideoCodec.cpp" />
     <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VirtualMouse.cpp" />
+    <ClCompile Include="VirtualTouch.cpp" />
     <ClCompile Include="WSAHelper.cpp" />
     <ClCompile Include="X360Controller.cpp" />
     <ClCompile Include="VideoCodecMode.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="VideoCodecMode.h" />
     <ClInclude Include="VirtualController.h" />
     <ClInclude Include="VirtualMouse.h" />
+    <ClInclude Include="VirtualTouch.h" />
     <ClInclude Include="VsyncMode.h" />
     <ClInclude Include="WSAHelper.h" />
     <ClInclude Include="X360Controller.h" />

@@ -5,6 +5,7 @@
 #include "X360Controller.h"
 #include "DS4Controller.h"
 #include "VirtualMouse.h"
+#include "VirtualTouch.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
 #include "WSAHelper.h"
@@ -119,7 +120,6 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
         {
             if (connection.WaitForConnection())
             {
-                POINTER_TOUCH_INFO contactInfo{ 0 };
                 //can use the switch socket now to listen for input sent over
                 InputDataPayload inputData{0};
                 for (auto& c : inputData.gamepad.padding)
@@ -145,6 +145,7 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
                 if (controller->Create())
                 {
                     auto mouse = VirtualMouse{0};
+                    auto touch = VirtualTouch(5, 2);
                     auto streamDead = killStream.load(memory_order_acquire);
                     gamepadActive.store(true, memory_order_release);
                     auto active = true;
@@ -254,83 +255,17 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
 
                         //testing touch stuff here
                         auto const& switchContactInfo = inputData.touchScreen;
-                        auto const releaseFlags = POINTER_FLAG_INRANGE | POINTER_FLAG_DOWN | POINTER_FLAG_UPDATE;
                         if (switchContactInfo.count > 0)
                         {
-                            auto const& firstTouch = switchContactInfo.touches[0];
-                            auto& pointerInfo = contactInfo.pointerInfo;
-                            pointerInfo.pointerType = PT_TOUCH;
-                            pointerInfo.pointerId = firstTouch.fingerID;
-
-                            pointerInfo.ptPixelLocation.x = firstTouch.x;
-                            pointerInfo.ptPixelLocation.y = firstTouch.y;
-                            contactInfo.touchFlags = TOUCH_FLAG_NONE;
-                            contactInfo.touchMask = TOUCH_MASK_CONTACTAREA;
-                            contactInfo.rcContact.top = firstTouch.y - 2;
-                            contactInfo.rcContact.bottom = firstTouch.y + 2;
-                            contactInfo.rcContact.left = firstTouch.x - 2;
-                            contactInfo.rcContact.right = firstTouch.x + 2;
-
-                            auto pointerState = pointerInfo.pointerFlags;
-                            if (pointerState & POINTER_FLAG_DOWN)
-                            {
-                                //remove the flag down and transition to update
-                                pointerState &= ~POINTER_FLAG_DOWN;
-                                pointerState |= POINTER_FLAG_UPDATE;
-                                pointerInfo.pointerFlags = pointerState;
-
-                                auto ret = InjectTouchInput(1, &contactInfo);
-                                if (ret == 0)
-                                    cout << "Failed to send touch data\n";
-                            }
-                            else if(!(pointerState & POINTER_FLAG_UPDATE))
-                            {
-                                pointerInfo.pointerFlags = POINTER_FLAG_DOWN | POINTER_FLAG_INRANGE | POINTER_FLAG_INCONTACT;
-
-                                auto ret = InjectTouchInput(1, &contactInfo);
-                                if (ret == 0)
-                                    cout << "Failed to send touch data\n";
-                            }
+                            auto const& t1 = switchContactInfo.touches[0];
+                            touch.Move(t1.x, t1.y);
+                            touch.Press();
+                            touch.Commit();
                         }
-                        else if(contactInfo.pointerInfo.pointerFlags & releaseFlags)
+                        else
                         {
-                            auto pointerState = contactInfo.pointerInfo.pointerFlags;
-                            auto const contactState = POINTER_FLAG_INRANGE | POINTER_FLAG_INCONTACT;
-                            auto const hoverState = POINTER_FLAG_INRANGE | POINTER_FLAG_UP;
-                            auto const hoverEndState = POINTER_FLAG_UPDATE;
-                            auto const touchUpState = POINTER_FLAG_UP;
-
-                            auto const inState = [](auto a, auto b) {
-                                return (a & b) == b;
-                            };
-
-                            if (inState(pointerState, contactState))
-                            {
-                                // transition to hover
-                                pointerState = POINTER_FLAG_INRANGE | POINTER_FLAG_UP;
-                                contactInfo.pointerInfo.pointerFlags = pointerState;
-                                auto releaseRes = InjectTouchInput(1, &contactInfo);
-                                if (releaseRes == 0)
-                                    cout << "Failed to transition to hover from last frame\n";
-                            }
-                            else if (inState(pointerState, hoverState))
-                            {
-                                //transition to hover end
-                                pointerState = POINTER_FLAG_UPDATE;
-                                contactInfo.pointerInfo.pointerFlags = pointerState;
-                                auto releaseRes = InjectTouchInput(1, &contactInfo);
-                                if (releaseRes == 0)
-                                    cout << "Failed to transition to hover end\n";
-                            }
-                            else if (inState(pointerState, hoverEndState))
-                            {
-                                //end touch
-                                pointerState = POINTER_FLAG_UP;
-                                contactInfo.pointerInfo.pointerFlags = pointerState;
-                                auto releaseRes = InjectTouchInput(1, &contactInfo);
-                                if (releaseRes == 0)
-                                    cout << "Failed to transition to touch end\n";
-                            }
+                            touch.Release();
+                            touch.Commit();
                         }
                         //testing touch stuff here
                     } while (padData.keys != 0xFFFF && !streamDead && active);
