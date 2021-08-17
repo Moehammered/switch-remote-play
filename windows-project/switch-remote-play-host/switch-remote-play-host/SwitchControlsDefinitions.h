@@ -62,11 +62,12 @@ struct TouchState
 };
 
 auto constexpr TouchStateSize = sizeof(TouchState);
+auto constexpr MaxTouchCount = 5;
 
 struct alignas(8) TouchPayload
 {
     int32_t count;
-    TouchState touches[5];
+    TouchState touches[MaxTouchCount];
 };
 
 auto constexpr TouchPayloadSize = sizeof(TouchPayload);

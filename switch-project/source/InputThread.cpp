@@ -53,6 +53,8 @@ void RunGamepadThread(std::string ip, uint16_t port)
         auto last = now;
         auto delta = (now - last)/NANO_TO_SECONDS;
         auto quitHeldTime = 0.0;
+        auto const touchPollTimer = 1.0/60.0;
+        auto touchPollTime = 0.0;
 
         auto const sleepDuration = std::chrono::duration<int, std::milli>(5);
 
@@ -88,21 +90,30 @@ void RunGamepadThread(std::string ip, uint16_t port)
 
             if(hidGetTouchScreenStates(&touchState, 1))
             {
-                inputPayload.touchScreen.count = touchState.count;
-                for(auto i = 0; i < touchState.count && i < 5; ++i)
+                touchPollTime += delta;
+                if(touchPollTime > touchPollTimer)
                 {
-                    auto const & touch = touchState.touches[i];
-                    auto& target = inputPayload.touchScreen.touches[i];
-                    target.fingerID = touch.finger_id;
-                    target.x = touch.x;
-                    target.y = touch.y;
+                    inputPayload.touchScreen.count = touchState.count;
+                    for(auto i = 0; i < touchState.count && i < 5; ++i)
+                    {
+                        auto const & touch = touchState.touches[i];
+                        auto& target = inputPayload.touchScreen.touches[i];
+                        target.fingerID = touch.finger_id;
+                        target.x = touch.x;
+                        target.y = touch.y;
+                    }
+                    
+                    touchPollTime = 0;
                 }
 
                 if(touchState.count > 0)
                     kHeld |= HidNpadButton_Palma; // this needs to go
             }
             else
+            {
                 inputPayload.touchScreen.count = 0;
+                touchPollTime = 0;
+            }
 
             inputData.keys = kHeld;
 

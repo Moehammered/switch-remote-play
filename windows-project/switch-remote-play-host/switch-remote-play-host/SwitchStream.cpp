@@ -222,7 +222,7 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
                             }
 
                             // figure out if we should toggle mouse mode
-                            if (padData.keys == mouseToggleBtnCombo || padData.keys & HidNpadButton::HidNpadButton_Palma)
+                            if (padData.keys == mouseToggleBtnCombo /*|| padData.keys & HidNpadButton::HidNpadButton_Palma*/)
                             {
                                 auto timePassed = std::chrono::high_resolution_clock::now() - lastTime;
                                 if (timePassed.count() >= mouseToggleNano)
@@ -257,10 +257,20 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
                         auto const& switchContactInfo = inputData.touchScreen;
                         if (switchContactInfo.count > 0)
                         {
-                            auto const& t1 = switchContactInfo.touches[0];
-                            touch.Move(t1.x, t1.y);
-                            touch.Press();
+                            auto fingers = std::vector<VirtualFinger>{};
+                            for (auto i = 0; i < switchContactInfo.count && i < 5; ++i)
+                            {
+                                auto finger = switchContactInfo.touches[i];
+                                auto reinterp = reinterpret_cast<VirtualFinger*>(&finger);
+                                fingers.emplace_back(*reinterp);
+                            }
+                            touch.Press(fingers);
+                            touch.Move(fingers);
                             touch.Commit();
+                            /*auto const& t1 = switchContactInfo.touches[0];
+                            touch.Press();
+                            touch.Move(t1.x, t1.y);
+                            touch.Commit();*/
                         }
                         else
                         {
