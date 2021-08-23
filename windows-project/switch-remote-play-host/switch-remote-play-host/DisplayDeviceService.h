@@ -5,6 +5,12 @@
 struct DisplayDeviceInfo
 {
     int32_t index;
+    int64_t x;
+    int64_t y;
+    int64_t width;
+    int64_t height;
+    uint64_t deviceStateFlags;
+    uint64_t monitorStateFlags;
     std::wstring monitorID;
     std::wstring monitorKey;
     std::wstring monitorSystemName;
@@ -12,8 +18,6 @@ struct DisplayDeviceInfo
     std::wstring deviceName;
     std::wstring interfaceAdapter;
     std::wstring interfaceAdapterKey;
-    uint64_t deviceStateFlags;
-    uint64_t monitorStateFlags;
 };
 
 void PrintDisplayDeviceInfo(DisplayDeviceInfo const display);
@@ -25,7 +29,7 @@ public:
     DisplayDeviceService(bool activeOnly);
 
     void PrintDisplays() const;
-    std::vector<DisplayDeviceInfo> const ActiveDisplay() const;
+    std::vector<DisplayDeviceInfo> const ActiveDisplays() const;
     DisplayDeviceInfo const PrimaryDisplay() const;
 
 private:

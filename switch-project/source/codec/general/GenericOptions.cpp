@@ -11,6 +11,7 @@ std::unordered_map<VideoParameters, std::string> VideoParamsToStr(VideoData cons
     values[VideoParameters::VsyncMode] = VsyncModeToStr(data.vsyncMode);
     values[VideoParameters::HWAccelMode] = HWAccelModeToStr(data.hwaccelMode);
     values[VideoParameters::VideoCodec] = VideoCodecToStr(data.videoCodec);
+    values[VideoParameters::MonitorNumber] = std::to_string(data.monitorNumber);
 
     return values;
 }
@@ -52,6 +53,12 @@ VideoData VideoParamsFromStr(std::unordered_map<VideoParameters, std::string> co
     }
     else
         data.bitrateKB = Bitrates.front();
+
+    auto monitorNumberEntry = map.find(VideoParameters::MonitorNumber);
+    if(monitorNumberEntry != map.end())
+        data.monitorNumber = std::max(std::min(std::stoi(monitorNumberEntry->second), 0), 10);
+    else
+        data.monitorNumber = 0;
 
     return data;
 }

@@ -14,6 +14,7 @@ MONITORINFOEX DefaultMonitorInfo();
 void PrintMonitorInfo(MONITORINFOEX const& monitor);
 
 int ChangeResolution(int width, int height);
+int ChangeResolution(std::wstring device, int width, int height);
 bool ResolutionChangeSuccessful(int const result);
 void PrintResolutionChangeResult(int const result);
 

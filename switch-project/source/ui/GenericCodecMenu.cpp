@@ -107,6 +107,13 @@ void GenericCodecMenu::UpdateUI(VideoParameters param)
             textElements[param].value = prefix + ": " + str;
         }
         break;
+
+        case VideoParameters::MonitorNumber:
+        {
+            auto str = std::to_string(data.monitorNumber);
+            textElements[param].value = prefix + ": " + str;
+        }
+        break;
     }
 }
 

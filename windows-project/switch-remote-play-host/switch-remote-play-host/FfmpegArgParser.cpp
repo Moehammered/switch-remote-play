@@ -1,10 +1,10 @@
 #include "FfmpegArgParser.h"
 #include <sstream>
 
-FfmpegArgParser::FfmpegArgParser(EncoderConfig const conf)
+FfmpegArgParser::FfmpegArgParser(EncoderConfig const conf, DisplayDeviceInfo const display)
 	: config{conf}
 {
-	commonArgs = ParseCommon(config.commonSettings);
+	commonArgs = ParseCommon(config.commonSettings, display);
     switch (config.commonSettings.videoCodec)
     {
     case VideoCodec::H264:
@@ -40,7 +40,7 @@ std::string const FfmpegArgParser::CompleteArgs()
     return commonArgs + encoderArgs;
 }
 
-std::string const FfmpegArgParser::ParseCommon(VideoData const& data)
+std::string const FfmpegArgParser::ParseCommon(VideoData const& data, DisplayDeviceInfo const display)
 {
     auto vsync = ParseVsyncMode(data.vsyncMode);
     auto hwaccel = HWAccelModeToStr(data.hwaccelMode);
@@ -54,14 +54,16 @@ std::string const FfmpegArgParser::ParseCommon(VideoData const& data)
     ss << "-probesize 32 -hwaccel " << hwaccel << " ";
     ss << "-y -f gdigrab -framerate " << data.desiredFrameRate << " ";
     ss << "-vsync " << vsync << " ";
-    ss << "-video_size " << desktopRes << " -i desktop -f h264 ";
+    ss << "-video_size " << desktopRes << " ";
+    ss << "-offset_x " << display.x << " -offset_y " << display.y << " ";
+    ss << "-i desktop -f h264 ";
     ss << "-vcodec " << codec << " ";
-    if(data.desktopResolution != data.switchResolution)
+    if (data.desktopResolution != data.switchResolution)
         ss << "-vf \"scale=" << switchRes << "\" ";
     ss << "-b:v " << bitrate << " -minrate " << bitrate << " -maxrate " << bitrate << " ";
     ss << "-bufsize " << bitrate << " ";
 
-	return ss.str();
+    return ss.str();
 }
 
 std::string const FfmpegArgParser::ParseVsyncMode(VsyncMode mode)

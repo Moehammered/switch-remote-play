@@ -17,6 +17,7 @@
 #include "MasterVolume.h"
 #include "NetworkAdapter.h"
 #include "Configuration.h"
+#include "DisplayDeviceService.h"
 
 auto constexpr applicationVersion = "0.9.1";
 
@@ -63,7 +64,13 @@ int main(int argc, char* argv[])
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
     auto const initialWidth = initialMonitorSettings.rcMonitor.right - initialMonitorSettings.rcMonitor.left;
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN);
-    PrintMonitorInfo(initialMonitorSettings);
+    {
+        auto tempDispServ = DisplayDeviceService{};
+        std::cout << "\n---- Monitor ----\n";
+        std::cout << "Printing active display devices found...\n";
+        tempDispServ.PrintDisplays();
+    }
+    //PrintMonitorInfo(initialMonitorSettings);
 
     auto broadcastAddress = std::string{ "192.168.0.255" };
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN | FOREGROUND_RED);
@@ -213,6 +220,11 @@ int main(int argc, char* argv[])
 
         auto ffmpegStarted = false;
         auto audioStarted = false;
+        auto displayService = DisplayDeviceService(true);
+        auto displays = displayService.ActiveDisplays();
+        auto const defaultDisplayInfo = DisplayDeviceInfo{ 0, 0, 0, initialWidth, initialHeight };
+        auto currentDisplay = defaultDisplayInfo;
+
         switch (lastCommand)
         {
             case Command::SHUTDOWN_PC:
@@ -227,18 +239,38 @@ int main(int argc, char* argv[])
                 if (ipFound)
                 {
                     std::cout << "Start stream with last received config from switch..." << std::endl;
-                    std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(lastPayload.encoderData) << std::endl;
-                    auto desktopResolution = lastPayload.encoderData.commonSettings.desktopResolution;
-                    auto resolutionResult = ChangeResolution(desktopResolution.width, desktopResolution.height);
-                    if (!ResolutionChangeSuccessful(resolutionResult))
+                    auto const encoderConfigData = lastPayload.encoderData;
+                    std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(encoderConfigData) << std::endl;
+
+                    auto desktopResolution = encoderConfigData.commonSettings.desktopResolution;
+                    auto const monitorIndex = encoderConfigData.commonSettings.monitorNumber;
+                    if (displays.size())
                     {
-                        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-                        PrintResolutionChangeResult(resolutionResult);
-                        SetConsoleTextAttribute(stdHandle, defaultColour);
+                        auto display = monitorIndex < displays.size() ? displays[monitorIndex] : displays[0];
+                        auto resolutionResult = ChangeResolution(display.monitorSystemName, desktopResolution.width, desktopResolution.height);
+                        if (!ResolutionChangeSuccessful(resolutionResult))
+                        {
+                            SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+                            PrintResolutionChangeResult(resolutionResult);
+                            SetConsoleTextAttribute(stdHandle, defaultColour);
+                        }
+                        currentDisplay = display;
                     }
+                    else
+                    {
+                        currentDisplay = defaultDisplayInfo;
+                        auto resolutionResult = ChangeResolution(desktopResolution.width, desktopResolution.height);
+                        if (!ResolutionChangeSuccessful(resolutionResult))
+                        {
+                            SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+                            PrintResolutionChangeResult(resolutionResult);
+                            SetConsoleTextAttribute(stdHandle, defaultColour);
+                        }
+                    }
+
                     // make sure this function takes in the IP of the switch dynamically from the handshake
                     auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
-                    streamProcessInfo = StartStream(lastPayload.encoderData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
+                    streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
                     audioProcessInfo = StartAudio(switchIP, audioPort, configFile.ShowFfmpegAudioEncoderOutputWindow(), audioStarted);
 
                     if (ffmpegStarted)
@@ -276,7 +308,7 @@ int main(int argc, char* argv[])
         StopStreamProcesses();
         
         std::cout << "Resetting resolution" << std::endl;
-        ChangeResolution(initialWidth, initialHeight);
+        ChangeResolution(currentDisplay.monitorSystemName, initialWidth, initialHeight);
 
         std::cout << "Restoring audio mute state" << std::endl;
         masterVolume.Mute(originalMuteState);

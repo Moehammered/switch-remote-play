@@ -8,7 +8,8 @@ GenericCodec::GenericCodec()
     bitrateCursor{Bitrates},
     vsyncCursor{VsyncModeStrMap},
     hwaccelCursor{HWAccelModeStrMap},
-    videoCursor{VideoCodecStrMap}
+    videoCursor{VideoCodecStrMap},
+    monitorNumberCursor{}
 {
 }
 
@@ -35,6 +36,7 @@ VideoData const GenericCodec::Data() const
     data.vsyncMode = vsyncCursor.KeyPair().first;
     data.hwaccelMode = hwaccelCursor.KeyPair().first;
     data.videoCodec = videoCursor.KeyPair().first;
+    data.monitorNumber = (int16_t)*monitorNumberCursor;
 
 	return data;
 }
@@ -96,6 +98,10 @@ void GenericCodec::ShiftParam(int direction)
 
     case VideoParameters::VideoCodec:
         videoCursor += direction;
+        break;
+
+    case VideoParameters::MonitorNumber:
+        monitorNumberCursor += direction;
         break;
 	}
 }

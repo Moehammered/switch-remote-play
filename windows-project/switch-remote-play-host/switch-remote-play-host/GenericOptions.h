@@ -33,6 +33,7 @@ struct VideoData
     VsyncMode       vsyncMode;
     HWAccelMode     hwaccelMode;
     VideoCodec      videoCodec;
+    int16_t         monitorNumber;
 };
 
 uint32_t constexpr VideoDataSize = sizeof(VideoData);
@@ -45,7 +46,8 @@ enum class VideoParameters
     BitrateKB,
     VsyncMode,
     HWAccelMode,
-    VideoCodec
+    VideoCodec,
+    MonitorNumber
 };
 
 std::unordered_map<VideoParameters, std::string> VideoParamsToStr(VideoData const data);
@@ -53,12 +55,14 @@ VideoData VideoParamsFromStr(std::unordered_map<VideoParameters, std::string> co
 
 static std::vector<VideoParameters> const VideoParametersList
 {
-    VideoParameters::DesktopResolution, 
+    VideoParameters::DesktopResolution,
     VideoParameters::SwitchResolution,
     VideoParameters::DesiredFramerate,
+    VideoParameters::BitrateKB,
     VideoParameters::VsyncMode,
     VideoParameters::HWAccelMode,
-    VideoParameters::VideoCodec
+    VideoParameters::VideoCodec,
+    VideoParameters::MonitorNumber
 };
 
 static std::unordered_map<VideoParameters, std::string> const VideoParamToDesc
@@ -66,9 +70,11 @@ static std::unordered_map<VideoParameters, std::string> const VideoParamToDesc
     { VideoParameters::DesktopResolution, "Desktop Resolution" },
     { VideoParameters::SwitchResolution, "Switch Resolution" },
     { VideoParameters::DesiredFramerate, "Desired Framerate" },
+    { VideoParameters::BitrateKB, "Bitrate(KB/s)" },
     { VideoParameters::VsyncMode, "Vsync Mode" },
     { VideoParameters::HWAccelMode, "HW Accel Mode" },
     { VideoParameters::VideoCodec, "Codec" },
+    { VideoParameters::MonitorNumber, "Monitor Number" }
 };
 
 #endif

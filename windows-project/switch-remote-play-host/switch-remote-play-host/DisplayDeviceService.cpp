@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <unordered_map>
+
 std::wstring DeviceStateFlagsToStr(DWORD flags)
 {
     auto map = std::unordered_map<DWORD, std::wstring>{
@@ -43,9 +44,13 @@ void PrintDisplayDeviceInfo(DisplayDeviceInfo const display)
         auto mask = display.deviceStateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE;
         return mask == DISPLAY_DEVICE_PRIMARY_DEVICE;
     };
-    std::wcout << display.monitorName << "(" << display.deviceName << ")\n";
-    std::wcout << "    Position: " << display.index;
+    std::wcout << display.monitorName << " (" << display.deviceName << ")\n";
+    std::wcout << "    Number: " << display.index;
     std::wcout << "    Primary: " << (isPrimary() ? "Yes" : "No") << "\n";
+    std::wcout << "    -- Location --\n";
+    std::wcout << "        (x,y): " << display.x << ", " << display.y << "\n";
+    std::wcout << "    -- Resolution --\n";
+    std::wcout << "        (width x height): " << display.width << " x " << display.height << "\n";
     std::wcout << "    Monitor ID: " << display.monitorID << "\n";
     std::wcout << "    Monitor Key: " << display.monitorKey << "\n";
     std::wcout << "    Monitor System Name: " << display.monitorSystemName << "\n\n";
@@ -79,7 +84,7 @@ void DisplayDeviceService::PrintDisplays() const
         std::wcout << "No devices found\n";
 }
 
-std::vector<DisplayDeviceInfo> const DisplayDeviceService::ActiveDisplay() const
+std::vector<DisplayDeviceInfo> const DisplayDeviceService::ActiveDisplays() const
 {
     return devices;
 }
@@ -105,6 +110,24 @@ DisplayDeviceInfo const DisplayDeviceService::PrimaryDisplay() const
 
 std::vector<DisplayDeviceInfo> DisplayDeviceService::QueryDevices(bool activeOnly)
 {
+    auto monitorInfoMap = std::unordered_map<std::wstring, MONITORINFOEX>{};
+
+    auto callback = [](HMONITOR monitor, HDC deviceContext, LPRECT monitorRect, LPARAM monitorMap)
+    {
+        MONITORINFOEX info;
+        info.cbSize = sizeof(MONITORINFOEX);
+        if (GetMonitorInfo(monitor, &info))
+        {
+            auto mapPtr = (std::unordered_map<std::wstring, MONITORINFOEX>*)monitorMap;
+            auto& map = *mapPtr;
+            map[info.szDevice] = info;
+        }
+
+        return TRUE;
+    };
+    if (!EnumDisplayMonitors(NULL, NULL, callback, (LONG_PTR)&monitorInfoMap))
+        std::cout << "failed to enumerate monitors\n";
+
     auto systemDevices = std::vector<DISPLAY_DEVICE>{};
     auto count = 0;
     auto temp = DISPLAY_DEVICE{};
@@ -130,6 +153,18 @@ std::vector<DisplayDeviceInfo> DisplayDeviceService::QueryDevices(bool activeOnl
         display.interfaceAdapterKey = device.DeviceKey;
         display.deviceStateFlags = device.StateFlags;
         display.monitorSystemName = device.DeviceName;
+        
+        auto monitorInfo = monitorInfoMap.find(device.DeviceName);
+        if (monitorInfo != monitorInfoMap.end())
+        {
+            auto monitor = monitorInfo->second;
+            display.x = monitor.rcMonitor.left;
+            display.y = monitor.rcMonitor.top;
+            auto const width = monitor.rcMonitor.right - monitor.rcMonitor.left;
+            auto const height = monitor.rcMonitor.bottom - monitor.rcMonitor.top;
+            display.width = width;
+            display.height = height;
+        }
 
         auto dataFetch = EnumDisplayDevices(device.DeviceName, 0, &temp, 0);
         if (dataFetch)

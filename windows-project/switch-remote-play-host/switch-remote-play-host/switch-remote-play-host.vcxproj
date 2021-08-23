@@ -164,6 +164,7 @@
     <ClCompile Include="ControllerButtonMap.cpp" />
     <ClCompile Include="ControllerMode.cpp" />
     <ClCompile Include="ControllerOptions.cpp" />
+    <ClCompile Include="DisplayDeviceService.cpp" />
     <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="FfmpegArgParser.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="ControllerButtonMap.h" />
     <ClInclude Include="ControllerMode.h" />
     <ClInclude Include="ControllerOptions.h" />
+    <ClInclude Include="DisplayDeviceService.h" />
     <ClInclude Include="DS4Controller.h" />
     <ClInclude Include="EnumMapper.h" />
     <ClInclude Include="FfmpegArgParser.h" />

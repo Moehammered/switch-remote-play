@@ -14,11 +14,11 @@ void SetParentDirectory(std::string path)
 }
 
 // Generate the command line argument string to execute ffmpeg
-std::string CreateVideoCommandLineArg(EncoderConfig const config, std::string const ip, uint16_t port)
+std::string CreateVideoCommandLineArg(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port)
 {
     using namespace std;
 
-    auto parser = FfmpegArgParser(config);
+    auto parser = FfmpegArgParser(config, display);
     auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
     auto parsedArgs = parser.CompleteArgs() + " " + connectionIP;
     auto completeCmd = ffmpegPath + " " + parsedArgs;
@@ -48,7 +48,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
 }
 
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
-PROCESS_INFORMATION StartStream(EncoderConfig const config, std::string const ip, uint16_t port, bool showEncoderOutput, bool& started)
+PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port, bool showEncoderOutput, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -57,7 +57,7 @@ PROCESS_INFORMATION StartStream(EncoderConfig const config, std::string const ip
 
     si.cb = sizeof(si);
 
-    auto args = CreateVideoCommandLineArg(config, ip, port);
+    auto args = CreateVideoCommandLineArg(display, config, ip, port);
     
     auto configFile = Configuration{ parentDirectory };
     auto ffmpegProcessFlag = 0;

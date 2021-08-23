@@ -48,6 +48,20 @@ int ChangeResolution(int width, int height)
 	return ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
 }
 
+int ChangeResolution(std::wstring device, int width, int height)
+{
+	auto deviceMode = DEVMODE{ 0 };
+
+	deviceMode.dmSize = sizeof(deviceMode);
+	deviceMode.dmBitsPerPel = 32;
+	deviceMode.dmPelsWidth = width;
+	deviceMode.dmPelsHeight = height;
+	deviceMode.dmDisplayFrequency = 60;
+	deviceMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+
+	return ChangeDisplaySettingsEx(device.c_str(), &deviceMode, NULL, CDS_FULLSCREEN, 0);
+}
+
 bool ResolutionChangeSuccessful(int const result)
 {
 	return result == DISP_CHANGE_SUCCESSFUL;
@@ -235,7 +249,7 @@ bool VirtualControllerDriverAvailable()
 
 bool StartupTouchContext()
 {
-	auto result = InitializeTouchInjection(5, TOUCH_FEEDBACK_DEFAULT);
+	auto result = InitializeTouchInjection(5, TOUCH_FEEDBACK_INDIRECT);
 	if (result == FALSE)
 	{
 		auto err = GetLastError();

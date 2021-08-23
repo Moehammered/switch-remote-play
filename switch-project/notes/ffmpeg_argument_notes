@@ -84,3 +84,8 @@ ffmpeg.exe -probesize 32 -hwaccel auto -y -f gdigrab -framerate 60 -vsync drop -
 
 // for different encoder parameter descriptions
     https://support.medialooks.com/hc/en-us/articles/360000210192-H-264-encoding-options
+
+
+// offset and capture different monitors on the desktop
+    http://underpop.online.fr/f/ffmpeg/help/gdigrab.htm.gz
+.\ffmpeg.exe -f gdigrab -framerate 60 -video_size 1920x1080 -offset_x 1920 -i desktop gditest.mkv

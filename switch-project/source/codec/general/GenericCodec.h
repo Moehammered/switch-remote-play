@@ -38,6 +38,9 @@ private:
 	UnorderedMapCirculator<HWAccelMode, std::string> hwaccelCursor;
 	UnorderedMapCirculator<VideoCodec, std::string> videoCursor;
 
+	//number cursors
+	NumberRange<int32_t, 0, 10> monitorNumberCursor;
+
 	void ShiftParam(int direction);
 };
 
