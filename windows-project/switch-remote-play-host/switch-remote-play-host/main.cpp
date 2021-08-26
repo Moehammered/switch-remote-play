@@ -31,7 +31,7 @@ std::string ExtractParentDirectory(const char* executablePath)
 {
     std::string fullPath{ executablePath };
 
-    for(auto i = fullPath.size() - 1; i > 0; --i)
+    for (auto i = fullPath.size() - 1; i > 0; --i)
     {
         if (fullPath[i] == '\\' || fullPath[i] == '/')
             return fullPath.substr(0, i);
@@ -156,9 +156,9 @@ int main(int argc, char* argv[])
                 std::cout << "inner loop waiting to receive a broadcast...\n";
 
                 auto receivedKey = std::string{};
-                if(!broadcaster.Recv(receivedKey))
+                if (!broadcaster.Recv(receivedKey))
                     std::cout << "Error recv'ing: " << WSAGetLastError() << std::endl;
-                else if(receivedKey == replyKey)
+                else if (receivedKey == replyKey)
                 {
                     switchIP = broadcaster.ReceivedIP();
                     ipFound = true;
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
                 else if (receivedKey != replyKey)
                     std::cout << "key didn't match. received: " << receivedKey << std::endl;
 
-                std::this_thread::sleep_for(waitTime*2);
+                std::this_thread::sleep_for(waitTime * 2);
             }
 
             broadcaster.Close();
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
     auto lastCommand = Command::IGNORE_COMMAND;
     auto lastPayload = CommandPayload{};
 
-    
+
     ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
     ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
     SetConsoleCtrlHandler(ConsoleWindowEventHandler, TRUE);
@@ -227,70 +227,79 @@ int main(int argc, char* argv[])
 
         switch (lastCommand)
         {
-            case Command::SHUTDOWN_PC:
-                std::cout << "Shutdown host PC (Not implemented)" << std::endl;
-                StopStreamProcesses();
+        case Command::SHUTDOWN_PC:
+            std::cout << "Shutdown host PC (Not implemented)" << std::endl;
+            StopStreamProcesses();
 
-                break;
+            break;
 
-            case Command::START_STREAM:
-                StopStreamProcesses();
+        case Command::START_STREAM:
+            StopStreamProcesses();
 
-                if (ipFound)
+            if (ipFound)
+            {
+                std::cout << "Start stream with last received config from switch..." << std::endl;
+                auto const encoderConfigData = lastPayload.encoderData;
+                std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(encoderConfigData) << std::endl;
+
+                auto desiredDesktopResolution = encoderConfigData.commonSettings.desktopResolution;
+                auto const monitorIndex = encoderConfigData.commonSettings.monitorNumber;
+                auto currentDesktopResolution = desiredDesktopResolution;
+                if (displays.size())
                 {
-                    std::cout << "Start stream with last received config from switch..." << std::endl;
-                    auto const encoderConfigData = lastPayload.encoderData;
-                    std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(encoderConfigData) << std::endl;
-
-                    auto desktopResolution = encoderConfigData.commonSettings.desktopResolution;
-                    auto const monitorIndex = encoderConfigData.commonSettings.monitorNumber;
-                    if (displays.size())
+                    auto display = monitorIndex < displays.size() ? displays[monitorIndex] : displays[0];
+                    auto resolutionResult = ChangeResolution(display.monitorSystemName, desiredDesktopResolution.width, desiredDesktopResolution.height);
+                    if (!ResolutionChangeSuccessful(resolutionResult))
                     {
-                        auto display = monitorIndex < displays.size() ? displays[monitorIndex] : displays[0];
-                        auto resolutionResult = ChangeResolution(display.monitorSystemName, desktopResolution.width, desktopResolution.height);
-                        if (!ResolutionChangeSuccessful(resolutionResult))
-                        {
-                            SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-                            PrintResolutionChangeResult(resolutionResult);
-                            SetConsoleTextAttribute(stdHandle, defaultColour);
-                        }
-                        currentDisplay = display;
+                        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+                        PrintResolutionChangeResult(resolutionResult);
+                        SetConsoleTextAttribute(stdHandle, defaultColour);
+                        currentDesktopResolution.height = display.height;
+                        currentDesktopResolution.width = display.width;
                     }
-                    else
-                    {
-                        currentDisplay = defaultDisplayInfo;
-                        auto resolutionResult = ChangeResolution(desktopResolution.width, desktopResolution.height);
-                        if (!ResolutionChangeSuccessful(resolutionResult))
-                        {
-                            SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-                            PrintResolutionChangeResult(resolutionResult);
-                            SetConsoleTextAttribute(stdHandle, defaultColour);
-                        }
-                    }
-
-                    // make sure this function takes in the IP of the switch dynamically from the handshake
-                    auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
-                    streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
-                    audioProcessInfo = StartAudio(switchIP, audioPort, configFile.ShowFfmpegAudioEncoderOutputWindow(), audioStarted);
-
-                    if (ffmpegStarted)
-                    {
-                        if (switchHandshakeConnection != nullptr)
-                            switchHandshakeConnection->Shutdown();
-
-                        gamepadThread = StartGamepadListener(lastPayload.controllerData, killStream, gamepadActive, gamepadPort);
-#ifdef RELEASE
-                        if(IsWindowVisible(GetConsoleWindow()))
-                            ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
-#endif
-
-                        originalMuteState = masterVolume.IsMuted();
-                        masterVolume.Mute(true);
-                    }
+                    currentDisplay = display;
                 }
                 else
-                    std::cout << "Switch IP has not been found. Please restart the application and switch application and try searching for the host PC on the switch.\n";
-                break;
+                {
+                    currentDisplay = defaultDisplayInfo;
+                    auto resolutionResult = ChangeResolution(desiredDesktopResolution.width, desiredDesktopResolution.height);
+                    if (!ResolutionChangeSuccessful(resolutionResult))
+                    {
+                        SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
+                        PrintResolutionChangeResult(resolutionResult);
+                        SetConsoleTextAttribute(stdHandle, defaultColour);
+                        currentDesktopResolution.height = defaultDisplayInfo.height;
+                        currentDesktopResolution.width = defaultDisplayInfo.width;
+                    }
+                }
+
+                // make sure this function takes in the IP of the switch dynamically from the handshake
+                auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
+                streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
+                audioProcessInfo = StartAudio(switchIP, audioPort, configFile.ShowFfmpegAudioEncoderOutputWindow(), audioStarted);
+
+                if (ffmpegStarted)
+                {
+                    if (switchHandshakeConnection != nullptr)
+                        switchHandshakeConnection->Shutdown();
+
+                    gamepadThread = StartGamepadListener(currentDesktopResolution,
+                        lastPayload.controllerData,
+                        killStream,
+                        gamepadActive,
+                        gamepadPort);
+#ifdef RELEASE
+                    if (IsWindowVisible(GetConsoleWindow()))
+                        ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
+#endif
+
+                    originalMuteState = masterVolume.IsMuted();
+                    masterVolume.Mute(true);
+                }
+            }
+            else
+                std::cout << "Switch IP has not been found. Please restart the application and switch application and try searching for the host PC on the switch.\n";
+            break;
         }
 
         // wait here for the stream to change state
@@ -303,10 +312,10 @@ int main(int argc, char* argv[])
 
         std::cout << "making sure to kill stream..." << std::endl;
         killStream.store(true, std::memory_order_release);
-        
+
         std::cout << "terminating the FFMPEG process" << std::endl;
         StopStreamProcesses();
-        
+
         std::cout << "Resetting resolution" << std::endl;
         ChangeResolution(currentDisplay.monitorSystemName, initialWidth, initialHeight);
 

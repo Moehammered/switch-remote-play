@@ -1,5 +1,67 @@
 #include "VirtualTouch.h"
 #include <algorithm>
+#include <iostream>
+#include <string>
+#include <sstream>
+
+std::string PointerFlagToStr(POINTER_FLAGS pointerFlags)
+{
+    auto ss = std::stringstream{};
+
+    auto map = std::unordered_map<POINTER_FLAGS, std::string>{
+        { POINTER_FLAG_UPDATE, "pf_UPDATE" },
+        { POINTER_FLAG_DOWN, "pf_DOWN" },
+        { POINTER_FLAG_INRANGE, "pf_INRANGE" },
+        { POINTER_FLAG_INCONTACT, "pf_INCONTACT" },
+        { POINTER_FLAG_UP, "pf_UP" }
+    };
+
+    for (auto const& pair : map)
+    {
+        if (pair.first & pointerFlags)
+            ss << pair.second << " ";
+    }
+
+    return ss.str();
+}
+
+std::string CreateDiagnosticOutput(std::vector<POINTER_TOUCH_INFO> const& contacts)
+{
+    auto ss = std::stringstream{};
+
+    for (auto const& c : contacts)
+    {
+        ss << c.pointerInfo.pointerId << ":  ";
+        ss << "[ " << PointerFlagToStr(c.pointerInfo.pointerFlags) << "] ";
+        ss << "\n";
+    }
+
+    return ss.str();
+}
+
+std::string GetLastErrorAsString()
+{
+    //Get the error message ID, if any.
+    DWORD errorMessageID = ::GetLastError();
+    if (errorMessageID == 0) {
+        return std::string(); //No error message has been recorded
+    }
+
+    LPSTR messageBuffer = nullptr;
+
+    //Ask Win32 to give us the string version of that message ID.
+    //The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+    //Copy the error message into a std::string.
+    std::string message(messageBuffer, size);
+
+    //Free the Win32's string's buffer.
+    LocalFree(messageBuffer);
+
+    return message;
+}
 
 long constexpr magSqr(int x, int y) { return x * x + y * y; }
 
@@ -94,7 +156,15 @@ void VirtualTouch::Commit()
             lostFingers.push_back(finger.second);
 
         auto releaseLostEvents = CreateReleaseEvents(lostFingers);
-        InjectTouchInput(releaseLostEvents.size(), releaseLostEvents.data());
+        auto failed = InjectTouchInput(releaseLostEvents.size(), releaseLostEvents.data()) == 0;
+        if (failed)
+        {
+            std::cout << "Injection failed for release events\n";
+            auto err = GetLastErrorAsString();
+            std::cout << "Error:\n\t" << err << "\n";
+            std::cout << "Contact info: " << CreateDiagnosticOutput(releaseLostEvents) << "\n";
+        }
+
         released.clear();
     }
 
@@ -106,12 +176,20 @@ void VirtualTouch::Commit()
         for (auto const& finger : contacts)
             injections.push_back(finger.second);
 
-        InjectTouchInput(contacts.size(), injections.data());
-        
+        auto failed = InjectTouchInput(contacts.size(), injections.data()) == 0;
+
+        if (failed)
+        {
+            std::cout << "Injection failed for contact events\n";
+            auto err = GetLastErrorAsString();
+            std::cout << "Error:\n\t" << err << "\n";
+            std::cout << "Contact info: " << CreateDiagnosticOutput(injections) << "\n";
+        }
+
         auto toDelete = std::vector<uint32_t>();
         for (auto const& contact : contacts)
         {
-            if (contact.second.pointerInfo.pointerFlags == POINTER_FLAG_NONE)
+            if (contact.second.pointerInfo.pointerFlags == POINTER_FLAG_UP)
                 toDelete.push_back(contact.first);
         }
 
@@ -209,10 +287,11 @@ void VirtualTouch::ReleaseContact(POINTER_TOUCH_INFO& contact)
     auto& pointer = contact.pointerInfo;
     auto ignoreFlags = (POINTER_FLAG_NONE | POINTER_FLAG_UP);
     auto flag = pointer.pointerFlags;
-    if (flag != POINTER_FLAG_UP && flag != POINTER_FLAG_NONE)
+    pointer.pointerFlags = POINTER_FLAG_UP;
+    /*if (flag != POINTER_FLAG_UP && flag != POINTER_FLAG_NONE)
         pointer.pointerFlags = POINTER_FLAG_UP;
     else if (flag & POINTER_FLAG_UP)
-        pointer.pointerFlags = POINTER_FLAG_NONE;
+        pointer.pointerFlags = POINTER_FLAG_NONE;*/
 }
 
 std::vector<POINTER_TOUCH_INFO> VirtualTouch::CreateReleaseEvents(std::vector<POINTER_TOUCH_INFO> const& contacts)
@@ -221,11 +300,13 @@ std::vector<POINTER_TOUCH_INFO> VirtualTouch::CreateReleaseEvents(std::vector<PO
 
     for (auto contact : contacts)
     {
-        while (contact.pointerInfo.pointerFlags != POINTER_FLAG_NONE)
+        contact.pointerInfo.pointerFlags = POINTER_FLAG_UP | POINTER_FLAG_CANCELED;
+        events.push_back(contact);
+        /*while (contact.pointerInfo.pointerFlags != POINTER_FLAG_UP)
         {
             ReleaseContact(contact);
             events.push_back(contact);
-        }
+        }*/
     }
 
     return events;

@@ -3,13 +3,7 @@
 #include <WinUser.h>
 #include <vector>
 #include <unordered_map>
-
-struct VirtualFinger
-{
-    uint32_t id;
-    uint32_t x;
-    uint32_t y;
-};
+#include "VirtualFinger.h"
 
 class VirtualTouch
 {

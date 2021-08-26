@@ -6,11 +6,11 @@ int ClearFlag(int original, int flag)
 	return original & ~flag;
 }
 
-VirtualMouse::VirtualMouse(int sensitivity)
-	: prevBtnFlags{ 0 }, mouseBtnFlags{0}, 
-	mouseSensitivity{sensitivity},
-	mouseX{ 0 }, mouseY{ 0 }, 
-	scrollX{ 0 }, scrollY{ 0 }
+VirtualMouse::VirtualMouse()
+	: prevBtnFlags{ 0 }, mouseBtnFlags{0},
+	mouseX{ 0 }, mouseY{ 0 },
+	scrollX{ 0 }, scrollY{ 0 },
+	moveType{SupportedMouseMovement::Relative}
 {
 }
 
@@ -54,6 +54,7 @@ void VirtualMouse::Move(int x, int y)
 
 void VirtualMouse::Move(SupportedMouseMovement moveType, int x, int y)
 {
+	this->moveType = moveType;
 	mouseX = x;
 	mouseY = y;
 }
@@ -118,8 +119,11 @@ unsigned long VirtualMouse::BuildEventFlags()
 	auto const moved = (mouseX || mouseY);
 	auto const btnsChanged = prevBtnFlags != mouseBtnFlags;
 	auto const scrolled = (scrollX || scrollY);
+	auto movementFlag = MOUSEEVENTF_MOVE;
+	if (moveType == SupportedMouseMovement::Absolute)
+		movementFlag |= MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
 
-	unsigned long eventFlags = moved ? MOUSEEVENTF_MOVE : 0;
+	unsigned long eventFlags = moved ? movementFlag : 0;
 	eventFlags |= btnsChanged ? mouseBtnFlags : 0;
 
 	if (scrolled)

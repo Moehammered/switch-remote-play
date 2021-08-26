@@ -98,7 +98,8 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
     return data;
 }
 
-std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
+//session resolution needed to clamp and normalise simulated absolute mouse movement
+std::thread StartGamepadListener(Resolution sessionResolution, controller::ControllerConfig controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
 {
     using namespace std;
     thread workerThread{};
@@ -144,7 +145,7 @@ std::thread StartGamepadListener(controller::ControllerConfig controllerConfig, 
 
                 if (controller->Create())
                 {
-                    auto mouse = VirtualMouse{0};
+                    auto mouse = VirtualMouse{};
                     auto touch = VirtualTouch(5, 2);
                     auto streamDead = killStream.load(memory_order_acquire);
                     gamepadActive.store(true, memory_order_release);

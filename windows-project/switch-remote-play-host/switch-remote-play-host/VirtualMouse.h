@@ -24,7 +24,7 @@ struct VirtualMouseConfiguration
 class VirtualMouse
 {
 public:
-	VirtualMouse(int sensitivity);
+	VirtualMouse();
 
 	void Press(SupportedMouseButtons button);
 	void Release(SupportedMouseButtons button);
@@ -38,9 +38,9 @@ public:
 private:
 	int prevBtnFlags;
 	int mouseBtnFlags;
-	int mouseSensitivity;
 	long mouseX, mouseY;
 	long scrollX, scrollY;
+	SupportedMouseMovement moveType;
 
 	int ButtonToPressFlag(SupportedMouseButtons button);
 	int ButtonToReleaseFlag(SupportedMouseButtons button);
