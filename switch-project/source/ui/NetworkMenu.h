@@ -13,6 +13,7 @@ enum NetworkMenuItems : int32_t
     IP_SEG_4,
     SAVE_BUTTON,
     MANUAL_TOGGLE,
+    TEST_SFT_KBD_IP,
     NETWORK_MENU_ITEM_COUNT
 };
 

@@ -1,6 +1,7 @@
 #include "NetworkMenu.h"
 #include "../network/NetworkConfiguration.h"
 #include <iostream>
+#include <switch.h>
 
 NetworkMenu::NetworkMenu() : Menu(),
     warningText{}, textElements{}, ip{},
@@ -43,6 +44,12 @@ NetworkMenu::NetworkMenu() : Menu(),
     broadcastIP.x = x;
     broadcastIP.y = y+100;
     broadcastIP.colour = white;
+
+    auto& testKbdIP = textElements[NetworkMenuItems::TEST_SFT_KBD_IP];
+    testKbdIP.x = 350;
+    testKbdIP.y = y+150;
+    testKbdIP.colour = white;
+    testKbdIP.value = "Set IP via Keyboard Test";
 }
 
 void NetworkMenu::ProcessInput(PadState const & pad)
@@ -173,6 +180,50 @@ void NetworkMenu::ProcessIncrease()
             manualToggle.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
         }
         break;
+
+        case NetworkMenuItems::TEST_SFT_KBD_IP:
+        {
+            SwkbdConfig kbd{};
+            char ipEntered[16]{0};
+            auto res = swkbdCreate(&kbd, 0);
+
+            auto ipCheck = [](char* str, size_t strSize){
+                auto errMsg = "Invalid IP";
+                auto dotCounter = 0;
+                for(auto i = 0; i < strSize; ++i)
+                {
+                    if(str[i] == '.')
+                        ++dotCounter;
+                }
+                std::cout << "str size - " << strSize << '\n';
+                if(dotCounter == 3)
+                    return SwkbdTextCheckResult_OK;
+                else
+                {
+                    strncpy(str, errMsg, strSize);
+                    // strncpy(str, "Invalid IP", strSize);
+                    return SwkbdTextCheckResult_Bad;
+                }
+            };
+
+            if(R_SUCCEEDED(res))
+            {
+                swkbdConfigMakePresetDefault(&kbd);
+                swkbdConfigSetType(&kbd, SwkbdType_NumPad);
+                swkbdConfigSetLeftOptionalSymbolKey(&kbd, ".");
+                swkbdConfigSetRightOptionalSymbolKey(&kbd, ".");
+                swkbdConfigSetHeaderText(&kbd, "Set manual IP address");
+                auto currIP = ManualIPAddress();
+                swkbdConfigSetInitialText(&kbd, currIP.c_str());
+                swkbdConfigSetStringLenMax(&kbd, 15);
+                swkbdConfigSetTextCheckCallback(&kbd, ipCheck);
+
+                swkbdShow(&kbd, ipEntered, 15);
+                std::cout << "IP entered from kbd: " << ipEntered << "\n";
+                swkbdClose(&kbd);
+            }
+        }
+        break;
     }
 }
 
@@ -196,6 +247,7 @@ void NetworkMenu::ProcessDecrease()
         break;
 
         default:
+        case NetworkMenuItems::TEST_SFT_KBD_IP:
         case NetworkMenuItems::SAVE_BUTTON:
         case NetworkMenuItems::MANUAL_TOGGLE:
         break;
