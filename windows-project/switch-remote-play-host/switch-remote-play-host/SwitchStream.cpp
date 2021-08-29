@@ -99,7 +99,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 }
 
 //session resolution needed to clamp and normalise simulated absolute mouse movement
-std::thread StartGamepadListener(Resolution sessionResolution, controller::ControllerConfig controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
+std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::ControllerConfig controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
 {
     using namespace std;
     thread workerThread{};
@@ -147,6 +147,7 @@ std::thread StartGamepadListener(Resolution sessionResolution, controller::Contr
                 {
                     auto mouse = VirtualMouse{};
                     auto touch = VirtualTouch(5, 2);
+                    
                     auto streamDead = killStream.load(memory_order_acquire);
                     gamepadActive.store(true, memory_order_release);
                     auto active = true;
@@ -264,6 +265,8 @@ std::thread StartGamepadListener(Resolution sessionResolution, controller::Contr
                                 auto finger = switchContactInfo.touches[i];
                                 auto reinterp = reinterpret_cast<VirtualFinger*>(&finger);
                                 fingers.emplace_back(*reinterp);
+                                fingers.back().x += sessionDisplay.x;
+                                fingers.back().y += sessionDisplay.y;
                             }
                             touch.Press(fingers);
                             touch.Move(fingers);

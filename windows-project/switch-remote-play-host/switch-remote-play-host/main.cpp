@@ -283,7 +283,7 @@ int main(int argc, char* argv[])
                     if (switchHandshakeConnection != nullptr)
                         switchHandshakeConnection->Shutdown();
 
-                    gamepadThread = StartGamepadListener(currentDesktopResolution,
+                    gamepadThread = StartGamepadListener(currentDisplay,
                         lastPayload.controllerData,
                         killStream,
                         gamepadActive,
