@@ -219,6 +219,9 @@
     <ClInclude Include="VirtualFinger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DeadzoneUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />
