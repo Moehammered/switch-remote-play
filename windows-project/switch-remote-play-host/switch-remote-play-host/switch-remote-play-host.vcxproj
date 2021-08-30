@@ -200,6 +200,7 @@
     <ClInclude Include="ControllerButtonMap.h" />
     <ClInclude Include="ControllerMode.h" />
     <ClInclude Include="ControllerOptions.h" />
+    <ClInclude Include="DeadzoneUtility.h" />
     <ClInclude Include="DisplayDeviceService.h" />
     <ClInclude Include="DS4Controller.h" />
     <ClInclude Include="EnumMapper.h" />

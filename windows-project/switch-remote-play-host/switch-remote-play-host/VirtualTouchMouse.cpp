@@ -1,8 +1,11 @@
 #include "VirtualTouchMouse.h"
 #include <algorithm>
+#include "DeadzoneUtility.h"
 
-VirtualTouchMouse::VirtualTouchMouse(Resolution const screenExtents, int const coordinateMax)
-    : virtualMouse{}, screenLimits{ screenExtents }, dimensionMax{ coordinateMax }
+VirtualTouchMouse::VirtualTouchMouse(Resolution const screenExtents, int const coordinateMax, uint32_t deadzoneRadius)
+    : virtualMouse{}, screenLimits{ screenExtents }, dimensionMax{ coordinateMax },
+    deadzoneRadius{deadzoneRadius}, deadzoneMagSqr{magnitudeSqr(deadzoneRadius, deadzoneRadius)},
+    lastX{}, lastY{}
 {
 }
 
@@ -10,13 +13,20 @@ void VirtualTouchMouse::Update(std::vector<VirtualFinger> const fingers)
 {
     if (fingers.size() != 0)
     {
+        virtualMouse.Press(SupportedMouseButtons::Left);
+
         auto finger = fingers[0];
 
-        auto scaledX = ScaleAbsolutePosition(finger.x, screenLimits.width, dimensionMax);
-        auto scaledY = ScaleAbsolutePosition(finger.y, screenLimits.height, dimensionMax);
+        auto deadzoneExceeded = OutsideDeadzone(finger.x, finger.y, lastX, lastY);
+        if (deadzoneExceeded)
+        {
+            auto scaledX = ScaleAbsolutePosition(finger.x, screenLimits.width, dimensionMax);
+            auto scaledY = ScaleAbsolutePosition(finger.y, screenLimits.height, dimensionMax);
 
-        virtualMouse.Press(SupportedMouseButtons::Left);
-        virtualMouse.Move(SupportedMouseMovement::Absolute, scaledX, scaledY);
+            virtualMouse.Move(SupportedMouseMovement::Absolute, scaledX, scaledY);
+            lastX = finger.x;
+            lastY = finger.y;
+        }
 
         if (fingers.size() == 2)
             virtualMouse.Press(SupportedMouseButtons::Right);
@@ -50,4 +60,9 @@ int const VirtualTouchMouse::ScaleAbsolutePosition(int value, int dimension, int
     auto scaled = (int)(normalised * max);
 
     return std::min(scaled, max);
+}
+
+bool VirtualTouchMouse::OutsideDeadzone(long x1, long y1, long x2, long y2)
+{
+    return outsideDeadzoneSqr(deadzoneMagSqr, x1, y1, x2, y2);
 }
