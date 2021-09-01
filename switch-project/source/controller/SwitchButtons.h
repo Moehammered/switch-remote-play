@@ -10,6 +10,21 @@ extern "C"
 
 namespace controller
 {
+    enum class AnalogStick
+    {
+        Left,
+        Right
+    };
+
+    static std::unordered_map<AnalogStick, std::string> const analogStickOptions
+    {
+        { AnalogStick::Left, "Left Analog Stick" },
+        { AnalogStick::Right, "Right Analog Stick" }
+    };
+
+    std::string AnalogStickToString(AnalogStick stick);
+    AnalogStick ParseAnalogStickString(std::string s);
+
     std::string SwitchButtonToString(HidNpadButton btn);
     HidNpadButton ParseSwitchButtonString(std::string s);
     
