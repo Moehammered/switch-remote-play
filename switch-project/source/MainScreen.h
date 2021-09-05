@@ -9,6 +9,7 @@
 #include "ui/DecoderMenu.h"
 #include "ui/EncoderMenu.h"
 #include "ui/ControllerMenu.h"
+#include "ui/MouseMenu.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
@@ -18,6 +19,7 @@ enum MenuScreen : int32_t
     ENCODER_CONFIG,
     CONTROLLER,
     IP_SET,
+    MOUSE_MENU,
     COUNT
 };
 
@@ -65,6 +67,7 @@ class MenuSelection : public Menu
         MenuScreen selectedMenu;
         DecoderMenu newDecoderMenu;
         ControllerMenu newControllerMenu;
+        MouseMenu mouseMenu;
 };
 
 #endif

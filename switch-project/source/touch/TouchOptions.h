@@ -4,67 +4,51 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include "VirtualTouchOptions.h"
+#include "SimulatedMouseOptions.h"
 
 namespace touch
 {
-    enum class VirtualTouchParameters
+    enum class TouchScreenMode
     {
-        DeadzoneRadius,
-        MaxFingerCount
+        VirtualTouch,
+        SimulatedMouse
     };
 
-    static std::vector<VirtualTouchParameters, std::string> const VirtualTouchParamsList
+    static std::vector<TouchScreenMode> const TouchScreenModeList
     {
-        VirtualTouchParameters::DeadzoneRadius, VirtualTouchParameters::MaxFingerCount
+        TouchScreenMode::VirtualTouch, TouchScreenMode::SimulatedMouse
     };
 
-    static std::unordered_map<VirtualTouchParameters, std::string> const VirtualTouchParamsDesc
+    static std::unordered_map<TouchScreenMode, std::string> const TouchScreenModeStr
     {
-        { VirtualTouchParameters::DeadzoneRadius, "Deadzone Radius" },
-        { VirtualTouchParameters::MaxFingerCount, "Max Finger Count" }
+        { TouchScreenMode::VirtualTouch, "virtual touch" },
+        { TouchScreenMode::SimulatedMouse, "simulated mouse" }
     };
 
-    int16_t constexpr DefaultVirtualTouchDeadzoneRadius = 5;
-    int16_t constexpr MinVirtualTouchDeadzoneRadius = 3;
-    int16_t constexpr MaxVirtualTouchDeadzoneRadius = 30;
-
-    int16_t constexpr DefaultMaxFingerCount = 2;
-    int16_t constexpr MinFingerCount = 1;
-    int16_t constexpr MaxFingerCount = 5;
-
-    struct VirtualTouchConfig
+    static std::unordered_map<TouchScreenMode, std::string> const TouchScreenModeDesc
     {
-        int16_t deadzoneRadius;
-        int16_t maxFingerCount;
+        { TouchScreenMode::VirtualTouch, "Virtual Touch (PC behaves like a touch device)" },
+        { TouchScreenMode::SimulatedMouse, "Simulated Mouse (Touch screen behaves like a mouse)" }
     };
 
-    int32_t constexpr VirtualTouchConfigSize = sizeof(VirtualTouchConfig);
+    TouchScreenMode TouchScreenModeStrToEnum(std::string s);
+    std::string TouchScreenModeEnumToStr(TouchScreenMode mode);
+    std::string TouchScreenModeEnumToDesc(TouchScreenMode mode);
 
-    std::unordered_map<VirtualTouchParameters, std::string> const VirtualTouchParamsToStr(VirtualTouchConfig const config);
-    VirtualTouchConfig const VirtualTouchParamsFromStr(std::unordered_map<VirtualTouchParameters, std::string> const & map);
+    TouchScreenMode constexpr DefaultTouchScreenMode = TouchScreenMode::VirtualTouch;
 
-    enum class SimulatedTouchMouseParameters
+    struct TouchConfig
     {
-        DeadzoneRadius
+        TouchScreenMode touchMode;
+        union
+        {
+            VirtualTouchConfig      virtualTouchSettings;
+            SimulatedTouchConfig    simulatedTouchMouseSettings;
+        };
     };
 
-    static std::vector<SimulatedTouchMouseParameters, std::string> const SimulatedTouchParamsList
-    {
-        SimulatedTouchMouseParameters::DeadzoneRadius
-    };
-
-    static std::unordered_map<SimulatedTouchMouseParameters, std::string> const SimulatedTouchParamsDesc
-    {
-        { SimulatedTouchMouseParameters::DeadzoneRadius, "Deadzone Radius" }
-    };
-
-    struct SimulatedTouchConfig
-    {
-        int16_t deadzoneRadius;
-    };
-
-    std::unordered_map<SimulatedTouchMouseParameters, std::string> const SimulatedTouchParamsToStr(SimulatedTouchConfig const config);
-    SimulatedTouchConfig const SimulatedTouchParamsFromStr(std::unordered_map<SimulatedTouchConfig, std::string> const & map);
+    int32_t constexpr TouchConfigSize = sizeof(TouchConfig);
 }
 
 #endif
