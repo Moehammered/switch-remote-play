@@ -10,14 +10,14 @@ MenuSelection::MenuSelection() : Menu(),
     encoderScreen{}, networkScreen{},
     menus{}, selectedMenu{MOUSE_MENU}, 
     newDecoderMenu{}, newControllerMenu{},
-    mouseMenu{}
+    touchMenu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;
     menus[MenuScreen::DECODER_CONFIG] = &newDecoderMenu;
     menus[MenuScreen::CONTROLLER] = &newControllerMenu;
     menus[MenuScreen::ENCODER_CONFIG] = &encoderScreen;
     menus[MenuScreen::IP_SET] = &networkScreen;
-    menus[MenuScreen::MOUSE_MENU] = &mouseMenu;
+    menus[MenuScreen::MOUSE_MENU] = &touchMenu;
 
     title.x = 400; title.y = 5;
     title.colour = green;

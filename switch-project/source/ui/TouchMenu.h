@@ -2,26 +2,28 @@
 #define __MOUSEMENU_H__
 
 #include "Menu.h"
-#include "../mouse/MouseOptions.h"
 #include "VirtualTouchMenu.h"
 #include "SimulatedTouchMouseMenu.h"
+#include "../utils/UnorderedMapCirculator.h"
 
-class MouseMenu : public Menu
+class TouchMenu : public Menu
 {
     public:
-        MouseMenu();
+        TouchMenu();
 
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
-        mouse::MouseConfig const Settings() const;
+        touch::TouchConfig const Settings() const;
+
+        touch::VirtualTouchConfig const VirtualTouchSettings() const;
+        touch::SimulatedTouchConfig const SimulatedTouchSettings() const;
 
     private:
         VirtualTouchMenu virtualTouchPage;
         SimulatedTouchMouseMenu simulatedTouchPage;
-        // GenericMouseMenu generalMenu;
-        // std::unordered_map<touch::TouchScreenMode, Menu*> const menus;
-        bool advancedOptions;
+        UnorderedMapCirculator<touch::TouchScreenMode, std::string> touchMode;
+        Text touchModeText;
         Text pageText;
 };
 

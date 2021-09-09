@@ -2,7 +2,9 @@
 #include <switch.h>
 
 auto const simulatedTouchHelpText =
-"Simulated Mouse mode allows the touch input to be interpreted as mouse input on the PC.\n\
+"/!\\ This mode will only work for the primary display monitor /!\\\n\
+\n\
+Simulated Mouse mode allows the touch input to be interpreted as mouse input on the PC.\n\
 DeadzoneRadius = how far a finger has to travel to register movement.\n\
 \n\
 /!\\ This mode will only work for the primary display monitor /!\\\n";
@@ -12,11 +14,11 @@ textElements{}, selected{touch::SimulatedTouchParamsList},
 deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius}
 {
     title.value = "Simulated Mouse Options";
-    title.y += 30;
+    title.y += 150;
 
     helpText.y += 500;
     helpText.x = 30;
-    helpText.colour = {200, 200, 50, 255};
+    helpText.colour = { 255, 190, 90, 255 };
     helpText.value = simulatedTouchHelpText;
 
     SetupText();

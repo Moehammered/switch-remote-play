@@ -22,8 +22,8 @@ namespace touch
 
     static std::unordered_map<TouchScreenMode, std::string> const TouchScreenModeStr
     {
-        { TouchScreenMode::VirtualTouch, "virtual touch" },
-        { TouchScreenMode::SimulatedMouse, "simulated mouse" }
+        { TouchScreenMode::VirtualTouch, "Virtual Touch" },
+        { TouchScreenMode::SimulatedMouse, "Simulated Mouse" }
     };
 
     static std::unordered_map<TouchScreenMode, std::string> const TouchScreenModeDesc

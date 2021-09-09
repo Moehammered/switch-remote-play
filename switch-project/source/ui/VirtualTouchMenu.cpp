@@ -11,12 +11,12 @@ textElements{}, selected{touch::VirtualTouchParamsList},
 deadzoneRadius{touch::DefaultVirtualTouchDeadzoneRadius},
 maxFingerCount{touch::DefaultMaxFingerCount}
 {
-    title.value = "Vitual Touch Options";
-    title.y += 30;
+    title.value = "Virtual Touch Options";
+    title.y += 150;
 
     helpText.y += 500;
     helpText.x = 30;
-    helpText.colour = {200, 200, 50, 255};
+    helpText.colour = { 255, 190, 90, 255 };
     helpText.value = virtualTouchHelpText;
 
     SetupText();
