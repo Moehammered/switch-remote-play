@@ -57,7 +57,14 @@ void MouseMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 
 mouse::MouseConfig const MouseMenu::Settings() const
 {
-    return {};
+    return mouse::MouseConfig{
+        .leftClickButton = leftMouseBtnCursor.KeyPair().first,
+        .rightClickButton = rightMouseBtnCursor.KeyPair().first,
+        .middleClickButton = middleMouseBtnCursor.KeyPair().first,
+        .mouseSensitivity = (int16_t)mouseSensitivity,
+        .mouseWheelAnalog = mouseWheelAnalogCursor.KeyPair().first,
+        .mouseOnConnect = mouseOnConnect
+    };
 }
 
 bool MouseMenu::keyAssigned(HidNpadButton const desired, std::initializer_list<HidNpadButton> const taken)

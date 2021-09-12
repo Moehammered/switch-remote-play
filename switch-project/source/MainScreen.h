@@ -53,6 +53,10 @@ class MenuSelection : public Menu
 
         controller::ControllerConfig const GetControllerSettings();
 
+        mouse::MouseConfig const MouseSettings();
+
+        touch::TouchConfig const TouchSettings();
+
         bool UseManualIP();
 
         std::string const GetManualIPAddress();

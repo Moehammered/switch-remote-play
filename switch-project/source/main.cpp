@@ -85,7 +85,11 @@ void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& 
     }
 };
 
-void SaveConfigData(EncoderConfig const encoderData, DecoderData const decoderData, controller::ControllerConfig const controllerData)
+void SaveConfigData(EncoderConfig const encoderData, 
+DecoderData const decoderData, 
+controller::ControllerConfig const controllerData,
+mouse::MouseConfig const mouseData,
+touch::TouchConfig const touchData)
 {
     {
         auto generalConf = GenericCodecConfiguration{};
@@ -120,6 +124,16 @@ void SaveConfigData(EncoderConfig const encoderData, DecoderData const decoderDa
     {
         auto conf = ControllerConfiguration{};
         conf.Save(controllerData);
+    }
+
+    {
+        // auto conf = MouseConfiguration{};
+        // conf.Save(mouseData);
+    }
+
+    {
+        // auto conf = TouchConfiguration{};
+        // conf.Save(touchData);
     }
 }
 
@@ -240,7 +254,11 @@ int main(int argc, char **argv)
                 menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
                 
                 screen.PresentScreen();
-                SaveConfigData(menuScreens.GetFfmpegSettings(), menuScreens.GetDecoderSettings(), menuScreens.GetControllerSettings());
+                SaveConfigData(menuScreens.GetFfmpegSettings(), 
+                            menuScreens.GetDecoderSettings(), 
+                            menuScreens.GetControllerSettings(),
+                            menuScreens.MouseSettings(),
+                            menuScreens.TouchSettings());
 
                 if(network.HostFound() || menuScreens.UseManualIP())
                 {

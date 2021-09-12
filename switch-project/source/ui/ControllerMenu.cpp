@@ -7,10 +7,7 @@ textElements{}, paramCursor{controller::ParamsList},
 modeCursor{controller::controllerModeDesc},
 buttonMapCursor{controller::controlMapDesc},
 leftAnalogMapCursor{controller::analogMapDesc},
-rightAnalogMapCursor{controller::analogMapDesc},
-leftMouseCursor{controller::mouseButtonOptions},
-rightMouseCursor{controller::mouseButtonOptions},
-mouseSensitivity{}, mouseOnConnect{false}
+rightAnalogMapCursor{controller::analogMapDesc}
 {
     title.value = "Controller Menu";
     title.y += 30;
@@ -21,10 +18,6 @@ mouseSensitivity{}, mouseOnConnect{false}
     cycleMap(buttonMapCursor, settings.controllerMap);
     cycleMap(leftAnalogMapCursor, settings.leftAnalogMap);
     cycleMap(rightAnalogMapCursor, settings.rightAnalogMap);
-    cycleMap(leftMouseCursor, settings.leftClickButton);
-    cycleMap(rightMouseCursor, settings.rightClickButton);
-    cycleNumber(mouseSensitivity, settings.mouseSensitivity);
-    mouseOnConnect = settings.mouseOnConnect;
 
     SetupText();
 }
@@ -72,11 +65,7 @@ controller::ControllerConfig const ControllerMenu::Settings() const
         .controllerMode = modeCursor.KeyPair().first,
         .controllerMap = buttonMapCursor.KeyPair().first,
         .leftAnalogMap = leftAnalogMapCursor.KeyPair().first,
-        .rightAnalogMap = rightAnalogMapCursor.KeyPair().first,
-        .leftClickButton = leftMouseCursor.KeyPair().first,
-        .rightClickButton = rightMouseCursor.KeyPair().first,
-        .mouseSensitivity = (int16_t)*mouseSensitivity,
-        .mouseOnConnect = mouseOnConnect
+        .rightAnalogMap = rightAnalogMapCursor.KeyPair().first
     };
 }
 
@@ -98,32 +87,6 @@ void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
               
         case controller::Parameters::RightAnalogMapping:
             rightAnalogMapCursor += direction;
-        break;
-
-        case controller::Parameters::LeftMouseButton:
-        {
-            do
-            {
-                leftMouseCursor += direction;
-            } while (*leftMouseCursor == *rightMouseCursor);
-        }
-        break;
-
-        case controller::Parameters::RightMouseButton:
-        {
-            do
-            {
-                rightMouseCursor += direction;
-            } while (*leftMouseCursor == *rightMouseCursor);
-        }
-        break;
-
-        case controller::Parameters::MouseSensitivity:
-            mouseSensitivity += direction;
-        break;
-
-        case controller::Parameters::MouseOnConnect:
-            mouseOnConnect = !mouseOnConnect;
         break;
     }
 }
@@ -153,22 +116,6 @@ void ControllerMenu::UpdateUI(controller::Parameters param)
 
         case controller::Parameters::RightAnalogMapping:
             element.value = desc + ": " + *rightAnalogMapCursor;
-        break;
-
-        case controller::Parameters::LeftMouseButton:
-            element.value = desc + ": " + *leftMouseCursor;
-        break;
-
-        case controller::Parameters::RightMouseButton:
-            element.value = desc + ": " + *rightMouseCursor;
-        break;
-
-        case controller::Parameters::MouseSensitivity:
-            element.value = desc + ": " + std::to_string(*mouseSensitivity);
-        break;
-
-        case controller::Parameters::MouseOnConnect:
-            element.value = desc + ": " + boolToStr(mouseOnConnect);
         break;
     }
 }

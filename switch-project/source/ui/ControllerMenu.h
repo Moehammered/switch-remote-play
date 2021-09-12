@@ -24,10 +24,6 @@ class ControllerMenu : public Menu
         UnorderedMapCirculator<controller::ControllerButtonMap, std::string> buttonMapCursor;
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> leftAnalogMapCursor;
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> rightAnalogMapCursor;
-        UnorderedMapCirculator<HidNpadButton, std::string> leftMouseCursor;
-        UnorderedMapCirculator<HidNpadButton, std::string> rightMouseCursor;
-        NumberRange<int32_t, controller::MinMouseSensitivity, controller::MaxMouseSensitity> mouseSensitivity;
-        bool mouseOnConnect;
 
         void UpdateSetting(controller::Parameters, int direction);
         void UpdateUI(controller::Parameters param);

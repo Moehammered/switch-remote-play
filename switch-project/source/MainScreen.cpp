@@ -123,3 +123,13 @@ std::string const MenuSelection::GetManualIPAddress()
 {
     return networkScreen.ManualIPAddress();
 }
+
+mouse::MouseConfig const MenuSelection::MouseSettings()
+{
+    return mouseMenu.Settings();
+}
+
+touch::TouchConfig const MenuSelection::TouchSettings()
+{
+    return touchMenu.Settings();
+}
