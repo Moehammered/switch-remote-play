@@ -1,5 +1,5 @@
-#ifndef __MOUSEMENU_H__
-#define __MOUSEMENU_H__
+#ifndef __TOUCHMENU_H__
+#define __TOUCHMENU_H__
 
 #include "Menu.h"
 #include "VirtualTouchMenu.h"
