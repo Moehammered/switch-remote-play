@@ -258,3 +258,67 @@ bool StartupTouchContext()
 
 	return result == TRUE;
 }
+
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#include <CommCtrl.h>
+#include <shellapi.h>
+#include <strsafe.h>
+
+
+LRESULT CALLBACK TheProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	auto& msg = (MSG&)lParam;
+
+	switch (msg.message)
+	{
+	case HCBT_SYSCOMMAND:
+		if (wParam == SC_MINIMIZE)
+		{
+			minimiseToTray(GetConsoleWindow());
+		}
+		break;
+	}
+
+	return CallNextHookEx(0, nCode, wParam, lParam);
+}
+
+void minimiseToTray(HWND hWnd)
+{
+	NOTIFYICONDATA nid = {};
+	nid.cbSize = sizeof(nid);
+	nid.hWnd = hWnd;
+	nid.uFlags = NIF_ICON | NIF_TIP | NIF_GUID;
+
+	// Note: This is an example GUID only and should not be used.
+	// Normally, you should use a GUID-generating tool to provide the value to
+	// assign to guidItem.
+	static const GUID myGUID =
+	{ 0x23977b55, 0x10e0, 0x4041, {0xb8, 0x62, 0xb1, 0x95, 0x41, 0x96, 0x36, 0x69} };
+	nid.guidItem = myGUID;
+
+	// This text will be shown as the icon's tooltip.
+	StringCchCopy(nid.szTip, ARRAYSIZE(nid.szTip), L"Test application");
+
+	// Load the icon for high DPI.
+	auto hInst2 = GetWindowLong(hWnd, GWLP_HINSTANCE);
+	auto hInst = GetModuleHandle(NULL);
+	LoadIconMetric(hInst, MAKEINTRESOURCE(101), LIM_SMALL, &(nid.hIcon));
+
+	SetWindowsHook(WH_CBT, TheProc);
+
+	// Show the notification.
+	auto result = Shell_NotifyIcon(NIM_ADD, &nid) ? S_OK : E_FAIL;
+	ShowWindow(hWnd, SW_HIDE);
+
+	if (result == S_OK)
+	{
+		std::cout << "Created Tray Icon\n";
+		auto constexpr second = std::chrono::duration<int, std::milli>(1000);
+		std::this_thread::sleep_for(second * 5);
+		ShowWindow(hWnd, SW_SHOW);
+		Shell_NotifyIcon(NIM_DELETE, &nid);
+		auto r2 = DestroyIcon(nid.hIcon);
+		if (r2 == TRUE)
+			std::cout << "Destroyed Icon\n";
+	}
+}

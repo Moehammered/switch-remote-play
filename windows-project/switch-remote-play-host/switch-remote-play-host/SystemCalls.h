@@ -27,3 +27,5 @@ bool WinsockReady();
 bool VirtualControllerDriverAvailable();
 
 bool StartupTouchContext();
+
+void minimiseToTray(HWND hWnd);
