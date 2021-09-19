@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 
+//#define OUTPUT_TOUCH_DIAGNOSTICS
+
 std::string PointerFlagToStr(POINTER_FLAGS pointerFlags)
 {
     auto ss = std::stringstream{};
@@ -157,6 +159,7 @@ void VirtualTouch::Commit()
 
         auto releaseLostEvents = CreateReleaseEvents(lostFingers);
         auto failed = InjectTouchInput(releaseLostEvents.size(), releaseLostEvents.data()) == 0;
+#if OUTPUT_TOUCH_DIAGNOSTICS
         if (failed)
         {
             std::cout << "Injection failed for release events\n";
@@ -164,7 +167,7 @@ void VirtualTouch::Commit()
             std::cout << "Error:\n\t" << err << "\n";
             std::cout << "Contact info: " << CreateDiagnosticOutput(releaseLostEvents) << "\n";
         }
-
+#endif
         released.clear();
     }
 
@@ -177,7 +180,7 @@ void VirtualTouch::Commit()
             injections.push_back(finger.second);
 
         auto failed = InjectTouchInput(contacts.size(), injections.data()) == 0;
-
+#if OUTPUT_TOUCH_DIAGNOSTICS
         if (failed)
         {
             std::cout << "Injection failed for contact events\n";
@@ -185,7 +188,7 @@ void VirtualTouch::Commit()
             std::cout << "Error:\n\t" << err << "\n";
             std::cout << "Contact info: " << CreateDiagnosticOutput(injections) << "\n";
         }
-
+#endif
         auto toDelete = std::vector<uint32_t>();
         for (auto const& contact : contacts)
         {

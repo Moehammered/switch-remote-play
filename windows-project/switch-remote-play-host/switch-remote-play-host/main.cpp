@@ -19,7 +19,7 @@
 #include "Configuration.h"
 #include "DisplayDeviceService.h"
 
-auto constexpr applicationVersion = "0.9.1";
+auto constexpr applicationVersion = "0.9.3";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -285,6 +285,8 @@ int main(int argc, char* argv[])
 
                     gamepadThread = StartGamepadListener(currentDisplay,
                         lastPayload.controllerData,
+                        lastPayload.mouseData,
+                        lastPayload.touchData,
                         killStream,
                         gamepadActive,
                         gamepadPort);

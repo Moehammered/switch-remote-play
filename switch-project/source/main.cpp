@@ -271,8 +271,14 @@ int main(int argc, char **argv)
                     auto ffmpegConfig = menuScreens.GetFfmpegSettings();
                     auto controllerConfig = menuScreens.GetControllerSettings();
                     auto decoderConfig = menuScreens.GetDecoderSettings();
+                    auto mouseConfig = menuScreens.MouseSettings();
+                    auto touchConfig = menuScreens.TouchSettings();
 
-                    RunStartConfiguredStreamCommand(ip, hostCommandPort, ffmpegConfig, controllerConfig);
+                    RunStartConfiguredStreamCommand(ip, hostCommandPort, 
+                        ffmpegConfig, 
+                        controllerConfig,
+                        mouseConfig,
+                        touchConfig);
                     auto streamOn = stream.WaitForStream(decoderConfig, videoPort);
 
                     if(streamOn)

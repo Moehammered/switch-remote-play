@@ -46,6 +46,8 @@ void VirtualTouchMouse::Update(std::vector<VirtualFinger> const fingers)
         virtualMouse.Release(SupportedMouseButtons::Middle);
         virtualMouse.Release(SupportedMouseButtons::Right);
         virtualMouse.Commit();
+        lastX = 0;
+        lastY = 0;
     }
 }
 

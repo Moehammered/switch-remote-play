@@ -132,7 +132,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>IPHLPAPI.lib;setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IPHLPAPI.lib;setupapi.lib;ViGEmClient.lib;Shlwapi.lib;Ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\ExtraDependencies\ViGEmClient-1.16.28.0\lib\debug\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -176,16 +176,20 @@
     <ClCompile Include="HWAccel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
+    <ClCompile Include="MouseOptions.cpp" />
     <ClCompile Include="NetworkAdapter.cpp" />
     <ClCompile Include="Resolution.cpp" />
+    <ClCompile Include="SimulatedMouseOptions.cpp" />
     <ClCompile Include="SwitchButtons.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
+    <ClCompile Include="TouchOptions.cpp" />
     <ClCompile Include="VideoCodec.cpp" />
     <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VirtualMouse.cpp" />
     <ClCompile Include="VirtualTouch.cpp" />
     <ClCompile Include="VirtualTouchMouse.cpp" />
+    <ClCompile Include="VirtualTouchOptions.cpp" />
     <ClCompile Include="WSAHelper.cpp" />
     <ClCompile Include="X360Controller.cpp" />
     <ClCompile Include="VideoCodecMode.cpp" />
@@ -213,14 +217,17 @@
     <ClInclude Include="H264Options.h" />
     <ClInclude Include="HWAccel.h" />
     <ClInclude Include="MasterVolume.h" />
+    <ClInclude Include="MouseOptions.h" />
     <ClInclude Include="NetworkAdapter.h" />
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SimulatedMouseOptions.h" />
     <ClInclude Include="SwitchButtons.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />
+    <ClInclude Include="TouchOptions.h" />
     <ClInclude Include="VideoCodec.h" />
     <ClInclude Include="VideoCodecMode.h" />
     <ClInclude Include="VirtualController.h" />
@@ -228,6 +235,7 @@
     <ClInclude Include="VirtualMouse.h" />
     <ClInclude Include="VirtualTouch.h" />
     <ClInclude Include="VirtualTouchMouse.h" />
+    <ClInclude Include="VirtualTouchOptions.h" />
     <ClInclude Include="VsyncMode.h" />
     <ClInclude Include="WSAHelper.h" />
     <ClInclude Include="X360Controller.h" />

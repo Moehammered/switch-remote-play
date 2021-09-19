@@ -6,7 +6,11 @@
 #include "network/CommandSender.h"
 #include <sys/socket.h>
 
-void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfig const config, controller::ControllerConfig const controllerConfig)
+void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, 
+    EncoderConfig const config, 
+    controller::ControllerConfig const controllerConfig,
+    mouse::MouseConfig const mouseConfig,
+    touch::TouchConfig const touchConfig)
 {
     int commandSocket = -1;
     if(ConnectTo(ip, port, commandSocket))
@@ -15,6 +19,8 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfi
         auto const payload = CommandPayload{
             .encoderData = config,
             .controllerData = controllerConfig,
+            .mouseData = mouseConfig,
+            .touchData = touchConfig,
             .commandCode = streamCommand
         };
         

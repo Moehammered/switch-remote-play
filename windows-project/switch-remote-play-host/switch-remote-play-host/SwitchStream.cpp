@@ -27,17 +27,40 @@ void ReleaseMouseButtons(VirtualMouse& mouse)
     mouse.Commit();
 }
 
-void ProcessMouseMovement(VirtualMouse& mouse, GamepadDataPayload const& padData, int16_t mouseSensitivity)
+void ProcessMouseMovement(VirtualMouse& mouse, 
+    GamepadDataPayload const& padData, 
+    int16_t mouseSensitivity,
+    controller::AnalogStick mouseWheelAnalog)
 {
-    auto x = (padData.ljx) % (int)joystickExtent;
-    auto y = (-padData.ljy) % (int)joystickExtent;
+    auto cursorAnalogX = 0;
+    auto cursorAnalogY = 0;
+    auto mouseWheelAnalogX = 0;
+    auto mouseWheelAnalogY = 0;
+
+    if (mouseWheelAnalog == controller::AnalogStick::Right)
+    {
+        cursorAnalogX = padData.ljx;
+        cursorAnalogY = padData.ljy;
+        mouseWheelAnalogX = padData.rjx;
+        mouseWheelAnalogY = padData.rjy;
+    }
+    else
+    {
+        cursorAnalogX = padData.rjx;
+        cursorAnalogY = padData.rjy;
+        mouseWheelAnalogX = padData.ljx;
+        mouseWheelAnalogY = padData.ljy;
+    }
+
+    auto x = cursorAnalogX % (int)joystickExtent;
+    auto y = (-cursorAnalogY) % (int)joystickExtent;
     auto normalisedX = (long)(mouseSensitivity * (x / joystickExtent));
     auto normalisedY = (long)(mouseSensitivity * (y / joystickExtent));
     mouse.Move(normalisedX, normalisedY);
 
     auto const maxScrollSpeed = 0.1 * WHEEL_DELTA;
-    auto normalisedScrX = padData.rjx / joystickExtent;
-    auto normalisedScrY = padData.rjy / joystickExtent;
+    auto normalisedScrX = mouseWheelAnalogX / joystickExtent;
+    auto normalisedScrY = mouseWheelAnalogY / joystickExtent;
     auto scrDeltaX = (int)(normalisedScrX * maxScrollSpeed);
     auto scrDeltaY = (int)(normalisedScrY * maxScrollSpeed);
     mouse.ScrollWheel(scrDeltaX, scrDeltaY);
@@ -99,7 +122,13 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 }
 
 //session resolution needed to clamp and normalise simulated absolute mouse movement
-std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::ControllerConfig controllerConfig, std::atomic_bool& killStream, std::atomic_bool& gamepadActive, uint16_t port)
+std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, 
+    controller::ControllerConfig controllerConfig, 
+    mouse::MouseConfig mouseConfig,
+    touch::TouchConfig touchConfig,
+    std::atomic_bool& killStream, 
+    std::atomic_bool& gamepadActive, 
+    uint16_t port)
 {
     using namespace std;
     thread workerThread{};
@@ -109,7 +138,10 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::C
         gamepadActive.store(false, memory_order_release);
     }
 
-    workerThread = thread([&, gamepadPort = port, inputConfig = controllerConfig] {
+    workerThread = thread([&, gamepadPort = port, 
+        inputConfig = controllerConfig, 
+        mouseSettings = mouseConfig,
+        touchSettings = touchConfig] {
 
         while (gamepadActive.load(memory_order_acquire)) //don't let it continue if a previous gamepadThread is running
         {
@@ -146,7 +178,15 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::C
                 if (controller->Create())
                 {
                     auto mouse = VirtualMouse{};
-                    auto touch = VirtualTouch(5, 2);
+                    auto maxFingers = touchSettings.touchMode == touch::TouchScreenMode::VirtualTouch
+                        ? touchSettings.virtualTouchSettings.maxFingerCount
+                        : touch::MaxFingerCount;
+                    maxFingers = min(touch::MaxFingerCount, maxFingers);
+
+                    auto deadZoneRad = touchSettings.touchMode == touch::TouchScreenMode::VirtualTouch
+                        ? touchSettings.virtualTouchSettings.deadzoneRadius
+                        : touchSettings.simulatedTouchMouseSettings.deadzoneRadius;
+                    auto touch = VirtualTouch(deadZoneRad, 2);
                     
                     auto streamDead = killStream.load(memory_order_acquire);
                     gamepadActive.store(true, memory_order_release);
@@ -156,12 +196,14 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::C
                     controller->MapFaceButtons(inputConfig.controllerMap);
                     controller->MapAnalogAxis(inputConfig.leftAnalogMap, inputConfig.rightAnalogMap);
 
-                    auto mouseMode{ inputConfig.mouseOnConnect };
-                    auto mouseSensitivity{ inputConfig.mouseSensitivity };
+                    auto mouseMode{ mouseSettings.mouseOnConnect };
+                    auto mouseSensitivity{ mouseSettings.mouseSensitivity };
 
-                    auto leftClickBtn = inputConfig.leftClickButton;
-                    auto rightClickBtn = inputConfig.rightClickButton;
-                    auto middleClickBtn = HidNpadButton::HidNpadButton_StickR;
+                    auto leftClickBtn = mouseSettings.leftClickButton;
+                    auto rightClickBtn = mouseSettings.rightClickButton;
+                    auto middleClickBtn = mouseSettings.middleClickButton;
+                    auto mouseWheelAnalog = mouseSettings.mouseWheelAnalog;
+                    //auto middleClickBtn = HidNpadButton::HidNpadButton_StickR;
 
                     auto lastTime = std::chrono::high_resolution_clock::now();
                     do
@@ -206,7 +248,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::C
                             }
                             else if (mouseMode)
                             {
-                                ProcessMouseMovement(mouse, padData, mouseSensitivity);
+                                ProcessMouseMovement(mouse, padData, mouseSensitivity, mouseWheelAnalog);
                                 ProcessMouseButtons(mouse, padData, leftClickBtn, rightClickBtn, middleClickBtn);
                                 mouse.Commit();
                             }
@@ -260,7 +302,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, controller::C
                         if (switchContactInfo.count > 0)
                         {
                             auto fingers = std::vector<VirtualFinger>{};
-                            for (auto i = 0; i < switchContactInfo.count && i < 5; ++i)
+                            for (auto i = 0; i < switchContactInfo.count && i < maxFingers; ++i)
                             {
                                 auto finger = switchContactInfo.touches[i];
                                 auto reinterp = reinterpret_cast<VirtualFinger*>(&finger);

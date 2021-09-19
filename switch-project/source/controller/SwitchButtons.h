@@ -46,7 +46,6 @@ namespace controller
         { HidNpadButton::HidNpadButton_ZR, "ZR" },
         { HidNpadButton::HidNpadButton_StickL, "Left Analog Button" },
         { HidNpadButton::HidNpadButton_StickR, "Right Analog Button" }
-
     };
 
     HidNpadButton constexpr DefaultLeftMouseButton = HidNpadButton_R;

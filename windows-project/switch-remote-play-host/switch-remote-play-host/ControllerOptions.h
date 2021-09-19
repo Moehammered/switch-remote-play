@@ -16,19 +16,13 @@ namespace controller
         Mode,
         ButtonMapping,
         LeftAnalogMapping,
-        RightAnalogMapping,
-        LeftMouseButton,
-        RightMouseButton,
-        MouseSensitivity,
-        MouseOnConnect
+        RightAnalogMapping
     };
 
     static std::vector<Parameters> const ParamsList
     {
         Parameters::Mode, Parameters::ButtonMapping,
-        Parameters::LeftAnalogMapping, Parameters::RightAnalogMapping,
-        Parameters::LeftMouseButton, Parameters::RightMouseButton,
-        Parameters::MouseSensitivity, Parameters::MouseOnConnect
+        Parameters::LeftAnalogMapping, Parameters::RightAnalogMapping
     };
 
     static std::unordered_map<Parameters, std::string> const ParamsDesc
@@ -36,15 +30,8 @@ namespace controller
         { Parameters::Mode, "Controller Mode" },
         { Parameters::ButtonMapping, "Controller Mapping" },
         { Parameters::LeftAnalogMapping, "Left Analog Mapping" },
-        { Parameters::RightAnalogMapping, "Right Analog Mapping" },
-        { Parameters::LeftMouseButton, "Left-Click Button" },
-        { Parameters::RightMouseButton, "Right-Click Button" },
-        { Parameters::MouseSensitivity, "Mouse Sensitivity" },
-        { Parameters::MouseOnConnect, "Mouse on Connect" }
+        { Parameters::RightAnalogMapping, "Right Analog Mapping" }
     };
-
-    int32_t constexpr MaxMouseSensitity = 30;
-    int32_t constexpr MinMouseSensitivity = 3;
 
     struct alignas(4) ControllerConfig
     {
@@ -52,11 +39,6 @@ namespace controller
         ControllerButtonMap controllerMap;
         ControllerAnalogMap leftAnalogMap;
         ControllerAnalogMap rightAnalogMap;
-        HidNpadButton       leftClickButton;
-        HidNpadButton       rightClickButton;
-        int16_t             mouseSensitivity;
-        bool                mouseOnConnect;
-        char                padding;
     };
 
     constexpr int ControllerConfigSize = sizeof(controller::ControllerConfig);

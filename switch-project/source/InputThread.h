@@ -14,7 +14,11 @@ enum StreamState : int32_t
     QUIT
 };
 
-void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, EncoderConfig const config, controller::ControllerConfig const controllerConfig);
+void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, 
+    EncoderConfig const config, 
+    controller::ControllerConfig const controllerConfig,
+    mouse::MouseConfig const mouseConfig,
+    touch::TouchConfig const touchConfig);
 
 void RunGamepadThread(std::string ip, uint16_t port);
 

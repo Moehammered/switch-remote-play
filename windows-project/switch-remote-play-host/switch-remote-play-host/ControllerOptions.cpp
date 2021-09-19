@@ -15,10 +15,6 @@ namespace controller
         values[Parameters::ButtonMapping] = ControllerButtonMapToString(data.controllerMap);
         values[Parameters::LeftAnalogMapping] = ControllerAnalogMapToString(data.leftAnalogMap);
         values[Parameters::RightAnalogMapping] = ControllerAnalogMapToString(data.rightAnalogMap);
-        values[Parameters::LeftMouseButton] = SwitchButtonToString(data.leftClickButton);
-        values[Parameters::RightMouseButton] = SwitchButtonToString(data.rightClickButton);
-        values[Parameters::MouseSensitivity] = std::to_string(data.mouseSensitivity);
-        values[Parameters::MouseOnConnect] = boolToStr(data.mouseOnConnect);
 
         return values;
     }
@@ -40,20 +36,6 @@ namespace controller
         parse(Parameters::ButtonMapping, data.controllerMap, ControllerButtonMap::None, ParseControllerButtonMapString);
         parse(Parameters::LeftAnalogMapping, data.leftAnalogMap, ControllerAnalogMap::None, ParseControllerAnalogMapString);
         parse(Parameters::RightAnalogMapping, data.rightAnalogMap, ControllerAnalogMap::None, ParseControllerAnalogMapString);
-        parse(Parameters::LeftMouseButton, data.leftClickButton, DefaultLeftMouseButton, ParseSwitchButtonString);
-        parse(Parameters::RightMouseButton, data.rightClickButton, DefaultRightMouseButton, ParseSwitchButtonString);
-
-        auto parseSens = [](auto val)
-        {
-            return std::stoi(val);
-        };
-        parse(Parameters::MouseSensitivity, data.mouseSensitivity, MinMouseSensitivity, parseSens);
-
-        auto parseBool = [](auto val)
-        {
-            return val == "yes";
-        };
-        parse(Parameters::MouseOnConnect, data.mouseOnConnect, false, parseBool);
 
         return data;
     }
