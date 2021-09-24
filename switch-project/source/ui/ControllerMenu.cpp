@@ -93,11 +93,6 @@ void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
 
 void ControllerMenu::UpdateUI(controller::Parameters param)
 {
-    auto boolToStr = [](bool val)
-    {
-        return val == true ? "yes" : "no";
-    };
-
     auto& element = textElements[param];
     auto desc = enumToStr(controller::ParamsDesc, param);
     switch(param)

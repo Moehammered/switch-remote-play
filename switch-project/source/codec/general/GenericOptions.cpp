@@ -56,7 +56,14 @@ VideoData VideoParamsFromStr(std::unordered_map<VideoParameters, std::string> co
 
     auto monitorNumberEntry = map.find(VideoParameters::MonitorNumber);
     if(monitorNumberEntry != map.end())
-        data.monitorNumber = std::max(std::min(std::stoi(monitorNumberEntry->second), 0), 10);
+    {
+        auto const maxMonitorIndex = 10;
+        auto const minMonitorIndex = 0;
+        auto number = std::stoi(monitorNumberEntry->second);
+        auto upperLimited = std::min(number, maxMonitorIndex);
+        auto lowerLimited = std::max(upperLimited, minMonitorIndex);
+        data.monitorNumber = lowerLimited;
+    }
     else
         data.monitorNumber = 0;
 

@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "../../utils/Configuration.h"
 #include "GenericOptions.h"
+#include "../../utils/MappedDataConfiguration.h"
 
 class GenericCodecConfiguration
 {
@@ -16,11 +16,7 @@ public:
 	VideoData const Data() const;
 
 private:
-	Configuration configFile;
-
-	std::vector<std::pair<std::string, std::string>> CodecToFileVariables(VideoData const data) const;
-	VideoData ParseCodecFile(Configuration const& config) const;
-	bool SaveCodecFile(VideoData const data, Configuration& config);
+	MappedDataConfiguration<VideoData, VideoParameters> configMap;
 };
 
 #endif

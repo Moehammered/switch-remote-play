@@ -10,19 +10,6 @@ extern "C"
     #include <libavcodec/avcodec.h>
 }
 
-namespace decoder
-{
-    enum class Parameters
-    {
-        Flags1,
-        Flags2,
-        AccelFlags,
-        DiscardFilter,
-        ThreadType,
-        ThreadCount
-    };
-}
-
 enum class DecoderParameters
 {
     Flags1,

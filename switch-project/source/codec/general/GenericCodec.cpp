@@ -19,6 +19,7 @@ void GenericCodec::Set(VideoData const data)
 	cycleNumber(switchResCursor, data.switchResolution);
 	cycleNumber(fpsCursor, data.desiredFrameRate);
     cycleNumber(bitrateCursor, data.bitrateKB);
+    cycleNumber(monitorNumberCursor, data.monitorNumber);
 
     cycleMap(vsyncCursor, data.vsyncMode);
     cycleMap(hwaccelCursor, data.hwaccelMode);

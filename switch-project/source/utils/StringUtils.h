@@ -20,7 +20,7 @@ inline std::string TrimLeft(std::string const& a)
 		return a;
 	else
 	{
-		auto firstNonSpace = 0;
+		auto firstNonSpace = size_t{0};
 		auto isWhiteSpace = [](char const& a)
 		{
 			return a == ' ' || a == '\t';

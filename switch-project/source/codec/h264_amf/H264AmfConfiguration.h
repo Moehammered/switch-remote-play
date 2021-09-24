@@ -2,8 +2,8 @@
 #define __H264AMFCONFIGURATION_H__
 
 #include <string>
-#include "../../utils/Configuration.h"
 #include "h264amfOptions.h"
+#include "../../utils/MappedDataConfiguration.h"
 
 class H264AmfConfiguration
 {
@@ -15,11 +15,7 @@ public:
 	h264amf::H264AMFData const Data() const;
 
 private:
-	Configuration configFile;
-
-	std::vector<std::pair<std::string, std::string>> CodecToFileVariables(h264amf::H264AMFData const data) const;
-	h264amf::H264AMFData ParseCodecFile(Configuration const & config) const;
-	bool SaveCodecFile(h264amf::H264AMFData const data, Configuration& config);
+	MappedDataConfiguration<h264amf::H264AMFData, h264amf::Parameters> configMap;
 };
 
 #endif
