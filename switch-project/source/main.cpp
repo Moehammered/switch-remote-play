@@ -22,6 +22,8 @@
 #include "codec/h264_amf/H264AmfConfiguration.h"
 #include "decoder/DecoderConfiguration.h"
 #include "controller/ControllerConfiguration.h"
+#include "mouse/MouseConfiguration.h"
+#include "touch/TouchConfiguration.h"
 
 uint16_t constexpr handshakePort = 19999;
 uint16_t constexpr broadcastPort = 20000;
@@ -127,13 +129,13 @@ touch::TouchConfig const touchData)
     }
 
     {
-        // auto conf = MouseConfiguration{};
-        // conf.Save(mouseData);
+        auto conf = MouseConfiguration{};
+        conf.Save(mouseData);
     }
 
     {
-        // auto conf = TouchConfiguration{};
-        // conf.Save(touchData);
+        auto conf = TouchConfiguration{};
+        conf.Save(touchData);
     }
 }
 

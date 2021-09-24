@@ -49,6 +49,24 @@ namespace touch
     };
 
     int32_t constexpr TouchConfigSize = sizeof(TouchConfig);
+
+    enum class TouchConfigParameters
+    {
+        TouchMode
+    };
+
+    static std::vector<TouchConfigParameters> const TouchConfigParamsList
+    {
+        TouchConfigParameters::TouchMode
+    };
+
+    static std::unordered_map<TouchConfigParameters, std::string> const TouchConfigParamsDesc
+    {
+        { TouchConfigParameters::TouchMode, "Touch Mode" }
+    };
+
+    std::unordered_map<TouchConfigParameters, std::string> const TouchConfigParamsToStr(TouchConfig const config);
+    TouchConfig const TouchConfigParamsFromStr(std::unordered_map<TouchConfigParameters, std::string> const & map);
 }
 
 #endif
