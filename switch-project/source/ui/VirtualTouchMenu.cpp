@@ -1,4 +1,5 @@
 #include "VirtualTouchMenu.h"
+#include "../touch/VirtualTouchConfiguration.h"
 #include <switch.h>
 
 auto const virtualTouchHelpText =
@@ -13,6 +14,11 @@ maxFingerCount{touch::DefaultMaxFingerCount}
 {
     title.value = "Virtual Touch Options";
     title.y += 150;
+
+    auto config = VirtualTouchConfiguration{};
+    auto savedData = config.Data();
+    deadzoneRadius = savedData.deadzoneRadius;
+    maxFingerCount = savedData.maxFingerCount;
 
     helpText.y += 500;
     helpText.x = 30;

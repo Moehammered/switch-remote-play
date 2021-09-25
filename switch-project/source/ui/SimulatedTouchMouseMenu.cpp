@@ -1,4 +1,5 @@
 #include "SimulatedTouchMouseMenu.h"
+#include "../touch/SimulatedMouseConfiguration.h"
 #include <switch.h>
 
 auto const simulatedTouchHelpText =
@@ -15,6 +16,10 @@ deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius}
 {
     title.value = "Simulated Mouse Options";
     title.y += 150;
+
+    auto config = SimulatedMouseConfiguration{};
+    auto savedData = config.Data();
+    deadzoneRadius = savedData.deadzoneRadius;
 
     helpText.y += 500;
     helpText.x = 30;

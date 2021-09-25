@@ -1,4 +1,5 @@
 #include "TouchMenu.h"
+#include "../touch/TouchConfiguration.h"
 
 auto const pageMenuText = "Use D-Pad left or right to choose touch mode.";
 
@@ -9,6 +10,10 @@ touchModeText{}, pageText{}
 {
     title.value = "Touch Configuration";
     title.y += 30;
+
+    auto config = TouchConfiguration{};
+    auto savedMode = config.Data().touchMode;
+    cycleMap(touchMode, savedMode);
 
     touchModeText.centered = true;
     touchModeText.y = title.y + 30;
