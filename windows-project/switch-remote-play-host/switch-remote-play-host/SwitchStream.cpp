@@ -122,13 +122,14 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 }
 
 //session resolution needed to clamp and normalise simulated absolute mouse movement
-std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, 
+std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
+    Resolution switchResolution,
     controller::ControllerConfig controllerConfig, 
     mouse::MouseConfig mouseConfig,
     touch::TouchConfig touchConfig,
     std::atomic_bool& killStream, 
     std::atomic_bool& gamepadActive, 
-    uint16_t port)
+    uint16_t gamepadPort)
 {
     using namespace std;
     thread workerThread{};
@@ -138,10 +139,10 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
         gamepadActive.store(false, memory_order_release);
     }
 
-    workerThread = thread([&, gamepadPort = port, 
-        inputConfig = controllerConfig, 
-        mouseSettings = mouseConfig,
-        touchSettings = touchConfig] {
+    auto const resolutionWidthRatio = sessionDisplay.width / (double)switchResolution.width;
+    auto const resolutionHeightRatio = sessionDisplay.height / (double)switchResolution.height;
+
+    workerThread = thread([=, &gamepadActive, &killStream] {
 
         while (gamepadActive.load(memory_order_acquire)) //don't let it continue if a previous gamepadThread is running
         {
@@ -163,7 +164,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
 
                 std::unique_ptr<IVirtualController> controller{};
 
-                switch (inputConfig.controllerMode)
+                switch (controllerConfig.controllerMode)
                 {
                 default:
                 case controller::ControllerMode::X360:
@@ -178,14 +179,14 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 if (controller->Create())
                 {
                     auto mouse = VirtualMouse{};
-                    auto maxFingers = touchSettings.touchMode == touch::TouchScreenMode::VirtualTouch
-                        ? touchSettings.virtualTouchSettings.maxFingerCount
+                    auto maxFingers = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
+                        ? touchConfig.virtualTouchSettings.maxFingerCount
                         : touch::MaxFingerCount;
                     maxFingers = min(touch::MaxFingerCount, maxFingers);
 
-                    auto deadZoneRad = touchSettings.touchMode == touch::TouchScreenMode::VirtualTouch
-                        ? touchSettings.virtualTouchSettings.deadzoneRadius
-                        : touchSettings.simulatedTouchMouseSettings.deadzoneRadius;
+                    auto deadZoneRad = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
+                        ? touchConfig.virtualTouchSettings.deadzoneRadius
+                        : touchConfig.simulatedTouchMouseSettings.deadzoneRadius;
                     auto touch = VirtualTouch(deadZoneRad, 2);
                     
                     auto streamDead = killStream.load(memory_order_acquire);
@@ -193,16 +194,16 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     auto active = true;
                     auto retryCount = maxRetries;
 
-                    controller->MapFaceButtons(inputConfig.controllerMap);
-                    controller->MapAnalogAxis(inputConfig.leftAnalogMap, inputConfig.rightAnalogMap);
+                    controller->MapFaceButtons(controllerConfig.controllerMap);
+                    controller->MapAnalogAxis(controllerConfig.leftAnalogMap, controllerConfig.rightAnalogMap);
 
-                    auto mouseMode{ mouseSettings.mouseOnConnect };
-                    auto mouseSensitivity{ mouseSettings.mouseSensitivity };
+                    auto mouseMode{ mouseConfig.mouseOnConnect };
+                    auto mouseSensitivity{ mouseConfig.mouseSensitivity };
 
-                    auto leftClickBtn = mouseSettings.leftClickButton;
-                    auto rightClickBtn = mouseSettings.rightClickButton;
-                    auto middleClickBtn = mouseSettings.middleClickButton;
-                    auto mouseWheelAnalog = mouseSettings.mouseWheelAnalog;
+                    auto leftClickBtn = mouseConfig.leftClickButton;
+                    auto rightClickBtn = mouseConfig.rightClickButton;
+                    auto middleClickBtn = mouseConfig.middleClickButton;
+                    auto mouseWheelAnalog = mouseConfig.mouseWheelAnalog;
                     //auto middleClickBtn = HidNpadButton::HidNpadButton_StickR;
 
                     auto lastTime = std::chrono::high_resolution_clock::now();
@@ -307,16 +308,14 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                                 auto finger = switchContactInfo.touches[i];
                                 auto reinterp = reinterpret_cast<VirtualFinger*>(&finger);
                                 fingers.emplace_back(*reinterp);
-                                fingers.back().x += sessionDisplay.x;
-                                fingers.back().y += sessionDisplay.y;
+                                auto x = fingers.back().x * resolutionWidthRatio;
+                                auto y = fingers.back().y * resolutionHeightRatio;
+                                fingers.back().x = x + sessionDisplay.x;
+                                fingers.back().y = y + sessionDisplay.y;
                             }
                             touch.Press(fingers);
                             touch.Move(fingers);
                             touch.Commit();
-                            /*auto const& t1 = switchContactInfo.touches[0];
-                            touch.Press();
-                            touch.Move(t1.x, t1.y);
-                            touch.Commit();*/
                         }
                         else
                         {

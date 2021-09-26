@@ -258,6 +258,8 @@ int main(int argc, char* argv[])
                         currentDesktopResolution.width = display.width;
                     }
                     currentDisplay = display;
+                    currentDisplay.width = currentDesktopResolution.width;
+                    currentDisplay.height = currentDesktopResolution.height;
                 }
                 else
                 {
@@ -271,6 +273,8 @@ int main(int argc, char* argv[])
                         currentDesktopResolution.height = defaultDisplayInfo.height;
                         currentDesktopResolution.width = defaultDisplayInfo.width;
                     }
+                    currentDisplay.width = currentDesktopResolution.width;
+                    currentDisplay.height = currentDesktopResolution.height;
                 }
 
                 // make sure this function takes in the IP of the switch dynamically from the handshake
@@ -284,6 +288,7 @@ int main(int argc, char* argv[])
                         switchHandshakeConnection->Shutdown();
 
                     gamepadThread = StartGamepadListener(currentDisplay,
+                        encoderConfigData.commonSettings.switchResolution,
                         lastPayload.controllerData,
                         lastPayload.mouseData,
                         lastPayload.touchData,

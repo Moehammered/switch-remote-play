@@ -11,6 +11,7 @@
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket);
 
 std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay, 
+    Resolution switchResolution,
     controller::ControllerConfig controllerConfig,
     mouse::MouseConfig mouseConfig,
     touch::TouchConfig touchConfig,
