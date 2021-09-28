@@ -1,5 +1,6 @@
 #include "MouseMenu.h"
 #include "../system/SoftwareKeyboard.h"
+#include "../mouse/MouseConfiguration.h"
 #include <algorithm>
 
 MouseMenu::MouseMenu() : Menu(),
@@ -13,9 +14,16 @@ mouseOnConnect{true}, mouseSensitivity{mouse::DefaultMouseSensitivity}
     title.y += 30;
     title.value = "Mouse Configuration";
 
-    cycleMap(leftMouseBtnCursor, mouse::DefaultLeftClickButton);
-    cycleMap(rightMouseBtnCursor, mouse::DefaultRightClickButton);
-    cycleMap(middleMouseBtnCursor, mouse::DefaultMiddleClickButton);
+    auto config = MouseConfiguration{};
+    auto storedData = config.Data();
+
+    cycleMap(leftMouseBtnCursor, storedData.leftClickButton);
+    cycleMap(rightMouseBtnCursor, storedData.rightClickButton);
+    cycleMap(middleMouseBtnCursor, storedData.middleClickButton);
+    cycleMap(mouseWheelAnalogCursor, storedData.mouseWheelAnalog);
+
+    mouseSensitivity = storedData.mouseSensitivity;
+    mouseOnConnect = storedData.mouseOnConnect;
 
     SetupText();
 }
