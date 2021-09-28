@@ -29,5 +29,7 @@ private:
 
     DS4_REPORT state;
 
+    DS4_SPECIAL_BUTTONS specialButtons;
+
     DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload const data);
 };

@@ -12,6 +12,11 @@ const HidNpadButton ButtonsToCheck_DS4[] = {
    HidNpadButton::HidNpadButton_StickL, HidNpadButton::HidNpadButton_StickR
 };
 
+std::unordered_map<HidNpadButton, DS4_SPECIAL_BUTTONS, std::hash<uint32_t>> const SWITCH_TO_SPECIAL_BTNS{
+	{ HidNpadButton::HidNpadButton_Palma, DS4_SPECIAL_BUTTONS::DS4_SPECIAL_BUTTON_PS },
+	{ HidNpadButton::HidNpadButton_29, DS4_SPECIAL_BUTTONS::DS4_SPECIAL_BUTTON_TOUCHPAD }
+};
+
 std::unordered_map<HidNpadButton, USHORT, std::hash<uint32_t>> const SWITCH_TO_DS4_FACE_BTNS{
    { HidNpadButton::HidNpadButton_A, DS4_BUTTON_CIRCLE },
    { HidNpadButton::HidNpadButton_B, DS4_BUTTON_CROSS },
@@ -60,7 +65,7 @@ const std::unordered_map < DS4_DPAD_DIRECTIONS, std::string, std::hash<uint32_t>
 DS4Controller::DS4Controller() 
 	: buttons{}, directions{},
 	lt{}, rt{}, lx{}, ly{},
-	rx{}, ry{}, state{}
+	rx{}, ry{}, state{}, specialButtons{}
 {
 }
 
@@ -183,12 +188,22 @@ void DS4Controller::ConvertPayload(GamepadDataPayload const data)
 		lt = 255;
 	if (data.keys & HidNpadButton::HidNpadButton_ZR)
 		rt = 255;
+
+	auto psButtonPressed = 0;
+	for (auto& specials : SWITCH_TO_SPECIAL_BTNS)
+	{
+		if (specials.first & data.keys)
+			psButtonPressed |= specials.second;
+	}
+
+	specialButtons = (DS4_SPECIAL_BUTTONS)psButtonPressed;
 }
 
 void DS4Controller::UpdateState()
 {
 	state.wButtons = buttons;
 	DS4_SET_DPAD(&state, directions);
+	state.bSpecial = specialButtons;
 	state.bThumbLX = lx; state.bThumbLY = ly;
 	state.bThumbRX = rx; state.bThumbRY = ry;
 	state.bTriggerL = lt; state.bTriggerR = rt;

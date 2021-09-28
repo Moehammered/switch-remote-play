@@ -111,9 +111,6 @@ void RunGamepadThread(std::string ip, uint16_t port)
                     
                     touchPollTime = 0;
                 }
-
-                if(touchState.count > 0)
-                    kHeld |= HidNpadButton_Palma; // this needs to go
             }
             else
             {

@@ -11,7 +11,8 @@ const HidNpadButton ButtonsToCheck_X360[] = {
    HidNpadButton::HidNpadButton_Minus, HidNpadButton::HidNpadButton_Plus,
    HidNpadButton::HidNpadButton_StickL, HidNpadButton::HidNpadButton_StickR,
    HidNpadButton::HidNpadButton_Up, HidNpadButton::HidNpadButton_Down,
-   HidNpadButton::HidNpadButton_Left, HidNpadButton::HidNpadButton_Right
+   HidNpadButton::HidNpadButton_Left, HidNpadButton::HidNpadButton_Right,
+   HidNpadButton::HidNpadButton_Palma
 };
 
 std::unordered_map<HidNpadButton, USHORT, std::hash<uint32_t>> const SWITCH_TO_X360_FACE_BTNS{
@@ -35,7 +36,8 @@ std::unordered_map<HidNpadButton, USHORT, std::hash<uint32_t>> SWITCH_TO_XUSB_BT
    { HidNpadButton::HidNpadButton_Up, XUSB_GAMEPAD_DPAD_UP },
    { HidNpadButton::HidNpadButton_Down, XUSB_GAMEPAD_DPAD_DOWN },
    { HidNpadButton::HidNpadButton_Left, XUSB_GAMEPAD_DPAD_LEFT },
-   { HidNpadButton::HidNpadButton_Right, XUSB_GAMEPAD_DPAD_RIGHT }
+   { HidNpadButton::HidNpadButton_Right, XUSB_GAMEPAD_DPAD_RIGHT },
+   { HidNpadButton::HidNpadButton_Palma, XUSB_GAMEPAD_GUIDE }
 };
 
 const std::unordered_map < XUSB_BUTTON, std::string, std::hash<uint32_t> > XUSB_BTN_STRINGS{

@@ -17,6 +17,23 @@ auto constexpr mouseToggleNano = 3000000000;
 auto constexpr maxRetries = 5;
 double constexpr joystickExtent = 0xFFFF / 2;
 
+
+template<typename numberType>
+std::string BitString(numberType val, int bitCount = 32)
+{
+    auto bits = std::string{};
+
+    for (auto i = 0; i < bitCount; ++i)
+    {
+        auto flag = 1 << i;
+        auto bit = flag & val;
+        auto bitStr = bit == 0 ? "0" : "1";
+        bits = bitStr + bits;
+    }
+
+    return bits;
+}
+
 void ReleaseMouseButtons(VirtualMouse& mouse)
 {
     mouse.Release(SupportedMouseButtons::Left);
@@ -204,9 +221,17 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     auto rightClickBtn = mouseConfig.rightClickButton;
                     auto middleClickBtn = mouseConfig.middleClickButton;
                     auto mouseWheelAnalog = mouseConfig.mouseWheelAnalog;
-                    //auto middleClickBtn = HidNpadButton::HidNpadButton_StickR;
 
-                    auto lastTime = std::chrono::high_resolution_clock::now();
+                    auto const homeBtn = HidNpadButton::HidNpadButton_Palma;
+                    auto const homeHeldBtn = HidNpadButton::HidNpadButton_StickL;
+
+                    auto const homeTriggerTimeNano = 1000000000;
+                    auto homeTriggerTimer = 0;
+
+                    auto lastFrameTime = std::chrono::high_resolution_clock::now();
+                    auto currentFrameTime = lastFrameTime;
+
+                    auto lastTimeMouseToggle = lastFrameTime;
                     do
                     {
                         active = gamepadActive.load(memory_order_acquire);
@@ -225,6 +250,10 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                             else
                                 bytesRead += received;
                         } while (bytesRead < InputDataPayloadSize);
+
+                        currentFrameTime = chrono::high_resolution_clock::now();
+                        auto deltaTime = currentFrameTime - lastFrameTime;
+
                         if (bytesRead == SOCKET_ERROR)
                         {
                             cout << "Failed to receive data for gamepad stream" << endl;
@@ -255,6 +284,19 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                             }
                             else if (padData.keys != 0x0 || (padData.ljx | padData.ljy | padData.rjx | padData.rjy) != 0)
                             {
+                                auto homeTriggerKeys = padData.keys & homeHeldBtn;
+                                if (homeTriggerKeys == homeHeldBtn)
+                                {
+                                    homeTriggerTimer += deltaTime.count();
+                                    if (homeTriggerTimer > homeTriggerTimeNano)
+                                    {
+                                        auto keysCopy = padData.keys & ~homeHeldBtn;
+                                        padData.keys = keysCopy | homeBtn;
+                                    }
+                                }
+                                else
+                                    homeTriggerTimer = 0;
+
                                 controller->ConvertPayload(padData);
                                 //controller->Print();
                                 controller->UpdateState();
@@ -262,14 +304,15 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                             }
                             else
                             {
+                                homeTriggerTimer = 0;
                                 controller->ResetController();
                                 controller->UpdateController();
                             }
 
                             // figure out if we should toggle mouse mode
-                            if (padData.keys == mouseToggleBtnCombo /*|| padData.keys & HidNpadButton::HidNpadButton_Palma*/)
+                            if (padData.keys == mouseToggleBtnCombo)
                             {
-                                auto timePassed = std::chrono::high_resolution_clock::now() - lastTime;
+                                auto timePassed = std::chrono::high_resolution_clock::now() - lastTimeMouseToggle;
                                 if (timePassed.count() >= mouseToggleNano)
                                 {
                                     controller->ResetController();
@@ -284,11 +327,11 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
 
                                     ReleaseMouseButtons(mouse);
 
-                                    lastTime = std::chrono::high_resolution_clock::now();
+                                    lastTimeMouseToggle = std::chrono::high_resolution_clock::now();
                                 }
                             }
                             else
-                                lastTime = std::chrono::high_resolution_clock::now();
+                                lastTimeMouseToggle = std::chrono::high_resolution_clock::now();
                         }
                         else if (bytesRead == 0)
                         {
@@ -323,6 +366,8 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                             touch.Commit();
                         }
                         //testing touch stuff here
+
+                        lastFrameTime = currentFrameTime;
                     } while (padData.keys != 0xFFFF && !streamDead && active);
 
                     // make sure there aren't accidental junk key presses when stream dies
