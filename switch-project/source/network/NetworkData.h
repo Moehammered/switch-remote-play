@@ -93,9 +93,12 @@ struct alignas(8) GamepadDataPayload
 
 auto constexpr GamepadDataPayloadSize = sizeof(GamepadDataPayload);
 
+auto constexpr maxControllerCount = 4;
+auto constexpr AllGamepadPayloadsSize = GamepadDataPayloadSize * maxControllerCount;
+
 struct InputDataPayload
 {
-    GamepadDataPayload  gamepad;
+    GamepadDataPayload  gamepads[maxControllerCount];
     TouchPayload        touchScreen;
 };
 

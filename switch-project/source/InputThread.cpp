@@ -2,9 +2,48 @@
 #include <switch.h>
 #include <iostream>
 #include <thread>
-#include <atomic>
+// #include <atomic>
 #include "network/CommandSender.h"
 #include <sys/socket.h>
+
+#include "utils/pad/PadUtility.h"
+#include "utils/pad/JoyConUtility.h"
+
+namespace
+{
+    void updateController(PadState & controller, GamepadDataPayload & payload)
+    {
+        padUpdate(&controller);
+
+        if(padutility::IsLeftJoyCon(controller))
+        {
+            controller = joyconutility::TranslateJoyConPad(controller, joyconutility::DefaultLeftJoyConMapping);
+        }
+        else if(padutility::IsRightJoyCon(controller))
+        {
+            controller = joyconutility::TranslateJoyConPad(controller, joyconutility::DefaultRightJoyConMapping);
+        }
+
+        u32 kHeld = padGetButtons(&controller);
+        payload.keys = kHeld;
+
+        auto lStick = padGetStickPos(&controller, padutility::leftAnalogIndex);
+        auto rStick = padGetStickPos(&controller, padutility::rightAnalogIndex);
+
+        payload.ljx = lStick.x;
+        payload.ljy = lStick.y;
+        payload.rjx = rStick.x;
+        payload.rjy = rStick.y;
+
+        // if(hidGetHandheldMode())
+        //     hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_P1_AUTO, 1);
+        // else
+        // hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_PLAYER_1, 1);
+        
+        // inputData.accelerometer = sixaxis.accelerometer;
+        // inputData.gryo = sixaxis.gyroscope;
+    }
+}
 
 void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, 
     EncoderConfig const config, 
@@ -36,22 +75,30 @@ void RunGamepadThread(std::string ip, uint16_t port)
     int padSocket{-1};
     if(ConnectTo(ip, port, padSocket))
     {
-        padConfigureInput(1, HidNpadStyleSet_NpadStandard);
-        PadState defaultPad{0};
-        padInitializeDefault(&defaultPad);
+        auto controllers = padutility::InitialisePads(maxControllerCount);
+        // padConfigureInput(1, HidNpadStyleSet_NpadStandard); //de
+        // PadState defaultPad{0}; //de
+        // padInitializeDefault(&defaultPad); //de
 
         HidTouchScreenState touchState {0};
         hidInitializeTouchScreen();
 
-        HidAnalogStickState lStick{0};
-        HidAnalogStickState rStick{0};
+        // HidAnalogStickState lStick{0}; //de
+        // HidAnalogStickState rStick{0}; //de
 
         // SixAxisSensorValues sixaxis{0};
 
-        const int dataSize = InputDataPayloadSize;//sizeof(GamepadDataPayload);
-        auto inputData = GamepadDataPayload{0};
-        for(auto& c : inputData.padding)
-            c = 0;
+        int const dataSize = InputDataPayloadSize;//sizeof(GamepadDataPayload);
+        auto gamepadPayloads = std::vector<GamepadDataPayload>(controllers.size());
+        for(auto & payload : gamepadPayloads)
+        {
+            payload = GamepadDataPayload{};
+            for(auto & c : payload.padding)
+                c = 0;
+        }
+        // auto inputData = GamepadDataPayload{0}; //de
+        // for(auto& c : inputData.padding) //de
+        //     c = 0; //de
 
         const double quitTimer = 3.0;
         const double NANO_TO_SECONDS = 1000000000.0;
@@ -66,32 +113,41 @@ void RunGamepadThread(std::string ip, uint16_t port)
 
         auto retryCount = 10;
         auto inputPayload = InputDataPayload{0};
+        auto const controllerCount = controllers.size() < maxControllerCount ? controllers.size() : maxControllerCount;
         auto const payloadBuffer = (char*)&inputPayload;
         while(appletMainLoop())
         {
             std::this_thread::sleep_for(sleepDuration); // sleep a tiny bit between inputs
-            
-            padUpdate(&defaultPad);
             now = armTicksToNs(armGetSystemTick());
             delta = (now - last)/NANO_TO_SECONDS;
             last = now;
             
-            u32 kHeld = padGetButtons(&defaultPad);
+            for(auto i = 0U; i < controllerCount; ++i)
+            {
+                auto& pad = controllers[i];
+                auto& payload = inputPayload.gamepads[i];
 
-            if(kHeld & HidNpadButton_Plus)
-            {
-                quitHeldTime += delta;
-                if(quitHeldTime > quitTimer)
+                updateController(pad, payload);
+
+                if(i == 0) //player 1's controller / first initialised pad
                 {
-                    u32 exit = 0xFFFF;
-                    inputData.keys = exit;
-                    send(padSocket, (char*)&inputData, dataSize, 0);
-                    break;
+                    auto kHeld = padGetButtons(&pad);
+                    if(kHeld & HidNpadButton_Plus)
+                    {
+                        quitHeldTime += delta;
+                        if(quitHeldTime > quitTimer)
+                        {
+                            u32 exit = 0xFFFF;
+                            payload.keys = exit;
+                            send(padSocket, (char*)&payload, dataSize, 0);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        quitHeldTime = 0;
+                    }
                 }
-            }
-            else
-            {
-                quitHeldTime = 0;
             }
 
             if(hidGetTouchScreenStates(&touchState, 1))
@@ -118,26 +174,6 @@ void RunGamepadThread(std::string ip, uint16_t port)
                 touchPollTime = 0;
             }
 
-            inputData.keys = kHeld;
-
-            lStick = padGetStickPos(&defaultPad, 0);
-            rStick = padGetStickPos(&defaultPad, 1);
-
-            inputData.ljx = lStick.x;
-            inputData.ljy = lStick.y;
-            inputData.rjx = rStick.x;
-            inputData.rjy = rStick.y;
-
-            // if(hidGetHandheldMode())
-            //     hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_P1_AUTO, 1);
-            // else
-            // hidSixAxisSensorValuesRead(&sixaxis, CONTROLLER_PLAYER_1, 1);
-            
-            // inputData.accelerometer = sixaxis.accelerometer;
-            // inputData.gryo = sixaxis.gyroscope;
-
-            inputPayload.gamepad = inputData;
-
             auto sent = 0;
             do
             {
@@ -155,9 +191,12 @@ void RunGamepadThread(std::string ip, uint16_t port)
             }
 
             // reset the input data
-            inputData.keys = 0;
-            inputData.ljx = inputData.ljy = 0;
-            inputData.rjx = inputData.rjy = 0;
+            for(auto& gamepad : inputPayload.gamepads)
+            {
+                gamepad.keys = 0;
+                gamepad.ljx = gamepad.ljy = 0;
+                gamepad.rjx = gamepad.rjy = 0;
+            }
         }
     }
 

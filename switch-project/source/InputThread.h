@@ -1,10 +1,10 @@
 #ifndef __INPUTTHREAD_H__
 #define __INPUTTHREAD_H__
 
-#include <atomic>
+// #include <atomic>
 #include <string>
 #include "network/NetworkData.h"
-#include <switch.h>
+// #include <switch.h>
 
 enum StreamState : int32_t
 {

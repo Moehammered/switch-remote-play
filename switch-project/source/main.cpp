@@ -25,117 +25,120 @@
 #include "mouse/MouseConfiguration.h"
 #include "touch/TouchConfiguration.h"
 
-uint16_t constexpr handshakePort = 19999;
-uint16_t constexpr broadcastPort = 20000;
-uint16_t constexpr hostCommandPort = 20001;
-uint16_t constexpr gamepadPort = 20002;
-uint16_t constexpr videoPort = 20003;
-uint16_t constexpr audioPort = 20004;
-
-SDL_Color constexpr bgCol = {20, 20, 20, 255};
-SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
-
-uint32_t constexpr fontSize = 24;
-
-//30fps refresh rate
-auto constexpr thirtyThreeMs = std::chrono::duration<int, std::milli>(33);
-auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
-
-std::atomic_int32_t streamState;
-
-void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& streamDecoder,
-                    SDL_Texture* rendererScreenTexture, SDL_Rect& renderRegion,
-                    ScreenRenderer& screen, std::thread& gamepadThread)
+namespace
 {
-    if(stream.Read(streamPacket))
+    uint16_t constexpr handshakePort = 19999;
+    uint16_t constexpr broadcastPort = 20000;
+    uint16_t constexpr hostCommandPort = 20001;
+    uint16_t constexpr gamepadPort = 20002;
+    uint16_t constexpr videoPort = 20003;
+    uint16_t constexpr audioPort = 20004;
+
+    SDL_Color constexpr bgCol = {20, 20, 20, 255};
+    SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
+
+    uint32_t constexpr fontSize = 24;
+
+    //30fps refresh rate
+    auto constexpr thirtyThreeMs = std::chrono::duration<int, std::milli>(33);
+    auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
+
+    std::atomic_int32_t streamState;
+
+    void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& streamDecoder,
+                        SDL_Texture* rendererScreenTexture, SDL_Rect& renderRegion,
+                        ScreenRenderer& screen, std::thread& gamepadThread)
     {
-        if(streamDecoder->DecodeFramePacket(streamPacket))
+        if(stream.Read(streamPacket))
         {
-            // render frame data - expecting YUV420 format
-            // (stride values represent space between horizontal lines across screen)
-            auto decodedFrame = streamDecoder->DecodedFrame();
+            if(streamDecoder->DecodeFramePacket(streamPacket))
+            {
+                // render frame data - expecting YUV420 format
+                // (stride values represent space between horizontal lines across screen)
+                auto decodedFrame = streamDecoder->DecodedFrame();
 
-            auto yPlane = decodedFrame.data[0];
-            auto yPlaneStride = decodedFrame.width;
-            auto uPlane = decodedFrame.data[1];
-            auto uPlaneStride = decodedFrame.width/2;
-            auto vPlane = decodedFrame.data[2];
-            auto vPlaneStride = decodedFrame.width/2;
+                auto yPlane = decodedFrame.data[0];
+                auto yPlaneStride = decodedFrame.width;
+                auto uPlane = decodedFrame.data[1];
+                auto uPlaneStride = decodedFrame.width/2;
+                auto vPlane = decodedFrame.data[2];
+                auto vPlaneStride = decodedFrame.width/2;
 
-            SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
-                                yPlane, yPlaneStride,
-                                uPlane, uPlaneStride, 
-                                vPlane, vPlaneStride);
+                SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
+                                    yPlane, yPlaneStride,
+                                    uPlane, uPlaneStride, 
+                                    vPlane, vPlaneStride);
 
-            screen.RenderScreenTexture();
+                screen.RenderScreenTexture();
+            }
+
+            av_packet_unref(&streamPacket);
+        }
+        else
+        {
+            stream.CloseStream();
+            streamDecoder->Flush();
+            streamDecoder->Cleanup();
+            stream.Cleanup();
+            streamState.store(StreamState::INACTIVE, std::memory_order_release);
+            delete streamDecoder;
+            streamDecoder = nullptr;
+
+            if(gamepadThread.joinable())
+                gamepadThread.join();
+        }
+    };
+
+    void SaveConfigData(EncoderConfig const encoderData, 
+    DecoderData const decoderData, 
+    controller::ControllerConfig const controllerData,
+    mouse::MouseConfig const mouseData,
+    touch::TouchConfig const touchData)
+    {
+        {
+            auto generalConf = GenericCodecConfiguration{};
+            generalConf.Save(encoderData.commonSettings);
+            switch(encoderData.commonSettings.videoCodec)
+            {
+                case VideoCodec::H264:
+                {
+                    auto conf = H264Configuration{};
+                    conf.Save(encoderData.cpuSettings);
+                }
+                break;
+
+                case VideoCodec::H264_AMF:
+                {
+                    auto conf = H264AmfConfiguration{};
+                    conf.Save(encoderData.amdSettings);
+                }
+                break;
+
+                case VideoCodec::H264_NVENC:
+                case VideoCodec::H264_QSV:
+                break;
+            }
+        }
+        
+        {
+            auto decoderConf = DecoderConfiguration{};
+            decoderConf.Save(decoderData);
         }
 
-        av_packet_unref(&streamPacket);
-    }
-    else
-    {
-        stream.CloseStream();
-        streamDecoder->Flush();
-        streamDecoder->Cleanup();
-        stream.Cleanup();
-        streamState.store(StreamState::INACTIVE, std::memory_order_release);
-        delete streamDecoder;
-        streamDecoder = nullptr;
-
-        if(gamepadThread.joinable())
-            gamepadThread.join();
-    }
-};
-
-void SaveConfigData(EncoderConfig const encoderData, 
-DecoderData const decoderData, 
-controller::ControllerConfig const controllerData,
-mouse::MouseConfig const mouseData,
-touch::TouchConfig const touchData)
-{
-    {
-        auto generalConf = GenericCodecConfiguration{};
-        generalConf.Save(encoderData.commonSettings);
-        switch(encoderData.commonSettings.videoCodec)
         {
-            case VideoCodec::H264:
-            {
-                auto conf = H264Configuration{};
-                conf.Save(encoderData.cpuSettings);
-            }
-            break;
-
-            case VideoCodec::H264_AMF:
-            {
-                auto conf = H264AmfConfiguration{};
-                conf.Save(encoderData.amdSettings);
-            }
-            break;
-
-            case VideoCodec::H264_NVENC:
-            case VideoCodec::H264_QSV:
-            break;
+            auto conf = ControllerConfiguration{};
+            conf.Save(controllerData);
         }
-    }
-    
-    {
-        auto decoderConf = DecoderConfiguration{};
-        decoderConf.Save(decoderData);
-    }
 
-    {
-        auto conf = ControllerConfiguration{};
-        conf.Save(controllerData);
-    }
+        {
+            auto conf = MouseConfiguration{};
+            conf.Save(mouseData);
+        }
 
-    {
-        auto conf = MouseConfiguration{};
-        conf.Save(mouseData);
-    }
-
-    {
-        auto conf = TouchConfiguration{};
-        conf.Save(touchData);
+        {
+            auto conf = TouchConfiguration{};
+            conf.Save(touchData);
+        }
     }
 }
 
