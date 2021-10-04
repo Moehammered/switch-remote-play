@@ -186,6 +186,7 @@
     <ClCompile Include="TouchOptions.cpp" />
     <ClCompile Include="VideoCodec.cpp" />
     <ClCompile Include="VirtualController.cpp" />
+    <ClCompile Include="VirtualKeyboard.cpp" />
     <ClCompile Include="VirtualMouse.cpp" />
     <ClCompile Include="VirtualTouch.cpp" />
     <ClCompile Include="VirtualTouchMouse.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="VideoCodecMode.h" />
     <ClInclude Include="VirtualController.h" />
     <ClInclude Include="VirtualFinger.h" />
+    <ClInclude Include="VirtualKeyboard.h" />
     <ClInclude Include="VirtualMouse.h" />
     <ClInclude Include="VirtualTouch.h" />
     <ClInclude Include="VirtualTouchMouse.h" />

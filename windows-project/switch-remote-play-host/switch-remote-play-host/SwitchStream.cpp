@@ -6,6 +6,7 @@
 #include "DS4Controller.h"
 #include "VirtualMouse.h"
 #include "VirtualTouch.h"
+#include "VirtualKeyboard.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
 #include "WSAHelper.h"
@@ -18,6 +19,21 @@ namespace
     auto constexpr mouseToggleNano = 3000000000;
     auto constexpr maxRetries = 5;
     double constexpr joystickExtent = 0xFFFF / 2;
+
+    auto constexpr keyboardFrameTimeNano = (long long)1.6e+7;
+    auto constexpr taskManagerHotKey = HidNpadButton::HidNpadButton_Minus;
+    //auto constexpr touchkeyboardHotKey = HidNpadButton::HidNpadButton_StickR;
+    std::unordered_map<HidNpadButton, uint8_t> const keyboardMap
+    {
+        { HidNpadButton::HidNpadButton_A, VK_RETURN },
+        { HidNpadButton::HidNpadButton_B, VK_BACK },
+        { HidNpadButton::HidNpadButton_Up, VK_UP },
+        { HidNpadButton::HidNpadButton_Down, VK_DOWN },
+        { HidNpadButton::HidNpadButton_Left, VK_LEFT },
+        { HidNpadButton::HidNpadButton_Right, VK_RIGHT },
+        { HidNpadButton::HidNpadButton_X, VK_ESCAPE },
+        { HidNpadButton::HidNpadButton_Y, VK_LWIN }
+    };
 
     template<typename numberType>
     std::string BitString(numberType val, int bitCount = 32)
@@ -178,6 +194,37 @@ namespace
             controller->UpdateController();
         }
     }
+
+    void ProcessVirtualKeyboard(VirtualKeyboard& keyboard,
+        GamepadDataPayload const& padData)
+    {
+        auto pressed = std::vector<uint8_t>{};
+        auto released = std::vector<uint8_t>{};
+
+        for (auto const& entry : keyboardMap)
+        {
+            if (entry.first & padData.keys)
+                pressed.push_back(entry.second);
+            else
+                released.push_back(entry.second);
+        }
+
+        if (padData.keys & taskManagerHotKey)
+        {
+            pressed.push_back(VK_LCONTROL);
+            pressed.push_back(VK_LSHIFT);
+            pressed.push_back(VK_ESCAPE);
+        }
+        else
+        {
+            released.push_back(VK_LCONTROL);
+            released.push_back(VK_LSHIFT);
+            released.push_back(VK_ESCAPE);
+        }
+
+        keyboard.Press(pressed);
+        keyboard.Release(released);
+    }
 }
 
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
@@ -272,6 +319,8 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     std::cout << "Error: Failed to create "<< failedControllerCount << " virtual controllers \n";
                 }
 
+                auto keyboard = VirtualKeyboard{};
+                auto keyboardPollTime = 0;
                 auto mouse = VirtualMouse{};
                 auto maxFingers = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
                     ? touchConfig.virtualTouchSettings.maxFingerCount
@@ -358,6 +407,14 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                             ProcessMouseMovement(mouse, firstGamepad, mouseSensitivity, mouseWheelAnalog);
                             ProcessMouseButtons(mouse, firstGamepad, leftClickBtn, rightClickBtn, middleClickBtn);
                             mouse.Commit();
+
+                            keyboardPollTime += deltaTime.count();
+                            if (keyboardPollTime >= keyboardFrameTimeNano)
+                            {
+                                ProcessVirtualKeyboard(keyboard, firstGamepad);
+                                keyboard.Commit();
+                                keyboardPollTime = 0;
+                            }
                         }
                         else
                         {
