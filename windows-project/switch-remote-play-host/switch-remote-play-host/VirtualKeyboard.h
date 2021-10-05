@@ -20,7 +20,5 @@ public:
 private:
     std::vector<uint8_t> pressedKeys;
     std::vector<uint8_t> nextKeysPressed;
-
-    //std::vector<uint8_t> releasedKeys;
     std::vector<uint8_t> nextKeysReleased;
 };

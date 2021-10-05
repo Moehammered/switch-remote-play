@@ -17,10 +17,12 @@ namespace
 {
     auto constexpr mouseToggleBtnCombo = HidNpadButton_ZL | HidNpadButton_ZR | HidNpadButton_B;
     auto constexpr mouseToggleNano = 3000000000;
+    auto constexpr mouseFrameTimeNano = (long long)8e+6;
     auto constexpr maxRetries = 5;
     double constexpr joystickExtent = 0xFFFF / 2;
 
     auto constexpr keyboardFrameTimeNano = (long long)1.6e+7;
+    auto constexpr buttonHeldTime = (long long)3e+8;
     auto constexpr taskManagerHotKey = HidNpadButton::HidNpadButton_Minus;
     //auto constexpr touchkeyboardHotKey = HidNpadButton::HidNpadButton_StickR;
     std::unordered_map<HidNpadButton, uint8_t> const keyboardMap
@@ -34,6 +36,8 @@ namespace
         { HidNpadButton::HidNpadButton_X, VK_ESCAPE },
         { HidNpadButton::HidNpadButton_Y, VK_LWIN }
     };
+
+    std::unordered_map<HidNpadButton, long long> buttonTimers{};
 
     template<typename numberType>
     std::string BitString(numberType val, int bitCount = 32)
@@ -124,7 +128,7 @@ namespace
         auto normalisedY = (long)(mouseSensitivity * (y / joystickExtent));
         mouse.Move(normalisedX, normalisedY);
 
-        auto const maxScrollSpeed = 0.1 * WHEEL_DELTA;
+        auto const maxScrollSpeed = 0.5 * WHEEL_DELTA;
         auto normalisedScrX = mouseWheelAnalogX / joystickExtent;
         auto normalisedScrY = mouseWheelAnalogY / joystickExtent;
         auto scrDeltaX = (int)(normalisedScrX * maxScrollSpeed);
@@ -196,31 +200,46 @@ namespace
     }
 
     void ProcessVirtualKeyboard(VirtualKeyboard& keyboard,
-        GamepadDataPayload const& padData)
+        GamepadDataPayload const& padData, long long const deltaTime)
     {
         auto pressed = std::vector<uint8_t>{};
         auto released = std::vector<uint8_t>{};
 
         for (auto const& entry : keyboardMap)
         {
+            auto const heldTime = buttonTimers[entry.first];
+
             if (entry.first & padData.keys)
-                pressed.push_back(entry.second);
+            {
+                if(heldTime == 0 || heldTime > buttonHeldTime)
+                    pressed.push_back(entry.second);
+
+                buttonTimers[entry.first] += deltaTime;
+            }
             else
-                released.push_back(entry.second);
+            {
+                if(heldTime != 0)
+                    released.push_back(entry.second);
+                buttonTimers[entry.first] = 0;
+            }
         }
 
         if (padData.keys & taskManagerHotKey)
         {
-            pressed.push_back(VK_LCONTROL);
-            pressed.push_back(VK_LSHIFT);
-            pressed.push_back(VK_ESCAPE);
+            auto const heldTime = buttonTimers[taskManagerHotKey];
+            if (heldTime == 0)
+            {
+                pressed.push_back(VK_LCONTROL);
+                pressed.push_back(VK_LSHIFT);
+                pressed.push_back(VK_ESCAPE);
+                released.push_back(VK_LCONTROL);
+                released.push_back(VK_LSHIFT);
+                released.push_back(VK_ESCAPE);
+            }
+            buttonTimers[taskManagerHotKey] += deltaTime;
         }
         else
-        {
-            released.push_back(VK_LCONTROL);
-            released.push_back(VK_LSHIFT);
-            released.push_back(VK_ESCAPE);
-        }
+            buttonTimers[taskManagerHotKey] = 0;
 
         keyboard.Press(pressed);
         keyboard.Release(released);
@@ -322,6 +341,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 auto keyboard = VirtualKeyboard{};
                 auto keyboardPollTime = 0;
                 auto mouse = VirtualMouse{};
+                auto mousePollTime = 0;
                 auto maxFingers = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
                     ? touchConfig.virtualTouchSettings.maxFingerCount
                     : touch::MaxFingerCount;
@@ -404,14 +424,19 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                         }
                         else if (mouseMode)
                         {
-                            ProcessMouseMovement(mouse, firstGamepad, mouseSensitivity, mouseWheelAnalog);
-                            ProcessMouseButtons(mouse, firstGamepad, leftClickBtn, rightClickBtn, middleClickBtn);
-                            mouse.Commit();
+                            mousePollTime += deltaTime.count();
+                            if (mousePollTime >= mouseFrameTimeNano)
+                            {
+                                ProcessMouseMovement(mouse, firstGamepad, mouseSensitivity, mouseWheelAnalog);
+                                ProcessMouseButtons(mouse, firstGamepad, leftClickBtn, rightClickBtn, middleClickBtn);
+                                mouse.Commit();
+                                mousePollTime = 0;
+                            }
 
                             keyboardPollTime += deltaTime.count();
                             if (keyboardPollTime >= keyboardFrameTimeNano)
                             {
-                                ProcessVirtualKeyboard(keyboard, firstGamepad);
+                                ProcessVirtualKeyboard(keyboard, firstGamepad, deltaTime.count());
                                 keyboard.Commit();
                                 keyboardPollTime = 0;
                             }

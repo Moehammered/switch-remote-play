@@ -5,6 +5,7 @@
 #include <WinUser.h>
 
 VirtualKeyboard::VirtualKeyboard()
+    : pressedKeys{}, nextKeysPressed{}, nextKeysReleased{}
 {
 }
 
@@ -65,7 +66,8 @@ void VirtualKeyboard::Commit()
         input.type = INPUT_KEYBOARD;
         input.ki.wScan = key;
         input.ki.wVk = key;
-        input.ki.dwFlags = isExtendedKey(key) ? KEYEVENTF_EXTENDEDKEY : 0;
+        //input.ki.dwFlags = isExtendedKey(key) ? KEYEVENTF_EXTENDEDKEY : 0;
+        input.ki.dwFlags = 0;
         inputQueue.emplace_back(input);
 
         auto entry = std::find(pressedKeys.begin(), pressedKeys.end(), key);
@@ -77,27 +79,17 @@ void VirtualKeyboard::Commit()
 
     for (auto const& key : nextKeysReleased)
     {
-        auto nextPressed = std::find(nextKeysPressed.begin(), nextKeysPressed.end(), key);
-        if (nextPressed == nextKeysPressed.end())
-        {
-            auto previouslyPressed = std::find(pressedKeys.begin(), pressedKeys.end(), key);
-            if (previouslyPressed != pressedKeys.end())
-            {
-                //was pressed in a previous frame
-                //remove it, and queue a release
-                auto input = INPUT{ 0 };
-                input.type = INPUT_KEYBOARD;
-                input.ki.wScan = key;
-                input.ki.wVk = key;
-                input.ki.dwFlags = KEYEVENTF_KEYUP;
-                if (isExtendedKey(key))
-                    input.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+        auto input = INPUT{ 0 };
+        input.type = INPUT_KEYBOARD;
+        input.ki.wScan = key;
+        input.ki.wVk = key;
+        input.ki.dwFlags = KEYEVENTF_KEYUP;
+        /*if (isExtendedKey(key))
+            input.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;*/
 
-                inputQueue.emplace_back(input);
+        inputQueue.emplace_back(input);
 
-                releasedKeys.emplace_back(key);
-            }
-        }
+        releasedKeys.emplace_back(key);
     }
 
     if (inputQueue.size() != 0)
