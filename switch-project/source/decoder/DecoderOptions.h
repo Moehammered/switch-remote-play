@@ -87,7 +87,7 @@ static std::vector<int32_t> const AvailableThreadTypes
 
 int32_t constexpr MinThreadCount = 1;
 int32_t constexpr DefaultThreadCount = 4;
-int32_t constexpr MaxThreadCount = 24;
+int32_t constexpr MaxThreadCount = 8;
 
 std::unordered_map<DecoderParameters, std::string> DecoderParamsToStr(DecoderData const data);
 DecoderData DecoderParamsFromStr(std::unordered_map<DecoderParameters, std::string> const & map);

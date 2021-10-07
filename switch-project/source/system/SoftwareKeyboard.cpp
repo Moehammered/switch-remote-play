@@ -3,6 +3,38 @@
 #include <string>
 #include <vector>
 
+bool CreateKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfig & kbd)
+{
+    kbd = SwkbdConfig{};
+    auto created = swkbdCreate(&kbd, 0);
+    if(R_SUCCEEDED(created))
+    {
+        swkbdConfigMakePresetDefault(&kbd);
+        swkbdConfigSetType(&kbd, configuration.keyboardLayout);
+        
+        if(!configuration.displayMessage.empty())
+            swkbdConfigSetHeaderText(&kbd, configuration.displayMessage.c_str());
+        else
+            swkbdConfigSetHeaderText(&kbd, "Please enter some text and press enter when done.");
+        
+        auto maxLen = configuration.inputLength < 1 ? 1 : configuration.inputLength;
+        swkbdConfigSetStringLenMax(&kbd, maxLen);
+        swkbdConfigSetStringLenMin(&kbd, 0);
+
+        swkbdConfigSetInitialText(&kbd, configuration.initialText.c_str());
+        
+        if(!configuration.optionalLeftSymbol.empty())
+            swkbdConfigSetLeftOptionalSymbolKey(&kbd, configuration.optionalLeftSymbol.c_str());
+
+        if(!configuration.optionalRightSymbol.empty())
+            swkbdConfigSetRightOptionalSymbolKey(&kbd, configuration.optionalRightSymbol.c_str());
+
+        return true;
+    }
+    else
+        return false;
+}
+
 int KeyboardNumber(int minValue, int maxValue)
 {
     auto minStr = std::to_string(minValue);

@@ -1,8 +1,10 @@
 #include "DecoderThreadMenu.h"
+#include "../system/SoftwareKeyboard.h"
+#include <algorithm>
 
 DecoderThreadMenu::DecoderThreadMenu() : Menu(),
 textElements{}, itemCursor{decoderUtils::ThreadProperties},
-typeCursor{decoder::threadDesc}, threadCounter{DefaultThreadCount}
+typeCursor{decoder::threadDesc}, threadCount{MinThreadCount}
 {
     title.value = "Decoder Thread Behaviour";
     title.y += 45;
@@ -55,7 +57,7 @@ void DecoderThreadMenu::SetTypeFlag(int32_t flag)
 
 void DecoderThreadMenu::SetThreadCount(int32_t count)
 {
-    threadCounter = NumberRange<int32_t, MinThreadCount, MaxThreadCount>(count);
+    threadCount = std::clamp(count, MinThreadCount, MaxThreadCount);
     UpdateUI(decoderUtils::DecoderThreadProp::Count);
 }
 
@@ -66,7 +68,7 @@ int32_t DecoderThreadMenu::TypeFlag() const
 
 int32_t DecoderThreadMenu::ThreadCount() const
 {
-    return *threadCounter;
+    return threadCount;
 }
 
 void DecoderThreadMenu::UpdateUI(decoderUtils::DecoderThreadProp prop)
@@ -81,7 +83,7 @@ void DecoderThreadMenu::UpdateUI(decoderUtils::DecoderThreadProp prop)
 
         case decoderUtils::DecoderThreadProp::Count:
         {
-            textElements[prop].value = "Thread Count: " + std::to_string(*threadCounter);
+            textElements[prop].value = "Thread Count: " + std::to_string(threadCount);
         }
         break;
     }
@@ -96,7 +98,34 @@ void DecoderThreadMenu::ShiftParam(decoderUtils::DecoderThreadProp prop, int dir
         break;
 
         case decoderUtils::DecoderThreadProp::Count:
-            threadCounter += direction;
+        {
+            auto settings = KeyboardParserProperties<int32_t>{};
+            auto const min = MinThreadCount;
+            auto const max = MaxThreadCount;
+
+            settings.defaultValue = std::clamp(threadCount, min, max);
+            settings.parseMethod = [](std::string const inputText)
+            {
+                return std::atoi(inputText.c_str());
+            };
+            settings.predicate = [](int32_t const value)
+            {
+                return value >= min && value <= max;
+            };
+
+            auto const minStr = std::to_string(min);
+            auto const maxStr = std::to_string(max);
+            auto const header = "Values must be between " + minStr + " and " + maxStr;
+
+            settings.keyboardConfig.displayMessage = header;
+            settings.keyboardConfig.inputLength = maxStr.size();
+            settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
+
+            auto const currentValue = std::to_string(settings.defaultValue);
+            settings.keyboardConfig.initialText = currentValue;
+
+            threadCount = OpenKeyboard(settings);
+        }
         break;
     }
 }

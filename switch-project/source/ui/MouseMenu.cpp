@@ -69,7 +69,7 @@ mouse::MouseConfig const MouseMenu::Settings() const
         .leftClickButton = leftMouseBtnCursor.KeyPair().first,
         .rightClickButton = rightMouseBtnCursor.KeyPair().first,
         .middleClickButton = middleMouseBtnCursor.KeyPair().first,
-        .mouseSensitivity = (int16_t)mouseSensitivity,
+        .mouseSensitivity = mouseSensitivity,
         .mouseWheelAnalog = mouseWheelAnalogCursor.KeyPair().first,
         .mouseOnConnect = mouseOnConnect
     };
@@ -123,7 +123,34 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
         break;
 
         case mouse::Parameters::MouseSensitivity:
-            mouseSensitivity = KeyboardNumber(mouse::MinMouseSensitivity, mouse::MaxMouseSensitivity);
+        {
+            auto settings = KeyboardParserProperties<int32_t>{};
+            auto const min = mouse::MinMouseSensitivity;
+            auto const max = mouse::MaxMouseSensitivity;
+            
+            settings.defaultValue = std::clamp(mouseSensitivity, min, max);
+            settings.parseMethod = [](std::string const inputText)
+            {
+                return std::atoi(inputText.c_str());
+            };
+            settings.predicate = [](int32_t const value)
+            {
+                return value >= min && value <= max;
+            };
+
+            auto const minStr = std::to_string(min);
+            auto const maxStr = std::to_string(max);
+            auto const header = "Value must be between " + minStr + " and " + maxStr;
+            
+            settings.keyboardConfig.displayMessage = header;
+            settings.keyboardConfig.inputLength = maxStr.size();
+            settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
+
+            auto const currentValue = std::to_string(settings.defaultValue);
+            settings.keyboardConfig.initialText = currentValue;
+
+            mouseSensitivity = OpenKeyboard(settings);
+        }
         break;
     }
 }

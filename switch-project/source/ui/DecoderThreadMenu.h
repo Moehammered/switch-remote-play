@@ -40,7 +40,7 @@ private:
     std::unordered_map<decoderUtils::DecoderThreadProp, Text> textElements;
     ArrayCirculator<decoderUtils::DecoderThreadProp, std::vector> itemCursor;
     UnorderedMapCirculator<int32_t, std::string> typeCursor;
-    NumberRange<int32_t, MinThreadCount, MaxThreadCount> threadCounter;
+    int32_t threadCount;
 
     void SetupText();
     void UpdateUI(decoderUtils::DecoderThreadProp prop);
