@@ -2,7 +2,8 @@
 #define __NETWORKCONFIGURATION_H__
 
 #include <string>
-#include "../utils/Configuration.h"
+#include "NetworkOptions.h"
+#include "../utils/MappedDataConfiguration.h"
 
 class NetworkConfiguration
 {
@@ -10,22 +11,11 @@ public:
     NetworkConfiguration();
     NetworkConfiguration(std::string const file);
 
-    bool SaveManualIP(std::string const ip);
-    bool SaveManualEnabled(bool enabled);
-    bool SaveBroadcastAddress(std::string const ip);
-
-    std::string const ManualIP() const;
-    bool ManualIPEnabled() const;
-    std::string const BroadcastAddress() const;
+    bool Save(network::NetworkConfig const data);
+    network::NetworkConfig const Data() const;
 
 private:
-    Configuration configFile;
-    std::string const ManualIPTag;
-    std::string const ManualEnabledTag;
-    std::string const BroadcastAddressTag;
-
-    bool SaveIP(std::string const ip, std::string const& tag);
-    std::string const LoadIP(std::string const& tag) const;
+    MappedDataConfiguration<network::NetworkConfig, network::Parameters> configMap;
 };
 
 #endif

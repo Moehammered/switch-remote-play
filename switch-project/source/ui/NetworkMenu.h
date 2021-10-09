@@ -2,20 +2,9 @@
 #define __NETWORKMENU_H__
 
 #include "Menu.h"
-#include <string>
-#include <array>
-
-enum NetworkMenuItems : int32_t
-{
-    IP_SEG_1 = 0,
-    IP_SEG_2,
-    IP_SEG_3,
-    IP_SEG_4,
-    SAVE_BUTTON,
-    MANUAL_TOGGLE,
-    TEST_SFT_KBD_IP,
-    NETWORK_MENU_ITEM_COUNT
-};
+#include "../network/NetworkOptions.h"
+#include "../utils/ArrayCirculator.h"
+#include "../utils/UnorderedMapCirculator.h"
 
 class NetworkMenu : public Menu
 {
@@ -23,26 +12,22 @@ class NetworkMenu : public Menu
         NetworkMenu();
 
         void ProcessInput(PadState const & pad) override;
-
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
-        bool UseManualIP() const;
-
-        std::string const ManualIPAddress() const;
+        network::NetworkConfig const Settings() const;
 
     private:
         Text warningText;
-        std::array<Text, NetworkMenuItems::NETWORK_MENU_ITEM_COUNT> textElements;
-        std::array<int16_t, 4> ip;
-        bool useManualIP;
+        network::NetworkConfig data;
 
-        std::array<int16_t, 4> LoadManualIP();
-        void ProcessIncrease();
-        void ProcessDecrease();
+        ArrayCirculator<network::Parameters, std::vector> selected;
+        std::unordered_map<network::Parameters, Text> textElements;
 
-        NetworkMenuItems selectedItem;
-
-        Text broadcastIP;
+        std::string const EnterIP(std::string const defaultIP) const;
+        uint16_t const EnterPort(uint16_t const defaultPort) const;
+        void EditParam(network::Parameters param);
+        void UpdateUI(network::Parameters param);
+        void SetupText();
 };
 
 #endif

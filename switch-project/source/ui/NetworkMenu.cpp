@@ -1,255 +1,273 @@
 #include "NetworkMenu.h"
 #include "../network/NetworkConfiguration.h"
-#include <iostream>
-#include <switch.h>
+#include "../system/SoftwareKeyboard.h"
+#include "../utils/StringUtils.h"
 
 NetworkMenu::NetworkMenu() : Menu(),
-    warningText{}, textElements{}, ip{},
-    useManualIP{false}, selectedItem{}, broadcastIP{}
+    warningText{}, data{}, 
+    selected{network::ParamsList}, textElements{}
 { 
     title.value = "Network Configuration";
-    warningText.x = 75; warningText.y = title.y + 60;
+    warningText.x = 75; 
+    warningText.y = 620;
     warningText.colour = {255, 50, 0, 255};
     warningText.value = "Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button.";
 
-    ip = LoadManualIP();
+    auto config = NetworkConfiguration{};
+    data = config.Data();
 
-    SDL_Color constexpr white {255,255,255,255};
-    int x = 430; int y = 350;
-    int offset = 70;
-    for(auto i = 0U; i <= NetworkMenuItems::IP_SEG_4; ++i)
-    {
-        textElements[i].colour = white;
-        textElements[i].value = std::to_string((int32_t)ip[i]);
-        
-        auto xPos = x + (offset * i);
-        textElements[i].x = xPos;
-        textElements[i].y = y;
-    }
-
-    auto& saveButton = textElements[NetworkMenuItems::SAVE_BUTTON];
-    saveButton.x = 350; saveButton.y = y+50;
-    saveButton.colour = white;
-    saveButton.value = "Save IP";
-
-    auto& manualToggle = textElements[NetworkMenuItems::MANUAL_TOGGLE];
-    manualToggle.x = 550; manualToggle.y = y+50;
-    manualToggle.colour = white;
-
-    auto cfg = NetworkConfiguration{};
-    useManualIP = cfg.ManualIPEnabled();
-    manualToggle.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
-  
-    broadcastIP.value = cfg.BroadcastAddress();
-    broadcastIP.x = x;
-    broadcastIP.y = y+100;
-    broadcastIP.colour = white;
-
-    auto& testKbdIP = textElements[NetworkMenuItems::TEST_SFT_KBD_IP];
-    testKbdIP.x = 350;
-    testKbdIP.y = y+150;
-    testKbdIP.colour = white;
-    testKbdIP.value = "Set IP via Keyboard Test";
+    SetupText();
 }
 
 void NetworkMenu::ProcessInput(PadState const & pad)
 {
     auto kDown = padGetButtonsDown(&pad);
 
-    auto selected = (int)selectedItem;
     if(kDown & HidNpadButton_Up)
         selected--;
     else if(kDown & HidNpadButton_Down)
         selected++;
 
-    if(selected < 0)
-        selected = NetworkMenuItems::NETWORK_MENU_ITEM_COUNT - 1;
-    else if(selected >= NetworkMenuItems::NETWORK_MENU_ITEM_COUNT)
-        selected = 0;
-
-    selectedItem = (NetworkMenuItems)selected;
-
     if(kDown & HidNpadButton_A)
-        ProcessIncrease();
-    else if(kDown & HidNpadButton_B)
-        ProcessDecrease();
+        EditParam(*selected);
 }
 
 void NetworkMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 {
     title.Render(renderer, font);
     warningText.Render(renderer, font);
-    for(auto i = 0U; i < textElements.size(); ++i)
+    for(auto const& item : textElements)
     {
-        if(i == selectedItem)
-            textElements[i].Render(renderer, font, highlightColour);
+        if(item.first == *selected)
+            item.second.Render(renderer, font, highlightColour);
         else
-            textElements[i].Render(renderer, font);
+            item.second.Render(renderer, font);
     }
-    broadcastIP.Render(renderer, font);
 }
 
-bool NetworkMenu::UseManualIP() const
+network::NetworkConfig const NetworkMenu::Settings() const
 {
-    return useManualIP;
+    return data;
 }
 
-std::string const NetworkMenu::ManualIPAddress() const
+std::string const NetworkMenu::EnterIP(std::string const defaultIP) const
 {
-    auto period = std::string{"."};
-    return textElements[NetworkMenuItems::IP_SEG_1].value + period
-         + textElements[NetworkMenuItems::IP_SEG_2].value + period
-         + textElements[NetworkMenuItems::IP_SEG_3].value + period
-         + textElements[NetworkMenuItems::IP_SEG_4].value;
-}
-
-std::array<int16_t, 4> NetworkMenu::LoadManualIP()
-{
-    auto cfg = NetworkConfiguration{};
-    auto manualIP = cfg.ManualIP();
-
-    if(manualIP.size() > 0)
+    auto settings = KeyboardParserProperties<std::string>{};
+    settings.defaultValue = defaultIP;
+    settings.parseMethod = [](std::string const inputText)
     {
-        std::array<int16_t, 4> buffer{192, 168, 0, 1};
-        auto dotCounter {0};
-        auto lastPoint{0};
-        for(auto i = 0U; i < manualIP.size() && dotCounter < 3; ++i)
+        return Trim(inputText);
+    };
+    settings.predicate = [](std::string const ip)
+    {
+        auto stream = std::stringstream(ip);
+        auto segments = std::vector<std::string>{};
+
+        auto const ipSegmentMax = 255;
+        auto const ipSegmentMin = 0;
+        auto segment = std::string{};
+        while(std::getline(stream, segment, '.'))
         {
-            if(manualIP[i] == '.')
-            {
-                auto segment = manualIP.substr(lastPoint, i-lastPoint);
-                buffer[dotCounter] = atoi(segment.c_str());
-                ++dotCounter;
-                lastPoint = i+1;
-            }
+            auto ipNumber = std::atoi(segment.c_str());
+            if(ipNumber < ipSegmentMin || ipNumber > ipSegmentMax)
+                return false;
+            else
+                segments.emplace_back(segment);
         }
-        if(dotCounter == 3)
-        {
-            auto segment = manualIP.substr(lastPoint, manualIP.size()-lastPoint);
-            buffer[dotCounter] = atoi(segment.c_str());
-            return buffer;
-        }
+
+        if(segments.size() != 4)
+            return false;
         else
-        {
-            std::cout << "Incorrect ip format found. Only " << dotCounter << " dots found in IP string.\n";
-            return std::array<int16_t, 4> {192, 168, 0, 1};
-        }
-    }
-    else
-        return std::array<int16_t, 4> {192, 168, 0, 1};
+            return true;
+    };
+
+    auto const header = "Enter an IP Address";
+    auto const maxIPLength = 16;
+    settings.keyboardConfig.displayMessage = header;
+    settings.keyboardConfig.inputLength = maxIPLength;
+    settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
+    settings.keyboardConfig.optionalLeftSymbol = ".";
+    settings.keyboardConfig.optionalRightSymbol = ".";
+    settings.keyboardConfig.initialText = defaultIP;
+
+    return OpenKeyboard(settings);
 }
 
-void NetworkMenu::ProcessIncrease()
+uint16_t const NetworkMenu::EnterPort(uint16_t const defaultPort) const
 {
-    switch(selectedItem)
+    auto settings = KeyboardParserProperties<int32_t>{};
+    settings.defaultValue = defaultPort;
+    settings.parseMethod = [](std::string const inputText)
     {
-        case NetworkMenuItems::IP_SEG_1:
-        case NetworkMenuItems::IP_SEG_2:
-        case NetworkMenuItems::IP_SEG_3:
-        case NetworkMenuItems::IP_SEG_4:
-        {
-            auto segment = ip[selectedItem];
-            ++segment;
-            if(segment > 255)
-                segment = 0;
-            ip[selectedItem] = segment;
+        return std::atoi(inputText.c_str());
+    };
+    settings.predicate = [=](int32_t const port)
+    {
+        return port >= network::MinPortNumber && port <= network::MaxPortNumber;
+    };
 
-            textElements[selectedItem].value = std::to_string(ip[selectedItem]);
+    auto const minStr = std::to_string(network::MinPortNumber);
+    auto const maxStr = std::to_string(network::MaxPortNumber);
+    auto const header = "Enter an unused port number between " + minStr + " and " + maxStr;
+    settings.keyboardConfig.displayMessage = header;
+    settings.keyboardConfig.inputLength = maxStr.size();
+    settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
+    settings.keyboardConfig.initialText = std::to_string(defaultPort);
+
+    return (uint16_t)OpenKeyboard(settings);
+}
+
+void NetworkMenu::EditParam(network::Parameters param)
+{
+    auto portTaken = [&](auto const portTarget, auto const & portList)
+    {
+        for(auto const port : portList)
+        {
+            if(port == portTarget)
+                return true;
+        }
+
+        return false;
+    };
+
+    auto editPort = [&](uint16_t & member)
+    {
+        auto const allPorts = {
+            data.handshakePort, data.broadcastPort, data.commandPort, 
+            data.gamepadPort, data.videoPort, data.audioPort
+        };
+
+        auto otherPorts = std::vector<uint16_t>{};
+        for(auto const port : allPorts)
+        {
+            if(port != member)
+                otherPorts.push_back(port);
+        }
+
+        auto const backup = member;
+        auto newPort = backup;
+
+        do
+        {
+            newPort = EnterPort(backup);
+        } while (portTaken(newPort, otherPorts));
+
+        member = newPort;
+    };
+
+    switch(param)
+    {
+        case network::Parameters::ManualIPAddress:
+            data.manualIP = EnterIP(data.manualIP);
+            break;
+        
+        case network::Parameters::BroadcastAddress:
+            data.broadcastIP = EnterIP(data.broadcastIP);
+            break;
+        
+        case network::Parameters::ManualIPEnabled:
+            data.manualIPEnabled = data.manualIPEnabled;
+            break;
+
+        case network::Parameters::HandshakePort:
+            editPort(data.handshakePort);
+            break;
+
+        case network::Parameters::BroadcastPort:
+            editPort(data.broadcastPort);
+            break;
+
+        case network::Parameters::CommandPort:
+            editPort(data.commandPort);
+            break;
+
+        case network::Parameters::GamepadPort:
+            editPort(data.gamepadPort);
+            break;
+
+        case network::Parameters::VideoPort:
+            editPort(data.videoPort);
+            break;
+
+        case network::Parameters::AudioPort:
+            editPort(data.audioPort);
+            break;
+    }
+
+    UpdateUI(param);
+}
+
+void NetworkMenu::UpdateUI(network::Parameters param)
+{
+    auto prefix = network::ParamsDesc.at(param);
+    auto updateElement = [&](auto const & str){
+        textElements[param].value = prefix + ": " + str;
+    };
+
+    auto updatePort = [&](auto const portNo)
+    {
+        auto str = std::to_string(portNo);
+        updateElement(str);
+    };
+
+    switch(param)
+    {
+        case network::Parameters::ManualIPAddress:
+            updateElement(data.manualIP);
+            break;
+
+        case network::Parameters::BroadcastAddress:
+            updateElement(data.broadcastIP);
+            break;
+
+        case network::Parameters::ManualIPEnabled:
+        {
+            auto str = data.manualIPEnabled == false ? "no" : "yes";
+            updateElement(str);
         }
         break;
 
-        case NetworkMenuItems::SAVE_BUTTON:
-        {
-            auto ip = ManualIPAddress();
-            auto cfg = NetworkConfiguration{};
-            if(!cfg.SaveManualIP(ip))
-                std::cout << "Failed to manually save IP\n";
-            else
-                std::cout << "Saved manual IP " << ip << "\n";
-            if(!cfg.SaveManualEnabled(useManualIP))
-                std::cout << "Failed to save manual IP mode option\n";
-            else
-                std::cout << "Saved manual IP mode option " << useManualIP << "\n";
-        }
-        break;
+        case network::Parameters::HandshakePort:
+            updatePort(data.handshakePort);
+            break;
 
-        case NetworkMenuItems::MANUAL_TOGGLE:
-        {
-            useManualIP = !useManualIP;
-            auto& manualToggle = textElements[NetworkMenuItems::MANUAL_TOGGLE];
-            manualToggle.value = useManualIP ? "Manual IP Enabled" : "Manual IP Disabled";
-        }
-        break;
+        case network::Parameters::BroadcastPort:
+            updatePort(data.broadcastPort);
+            break;
 
-        case NetworkMenuItems::TEST_SFT_KBD_IP:
-        {
-            SwkbdConfig kbd{};
-            char ipEntered[16]{0};
-            auto res = swkbdCreate(&kbd, 0);
+        case network::Parameters::CommandPort:
+            updatePort(data.commandPort);
+            break;
 
-            auto ipCheck = [](char* str, size_t strSize){
-                auto errMsg = "Invalid IP";
-                auto dotCounter = 0;
-                for(auto i = 0; i < strSize; ++i)
-                {
-                    if(str[i] == '.')
-                        ++dotCounter;
-                }
-                std::cout << "str size - " << strSize << '\n';
-                if(dotCounter == 3)
-                    return SwkbdTextCheckResult_OK;
-                else
-                {
-                    strncpy(str, errMsg, strSize);
-                    // strncpy(str, "Invalid IP", strSize);
-                    return SwkbdTextCheckResult_Bad;
-                }
-            };
+        case network::Parameters::GamepadPort:
+            updatePort(data.gamepadPort);
+            break;
 
-            if(R_SUCCEEDED(res))
-            {
-                swkbdConfigMakePresetDefault(&kbd);
-                swkbdConfigSetType(&kbd, SwkbdType_NumPad);
-                swkbdConfigSetLeftOptionalSymbolKey(&kbd, ".");
-                swkbdConfigSetRightOptionalSymbolKey(&kbd, ".");
-                swkbdConfigSetHeaderText(&kbd, "Set manual IP address");
-                auto currIP = ManualIPAddress();
-                swkbdConfigSetInitialText(&kbd, currIP.c_str());
-                swkbdConfigSetStringLenMax(&kbd, 15);
-                swkbdConfigSetTextCheckCallback(&kbd, ipCheck);
+        case network::Parameters::VideoPort:
+            updatePort(data.videoPort);
+            break;
 
-                swkbdShow(&kbd, ipEntered, 15);
-                std::cout << "IP entered from kbd: " << ipEntered << "\n";
-                swkbdClose(&kbd);
-            }
-        }
-        break;
+        case network::Parameters::AudioPort:
+            updatePort(data.audioPort);
+            break;
     }
 }
 
-void NetworkMenu::ProcessDecrease()
+void NetworkMenu::SetupText()
 {
-    switch(selectedItem)
+    const int settingTextX = 100;
+    const int yOffset = title.y + 15;
+    const int ySpace = 45;
+    int counter = 1;
+    SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
+
+    auto params = network::ParamsList;
+    for(auto& p : params)
     {
-        case NetworkMenuItems::IP_SEG_1:
-        case NetworkMenuItems::IP_SEG_2:
-        case NetworkMenuItems::IP_SEG_3:
-        case NetworkMenuItems::IP_SEG_4:
-        {
-            auto segment = ip[selectedItem];
-            --segment;
-            if(segment < 0)
-                segment = 255;
-            ip[selectedItem] = segment;
-
-            textElements[selectedItem].value = std::to_string(ip[selectedItem]);
-        }
-        break;
-
-        default:
-        case NetworkMenuItems::TEST_SFT_KBD_IP:
-        case NetworkMenuItems::SAVE_BUTTON:
-        case NetworkMenuItems::MANUAL_TOGGLE:
-        break;
+        textElements[p] = Text{};
+        textElements[p].colour = textColour;
+        textElements[p].x = settingTextX;
+        textElements[p].y = yOffset + ySpace * counter++;
+        UpdateUI(p);
     }
 }

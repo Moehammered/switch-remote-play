@@ -180,8 +180,8 @@ int main(int argc, char **argv)
     std::string broadcastAddress{};
     std::cout << "Initialising Network Discovery\n";
     {
-        auto config = NetworkConfiguration{"sdmc:/switch/switch-remote-play/network.ini"};
-        broadcastAddress = config.BroadcastAddress();
+        auto config = NetworkConfiguration{};
+        broadcastAddress = config.Data().broadcastIP;
         std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";
     }
     NetworkDiscovery network {handshakePort, broadcastAddress, broadcastPort};
@@ -265,11 +265,12 @@ int main(int argc, char **argv)
                             menuScreens.MouseSettings(),
                             menuScreens.TouchSettings());
 
-                if(network.HostFound() || menuScreens.UseManualIP())
+                auto networkSettings = menuScreens.NetworkSettings();
+                if(network.HostFound() || networkSettings.manualIPEnabled)
                 {
                     auto ip = std::string{};
-                    if(menuScreens.UseManualIP())
-                        ip = menuScreens.GetManualIPAddress();
+                    if(networkSettings.manualIPEnabled)
+                        ip = networkSettings.manualIP;
                     else
                         ip = network.IPAddress();
                   

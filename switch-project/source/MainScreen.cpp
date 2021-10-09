@@ -77,9 +77,10 @@ void MenuSelection::RenderPendingConnection(SDL_Renderer * const renderer, FC_Fo
 
 void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network)
 {
-    if(networkScreen.UseManualIP())
+    auto networkSettings = networkScreen.Settings();
+    if(networkSettings.manualIPEnabled)
     {
-        hostConnectionText.value = "Host IP: (Manual)" + networkScreen.ManualIPAddress();
+        hostConnectionText.value = "Host IP: (Manual)" + networkSettings.manualIP;
         hostConnectionText.Render(renderer, font, orange);
     }
     else if(network.HostFound())
@@ -114,16 +115,6 @@ controller::ControllerConfig const MenuSelection::GetControllerSettings()
     return newControllerMenu.Settings();
 }
 
-bool MenuSelection::UseManualIP()
-{
-    return networkScreen.UseManualIP();
-}
-
-std::string const MenuSelection::GetManualIPAddress()
-{
-    return networkScreen.ManualIPAddress();
-}
-
 mouse::MouseConfig const MenuSelection::MouseSettings()
 {
     return mouseMenu.Settings();
@@ -132,4 +123,9 @@ mouse::MouseConfig const MenuSelection::MouseSettings()
 touch::TouchConfig const MenuSelection::TouchSettings()
 {
     return touchMenu.Settings();
+}
+
+network::NetworkConfig const MenuSelection::NetworkSettings() const
+{
+    return networkScreen.Settings();
 }

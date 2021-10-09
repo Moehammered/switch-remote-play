@@ -57,9 +57,7 @@ class MenuSelection : public Menu
 
         touch::TouchConfig const TouchSettings();
 
-        bool UseManualIP();
-
-        std::string const GetManualIPAddress();
+        network::NetworkConfig const NetworkSettings() const;
 
     private:
         Text controlsText;
