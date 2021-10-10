@@ -55,9 +55,6 @@
     <ClCompile Include="NetworkAdapter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Configuration.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FileOperations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -116,6 +113,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VirtualKeyboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Configuration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FfmpegOutputOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FfmpegOutputConfiguration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,9 +184,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NetworkAdapter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Configuration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileOperations.h">
@@ -252,10 +255,28 @@
     <ClInclude Include="VirtualKeyboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Configuration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MappedDataConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FfmpegOutputOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FfmpegOutputConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />
     <CopyFileToFolders Include="config.ini">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ffmpeg-output-options.ini">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
   </ItemGroup>

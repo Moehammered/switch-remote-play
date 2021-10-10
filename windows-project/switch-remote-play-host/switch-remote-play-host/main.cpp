@@ -16,10 +16,10 @@
 #include "Broadcast.h"
 #include "MasterVolume.h"
 #include "NetworkAdapter.h"
-#include "Configuration.h"
+#include "FfmpegOutputConfiguration.h"
 #include "DisplayDeviceService.h"
 
-auto constexpr applicationVersion = "0.9.3";
+auto constexpr applicationVersion = "0.9.5";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -218,6 +218,7 @@ int main(int argc, char* argv[])
             connection.Close();
         }
 
+        auto muteOnConnect = false;
         auto ffmpegStarted = false;
         auto audioStarted = false;
         auto displayService = DisplayDeviceService(true);
@@ -278,9 +279,10 @@ int main(int argc, char* argv[])
                 }
 
                 // make sure this function takes in the IP of the switch dynamically from the handshake
-                auto configFile = Configuration{ ExtractParentDirectory(argv[0]) };
-                streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, videoPort, configFile.ShowFfmpegEncoderOutput(), ffmpegStarted);
-                audioProcessInfo = StartAudio(switchIP, audioPort, configFile.ShowFfmpegAudioEncoderOutputWindow(), audioStarted);
+                auto const ffmpegOutputConfig = FfmpegOutputConfiguration{};
+                auto const outputSettings = ffmpegOutputConfig.Data();
+                streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, videoPort, outputSettings.showEncoderOutput, ffmpegStarted);
+                audioProcessInfo = StartAudio(switchIP, audioPort, outputSettings.showAudioOutputWindow, audioStarted);
 
                 if (ffmpegStarted)
                 {
@@ -299,9 +301,11 @@ int main(int argc, char* argv[])
                     if (IsWindowVisible(GetConsoleWindow()))
                         ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
 #endif
-
-                    originalMuteState = masterVolume.IsMuted();
-                    masterVolume.Mute(true);
+                    if (muteOnConnect)
+                    {
+                        originalMuteState = masterVolume.IsMuted();
+                        masterVolume.Mute(true);
+                    }
                 }
             }
             else

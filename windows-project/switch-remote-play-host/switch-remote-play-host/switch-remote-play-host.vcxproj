@@ -168,6 +168,8 @@
     <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="FfmpegArgParser.cpp" />
     <ClCompile Include="FFMPEGHelper.cpp" />
+    <ClCompile Include="FfmpegOutputConfiguration.cpp" />
+    <ClCompile Include="FfmpegOutputOptions.cpp" />
     <ClCompile Include="FileOperations.cpp" />
     <ClCompile Include="GenericOptions.cpp" />
     <ClCompile Include="h264amfEnums.cpp" />
@@ -211,12 +213,15 @@
     <ClInclude Include="EnumMapper.h" />
     <ClInclude Include="FfmpegArgParser.h" />
     <ClInclude Include="FFMPEGHelper.h" />
+    <ClInclude Include="FfmpegOutputConfiguration.h" />
+    <ClInclude Include="FfmpegOutputOptions.h" />
     <ClInclude Include="FileOperations.h" />
     <ClInclude Include="GenericOptions.h" />
     <ClInclude Include="h264amfEnums.h" />
     <ClInclude Include="h264amfOptions.h" />
     <ClInclude Include="H264Options.h" />
     <ClInclude Include="HWAccel.h" />
+    <ClInclude Include="MappedDataConfiguration.h" />
     <ClInclude Include="MasterVolume.h" />
     <ClInclude Include="MouseOptions.h" />
     <ClInclude Include="NetworkAdapter.h" />
@@ -224,6 +229,7 @@
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SimulatedMouseOptions.h" />
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="SwitchButtons.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
@@ -267,6 +273,11 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="ffmpeg-output-options.ini">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

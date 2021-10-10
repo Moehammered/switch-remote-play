@@ -1,135 +1,98 @@
 #include "Configuration.h"
-#include "FileOperations.h"
-#include <sstream>
-#include <iterator>
+#include <fstream>
 #include <iostream>
+#include <sstream>
+#include "StringUtils.h"
 
-auto constexpr FFMPEG_ENCODER_OUTPUT = "show_ffmpeg_encoder_output";
-auto constexpr FFMPEG_AUDIO_OUTPUT_WINDOW = "show_ffmpeg_audio_output_window";
-
-bool YesToBool(std::string s)
+Configuration::Configuration(std::string const file)
+	: filepath{ file },
+	lines{ LoadFile(file) }, delimiter{ '=' }, endOfLine{ ';' }
 {
-    return s == "yes" || s == "y";
 }
 
-std::string BoolToYes(bool enabled)
+bool Configuration::SaveConfigFile()
 {
-    return enabled ? "yes" : "no";
+	auto filestream = std::fstream(filepath, std::ios::out);
+	if (filestream.bad())
+	{
+		std::cout << "Failed to open file for saving " << filepath << "\n\n";
+		filestream.close();
+		return false;
+	}
+	else
+	{
+		for (auto& line : lines)
+			filestream << line << "\n";
+		filestream.close();
+		return true;
+	}
 }
 
-Configuration::Configuration(std::string parentFolder) : parentFolder{}, absolutePath{}, data{}
+bool Configuration::ExtractVariable(std::string const variable, std::string& result) const
 {
-    this->parentFolder = parentFolder;
-    absolutePath = parentFolder + "\\config.ini";
-    data = ReadConfigFile(absolutePath);
+	for (auto& line : lines)
+	{
+		auto location = ToLower(line).find(ToLower(variable) + "=", 0);
+		if (location != std::string::npos)
+		{
+			auto start = line.find('=', location);
+			auto end = line.find(';', location);
+			if (start != std::string::npos && end != std::string::npos)
+			{
+				end--;
+				result = line.substr(start+1, end - start);
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
-bool Configuration::SaveFfmpegEncoderOutputOption(bool enabled)
+bool Configuration::ReplaceVariable(std::string const variable, std::string const value, std::string& result)
 {
-    auto newData = std::string{};
-    if (ReplaceVariable(data, FFMPEG_ENCODER_OUTPUT, BoolToYes(enabled), newData))
-        return SaveConfigFile(newData);
-    else
-    {
-        newData = std::string{ FFMPEG_ENCODER_OUTPUT } + "=" + BoolToYes(enabled) + ";\n";
-        newData += data;
-        return SaveConfigFile(newData);
-    }
+	for (auto& line : lines)
+	{
+		auto location = ToLower(line).find(ToLower(variable) + "=", 0);
+		if (location != std::string::npos)
+		{
+			auto start = line.find('=', location);
+			auto end = line.find(';', location);
+			if (start != std::string::npos && end != std::string::npos)
+			{
+				end--;
+				line.replace(start+1, end-start, value);
+				return ExtractVariable(variable, result);
+			}
+		}
+	}
+
+	return false;
 }
 
-bool Configuration::ShowFfmpegEncoderOutput()
+void Configuration::CreateVariable(std::string const variable, std::string const value)
 {
-    auto option = std::string{};
-    if (ExtractVariable(data, FFMPEG_ENCODER_OUTPUT, option))
-        return YesToBool(option);
-    else
-        return false;
+	auto buffer = std::string{};
+	if (!ReplaceVariable(variable, value, buffer))
+		lines.emplace_back(variable + "=" + value + ";");
 }
 
-bool Configuration::SaveFfmpegAudioEncoderOutputOption(bool enabled)
+std::vector<std::string> Configuration::LoadFile(std::string const filepath) const
 {
-    auto newData = std::string{};
-    if (ReplaceVariable(data, FFMPEG_AUDIO_OUTPUT_WINDOW, BoolToYes(enabled), newData))
-        return SaveConfigFile(newData);
-    else
-    {
-        newData = std::string{ FFMPEG_AUDIO_OUTPUT_WINDOW } + "=" + BoolToYes(enabled) + ";\n";
-        newData += data;
-        return SaveConfigFile(newData);
-    }
-}
+	auto filestream = std::fstream(filepath, std::ios::in);
+	if (filestream.bad())
+	{
+		std::cout << "Failed to open file for loading " << filepath << "\n\n";
+		filestream.close();
+		return std::vector<std::string>{};
+	}
+	else
+	{
+		std::stringstream data;
+		data << filestream.rdbuf();
+		filestream.close();
 
-bool Configuration::ShowFfmpegAudioEncoderOutputWindow()
-{
-    auto option = std::string{};
-    if (ExtractVariable(data, FFMPEG_AUDIO_OUTPUT_WINDOW, option))
-        return YesToBool(option);
-    else
-        return false;
-}
-
-std::string Configuration::ReadConfigFile(std::string const path)
-{
-    auto temp = std::string{};
-    readFileAsText(path, temp);
-    return temp;
-}
-
-bool Configuration::SaveConfigFile(std::string const & data)
-{
-    if(saveTextToFile(absolutePath, data))
-    {
-        this->data = data;
-        return true;
-    }
-
-    return false;
-}
-
-bool Configuration::ExtractVariable(std::string const data, std::string const variable, std::string& result) const
-{
-    auto location = data.find(variable+"=", 0);
-    result = std::string{};
-
-    if(location != std::string::npos)
-    {
-        auto varStart = data.find('=', location);
-        auto varEnd = data.find(';', location);
-
-        if(varStart == std::string::npos || varEnd == std::string::npos)
-            return false;
-        else
-        {
-            auto varLength = varEnd-varStart-1;
-            result = data.substr(varStart+1, varLength);
-            return true;
-        }
-    }
-    else
-        return false;
-}
-
-bool Configuration::ReplaceVariable(std::string const data, std::string const variable, std::string const value, std::string& newData) const
-{
-    auto variableStart = data.find(variable+"=", 0);
-
-    if(variableStart != std::string::npos)
-    {
-        auto varEnd = data.find(';', variableStart);
-
-        if(varEnd == std::string::npos)
-            return false;
-        else
-        {
-            auto copy = std::string{data};
-            copy.replace(variableStart, varEnd-variableStart, variable+"="+value);
-            newData = copy;
-            return true;
-        }
-    }
-    else
-    {
-        std::cout << "couldn't find variable: " << variable+"= in " << std::endl << newData << std::endl;
-        return false;
-    }
+		std::cout << data.str() << "\n";
+		return SplitLines(data.str());
+	}
 }
