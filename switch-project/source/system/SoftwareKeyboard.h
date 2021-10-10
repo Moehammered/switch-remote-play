@@ -60,6 +60,6 @@ returnType OpenKeyboard(KeyboardParserProperties<returnType> const properties)
         return properties.defaultValue;
 }
 
-int KeyboardNumber(int minValue, int maxValue);
+int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue);
 
 #endif

@@ -1,4 +1,5 @@
 #include "GenericCodec.h"
+#include "../../system/SoftwareKeyboard.h"
 
 GenericCodec::GenericCodec()
     : cursor{VideoParametersList},
@@ -9,7 +10,7 @@ GenericCodec::GenericCodec()
     vsyncCursor{VsyncModeStrMap},
     hwaccelCursor{HWAccelModeStrMap},
     videoCursor{VideoCodecStrMap},
-    monitorNumberCursor{}
+    monitorNumber{}
 {
 }
 
@@ -19,11 +20,12 @@ void GenericCodec::Set(VideoData const data)
 	cycleNumber(switchResCursor, data.switchResolution);
 	cycleNumber(fpsCursor, data.desiredFrameRate);
     cycleNumber(bitrateCursor, data.bitrateKB);
-    cycleNumber(monitorNumberCursor, data.monitorNumber);
 
     cycleMap(vsyncCursor, data.vsyncMode);
     cycleMap(hwaccelCursor, data.hwaccelMode);
     cycleMap(videoCursor, data.videoCodec);
+
+    monitorNumber = data.monitorNumber;
 }
 
 VideoData const GenericCodec::Data() const
@@ -37,7 +39,7 @@ VideoData const GenericCodec::Data() const
     data.vsyncMode = vsyncCursor.KeyPair().first;
     data.hwaccelMode = hwaccelCursor.KeyPair().first;
     data.videoCodec = videoCursor.KeyPair().first;
-    data.monitorNumber = (int16_t)*monitorNumberCursor;
+    data.monitorNumber = monitorNumber;
 
 	return data;
 }
@@ -102,7 +104,7 @@ void GenericCodec::ShiftParam(int direction)
         break;
 
     case VideoParameters::MonitorNumber:
-        monitorNumberCursor += direction;
+        monitorNumber = (int16_t)KeyboardNumber(0, 100, monitorNumber);
         break;
 	}
 }

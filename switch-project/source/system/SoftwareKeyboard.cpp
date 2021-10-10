@@ -35,46 +35,27 @@ bool CreateKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfi
         return false;
 }
 
-int KeyboardNumber(int minValue, int maxValue)
+int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue)
 {
-    auto minStr = std::to_string(minValue);
-    auto maxStr = std::to_string(maxValue);
-    auto validationMsg = "Value must be between " + minStr + " and " + maxStr;
-
-    //open keyboard here
-    auto buffer = std::vector<char>(validationMsg.size());
-    auto kbd = SwkbdConfig{};
-    auto libRes = swkbdCreate(&kbd, 0);
-
-    auto inputInvalid = [](auto a, auto b, auto c)
+    auto settings = KeyboardParserProperties<int32_t>{};
+    settings.defaultValue = defaultValue;
+    settings.parseMethod = [](std::string const text)
     {
-        return c < a || c > b;
+        return std::atoi(text.c_str());
+    };
+    settings.predicate = [=](int32_t const value)
+    {
+        return value >= minValue && value <= maxValue;
     };
 
-    if(R_SUCCEEDED(libRes))
-    {
-        swkbdConfigMakePresetDefault(&kbd);
-        swkbdConfigSetType(&kbd, SwkbdType_NumPad);
-        swkbdConfigSetHeaderText(&kbd, validationMsg.c_str());
-        swkbdConfigSetStringLenMax(&kbd, buffer.size());
-        swkbdConfigSetStringLenMin(&kbd, 1);
+    auto minStr = std::to_string(minValue);
+    auto maxStr = std::to_string(maxValue);
+    auto header = "Value must be between " + minStr + " and " + maxStr;
+    settings.keyboardConfig.displayMessage = header;
+    settings.keyboardConfig.initialText = std::to_string(defaultValue);
+    settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
+    settings.keyboardConfig.inputLength = maxStr.size();
+    settings.keyboardConfig.optionalLeftSymbol = "-";
 
-        int16_t numberInput = 0;
-        do
-        {
-            auto revealed = swkbdShow(&kbd, buffer.data(), buffer.size());
-            if(R_SUCCEEDED(revealed))
-                numberInput = std::atoi(buffer.data());
-            else
-            {
-                numberInput = minValue;
-                break;
-            }
-        } while (inputInvalid(minValue, maxValue, numberInput));
-        
-        swkbdClose(&kbd);
-        return numberInput;
-    }
-    else
-        return minValue;
+    return OpenKeyboard(settings);
 }
