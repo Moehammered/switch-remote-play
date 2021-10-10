@@ -94,6 +94,7 @@
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,6 +112,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);RELEASE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,6 +130,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +148,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);RELEASE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -180,6 +184,8 @@
     <ClCompile Include="MasterVolume.cpp" />
     <ClCompile Include="MouseOptions.cpp" />
     <ClCompile Include="NetworkAdapter.cpp" />
+    <ClCompile Include="NetworkConfiguration.cpp" />
+    <ClCompile Include="NetworkOptions.cpp" />
     <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="SimulatedMouseOptions.cpp" />
     <ClCompile Include="SwitchButtons.cpp" />
@@ -225,7 +231,9 @@
     <ClInclude Include="MasterVolume.h" />
     <ClInclude Include="MouseOptions.h" />
     <ClInclude Include="NetworkAdapter.h" />
+    <ClInclude Include="NetworkConfiguration.h" />
     <ClInclude Include="NetworkData.h" />
+    <ClInclude Include="NetworkOptions.h" />
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SimulatedMouseOptions.h" />
@@ -278,6 +286,11 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg-output-options.ini">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="network.ini">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

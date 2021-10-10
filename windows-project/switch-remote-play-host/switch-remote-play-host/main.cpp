@@ -17,6 +17,7 @@
 #include "MasterVolume.h"
 #include "NetworkAdapter.h"
 #include "FfmpegOutputConfiguration.h"
+#include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
 
 auto constexpr applicationVersion = "0.9.5";
@@ -105,24 +106,16 @@ int main(int argc, char* argv[])
     }
     SetConsoleTextAttribute(stdHandle, defaultColour);
 
-    /*system("pause");
-    return 0;*/
-
     std::string switchIP{};
     std::atomic_bool ipFound{ false };
 
-    uint16_t constexpr handshakePort = 19999;
-    uint16_t constexpr broadcastPort = 20000;
-    uint16_t constexpr hostCommandPort = 20001;
-    uint16_t constexpr gamepadPort = 20002;
-    uint16_t constexpr videoPort = 20003;
-    uint16_t constexpr audioPort = 20004;
+    auto const startupNetworkSettings = NetworkConfiguration().Data();
 
     auto handshakeProcedure = [&] {
         auto const replyKey = std::string{ "let-me-play" };
 
         //handshake method
-        auto handshake = Connection(handshakePort);
+        auto handshake = Connection(startupNetworkSettings.handshakePort);
         switchHandshakeConnection = &handshake;
         std::cout << "starting handshake...\n";
 
@@ -143,7 +136,7 @@ int main(int argc, char* argv[])
     };
 
     auto receiverProcedure = [&] {
-        auto broadcaster = Broadcast(broadcastAddress, broadcastPort);
+        auto broadcaster = Broadcast(broadcastAddress, startupNetworkSettings.broadcastPort);
         switchBroadcastListener = &broadcaster;
 
         if (broadcaster.ReadyToRecv())
@@ -197,7 +190,7 @@ int main(int argc, char* argv[])
     {
         killStream.store(false, std::memory_order_release);
 
-        auto connection = Connection(hostCommandPort);
+        auto connection = Connection(startupNetworkSettings.commandPort);
         switchCommandListener = &connection;
         if (connection.Ready())
         {
@@ -281,8 +274,8 @@ int main(int argc, char* argv[])
                 // make sure this function takes in the IP of the switch dynamically from the handshake
                 auto const ffmpegOutputConfig = FfmpegOutputConfiguration{};
                 auto const outputSettings = ffmpegOutputConfig.Data();
-                streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, videoPort, outputSettings.showEncoderOutput, ffmpegStarted);
-                audioProcessInfo = StartAudio(switchIP, audioPort, outputSettings.showAudioOutputWindow, audioStarted);
+                streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, startupNetworkSettings.videoPort, outputSettings.showEncoderOutput, ffmpegStarted);
+                audioProcessInfo = StartAudio(switchIP, startupNetworkSettings.audioPort, outputSettings.showAudioOutputWindow, audioStarted);
 
                 if (ffmpegStarted)
                 {
@@ -296,7 +289,7 @@ int main(int argc, char* argv[])
                         lastPayload.touchData,
                         killStream,
                         gamepadActive,
-                        gamepadPort);
+                        startupNetworkSettings.gamepadPort);
 #ifdef RELEASE
                     if (IsWindowVisible(GetConsoleWindow()))
                         ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
