@@ -1,11 +1,12 @@
 #include "H264Codec.h"
+#include "../../system/SoftwareKeyboard.h"
 
 H264Codec::H264Codec()
 	: cursor{ h264::ParamsList },
 	presetCursor{ h264::EncoderPresetStrMap },
 	rateModeCursor{ h264::EncoderBitrateModeStrMap },
 	profileCursor{ h264::EncoderProfileStrMap },
-	crfCursor{ h264::DefaultCRF }
+	constantRateFactor{ h264::DefaultCRF }
 {
 }
 
@@ -14,7 +15,8 @@ void H264Codec::Set(h264::H264Data const data)
 	cycleMap(presetCursor, data.Preset);
 	cycleMap(rateModeCursor, data.BitrateMode);
 	cycleMap(profileCursor, data.Profile);
-	cycleNumber(crfCursor, data.ConstantRateFactor);
+
+	constantRateFactor = data.ConstantRateFactor;
 }
 
 h264::H264Data const H264Codec::Data() const
@@ -22,7 +24,7 @@ h264::H264Data const H264Codec::Data() const
 	auto data = h264::H264Data{};
 
 	data.Preset = presetCursor.KeyPair().first;
-	data.ConstantRateFactor = *crfCursor;
+	data.ConstantRateFactor = constantRateFactor;
 	data.BitrateMode = rateModeCursor.KeyPair().first;
 	data.Profile = profileCursor.KeyPair().first;
 
@@ -65,7 +67,7 @@ void H264Codec::ShiftParam(int direction)
 		break;
 
 	case h264::Parameters::ConstantRateFactor:
-		crfCursor += direction;
+		constantRateFactor = KeyboardNumber(h264::MinCRF, h264::MaxCRF, constantRateFactor);
 		break;
 
 	case h264::Parameters::RateControlMode:

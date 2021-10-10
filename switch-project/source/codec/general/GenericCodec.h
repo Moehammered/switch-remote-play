@@ -30,7 +30,6 @@ private:
     //fixed value cursors
     ArrayCirculator<Resolution, std::vector> desktopResCursor;
     ArrayCirculator<Resolution, std::vector> switchResCursor;
-    ArrayCirculator<int16_t, std::vector> fpsCursor;
 	ArrayCirculator<int16_t, std::vector> bitrateCursor;
 
 	//enum cursors
@@ -38,6 +37,7 @@ private:
 	UnorderedMapCirculator<HWAccelMode, std::string> hwaccelCursor;
 	UnorderedMapCirculator<VideoCodec, std::string> videoCursor;
 
+	int16_t desiredFramerate;
 	int16_t monitorNumber;
 
 	void ShiftParam(int direction);

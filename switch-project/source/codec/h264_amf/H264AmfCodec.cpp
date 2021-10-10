@@ -1,4 +1,5 @@
 #include "H264AmfCodec.h"
+#include "../../system/SoftwareKeyboard.h"
 
 H264AmfCodec::H264AmfCodec()
 	: cursor{ h264amf::ParamsList },
@@ -6,7 +7,10 @@ H264AmfCodec::H264AmfCodec()
     profileCursor{ h264amf::profileMap },
     qualityCursor{ h264amf::qualityMap },
     rateControlCursor{ h264amf::rateControlMap },
-    qp_i{}, qp_p{}, qp_b{}, frameskip{}
+    quantisationI{h264amf::qpFrameDefault}, 
+    quantisationP{h264amf::qpFrameDefault}, 
+    quantisationB{h264amf::qpFrameDefault}, 
+    frameskip{}
 {
 }
 
@@ -18,9 +22,9 @@ void H264AmfCodec::Set(h264amf::H264AMFData const data)
     cycleMap(rateControlCursor, data.rateControl);
 
     // cycleNumber(level, data.level);
-    cycleNumber(qp_i, data.qp_i);
-    cycleNumber(qp_p, data.qp_p);
-    cycleNumber(qp_b, data.qp_b);
+    quantisationI = data.qp_i;
+    quantisationP = data.qp_p;
+    quantisationB = data.qp_b;
     // cycleNumber(delta_qp_b, data.qp_bfDelta);
     // cycleNumber(delta_qp_b_ref, data.qp_bfRefDelta);
 
@@ -59,9 +63,9 @@ h264amf::H264AMFData H264AmfCodec::Data() const
     // data.level = *level;
     data.quality = qualityCursor.KeyPair().first;
     data.rateControl = rateControlCursor.KeyPair().first;
-    data.qp_i = *qp_i;
-    data.qp_p = *qp_p;
-    data.qp_b = *qp_b;
+    data.qp_i = quantisationI;
+    data.qp_p = quantisationP;
+    data.qp_b = quantisationB;
     // data.qp_bfDelta = *delta_qp_b;
     // data.qp_bfRefDelta = *delta_qp_b_ref;
     // data.enforceHRD = enforceHRD;
@@ -106,13 +110,13 @@ void H264AmfCodec::ShiftParam(int direction)
         // level += direction;
         break;
     case h264amf::Parameters::FrameQuant_I:
-        qp_i += direction;
+        quantisationI = KeyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationI);
         break;
     case h264amf::Parameters::FrameQuant_P:
-        qp_p += direction;
+        quantisationP = KeyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationP);
         break;
     case h264amf::Parameters::FrameQuant_B:
-        qp_b += direction;
+        quantisationB = KeyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationB);
         break;
     case h264amf::Parameters::FrameQuant_BDelta:
         // delta_qp_b += direction;

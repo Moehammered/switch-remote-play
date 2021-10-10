@@ -25,8 +25,6 @@ class VirtualTouchMenu : public Menu
 
         void PromptValueInput(touch::VirtualTouchParameters param);
 
-        int16_t KeyboardValue(int16_t minValue, int16_t maxValue);
-
         void UpdateUI(touch::VirtualTouchParameters param);
 
         void SetupText();

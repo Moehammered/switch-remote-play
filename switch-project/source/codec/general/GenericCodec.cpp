@@ -5,12 +5,12 @@ GenericCodec::GenericCodec()
     : cursor{VideoParametersList},
     desktopResCursor{DesktopResolutions},
     switchResCursor{SwitchResolutions},
-    fpsCursor{Framerates},
     bitrateCursor{Bitrates},
     vsyncCursor{VsyncModeStrMap},
     hwaccelCursor{HWAccelModeStrMap},
     videoCursor{VideoCodecStrMap},
-    monitorNumber{}
+    desiredFramerate{DefaultDesiredFramerate},
+    monitorNumber{DefaultMonitorNumber}
 {
 }
 
@@ -18,13 +18,13 @@ void GenericCodec::Set(VideoData const data)
 {
 	cycleNumber(desktopResCursor, data.desktopResolution);
 	cycleNumber(switchResCursor, data.switchResolution);
-	cycleNumber(fpsCursor, data.desiredFrameRate);
     cycleNumber(bitrateCursor, data.bitrateKB);
 
     cycleMap(vsyncCursor, data.vsyncMode);
     cycleMap(hwaccelCursor, data.hwaccelMode);
     cycleMap(videoCursor, data.videoCodec);
 
+    desiredFramerate = data.desiredFrameRate;
     monitorNumber = data.monitorNumber;
 }
 
@@ -34,7 +34,7 @@ VideoData const GenericCodec::Data() const
 
 	data.desktopResolution = *desktopResCursor;
 	data.switchResolution = *switchResCursor;
-    data.desiredFrameRate = *fpsCursor;
+    data.desiredFrameRate = desiredFramerate;
     data.bitrateKB = *bitrateCursor;
     data.vsyncMode = vsyncCursor.KeyPair().first;
     data.hwaccelMode = hwaccelCursor.KeyPair().first;
@@ -84,7 +84,7 @@ void GenericCodec::ShiftParam(int direction)
 		break;
 
     case VideoParameters::DesiredFramerate:
-        fpsCursor += direction;
+        desiredFramerate = (int16_t)KeyboardNumber(MinDesiredFramerate, MaxDesiredFramerate, desiredFramerate);
         break;
 
     case VideoParameters::BitrateKB:
@@ -104,7 +104,7 @@ void GenericCodec::ShiftParam(int direction)
         break;
 
     case VideoParameters::MonitorNumber:
-        monitorNumber = (int16_t)KeyboardNumber(0, 100, monitorNumber);
+        monitorNumber = (int16_t)KeyboardNumber(MinMonitorNumber, MaxMonitorNumber, monitorNumber);
         break;
 	}
 }

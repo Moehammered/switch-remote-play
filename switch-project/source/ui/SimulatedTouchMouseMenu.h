@@ -24,8 +24,6 @@ class SimulatedTouchMouseMenu : public Menu
 
         void PromptValueInput(touch::SimulatedTouchMouseParameters param);
 
-        int16_t KeyboardValue(int16_t minValue, int16_t maxValue);
-
         void UpdateUI(touch::SimulatedTouchMouseParameters param);
 
         void SetupText();

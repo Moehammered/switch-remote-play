@@ -54,7 +54,7 @@ int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int
     settings.keyboardConfig.displayMessage = header;
     settings.keyboardConfig.initialText = std::to_string(defaultValue);
     settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
-    settings.keyboardConfig.inputLength = maxStr.size();
+    settings.keyboardConfig.inputLength = std::max(minStr.size(), maxStr.size());
     settings.keyboardConfig.optionalLeftSymbol = "-";
 
     return OpenKeyboard(settings);

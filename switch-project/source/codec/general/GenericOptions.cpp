@@ -1,4 +1,5 @@
 #include "GenericOptions.h"
+#include <algorithm>
 
 std::unordered_map<VideoParameters, std::string> VideoParamsToStr(VideoData const data)
 {
@@ -37,9 +38,12 @@ VideoData VideoParamsFromStr(std::unordered_map<VideoParameters, std::string> co
     
     auto fpsEntry = map.find(VideoParameters::DesiredFramerate);
     if(fpsEntry != map.end())
-        data.desiredFrameRate = std::max(std::stoi(fpsEntry->second), (int)Framerates.front());
+    {
+        auto fps = (int16_t)std::stoi(fpsEntry->second);
+        data.desiredFrameRate = std::clamp(fps, MinDesiredFramerate, MaxDesiredFramerate);
+    }
     else
-        data.desiredFrameRate = Framerates.front();
+        data.desiredFrameRate = DefaultDesiredFramerate;
 
     auto bitrateEntry = map.find(VideoParameters::BitrateKB);
     if(bitrateEntry != map.end())

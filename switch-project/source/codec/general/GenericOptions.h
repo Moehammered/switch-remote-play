@@ -9,7 +9,13 @@
 #include <unordered_map>
 #include <string>
 
-static std::vector<int16_t> const Framerates { 30, 60 };
+int16_t constexpr MinMonitorNumber = 0;
+int16_t constexpr MaxMonitorNumber = 100;
+int16_t constexpr DefaultMonitorNumber = 0;
+
+int16_t constexpr MinDesiredFramerate = 1;
+int16_t constexpr MaxDesiredFramerate = 60;
+int16_t constexpr DefaultDesiredFramerate = 30;
 
 int16_t constexpr mbToKb(double const mb)
 {

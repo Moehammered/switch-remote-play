@@ -76,16 +76,12 @@ void DecoderThreadMenu::UpdateUI(decoderUtils::DecoderThreadProp prop)
     switch(prop)
     {
         case decoderUtils::DecoderThreadProp::Type:
-        {
             textElements[prop].value = *typeCursor;
-        }
-        break;
+            break;
 
         case decoderUtils::DecoderThreadProp::Count:
-        {
             textElements[prop].value = "Thread Count: " + std::to_string(threadCount);
-        }
-        break;
+            break;
     }
 }
 
@@ -95,38 +91,11 @@ void DecoderThreadMenu::ShiftParam(decoderUtils::DecoderThreadProp prop, int dir
     {
         case decoderUtils::DecoderThreadProp::Type:
             typeCursor += direction;
-        break;
+            break;
 
         case decoderUtils::DecoderThreadProp::Count:
-        {
-            auto settings = KeyboardParserProperties<int32_t>{};
-            auto const min = MinThreadCount;
-            auto const max = MaxThreadCount;
-
-            settings.defaultValue = std::clamp(threadCount, min, max);
-            settings.parseMethod = [](std::string const inputText)
-            {
-                return std::atoi(inputText.c_str());
-            };
-            settings.predicate = [](int32_t const value)
-            {
-                return value >= min && value <= max;
-            };
-
-            auto const minStr = std::to_string(min);
-            auto const maxStr = std::to_string(max);
-            auto const header = "Values must be between " + minStr + " and " + maxStr;
-
-            settings.keyboardConfig.displayMessage = header;
-            settings.keyboardConfig.inputLength = maxStr.size();
-            settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
-
-            auto const currentValue = std::to_string(settings.defaultValue);
-            settings.keyboardConfig.initialText = currentValue;
-
-            threadCount = OpenKeyboard(settings);
-        }
-        break;
+            threadCount = KeyboardNumber(MinThreadCount, MaxThreadCount, threadCount);
+            break;
     }
 }
 

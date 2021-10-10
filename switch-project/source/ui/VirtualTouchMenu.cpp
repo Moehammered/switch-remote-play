@@ -1,5 +1,6 @@
 #include "VirtualTouchMenu.h"
 #include "../touch/VirtualTouchConfiguration.h"
+#include "../system/SoftwareKeyboard.h"
 #include <switch.h>
 
 auto const virtualTouchHelpText =
@@ -75,61 +76,17 @@ void VirtualTouchMenu::PromptValueInput(touch::VirtualTouchParameters param)
     switch(param)
     {
         case touch::VirtualTouchParameters::DeadzoneRadius:
-        {
-            deadzoneRadius = KeyboardValue(touch::MinVirtualTouchDeadzoneRadius, touch::MaxVirtualTouchDeadzoneRadius);
-        }
-        break;
+            deadzoneRadius = KeyboardNumber(touch::MinVirtualTouchDeadzoneRadius, 
+                                            touch::MaxVirtualTouchDeadzoneRadius,
+                                            deadzoneRadius);
+            break;
 
         case touch::VirtualTouchParameters::MaxFingerCount:
-        {
-            maxFingerCount = KeyboardValue(touch::MinFingerCount, touch::MaxFingerCount);
-        }
-        break;
+            maxFingerCount = KeyboardNumber(touch::MinFingerCount,
+                                            touch::MaxFingerCount,
+                                            maxFingerCount);
+            break;
     }
-}
-
-int16_t VirtualTouchMenu::KeyboardValue(int16_t minValue, int16_t maxValue)
-{
-    auto minStr = std::to_string(minValue);
-    auto maxStr = std::to_string(maxValue);
-    auto validationMsg = "Value must be between " + minStr + " and " + maxStr;
-
-    //open keyboard here
-    auto buffer = std::vector<char>(validationMsg.size());
-    auto kbd = SwkbdConfig{};
-    auto libRes = swkbdCreate(&kbd, 0);
-
-    auto inputInvalid = [](auto a, auto b, auto c)
-    {
-        return c < a || c > b;
-    };
-
-    if(R_SUCCEEDED(libRes))
-    {
-        swkbdConfigMakePresetDefault(&kbd);
-        swkbdConfigSetType(&kbd, SwkbdType_NumPad);
-        swkbdConfigSetHeaderText(&kbd, validationMsg.c_str());
-        swkbdConfigSetStringLenMax(&kbd, buffer.size());
-        swkbdConfigSetStringLenMin(&kbd, 1);
-
-        int16_t numberInput = 0;
-        do
-        {
-            auto revealed = swkbdShow(&kbd, buffer.data(), buffer.size());
-            if(R_SUCCEEDED(revealed))
-                numberInput = std::atoi(buffer.data());
-            else
-            {
-                numberInput = minValue;
-                break;
-            }
-        } while (inputInvalid(minValue, maxValue, numberInput));
-        
-        swkbdClose(&kbd);
-        return numberInput;
-    }
-    else
-        return minValue;
 }
 
 void VirtualTouchMenu::UpdateUI(touch::VirtualTouchParameters param)

@@ -116,42 +116,15 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
 
         case mouse::Parameters::MouseWheelAnalog:
             mouseWheelAnalogCursor += value;
-        break;
+            break;
 
         case mouse::Parameters::MouseOnConnect:
             mouseOnConnect = !mouseOnConnect;
-        break;
+            break;
 
         case mouse::Parameters::MouseSensitivity:
-        {
-            auto settings = KeyboardParserProperties<int32_t>{};
-            auto const min = mouse::MinMouseSensitivity;
-            auto const max = mouse::MaxMouseSensitivity;
-            
-            settings.defaultValue = std::clamp(mouseSensitivity, min, max);
-            settings.parseMethod = [](std::string const inputText)
-            {
-                return std::atoi(inputText.c_str());
-            };
-            settings.predicate = [](int32_t const value)
-            {
-                return value >= min && value <= max;
-            };
-
-            auto const minStr = std::to_string(min);
-            auto const maxStr = std::to_string(max);
-            auto const header = "Value must be between " + minStr + " and " + maxStr;
-            
-            settings.keyboardConfig.displayMessage = header;
-            settings.keyboardConfig.inputLength = maxStr.size();
-            settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
-
-            auto const currentValue = std::to_string(settings.defaultValue);
-            settings.keyboardConfig.initialText = currentValue;
-
-            mouseSensitivity = OpenKeyboard(settings);
-        }
-        break;
+            mouseSensitivity = KeyboardNumber(mouse::MinMouseSensitivity, mouse::MaxMouseSensitivity, mouseSensitivity);
+            break;
     }
 }
 

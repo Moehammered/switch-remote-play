@@ -35,9 +35,9 @@ private:
 
 	// integer parameter 'cursors'
 	// NumberRange<int, h264amf::levelMin, h264amf::levelMax> level;
-	NumberRange<int, h264amf::qpFrameMin, h264amf::qpFrameMax> qp_i;
-	NumberRange<int, h264amf::qpFrameMin, h264amf::qpFrameMax> qp_p;
-	NumberRange<int, h264amf::qpFrameMin, h264amf::qpFrameMax> qp_b;
+	int32_t quantisationI;
+	int32_t quantisationP;
+	int32_t quantisationB;
 	// NumberRange<int, h264amf::frameDeltaMin, h264amf::frameDeltaMax> delta_qp_b;
 	// NumberRange<int, h264amf::frameDeltaMin, h264amf::frameDeltaMax> delta_qp_b_ref;
 
