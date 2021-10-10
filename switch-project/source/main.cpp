@@ -27,13 +27,6 @@
 
 namespace
 {
-    uint16_t constexpr handshakePort = 19999;
-    uint16_t constexpr broadcastPort = 20000;
-    uint16_t constexpr hostCommandPort = 20001;
-    uint16_t constexpr gamepadPort = 20002;
-    uint16_t constexpr videoPort = 20003;
-    uint16_t constexpr audioPort = 20004;
-
     SDL_Color constexpr bgCol = {20, 20, 20, 255};
     SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
 
@@ -177,19 +170,16 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    std::string broadcastAddress{};
+    auto const startupNetworkSettings = NetworkConfiguration().Data();
+    std::string broadcastAddress{startupNetworkSettings.broadcastIP};
     std::cout << "Initialising Network Discovery\n";
-    {
-        auto config = NetworkConfiguration{};
-        broadcastAddress = config.Data().broadcastIP;
-        std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";
-    }
-    NetworkDiscovery network {handshakePort, broadcastAddress, broadcastPort};
+    std::cout << "Broadcasting discovery on address " << broadcastAddress << "\n";
+    NetworkDiscovery network {startupNetworkSettings.handshakePort, broadcastAddress, startupNetworkSettings.broadcastPort};
     
     std::thread gamepadThread{};
     
     std::cout << "Initialising PcmStream\n";
-    PcmStream audioStream {audioPort};
+    PcmStream audioStream {startupNetworkSettings.audioPort};
     std::cout << "Initialising Video Stream\n";
     VideoStream stream{};
 
@@ -280,12 +270,12 @@ int main(int argc, char **argv)
                     auto mouseConfig = menuScreens.MouseSettings();
                     auto touchConfig = menuScreens.TouchSettings();
 
-                    RunStartConfiguredStreamCommand(ip, hostCommandPort, 
+                    RunStartConfiguredStreamCommand(ip, startupNetworkSettings.commandPort, 
                         ffmpegConfig, 
                         controllerConfig,
                         mouseConfig,
                         touchConfig);
-                    auto streamOn = stream.WaitForStream(decoderConfig, videoPort);
+                    auto streamOn = stream.WaitForStream(decoderConfig, startupNetworkSettings.videoPort);
 
                     if(streamOn)
                     {
@@ -294,7 +284,7 @@ int main(int argc, char **argv)
                             delete streamDecoder;
 
                         streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                        gamepadThread = std::thread(RunGamepadThread, ip, gamepadPort);
+                        gamepadThread = std::thread(RunGamepadThread, ip, startupNetworkSettings.gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
 
                         if(audioStream.Ready() && !audioStream.Running())

@@ -8,10 +8,12 @@ NetworkMenu::NetworkMenu() : Menu(),
     selected{network::ParamsList}, textElements{}
 { 
     title.value = "Network Configuration";
-    warningText.x = 75; 
-    warningText.y = 620;
+    warningText.x = 20; 
+    warningText.y = 600;
     warningText.colour = {255, 50, 0, 255};
-    warningText.value = "Please make sure when using manual IP mode that the IP matches your PC IP.\nIf it is wrong, then you will need to close the app via the HOME button.";
+    warningText.value = "Please make sure the IP matches your PC IP. If it's wrong, then you will need to close\n\
+the app via the HOME button. Please make sure the port numbers match on the PC. Modifying\n\
+the ports or broadcast address requires you restart the application on the Switch/PC.";
 
     auto config = NetworkConfiguration{};
     data = config.Data();
@@ -166,7 +168,7 @@ void NetworkMenu::EditParam(network::Parameters param)
             break;
         
         case network::Parameters::ManualIPEnabled:
-            data.manualIPEnabled = data.manualIPEnabled;
+            data.manualIPEnabled = !data.manualIPEnabled;
             break;
 
         case network::Parameters::HandshakePort:
@@ -195,6 +197,8 @@ void NetworkMenu::EditParam(network::Parameters param)
     }
 
     UpdateUI(param);
+    auto config = NetworkConfiguration{};
+    config.Save(data);
 }
 
 void NetworkMenu::UpdateUI(network::Parameters param)
