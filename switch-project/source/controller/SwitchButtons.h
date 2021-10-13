@@ -35,7 +35,15 @@ namespace controller
         { HidNpadButton::HidNpadButton_ZL, "ZL" },
         { HidNpadButton::HidNpadButton_ZR, "ZR" },
         { HidNpadButton::HidNpadButton_StickL, "Left Analog Button" },
-        { HidNpadButton::HidNpadButton_StickR, "Right Analog Button" }
+        { HidNpadButton::HidNpadButton_StickR, "Right Analog Button" },
+        { HidNpadButton::HidNpadButton_Up, "D-Pad Up" },
+        { HidNpadButton::HidNpadButton_Down, "D-Pad Down" },
+        { HidNpadButton::HidNpadButton_Left, "D-Pad Left" },
+        { HidNpadButton::HidNpadButton_Right, "D-Pad Right" },
+        { HidNpadButton::HidNpadButton_A, "A" },
+        { HidNpadButton::HidNpadButton_B, "B" },
+        { HidNpadButton::HidNpadButton_X, "X" },
+        { HidNpadButton::HidNpadButton_Y, "Y" }
     };
 
     static std::unordered_map<HidNpadButton, std::string> const mouseButtonOptions

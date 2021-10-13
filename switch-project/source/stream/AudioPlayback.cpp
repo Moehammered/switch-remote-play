@@ -63,7 +63,7 @@ AudioPlayback::AudioPlayback(AudioConfig config, uint32_t swapBuffers)
 
 int32_t AudioPlayback::ReadPackets(int32_t const & udpSocket)
 {
-    auto totalRead = 0;
+    auto totalRead = 0U;
     socklen_t slen = sizeof(sockaddr_in);
     do
     {

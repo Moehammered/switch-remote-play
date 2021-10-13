@@ -8,9 +8,9 @@ MenuSelection::MenuSelection() : Menu(),
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
     encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{TOUCH_MENU}, 
+    menus{}, selectedMenu{KEYBOARD_MENU}, 
     newDecoderMenu{}, newControllerMenu{},
-    touchMenu{}, mouseMenu{}
+    touchMenu{}, mouseMenu{}, keyboardMenu{}
 {
     menus[MenuScreen::HELP] = &helpScreen;
     menus[MenuScreen::DECODER_CONFIG] = &newDecoderMenu;
@@ -19,6 +19,7 @@ MenuSelection::MenuSelection() : Menu(),
     menus[MenuScreen::IP_SET] = &networkScreen;
     menus[MenuScreen::TOUCH_MENU] = &touchMenu;
     menus[MenuScreen::MOUSE_MENU] = &mouseMenu;
+    menus[MenuScreen::KEYBOARD_MENU] = &keyboardMenu;
 
     title.x = 400; title.y = 5;
     title.colour = green;

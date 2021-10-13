@@ -7,11 +7,6 @@ namespace controller
     {
         auto values = std::unordered_map<controller::Parameters, std::string>{};
 
-        auto boolToStr = [](bool val)
-        {
-            return val == true ? "yes" : "no";
-        };
-
         values[Parameters::Mode] = ControllerModeToString(data.controllerMode);
         values[Parameters::ButtonMapping] = ControllerButtonMapToString(data.controllerMap);
         values[Parameters::LeftAnalogMapping] = ControllerAnalogMapToString(data.leftAnalogMap);

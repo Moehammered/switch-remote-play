@@ -11,6 +11,7 @@
 #include "ui/ControllerMenu.h"
 #include "ui/TouchMenu.h"
 #include "ui/MouseMenu.h"
+#include "ui/KeyboardMenu.h"
 #include "network/NetworkDiscovery.h"
 
 enum MenuScreen : int32_t
@@ -22,6 +23,7 @@ enum MenuScreen : int32_t
     IP_SET,
     TOUCH_MENU,
     MOUSE_MENU,
+    KEYBOARD_MENU,
     COUNT
 };
 
@@ -73,6 +75,7 @@ class MenuSelection : public Menu
         ControllerMenu newControllerMenu;
         TouchMenu touchMenu;
         MouseMenu mouseMenu;
+        KeyboardMenu keyboardMenu;
 };
 
 #endif

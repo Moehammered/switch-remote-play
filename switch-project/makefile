@@ -45,7 +45,7 @@ SOURCES		:=	source source/network source/ui \
 				source/codec source/codec/h264 source/codec/h264_amf \
 				source/codec/general source/utils source/utils/pad \
 				source/decoder source/controller source/mouse \
-				source/touch
+				source/touch source/keyboard
 DATA		:=	data
 INCLUDES	:=	include
 ROMFS		:=	romfs
