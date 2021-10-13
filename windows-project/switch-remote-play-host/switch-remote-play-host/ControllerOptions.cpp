@@ -1,4 +1,5 @@
 #include "ControllerOptions.h"
+#include <algorithm>
 
 namespace controller
 {
@@ -15,6 +16,7 @@ namespace controller
         values[Parameters::ButtonMapping] = ControllerButtonMapToString(data.controllerMap);
         values[Parameters::LeftAnalogMapping] = ControllerAnalogMapToString(data.leftAnalogMap);
         values[Parameters::RightAnalogMapping] = ControllerAnalogMapToString(data.rightAnalogMap);
+        values[Parameters::ControllerCount] = std::to_string(data.controllerCount);
 
         return values;
     }
@@ -32,10 +34,22 @@ namespace controller
                 member = def;
         };
 
-        parse(Parameters::Mode, data.controllerMode, ControllerMode::X360, ParseControllerModeString);
-        parse(Parameters::ButtonMapping, data.controllerMap, ControllerButtonMap::None, ParseControllerButtonMapString);
-        parse(Parameters::LeftAnalogMapping, data.leftAnalogMap, ControllerAnalogMap::None, ParseControllerAnalogMapString);
-        parse(Parameters::RightAnalogMapping, data.rightAnalogMap, ControllerAnalogMap::None, ParseControllerAnalogMapString);
+        parse(Parameters::Mode, data.controllerMode, DefaultMode, ParseControllerModeString);
+        parse(Parameters::ButtonMapping, data.controllerMap, DefaultButtonMap, ParseControllerButtonMapString);
+        parse(Parameters::LeftAnalogMapping, data.leftAnalogMap, DefaultAnalogMap, ParseControllerAnalogMapString);
+        parse(Parameters::RightAnalogMapping, data.rightAnalogMap, DefaultAnalogMap, ParseControllerAnalogMapString);
+
+        {
+            auto entry = map.find(Parameters::ControllerCount);
+            if (entry != map.end())
+            {
+                auto str = entry->second;
+                auto num = (int16_t)std::atoi(str.c_str());
+                data.controllerCount = std::clamp(num, MinControllerCount, MaxControllerCount);
+            }
+            else
+                data.controllerCount = DefaultControllerCount;
+        }
 
         return data;
     }

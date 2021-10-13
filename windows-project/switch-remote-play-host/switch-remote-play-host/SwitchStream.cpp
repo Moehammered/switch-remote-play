@@ -12,6 +12,7 @@
 #include "WSAHelper.h"
 #include <memory>
 #include <chrono>
+#include <algorithm>
 
 namespace
 {
@@ -59,7 +60,8 @@ namespace
         int count, int& failCount)
     {
         using namespace std;
-        auto controllers = vector<unique_ptr<IVirtualController>>(maxControllerCount);
+        auto controllerCount = clamp(controllerConfig.controllerCount, controller::MinControllerCount, controller::MaxControllerCount);
+        auto controllers = vector<unique_ptr<IVirtualController>>(controllerCount);
         
         for (auto& controller : controllers)
         {

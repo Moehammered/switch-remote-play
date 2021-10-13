@@ -5,7 +5,6 @@
 #include "../controller/ControllerOptions.h"
 #include "../utils/ArrayCirculator.h"
 #include "../utils/UnorderedMapCirculator.h"
-#include "../utils/RangedIterator.h"
 
 class ControllerMenu : public Menu
 {
@@ -24,6 +23,7 @@ class ControllerMenu : public Menu
         UnorderedMapCirculator<controller::ControllerButtonMap, std::string> buttonMapCursor;
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> leftAnalogMapCursor;
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> rightAnalogMapCursor;
+        int16_t controllerCount;
 
         void UpdateSetting(controller::Parameters, int direction);
         void UpdateUI(controller::Parameters param);

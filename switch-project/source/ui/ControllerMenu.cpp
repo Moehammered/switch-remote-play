@@ -1,13 +1,15 @@
 #include "ControllerMenu.h"
 #include "../utils/EnumMapper.h"
 #include "../controller/ControllerConfiguration.h"
+#include "../system/SoftwareKeyboard.h"
 
 ControllerMenu::ControllerMenu() : Menu(),
-textElements{}, paramCursor{controller::ParamsList},
-modeCursor{controller::controllerModeDesc},
-buttonMapCursor{controller::controlMapDesc},
-leftAnalogMapCursor{controller::analogMapDesc},
-rightAnalogMapCursor{controller::analogMapDesc}
+    textElements{}, paramCursor{controller::ParamsList},
+    modeCursor{controller::controllerModeDesc},
+    buttonMapCursor{controller::controlMapDesc},
+    leftAnalogMapCursor{controller::analogMapDesc},
+    rightAnalogMapCursor{controller::analogMapDesc},
+    controllerCount{controller::DefaultControllerCount}
 {
     title.value = "Controller Menu";
     title.y += 30;
@@ -18,6 +20,8 @@ rightAnalogMapCursor{controller::analogMapDesc}
     cycleMap(buttonMapCursor, settings.controllerMap);
     cycleMap(leftAnalogMapCursor, settings.leftAnalogMap);
     cycleMap(rightAnalogMapCursor, settings.rightAnalogMap);
+
+    controllerCount = settings.controllerCount;
 
     SetupText();
 }
@@ -65,7 +69,8 @@ controller::ControllerConfig const ControllerMenu::Settings() const
         .controllerMode = modeCursor.KeyPair().first,
         .controllerMap = buttonMapCursor.KeyPair().first,
         .leftAnalogMap = leftAnalogMapCursor.KeyPair().first,
-        .rightAnalogMap = rightAnalogMapCursor.KeyPair().first
+        .rightAnalogMap = rightAnalogMapCursor.KeyPair().first,
+        .controllerCount = controllerCount
     };
 }
 
@@ -87,6 +92,10 @@ void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
               
         case controller::Parameters::RightAnalogMapping:
             rightAnalogMapCursor += direction;
+        break;
+
+        case controller::Parameters::ControllerCount:
+            controllerCount = (int16_t)KeyboardNumber(controller::MinControllerCount, controller::MaxControllerCount, controllerCount);
         break;
     }
 }
@@ -111,6 +120,10 @@ void ControllerMenu::UpdateUI(controller::Parameters param)
 
         case controller::Parameters::RightAnalogMapping:
             element.value = desc + ": " + *rightAnalogMapCursor;
+        break;
+
+        case controller::Parameters::ControllerCount:
+            element.value = desc + ": " + std::to_string(controllerCount);
         break;
     }
 }
