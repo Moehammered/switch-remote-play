@@ -8,14 +8,16 @@
 class ScreenRenderer
 {
     public:
+        ScreenRenderer();
+        ~ScreenRenderer();
         bool Initialise(unsigned short width, unsigned short height, bool vSync);
-        void ClearScreen(SDL_Color clearColour);
+        void ClearScreen(SDL_Color clearColour) const;
         void RenderScreenTexture();
-        void PresentScreen();
+        void PresentScreen() const;
         
-        SDL_Renderer* Renderer();
-        SDL_Texture* GetScreenTexture();
-        const SDL_Rect& Region();
+        SDL_Renderer * const Renderer() const;
+        SDL_Texture * const GetScreenTexture() const;
+        SDL_Rect const & Region() const;
 
     private:
         unsigned short width, height;
@@ -24,5 +26,7 @@ class ScreenRenderer
         SDL_Texture* screenTexture;
         SDL_Rect region;
 };
+
+ScreenRenderer const * MainScreenRenderer();
 
 #endif

@@ -10,4 +10,7 @@ void FreeFont(FC_Font* font);
 void CleanupSystem();
 void PrintOutAtomicLockInfo();
 
+void SetMainSystemFont(FC_Font * const font);
+FC_Font * const MainSystemFont();
+
 #endif

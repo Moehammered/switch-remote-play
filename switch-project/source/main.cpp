@@ -190,6 +190,7 @@ int main(int argc, char **argv)
     
     std::cout << "Loading System Fonts\n";
     auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, white);
+    SetMainSystemFont(systemFont);
     
     auto runApp {true};
     std::cout << "Starting main loop\n";

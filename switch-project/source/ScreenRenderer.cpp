@@ -3,6 +3,42 @@
 #include <iostream>
 #include <switch.h>
 
+ScreenRenderer * activeRenderer = nullptr;
+
+ScreenRenderer const * MainScreenRenderer()
+{
+    return activeRenderer;
+}
+
+ScreenRenderer::ScreenRenderer()
+{
+    activeRenderer = this;
+}
+
+ScreenRenderer::~ScreenRenderer()
+{
+    if(activeRenderer == this)
+        activeRenderer = nullptr;
+
+    if(window)
+    {
+        SDL_DestroyWindow(window);
+        window = nullptr;
+    }
+
+    if(renderer)
+    {
+        SDL_DestroyRenderer(renderer);
+        renderer = nullptr;
+    }
+
+    if(screenTexture)
+    {
+        SDL_DestroyTexture(screenTexture);
+        screenTexture = nullptr;
+    }
+}
+
 bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, bool vSync)
 {
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -43,7 +79,7 @@ bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, boo
     return true;
 }
 
-void ScreenRenderer::ClearScreen(SDL_Color bgCol)
+void ScreenRenderer::ClearScreen(SDL_Color bgCol) const
 {
     SDL_SetRenderDrawColor(renderer, bgCol.r, bgCol.g, bgCol.b, bgCol.a);
     SDL_RenderClear(renderer);
@@ -55,22 +91,22 @@ void ScreenRenderer::RenderScreenTexture()
     PresentScreen();
 }
 
-void ScreenRenderer::PresentScreen()
+void ScreenRenderer::PresentScreen() const
 {
     SDL_RenderPresent(renderer);
 }
 
-SDL_Renderer* ScreenRenderer::Renderer()
+SDL_Renderer * const ScreenRenderer::Renderer() const
 {
     return renderer;
 }
 
-const SDL_Rect& ScreenRenderer::Region()
+SDL_Rect const & ScreenRenderer::Region() const
 {
     return region;
 }
 
-SDL_Texture* ScreenRenderer::GetScreenTexture()
+SDL_Texture * const ScreenRenderer::GetScreenTexture() const
 {
     return screenTexture;
 }

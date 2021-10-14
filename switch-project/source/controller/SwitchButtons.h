@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 extern "C"
 {
     #include <switch/services/hid.h>
@@ -27,6 +28,9 @@ namespace controller
 
     std::string SwitchButtonToString(HidNpadButton btn);
     HidNpadButton ParseSwitchButtonString(std::string s);
+    
+    std::vector<std::string> const SwitchButtonsToString(uint64_t const keys);
+    std::vector<HidNpadButton> const ParseSwitchButtonStrings(std::vector<std::string> const & strings);
     
     static std::unordered_map<HidNpadButton, std::string> const switchButtonOptions
     {

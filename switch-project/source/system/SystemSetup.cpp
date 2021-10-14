@@ -110,6 +110,17 @@ void CleanupSystem()
     socketExit();
 }
 
+FC_Font * mainSystemFont = nullptr;
+void SetMainSystemFont(FC_Font * const font)
+{
+    mainSystemFont = font;
+}
+
+FC_Font * const MainSystemFont()
+{
+    return mainSystemFont;
+}
+
 template <typename T>
 bool IsAtomicTypeLockFree()
 {

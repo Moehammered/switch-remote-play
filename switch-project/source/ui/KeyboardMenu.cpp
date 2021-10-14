@@ -1,4 +1,7 @@
 #include "KeyboardMenu.h"
+#include "../system/ButtonWatch.h"
+#include "../ScreenRenderer.h"
+#include "../system/SystemSetup.h"
 
 KeyboardMenu::KeyboardMenu() : Menu(),
     selectionCursor{keyboard::ParamsList},
@@ -25,6 +28,10 @@ void KeyboardMenu::ProcessInput(PadState const & pad)
         ++selectionCursor;
     else if(kDown & HidNpadButton_Up)
         --selectionCursor;
+    else if(kDown & HidNpadButton_Left)
+        selectionCursor -= 9;
+    else if(kDown & HidNpadButton_Right)
+        selectionCursor += 9;
 
     if(kDown & HidNpadButton_A)
     {
@@ -53,7 +60,43 @@ void KeyboardMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
 
 void KeyboardMenu::ChangeParam(keyboard::KeyParameter param, bool clear)
 {
+    if(clear)
+        bindingMap[param] = 0;
+    else
+    {
+        auto displayText = Text{};
+        displayText.colour = {200, 140, 120, 255};
+        displayText.x = 500;
+        displayText.y = 360;
+        displayText.centered = true;
 
+        auto titleText = Text{};
+        titleText.colour = {120, 120, 200, 255};
+        titleText.x = 525;
+        titleText.y = 300;
+        titleText.centered = true;
+        titleText.value = "Keyboard Button Binding";
+
+        auto const screenRenderer = MainScreenRenderer();
+        auto const rendererRef = screenRenderer->Renderer();
+        auto const fontRef = MainSystemFont();
+        
+        auto renderer = [&](std::string str)
+        {
+            screenRenderer->ClearScreen({0,0,0,255});
+
+            titleText.Render(rendererRef, fontRef);
+
+            displayText.value = str;
+            displayText.Render(rendererRef, fontRef);
+
+            screenRenderer->PresentScreen();
+        };
+
+        auto keys = MonitorKeys(renderer);
+
+        bindingMap[param] = keys;
+    }
 }
 
 keyboard::KeyboardConfig const KeyboardMenu::Settings() const
@@ -67,9 +110,23 @@ void KeyboardMenu::UpdateUI(keyboard::KeyParameter param)
     auto binding = bindingMap.find(param);
     if(binding != bindingMap.end())
     {
-        auto btn = (HidNpadButton)binding->second;
-        auto btnStr = controller::SwitchButtonToString(btn);
-        textElements[param].value = prefix + ": " + btnStr;
+        auto btns = (HidNpadButton)binding->second;
+        auto btnStrings = controller::SwitchButtonsToString(btns);
+        if(btnStrings.size() > 1)
+        {
+            auto str = btnStrings[0];
+            for(auto i = 1U; i < btnStrings.size(); ++i)
+                str += "+" + btnStrings[i];
+
+            textElements[param].value = prefix + ": " + str;
+        }
+        else if(btnStrings.size() == 1)
+        {
+            auto btnStr = btnStrings[0];
+            textElements[param].value = prefix + ": " + btnStr;
+        }
+        else
+            textElements[param].value = prefix + ":";
     }
     else
         textElements[param].value = prefix + ":";
