@@ -10,6 +10,7 @@
 #include "Connection.h"
 #include "FFMPEGHelper.h"
 #include "WSAHelper.h"
+#include "KeyboardEnumUtil.h"
 #include <memory>
 #include <chrono>
 #include <algorithm>
@@ -24,21 +25,8 @@ namespace
 
     auto constexpr keyboardFrameTimeNano = (long long)1.6e+7;
     auto constexpr buttonHeldTime = (long long)3e+8;
-    auto constexpr taskManagerHotKey = HidNpadButton::HidNpadButton_Minus;
-    //auto constexpr touchkeyboardHotKey = HidNpadButton::HidNpadButton_StickR;
-    std::unordered_map<HidNpadButton, uint8_t> const keyboardMap
-    {
-        { HidNpadButton::HidNpadButton_A, VK_RETURN },
-        { HidNpadButton::HidNpadButton_B, VK_BACK },
-        { HidNpadButton::HidNpadButton_Up, VK_UP },
-        { HidNpadButton::HidNpadButton_Down, VK_DOWN },
-        { HidNpadButton::HidNpadButton_Left, VK_LEFT },
-        { HidNpadButton::HidNpadButton_Right, VK_RIGHT },
-        { HidNpadButton::HidNpadButton_X, VK_ESCAPE },
-        { HidNpadButton::HidNpadButton_Y, VK_LWIN }
-    };
-
-    std::unordered_map<HidNpadButton, long long> buttonTimers{};
+    std::unordered_map<uint32_t, uint16_t> keyboardMap{};
+    std::unordered_map<uint32_t, long long> buttonTimers{};
 
     template<typename numberType>
     std::string BitString(numberType val, int bitCount = 32)
@@ -211,7 +199,9 @@ namespace
         {
             auto const heldTime = buttonTimers[entry.first];
 
-            if (entry.first & padData.keys)
+            auto const btnMask = entry.first & padData.keys;
+
+            if (entry.first == btnMask)
             {
                 if(heldTime == 0 || heldTime > buttonHeldTime)
                     pressed.push_back(entry.second);
@@ -225,23 +215,6 @@ namespace
                 buttonTimers[entry.first] = 0;
             }
         }
-
-        if (padData.keys & taskManagerHotKey)
-        {
-            auto const heldTime = buttonTimers[taskManagerHotKey];
-            if (heldTime == 0)
-            {
-                pressed.push_back(VK_LCONTROL);
-                pressed.push_back(VK_LSHIFT);
-                pressed.push_back(VK_ESCAPE);
-                released.push_back(VK_LCONTROL);
-                released.push_back(VK_LSHIFT);
-                released.push_back(VK_ESCAPE);
-            }
-            buttonTimers[taskManagerHotKey] += deltaTime;
-        }
-        else
-            buttonTimers[taskManagerHotKey] = 0;
 
         keyboard.Press(pressed);
         keyboard.Release(released);
@@ -286,6 +259,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
     Resolution switchResolution,
     controller::ControllerConfig controllerConfig, 
     mouse::MouseConfig mouseConfig,
+    keyboard::KeyboardConfig keyboardConfig,
     touch::TouchConfig touchConfig,
     std::atomic_bool& killStream, 
     std::atomic_bool& gamepadActive, 
@@ -301,7 +275,14 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
 
     auto const resolutionWidthRatio = sessionDisplay.width / (double)switchResolution.width;
     auto const resolutionHeightRatio = sessionDisplay.height / (double)switchResolution.height;
+    keyboardMap.clear();
+    for (auto const& binding : keyboardConfig.bindings)
+    {
+        if (binding.button != 0)
+            keyboardMap[binding.button] = KeyParamToVirtualCode(binding.key);
+    }
 
+    buttonTimers.clear();
     workerThread = thread([=, &gamepadActive, &killStream] {
 
         while (gamepadActive.load(memory_order_acquire)) //don't let it continue if a previous gamepadThread is running

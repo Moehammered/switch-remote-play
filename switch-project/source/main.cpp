@@ -23,6 +23,7 @@
 #include "decoder/DecoderConfiguration.h"
 #include "controller/ControllerConfiguration.h"
 #include "mouse/MouseConfiguration.h"
+#include "keyboard/KeyboardConfiguration.h"
 #include "touch/TouchConfiguration.h"
 
 namespace
@@ -86,6 +87,7 @@ namespace
     DecoderData const decoderData, 
     controller::ControllerConfig const controllerData,
     mouse::MouseConfig const mouseData,
+    keyboard::KeyboardConfig const keyboardData,
     touch::TouchConfig const touchData)
     {
         {
@@ -126,6 +128,11 @@ namespace
         {
             auto conf = MouseConfiguration{};
             conf.Save(mouseData);
+        }
+
+        {
+            auto conf = KeyboardConfiguration{};
+            conf.Save(keyboardData);
         }
 
         {
@@ -254,6 +261,7 @@ int main(int argc, char **argv)
                             menuScreens.GetDecoderSettings(), 
                             menuScreens.GetControllerSettings(),
                             menuScreens.MouseSettings(),
+                            menuScreens.KeyboardSettings(),
                             menuScreens.TouchSettings());
 
                 auto networkSettings = menuScreens.NetworkSettings();
@@ -269,12 +277,14 @@ int main(int argc, char **argv)
                     auto controllerConfig = menuScreens.GetControllerSettings();
                     auto decoderConfig = menuScreens.GetDecoderSettings();
                     auto mouseConfig = menuScreens.MouseSettings();
+                    auto keyboardConfig = menuScreens.KeyboardSettings();
                     auto touchConfig = menuScreens.TouchSettings();
 
                     RunStartConfiguredStreamCommand(ip, startupNetworkSettings.commandPort, 
                         ffmpegConfig, 
                         controllerConfig,
                         mouseConfig,
+                        keyboardConfig,
                         touchConfig);
                     auto streamOn = stream.WaitForStream(decoderConfig, startupNetworkSettings.videoPort);
 

@@ -49,6 +49,7 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port,
     EncoderConfig const config, 
     controller::ControllerConfig const controllerConfig,
     mouse::MouseConfig const mouseConfig,
+    keyboard::KeyboardConfig const keyboardConfig,
     touch::TouchConfig const touchConfig)
 {
     int commandSocket = -1;
@@ -59,6 +60,7 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port,
             .encoderData = config,
             .controllerData = controllerConfig,
             .mouseData = mouseConfig,
+            .keyboardData = keyboardConfig,
             .touchData = touchConfig,
             .commandCode = streamCommand
         };

@@ -22,7 +22,7 @@ bool Configuration::SaveConfigFile()
 	else
 	{
 		for (auto& line : lines)
-			filestream << line << "\n";
+			filestream << Trim(line) << "\n";
 		filestream.close();
 		return true;
 	}
@@ -32,8 +32,10 @@ bool Configuration::ExtractVariable(std::string const variable, std::string& res
 {
 	for (auto& line : lines)
 	{
-		auto location = ToLower(line).find(ToLower(variable) + "=", 0);
-		if (location != std::string::npos)
+		auto loweredVariable = ToLower(variable);
+		auto loweredLine = ToLower(line);
+		auto location = loweredLine.find(loweredVariable + "=", 0);
+		if (location != std::string::npos && location == 0)
 		{
 			auto start = line.find('=', location);
 			auto end = line.find(';', location);
@@ -52,8 +54,10 @@ bool Configuration::ReplaceVariable(std::string const variable, std::string cons
 {
 	for (auto& line : lines)
 	{
-		auto location = ToLower(line).find(ToLower(variable) + "=", 0);
-		if (location != std::string::npos)
+		auto loweredVariable = ToLower(variable);
+		auto loweredLine = ToLower(line);
+		auto location = loweredLine.find(loweredVariable + "=", 0);
+		if (location != std::string::npos && location == 0)
 		{
 			auto start = line.find('=', location);
 			auto end = line.find(';', location);
@@ -92,7 +96,12 @@ std::vector<std::string> Configuration::LoadFile(std::string const filepath) con
 		filestream.close();
 
 		std::cout << data.str() << "\n";
-		return SplitLines(data.str());
+		auto dataLines = SplitLines(data.str());
+		auto trimmedLines = std::vector<std::string>{};
+		for(auto const& line : dataLines)
+			trimmedLines.push_back(Trim(line));
+
+		return trimmedLines;
 	}
 	return std::vector<std::string>();
 }

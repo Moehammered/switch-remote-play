@@ -22,7 +22,6 @@ private:
 
     std::unordered_map<keyboard::KeyParameter, uint32_t> bindingMap;
 
-    //bool keyAssigned(HidNpadButton const desired, std::initializer_list<HidNpadButton> const taken);
     void ChangeParam(keyboard::KeyParameter param, bool clear);
     void UpdateUI(keyboard::KeyParameter param);
     void SetupText();

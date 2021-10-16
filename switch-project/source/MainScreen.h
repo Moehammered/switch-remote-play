@@ -57,6 +57,8 @@ class MenuSelection : public Menu
 
         mouse::MouseConfig const MouseSettings();
 
+        keyboard::KeyboardConfig const KeyboardSettings() const;
+
         touch::TouchConfig const TouchSettings();
 
         network::NetworkConfig const NetworkSettings() const;

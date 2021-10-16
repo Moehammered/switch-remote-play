@@ -121,6 +121,11 @@ mouse::MouseConfig const MenuSelection::MouseSettings()
     return mouseMenu.Settings();
 }
 
+keyboard::KeyboardConfig const MenuSelection::KeyboardSettings() const
+{
+    return keyboardMenu.Settings();
+}
+
 touch::TouchConfig const MenuSelection::TouchSettings()
 {
     return touchMenu.Settings();

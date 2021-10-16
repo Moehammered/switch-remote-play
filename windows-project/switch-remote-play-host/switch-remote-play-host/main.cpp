@@ -20,7 +20,7 @@
 #include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
 
-auto constexpr applicationVersion = "0.9.5";
+auto constexpr applicationVersion = "0.9.7";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -286,6 +286,7 @@ int main(int argc, char* argv[])
                         encoderConfigData.commonSettings.switchResolution,
                         lastPayload.controllerData,
                         lastPayload.mouseData,
+                        lastPayload.keyboardData,
                         lastPayload.touchData,
                         killStream,
                         gamepadActive,

@@ -1,5 +1,5 @@
 #include "KeyboardOptions.h"
-#include "../utils/StringUtils.h"
+#include "StringUtils.h"
 #include <sstream>
 
 namespace keyboard

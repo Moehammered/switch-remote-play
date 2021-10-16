@@ -2,17 +2,23 @@
 #include "../system/ButtonWatch.h"
 #include "../ScreenRenderer.h"
 #include "../system/SystemSetup.h"
+#include "../keyboard/KeyboardConfiguration.h"
+#include <algorithm>
+
+namespace
+{
+    auto constexpr itemsPerCol = 9;
+}
 
 KeyboardMenu::KeyboardMenu() : Menu(),
     selectionCursor{keyboard::ParamsList},
     textElements{}, bindingMap{}
 {
     title.y += 30;
-    title.value = "Keyboard Configuration [Incomplete]";
+    title.value = "Keyboard Configuration";
 
-    //config loads here
-    auto const & loadedBindings = keyboard::DefaultBindings;
-    for(auto const& binding : loadedBindings)
+    auto const configData = KeyboardConfiguration().Data();
+    for(auto const& binding : configData.bindings)
     {
         if(binding.button != 0)
             bindingMap[binding.key] = binding.button;
@@ -29,9 +35,9 @@ void KeyboardMenu::ProcessInput(PadState const & pad)
     else if(kDown & HidNpadButton_Up)
         --selectionCursor;
     else if(kDown & HidNpadButton_Left)
-        selectionCursor -= 9;
+        selectionCursor -= itemsPerCol;
     else if(kDown & HidNpadButton_Right)
-        selectionCursor += 9;
+        selectionCursor += itemsPerCol;
 
     if(kDown & HidNpadButton_A)
     {
@@ -101,7 +107,25 @@ void KeyboardMenu::ChangeParam(keyboard::KeyParameter param, bool clear)
 
 keyboard::KeyboardConfig const KeyboardMenu::Settings() const
 {
-    return {};
+    auto config = keyboard::KeyboardConfig{};
+
+    auto const maxKeyCount = std::min(keyboard::TotalSupportedKeys, keyboard::ParamsList.size());
+
+    for(auto i = 0U; i < maxKeyCount; ++i)
+    {
+        auto keyBinding = keyboard::KeyboardBinding{};
+        keyBinding.key = keyboard::ParamsList[i];
+
+        auto binding = bindingMap.find(keyBinding.key);
+        if(binding != bindingMap.end())
+            keyBinding.button = binding->second;
+        else
+            keyBinding.button = 0;
+
+        config.bindings[i] = keyBinding;
+    }
+
+    return config;
 }
 
 void KeyboardMenu::UpdateUI(keyboard::KeyParameter param)
@@ -136,9 +160,8 @@ void KeyboardMenu::SetupText()
 {
     const int settingTextX = 100;
     const int xOffset = 600;
-    const int yOffset = title.y + 30;
+    const int yOffset = title.y + 40;
     const int ySpace = 30;
-    auto const itemsPerCol = 9;
     int counter = 0;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 

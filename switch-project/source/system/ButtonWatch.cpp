@@ -12,7 +12,7 @@ uint64_t MonitorKeys(std::function<void(std::string)> renderFunction)
     auto state = 0;
     auto timer = 0LL;
     auto const secondToNano = 1000 * 1000 * 1000;
-    auto const holdTime = 3LL * secondToNano;
+    auto const holdTime = 2LL * secondToNano;
     auto complete = false;
     auto pad = PadState{};
     padInitializeAny(&pad);
@@ -20,7 +20,7 @@ uint64_t MonitorKeys(std::function<void(std::string)> renderFunction)
     std::this_thread::sleep_for(frameTime);
 
     auto const startupMessage = std::string{"Please let go of all keys"};
-    auto const holdPrompt = std::string{"Please hold the keys you'd like for 3 seconds"};
+    auto const holdPrompt = std::string{"Please hold the keys you'd like for 2 seconds"};
     auto const finishPrompt = std::string{"Please let go of all keys"};
     do
     {

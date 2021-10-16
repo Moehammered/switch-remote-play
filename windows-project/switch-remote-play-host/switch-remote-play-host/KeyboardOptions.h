@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "../controller/SwitchButtons.h"
+#include "SwitchButtons.h"
 
 namespace keyboard
 {

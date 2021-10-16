@@ -184,6 +184,8 @@
     <ClCompile Include="h264amfOptions.cpp" />
     <ClCompile Include="H264Options.cpp" />
     <ClCompile Include="HWAccel.cpp" />
+    <ClCompile Include="KeyboardEnumUtil.cpp" />
+    <ClCompile Include="KeyboardOptions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
     <ClCompile Include="MouseOptions.cpp" />
@@ -231,6 +233,8 @@
     <ClInclude Include="h264amfOptions.h" />
     <ClInclude Include="H264Options.h" />
     <ClInclude Include="HWAccel.h" />
+    <ClInclude Include="KeyboardEnumUtil.h" />
+    <ClInclude Include="KeyboardOptions.h" />
     <ClInclude Include="MappedDataConfiguration.h" />
     <ClInclude Include="MasterVolume.h" />
     <ClInclude Include="MouseOptions.h" />
