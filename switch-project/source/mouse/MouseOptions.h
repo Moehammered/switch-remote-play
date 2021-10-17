@@ -45,7 +45,7 @@ namespace mouse
     int16_t constexpr MinMouseSensitivity = 3;
     int16_t constexpr DefaultMouseSensitivity = 5;
     controller::AnalogStick constexpr DefaultMouseWheelAnalog = controller::AnalogStick::Right;
-    uint32_t constexpr DefaultMouseModeToggleKey = HidNpadButton_ZL | HidNpadButton_ZR | HidNpadButton_B;
+    uint32_t constexpr DefaultMouseModeToggleKey = HidNpadButton_Minus;
 
     struct alignas(4) MouseConfig
     {

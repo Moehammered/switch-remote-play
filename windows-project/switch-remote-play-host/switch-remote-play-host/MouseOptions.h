@@ -16,14 +16,16 @@ namespace mouse
         MiddleMouseButton,
         MouseSensitivity,
         MouseOnConnect,
-        MouseWheelAnalog
+        MouseWheelAnalog,
+        MouseModeToggleKey,
     };
 
     static std::vector<Parameters> const ParamsList
     {
         Parameters::LeftMouseButton, Parameters::RightMouseButton,
         Parameters::MiddleMouseButton, Parameters::MouseSensitivity,
-        Parameters::MouseOnConnect, Parameters::MouseWheelAnalog
+        Parameters::MouseOnConnect, Parameters::MouseWheelAnalog,
+        Parameters::MouseModeToggleKey
     };
 
     static std::unordered_map<Parameters, std::string> const ParamsDesc
@@ -33,7 +35,8 @@ namespace mouse
         { Parameters::MiddleMouseButton, "Middle-Click Button" },
         { Parameters::MouseSensitivity, "Mouse Sensitivity" },
         { Parameters::MouseOnConnect, "Mouse on Connect" },
-        { Parameters::MouseWheelAnalog, "Mouse Wheel Analog" }
+        { Parameters::MouseWheelAnalog, "Mouse Wheel Analog" },
+        { Parameters::MouseModeToggleKey, "Mouse Mode Toggle Key" }
     };
 
     HidNpadButton constexpr DefaultLeftClickButton = HidNpadButton_R;
@@ -43,6 +46,7 @@ namespace mouse
     int16_t constexpr MinMouseSensitivity = 3;
     int16_t constexpr DefaultMouseSensitivity = 5;
     controller::AnalogStick constexpr DefaultMouseWheelAnalog = controller::AnalogStick::Right;
+    uint32_t constexpr DefaultMouseModeToggleKey = HidNpadButton_Minus;
 
     struct alignas(4) MouseConfig
     {
@@ -51,6 +55,7 @@ namespace mouse
         HidNpadButton               middleClickButton;
         int16_t                     mouseSensitivity;
         controller::AnalogStick     mouseWheelAnalog;
+        uint32_t                    mouseModeToggleKey;
         bool                        mouseOnConnect;
     };
     

@@ -17,7 +17,6 @@
 
 namespace
 {
-    auto constexpr mouseToggleBtnCombo = HidNpadButton_ZL | HidNpadButton_ZR | HidNpadButton_B;
     auto constexpr mouseToggleNano = 3000000000;
     auto constexpr mouseFrameTimeNano = (long long)8e+6;
     auto constexpr maxRetries = 5;
@@ -341,12 +340,13 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 auto retryCount = maxRetries;
 
                 auto mouseMode{ mouseConfig.mouseOnConnect };
-                auto mouseSensitivity{ mouseConfig.mouseSensitivity };
+                auto const mouseSensitivity{ mouseConfig.mouseSensitivity };
 
-                auto leftClickBtn = mouseConfig.leftClickButton;
-                auto rightClickBtn = mouseConfig.rightClickButton;
-                auto middleClickBtn = mouseConfig.middleClickButton;
-                auto mouseWheelAnalog = mouseConfig.mouseWheelAnalog;
+                auto const leftClickBtn = mouseConfig.leftClickButton;
+                auto const rightClickBtn = mouseConfig.rightClickButton;
+                auto const middleClickBtn = mouseConfig.middleClickButton;
+                auto const mouseWheelAnalog = mouseConfig.mouseWheelAnalog;
+                auto const mouseToggleBtnCombo = mouseConfig.mouseModeToggleKey;
 
                 auto const homeBtn = HidNpadButton::HidNpadButton_Palma;
                 auto const homeHeldBtn = HidNpadButton::HidNpadButton_StickL;
