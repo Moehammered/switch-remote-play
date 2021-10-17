@@ -1,4 +1,5 @@
 #include "MouseOptions.h"
+#include <sstream>
 
 namespace mouse
 {
@@ -12,6 +13,16 @@ namespace mouse
         values[Parameters::MouseWheelAnalog] = controller::AnalogStickToString(config.mouseWheelAnalog);
         values[Parameters::MouseSensitivity] = std::to_string(config.mouseSensitivity);
         values[Parameters::MouseOnConnect] = config.mouseOnConnect ? "yes" : "no";
+
+        auto btns = controller::SwitchButtonsToString(config.mouseModeToggleKey);
+        if(btns.size() != 0)
+        {
+            auto str = btns[0];
+            for(auto i = 1U; i < btns.size(); ++i)
+                str += "," + btns[i];
+            
+            values[Parameters::MouseModeToggleKey] = str;
+        }
 
         return values;
     }
@@ -73,6 +84,33 @@ namespace mouse
             }
             else
                 config.mouseWheelAnalog = DefaultMouseWheelAnalog;
+        }
+
+        auto csvToList = [](auto const & csv)
+        {
+            std::stringstream ss(csv);
+            std::string val{};
+            auto list = std::vector<std::string>{};
+            while(std::getline(ss, val, ','))
+                list.emplace_back(val);
+            
+            return list;
+        };
+
+        {
+            auto entry = map.find(Parameters::MouseModeToggleKey);
+            if(entry != map.end())
+            {
+                auto btnList = csvToList(entry->second);
+                auto btns = controller::ParseSwitchButtonStrings(btnList);
+                auto btnFlags = 0U;
+                for(auto const & btn : btns)
+                    btnFlags |= btn;
+                
+                config.mouseModeToggleKey = btnFlags != 0 ? btnFlags : DefaultMouseModeToggleKey;
+            }
+            else
+                config.mouseModeToggleKey = DefaultMouseModeToggleKey;
         }
 
         return config;

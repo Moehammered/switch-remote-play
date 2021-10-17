@@ -1,15 +1,19 @@
 #include "MouseMenu.h"
 #include "../system/SoftwareKeyboard.h"
 #include "../mouse/MouseConfiguration.h"
+#include "../system/ButtonWatch.h"
+#include "../ScreenRenderer.h"
+#include "../system/SystemSetup.h"
 #include <algorithm>
 
 MouseMenu::MouseMenu() : Menu(),
-selectionCursor{mouse::ParamsList},
-textElements{}, leftMouseBtnCursor{controller::mouseButtonOptions},
-rightMouseBtnCursor{controller::mouseButtonOptions},
-middleMouseBtnCursor{controller::mouseButtonOptions},
-mouseWheelAnalogCursor{controller::analogStickOptions},
-mouseOnConnect{true}, mouseSensitivity{mouse::DefaultMouseSensitivity}
+    selectionCursor{mouse::ParamsList},
+    textElements{}, leftMouseBtnCursor{controller::mouseButtonOptions},
+    rightMouseBtnCursor{controller::mouseButtonOptions},
+    middleMouseBtnCursor{controller::mouseButtonOptions},
+    mouseWheelAnalogCursor{controller::analogStickOptions},
+    mouseOnConnect{true}, mouseSensitivity{mouse::DefaultMouseSensitivity},
+    mouseToggleKey{mouse::DefaultMouseModeToggleKey}
 {
     title.y += 30;
     title.value = "Mouse Configuration";
@@ -24,6 +28,7 @@ mouseOnConnect{true}, mouseSensitivity{mouse::DefaultMouseSensitivity}
 
     mouseSensitivity = storedData.mouseSensitivity;
     mouseOnConnect = storedData.mouseOnConnect;
+    mouseToggleKey = storedData.mouseModeToggleKey;
 
     SetupText();
 }
@@ -71,6 +76,7 @@ mouse::MouseConfig const MouseMenu::Settings() const
         .middleClickButton = middleMouseBtnCursor.KeyPair().first,
         .mouseSensitivity = mouseSensitivity,
         .mouseWheelAnalog = mouseWheelAnalogCursor.KeyPair().first,
+        .mouseModeToggleKey = mouseToggleKey,
         .mouseOnConnect = mouseOnConnect
     };
 }
@@ -125,6 +131,46 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
         case mouse::Parameters::MouseSensitivity:
             mouseSensitivity = KeyboardNumber(mouse::MinMouseSensitivity, mouse::MaxMouseSensitivity, mouseSensitivity);
             break;
+
+        case mouse::Parameters::MouseModeToggleKey:
+        {
+            if(value <= 0)
+                mouseToggleKey = mouse::DefaultMouseModeToggleKey;
+            else
+            {
+                auto displayText = Text{};
+                displayText.colour = {200, 140, 120, 255};
+                displayText.x = 500;
+                displayText.y = 360;
+                displayText.centered = true;
+
+                auto titleText = Text{};
+                titleText.colour = {120, 120, 200, 255};
+                titleText.x = 525;
+                titleText.y = 300;
+                titleText.centered = true;
+                titleText.value = "Mouse Mode Toggle Binding";
+
+                auto const screenRenderer = MainScreenRenderer();
+                auto const rendererRef = screenRenderer->Renderer();
+                auto const fontRef = MainSystemFont();
+                
+                auto renderer = [&](std::string str)
+                {
+                    screenRenderer->ClearScreen({0,0,0,255});
+
+                    titleText.Render(rendererRef, fontRef);
+
+                    displayText.value = str;
+                    displayText.Render(rendererRef, fontRef);
+
+                    screenRenderer->PresentScreen();
+                };
+
+                mouseToggleKey = MonitorKeys(renderer);
+            }
+        }
+        break;
     }
 }
 
@@ -177,6 +223,22 @@ void MouseMenu::UpdateUI(mouse::Parameters param)
         {
             auto str = std::to_string(mouseSensitivity);
             updateElementText(str);
+        }
+        break;
+
+        case mouse::Parameters::MouseModeToggleKey:
+        {
+            auto btns = controller::SwitchButtonsToString(mouseToggleKey);
+            if(btns.size() != 0)
+            {
+                auto str = btns[0];
+                for(auto i = 1U; i < btns.size(); ++i)
+                    str += "+" + btns[i];
+                
+                updateElementText(str);
+            }
+            else
+                updateElementText("");
         }
         break;
     }

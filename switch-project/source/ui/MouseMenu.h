@@ -26,6 +26,7 @@ private:
     UnorderedMapCirculator<controller::AnalogStick, std::string> mouseWheelAnalogCursor;
     bool mouseOnConnect;
     int16_t mouseSensitivity;
+    uint32_t mouseToggleKey;
 
     bool keyAssigned(HidNpadButton const desired, std::initializer_list<HidNpadButton> const taken);
     void cycleMouseBtnCursor(UnorderedMapCirculator<HidNpadButton, std::string> & cursor, int direction, std::initializer_list<HidNpadButton> const others);
