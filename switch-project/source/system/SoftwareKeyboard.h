@@ -62,4 +62,6 @@ returnType OpenKeyboard(KeyboardParserProperties<returnType> const properties)
 
 int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue);
 
+double const KeyboardDecimal(double const minValue, double const maxValue, double const defaultValue);
+
 #endif

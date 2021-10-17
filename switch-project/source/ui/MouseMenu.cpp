@@ -13,7 +13,8 @@ MouseMenu::MouseMenu() : Menu(),
     middleMouseBtnCursor{controller::mouseButtonOptions},
     mouseWheelAnalogCursor{controller::analogStickOptions},
     mouseOnConnect{true}, mouseSensitivity{mouse::DefaultMouseSensitivity},
-    mouseToggleKey{mouse::DefaultMouseModeToggleKey}
+    mouseToggleKey{mouse::DefaultMouseModeToggleKey},
+    mouseToggleTime{mouse::DefaultMouseModeToggleTime}
 {
     title.y += 30;
     title.value = "Mouse Configuration";
@@ -29,6 +30,7 @@ MouseMenu::MouseMenu() : Menu(),
     mouseSensitivity = storedData.mouseSensitivity;
     mouseOnConnect = storedData.mouseOnConnect;
     mouseToggleKey = storedData.mouseModeToggleKey;
+    mouseToggleTime = storedData.mouseModeToggleTime;
 
     SetupText();
 }
@@ -77,6 +79,7 @@ mouse::MouseConfig const MouseMenu::Settings() const
         .mouseSensitivity = mouseSensitivity,
         .mouseWheelAnalog = mouseWheelAnalogCursor.KeyPair().first,
         .mouseModeToggleKey = mouseToggleKey,
+        .mouseModeToggleTime = mouseToggleTime,
         .mouseOnConnect = mouseOnConnect
     };
 }
@@ -171,6 +174,22 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
             }
         }
         break;
+
+        case mouse::Parameters::MouseModeToggleTime:
+        {
+            if(value <= 0)
+                mouseToggleTime = mouse::DefaultMouseModeToggleTime;
+            else
+            {
+                auto const currentTime = timeutil::nanoToSecond(mouseToggleTime);
+                auto const maxTime = timeutil::nanoToSecond(mouse::MaxMouseModeToggleTime);
+                auto const minTime = timeutil::nanoToSecond(mouse::MinMouseModeToggleTime);
+                auto const toggleTime = KeyboardDecimal(minTime, maxTime, currentTime);
+
+                mouseToggleTime = timeutil::secondToNano(toggleTime);
+            }
+        }
+        break;
     }
 }
 
@@ -239,6 +258,14 @@ void MouseMenu::UpdateUI(mouse::Parameters param)
             }
             else
                 updateElementText("");
+        }
+        break;
+
+        case mouse::Parameters::MouseModeToggleTime:
+        {
+            auto seconds = timeutil::nanoToSecond(mouseToggleTime);
+            auto str = std::to_string(seconds) + "s";
+            updateElementText(str);
         }
         break;
     }

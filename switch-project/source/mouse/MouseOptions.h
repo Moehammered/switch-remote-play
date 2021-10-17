@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include "../controller/SwitchButtons.h"
+#include "../utils/TimeUtil.h"
 
 namespace mouse
 {
@@ -17,6 +18,7 @@ namespace mouse
         MouseOnConnect,
         MouseWheelAnalog,
         MouseModeToggleKey,
+        MouseModeToggleTime
     };
 
     static std::vector<Parameters> const ParamsList
@@ -24,7 +26,7 @@ namespace mouse
         Parameters::LeftMouseButton, Parameters::RightMouseButton,
         Parameters::MiddleMouseButton, Parameters::MouseSensitivity,
         Parameters::MouseOnConnect, Parameters::MouseWheelAnalog,
-        Parameters::MouseModeToggleKey
+        Parameters::MouseModeToggleKey, Parameters::MouseModeToggleTime
     };
 
     static std::unordered_map<Parameters, std::string> const ParamsDesc
@@ -35,7 +37,8 @@ namespace mouse
         { Parameters::MouseSensitivity, "Mouse Sensitivity" },
         { Parameters::MouseOnConnect, "Mouse on Connect" },
         { Parameters::MouseWheelAnalog, "Mouse Wheel Analog" },
-        { Parameters::MouseModeToggleKey, "Mouse Mode Toggle Key" }
+        { Parameters::MouseModeToggleKey, "Mouse Mode Toggle Key" },
+        { Parameters::MouseModeToggleTime, "Mouse Mode Toggle Time" }
     };
 
     HidNpadButton constexpr DefaultLeftClickButton = HidNpadButton_R;
@@ -46,6 +49,9 @@ namespace mouse
     int16_t constexpr DefaultMouseSensitivity = 5;
     controller::AnalogStick constexpr DefaultMouseWheelAnalog = controller::AnalogStick::Right;
     uint32_t constexpr DefaultMouseModeToggleKey = HidNpadButton_Minus;
+    uint32_t constexpr MinMouseModeToggleTime = timeutil::secondToNano(0.1);
+    uint32_t constexpr MaxMouseModeToggleTime = timeutil::secondToNano(4);
+    uint32_t constexpr DefaultMouseModeToggleTime = timeutil::secondToNano(2);
 
     struct alignas(4) MouseConfig
     {
@@ -55,6 +61,7 @@ namespace mouse
         int16_t                     mouseSensitivity;
         controller::AnalogStick     mouseWheelAnalog;
         uint32_t                    mouseModeToggleKey;
+        uint32_t                    mouseModeToggleTime;
         bool                        mouseOnConnect;
     };
     

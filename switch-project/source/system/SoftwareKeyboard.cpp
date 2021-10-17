@@ -59,3 +59,29 @@ int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int
 
     return OpenKeyboard(settings);
 }
+
+double const KeyboardDecimal(double const minValue, double const maxValue, double const defaultValue)
+{
+    auto settings = KeyboardParserProperties<double>{};
+    settings.defaultValue = defaultValue;
+    settings.parseMethod = [](std::string const text)
+    {
+        return std::atof(text.c_str());
+    };
+    settings.predicate = [=](double const value)
+    {
+        return value >= minValue && value <= maxValue;
+    };
+
+    auto minStr = std::to_string(minValue);
+    auto maxStr = std::to_string(maxValue);
+    auto header = "Value must be between " + minStr + " and " + maxStr;
+    settings.keyboardConfig.displayMessage = header;
+    settings.keyboardConfig.initialText = std::to_string(defaultValue);
+    settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
+    settings.keyboardConfig.inputLength = std::max(minStr.size(), maxStr.size());
+    settings.keyboardConfig.optionalLeftSymbol = "-";
+    settings.keyboardConfig.optionalRightSymbol = ".";
+
+    return OpenKeyboard(settings);
+}
