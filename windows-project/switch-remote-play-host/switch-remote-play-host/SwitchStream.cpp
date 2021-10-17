@@ -6,6 +6,7 @@
 #include "DS4Controller.h"
 #include "VirtualMouse.h"
 #include "VirtualTouch.h"
+#include "SimulatedTouchMouse.h"
 #include "VirtualKeyboard.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
@@ -328,10 +329,12 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     : touch::MaxFingerCount;
                 maxFingers = min(touch::MaxFingerCount, maxFingers);
 
-                auto deadZoneRad = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
+                auto deadzoneRad = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
                     ? touchConfig.virtualTouchSettings.deadzoneRadius
                     : touchConfig.simulatedTouchMouseSettings.deadzoneRadius;
-                auto touch = VirtualTouch(deadZoneRad, 2);
+                auto touch = VirtualTouch(deadzoneRad, 2);
+                auto simulatedTouchMouse = SimulatedTouchMouse(deadzoneRad, mouseConfig.mouseSensitivity, 0.2);
+                auto const simulateMouse = true;
                     
                 auto streamDead = killStream.load(memory_order_acquire);
                 gamepadActive.store(true, memory_order_release);
@@ -482,14 +485,30 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                                 fingers.back().x = x + sessionDisplay.x;
                                 fingers.back().y = y + sessionDisplay.y;
                             }
-                            touch.Press(fingers);
-                            touch.Move(fingers);
-                            touch.Commit();
+                            if (simulateMouse)
+                            {
+                                simulatedTouchMouse.Update(fingers);
+                                simulatedTouchMouse.Commit();
+                            }
+                            else
+                            {
+                                touch.Press(fingers);
+                                touch.Move(fingers);
+                                touch.Commit();
+                            }
                         }
                         else
                         {
-                            touch.Release();
-                            touch.Commit();
+                            if (simulateMouse)
+                            {
+                                simulatedTouchMouse.Release();
+                                simulatedTouchMouse.Commit();
+                            }
+                            else
+                            {
+                                touch.Release();
+                                touch.Commit();
+                            }
                         }
                         //testing touch stuff here
                     }

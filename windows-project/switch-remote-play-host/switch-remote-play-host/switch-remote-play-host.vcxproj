@@ -194,6 +194,8 @@
     <ClCompile Include="NetworkOptions.cpp" />
     <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="SimulatedMouseOptions.cpp" />
+    <ClCompile Include="SimulatedTouchMouse.cpp" />
+    <ClCompile Include="DeadzoneUtility.cpp" />
     <ClCompile Include="SwitchButtons.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
@@ -245,6 +247,7 @@
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SimulatedMouseOptions.h" />
+    <ClInclude Include="SimulatedTouchMouse.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="SwitchButtons.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />

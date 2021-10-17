@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __DEADZONEUTILITY_H__
+#define __DEADZONEUTILITY_H__
 
 template<typename numeral>
 struct Point
@@ -20,17 +21,12 @@ long long constexpr magnitudeSqr(Point<numeral> point)
     return magnitudeSqr(point.x, point.y);
 }
 
-bool outsideDeadzoneSqr(long long deadzoneRadiusSqr, long long x1, long long y1, long long x2, long long y2)
-{
-    auto dx = x1 - x2;
-    auto dy = y1 - y2;
-    auto magnitude = magnitudeSqr(dx, dy);
-
-    return magnitude > deadzoneRadiusSqr;
-}
+bool outsideDeadzoneSqr(long long deadzoneRadiusSqr, long long x1, long long y1, long long x2, long long y2);
 
 template<typename numeral>
 bool outsideDeadzoneSqr(long long deadzoneRadiusSqr, Point<numeral> a, Point<numeral> b)
 {
     return outsideDeadzoneSqr(deadzoneRadiusSqr, a.x, a.y, b.x, b.y);
 }
+
+#endif
