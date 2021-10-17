@@ -1,5 +1,6 @@
 #include "MouseOptions.h"
 #include <sstream>
+#include <algorithm>
 
 namespace mouse
 {
@@ -23,6 +24,10 @@ namespace mouse
 
             values[Parameters::MouseModeToggleKey] = str;
         }
+
+        auto const toggleTimeSeconds = timeutil::nanoToSecond(config.mouseModeToggleTime);
+        auto secondsStr = std::to_string(toggleTimeSeconds);
+        values[Parameters::MouseModeToggleTime] = secondsStr;
 
         return values;
     }
@@ -58,7 +63,6 @@ namespace mouse
             else
                 config.mouseOnConnect = false;
         }
-
 
         {
             auto entry = map.find(Parameters::MouseSensitivity);
@@ -111,6 +115,19 @@ namespace mouse
             }
             else
                 config.mouseModeToggleKey = DefaultMouseModeToggleKey;
+        }
+
+        {
+            auto entry = map.find(Parameters::MouseModeToggleTime);
+            if (entry != map.end())
+            {
+                auto secondsStr = entry->second;
+                auto const seconds = std::atof(secondsStr.c_str());
+                auto const nanoseconds = (uint32_t)timeutil::secondToNano(seconds);
+                config.mouseModeToggleTime = std::clamp(nanoseconds, MinMouseModeToggleTime, MaxMouseModeToggleTime);
+            }
+            else
+                config.mouseModeToggleTime = DefaultMouseModeToggleTime;
         }
 
         return config;

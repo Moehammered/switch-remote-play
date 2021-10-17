@@ -17,7 +17,6 @@
 
 namespace
 {
-    auto constexpr mouseToggleNano = 3000000000;
     auto constexpr mouseFrameTimeNano = (long long)8e+6;
     auto constexpr maxRetries = 5;
     double constexpr joystickExtent = 0xFFFF / 2;
@@ -347,6 +346,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 auto const middleClickBtn = mouseConfig.middleClickButton;
                 auto const mouseWheelAnalog = mouseConfig.mouseWheelAnalog;
                 auto const mouseToggleBtnCombo = mouseConfig.mouseModeToggleKey;
+                auto const mouseToggleNano = mouseConfig.mouseModeToggleTime;
 
                 auto const homeBtn = HidNpadButton::HidNpadButton_Palma;
                 auto const homeHeldBtn = HidNpadButton::HidNpadButton_StickL;

@@ -250,6 +250,7 @@
     <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />
+    <ClInclude Include="TimeUtil.h" />
     <ClInclude Include="TouchOptions.h" />
     <ClInclude Include="VideoCodec.h" />
     <ClInclude Include="VideoCodecMode.h" />

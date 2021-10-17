@@ -294,6 +294,9 @@
     <ClInclude Include="KeyboardEnumUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TimeUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />
