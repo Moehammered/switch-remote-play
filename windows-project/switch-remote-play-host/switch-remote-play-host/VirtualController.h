@@ -24,12 +24,15 @@ class IVirtualController
         virtual void ResetController() = 0;
         virtual void Disconnect() = 0;
 
+        uint32_t const DeviceIndex() const;
+
     protected:
         PVIGEM_CLIENT client;
         PVIGEM_TARGET pad;
 
         std::pair<int32_t, int32_t> leftAxis;
         std::pair<int32_t, int32_t> rightAxis;
+        uint32_t deviceIndex;
 
         virtual USHORT ConvertButtons(GamepadDataPayload const data) = 0;
         virtual SHORT ConvertAnalog(int32_t const switchAnalog) = 0;

@@ -2,7 +2,8 @@
 
 IVirtualController::IVirtualController() 
 	: client{ nullptr }, pad{ nullptr },
-	leftAxis{ 1, 1 }, rightAxis{ 1, 1 }
+	leftAxis{ 1, 1 }, rightAxis{ 1, 1 },
+	deviceIndex{ 0 }
 {
 }
 
@@ -29,4 +30,9 @@ void IVirtualController::MapAnalogAxis(controller::ControllerAnalogMap left, con
 
 	leftAxis = parseMap(left);
 	rightAxis = parseMap(right);
+}
+
+uint32_t const IVirtualController::DeviceIndex() const
+{
+	return deviceIndex;
 }

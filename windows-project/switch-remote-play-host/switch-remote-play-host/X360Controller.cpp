@@ -101,6 +101,8 @@ bool X360Controller::Create()
 	ZeroMemory(&state, sizeof(XUSB_REPORT));
 	XUSB_REPORT_INIT(&state);
 
+	deviceIndex = vigem_target_get_index(pad);
+
 	return true;
 }
 

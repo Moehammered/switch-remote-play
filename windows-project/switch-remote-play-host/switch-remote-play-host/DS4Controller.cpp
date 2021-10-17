@@ -105,6 +105,8 @@ bool DS4Controller::Create()
 	ZeroMemory(&state, sizeof(DS4_REPORT));
 	DS4_REPORT_INIT(&state);
 
+	deviceIndex = vigem_target_get_index(pad);
+
 	return true;
 }
 
