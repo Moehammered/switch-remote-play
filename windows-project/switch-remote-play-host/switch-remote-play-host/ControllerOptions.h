@@ -8,6 +8,7 @@
 #include <vector>
 #include <unordered_map>
 #include "SwitchControlsDefinitions.h"
+#include "TimeUtil.h"
 
 namespace controller
 {
@@ -17,6 +18,8 @@ namespace controller
         ButtonMapping,
         LeftAnalogMapping,
         RightAnalogMapping,
+        HomeButton,
+        HomeButtonTriggerTime,
         ControllerCount
     };
 
@@ -24,6 +27,7 @@ namespace controller
     {
         Parameters::Mode, Parameters::ButtonMapping,
         Parameters::LeftAnalogMapping, Parameters::RightAnalogMapping,
+        Parameters::HomeButton, Parameters::HomeButtonTriggerTime,
         Parameters::ControllerCount
     };
 
@@ -33,6 +37,8 @@ namespace controller
         { Parameters::ButtonMapping, "Controller Mapping" },
         { Parameters::LeftAnalogMapping, "Left Analog Mapping" },
         { Parameters::RightAnalogMapping, "Right Analog Mapping" },
+        { Parameters::HomeButton, "Home Button Key" },
+        { Parameters::HomeButtonTriggerTime, "Home Button Trigger Time" },
         { Parameters::ControllerCount, "Controller Count" }
     };
 
@@ -42,6 +48,8 @@ namespace controller
         ControllerButtonMap controllerMap;
         ControllerAnalogMap leftAnalogMap;
         ControllerAnalogMap rightAnalogMap;
+        uint32_t            homeButton;
+        uint32_t            homeButtonTriggerTime;
         int16_t             controllerCount;
     };
 
@@ -50,6 +58,10 @@ namespace controller
     auto constexpr DefaultMode = ControllerMode::X360;
     auto constexpr DefaultButtonMap = ControllerButtonMap::None;
     auto constexpr DefaultAnalogMap = ControllerAnalogMap::None;
+    uint32_t constexpr DefaultHomeButton = HidNpadButton_StickL;
+    uint32_t constexpr MinHomeButtonTriggerTime = timeutil::secondToNano(0.1);
+    uint32_t constexpr MaxHomeButtonTriggerTime = timeutil::secondToNano(4.0);
+    uint32_t constexpr DefaultHomeButtonTriggerTime = timeutil::secondToNano(1.0);
 
     int16_t constexpr DefaultControllerCount = 1;
     int16_t constexpr MaxControllerCount = 4;

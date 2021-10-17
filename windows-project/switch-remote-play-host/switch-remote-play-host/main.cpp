@@ -20,7 +20,7 @@
 #include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
 
-auto constexpr applicationVersion = "0.9.7";
+auto constexpr applicationVersion = "0.9.8";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };

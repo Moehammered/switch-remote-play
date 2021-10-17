@@ -153,7 +153,7 @@ namespace
 
     void ProcessGamepad(std::unique_ptr<IVirtualController> const & controller, 
         GamepadDataPayload & padData,
-        HidNpadButton const homeHeldBtn,
+        uint32_t const homeHeldBtn,
         HidNpadButton const homeBtn,
         long long const homeTriggerTimeNano,
         long long& homeTriggerTimer,
@@ -161,8 +161,8 @@ namespace
     {
         if (GamepadHasInput(padData))
         {
-            auto homeTriggerKeys = padData.keys & homeHeldBtn;
-            if (homeTriggerKeys == homeHeldBtn)
+            auto homeTriggerMask = padData.keys & homeHeldBtn;
+            if (homeTriggerMask == homeHeldBtn)
             {
                 homeTriggerTimer += deltaTime;
                 if (homeTriggerTimer > homeTriggerTimeNano)
@@ -349,9 +349,9 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 auto const mouseToggleNano = mouseConfig.mouseModeToggleTime;
 
                 auto const homeBtn = HidNpadButton::HidNpadButton_Palma;
-                auto const homeHeldBtn = HidNpadButton::HidNpadButton_StickL;
+                auto const homeHeldBtn = controllerConfig.homeButton;
 
-                auto const homeTriggerTimeNano = 1000000000LL;
+                auto const homeTriggerTimeNano = controllerConfig.homeButtonTriggerTime;
                 auto homeTriggerTimers = std::vector<long long>(controllers.size());
 
                 auto lastFrameTime = std::chrono::high_resolution_clock::now();
