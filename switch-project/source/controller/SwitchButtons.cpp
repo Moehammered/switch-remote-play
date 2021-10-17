@@ -29,7 +29,8 @@ namespace controller
 
         for(auto const & entry : switchButtonOptions)
         {
-            if(entry.first & keys)
+            auto const btnMask = entry.first & keys;
+            if(entry.first == btnMask)
                 btns.push_back(SwitchButtonToString(entry.first));
         }
 

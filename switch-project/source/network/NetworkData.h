@@ -59,7 +59,7 @@ struct alignas(8) CommandPayload
     keyboard::KeyboardConfig        keyboardData;
     touch::TouchConfig              touchData;
     Command                         commandCode;
-    //fill the struct to pad it out to 352 bytes
+    //fill the struct to pad it out to 256 bytes
     int8_t                          padding[PayloadPaddingSize];
 };
 

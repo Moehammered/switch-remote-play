@@ -24,6 +24,8 @@ class ControllerMenu : public Menu
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> leftAnalogMapCursor;
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> rightAnalogMapCursor;
         int16_t controllerCount;
+        uint32_t homeButton;
+        uint32_t homeButtonTriggerTime;
 
         void UpdateSetting(controller::Parameters, int direction);
         void UpdateUI(controller::Parameters param);

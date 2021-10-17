@@ -2,6 +2,9 @@
 #include "../utils/EnumMapper.h"
 #include "../controller/ControllerConfiguration.h"
 #include "../system/SoftwareKeyboard.h"
+#include "../system/ButtonWatch.h"
+#include "../ScreenRenderer.h"
+#include "../system/SystemSetup.h"
 
 ControllerMenu::ControllerMenu() : Menu(),
     textElements{}, paramCursor{controller::ParamsList},
@@ -9,7 +12,9 @@ ControllerMenu::ControllerMenu() : Menu(),
     buttonMapCursor{controller::controlMapDesc},
     leftAnalogMapCursor{controller::analogMapDesc},
     rightAnalogMapCursor{controller::analogMapDesc},
-    controllerCount{controller::DefaultControllerCount}
+    controllerCount{controller::DefaultControllerCount},
+    homeButton{controller::DefaultHomeButton},
+    homeButtonTriggerTime{controller::DefaultHomeButtonTriggerTime}
 {
     title.value = "Controller Menu";
     title.y += 30;
@@ -22,6 +27,8 @@ ControllerMenu::ControllerMenu() : Menu(),
     cycleMap(rightAnalogMapCursor, settings.rightAnalogMap);
 
     controllerCount = settings.controllerCount;
+    homeButton = settings.homeButton;
+    homeButtonTriggerTime = settings.homeButtonTriggerTime;
 
     SetupText();
 }
@@ -70,6 +77,8 @@ controller::ControllerConfig const ControllerMenu::Settings() const
         .controllerMap = buttonMapCursor.KeyPair().first,
         .leftAnalogMap = leftAnalogMapCursor.KeyPair().first,
         .rightAnalogMap = rightAnalogMapCursor.KeyPair().first,
+        .homeButton = homeButton,
+        .homeButtonTriggerTime = homeButtonTriggerTime,
         .controllerCount = controllerCount
     };
 }
@@ -92,6 +101,62 @@ void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
               
         case controller::Parameters::RightAnalogMapping:
             rightAnalogMapCursor += direction;
+        break;
+
+        case controller::Parameters::HomeButton:
+        {
+            if(direction <= 0)
+                homeButton = controller::DefaultHomeButton;
+            else
+            {
+                auto displayText = Text{};
+                displayText.colour = {200, 140, 120, 255};
+                displayText.x = 500;
+                displayText.y = 360;
+                displayText.centered = true;
+
+                auto titleText = Text{};
+                titleText.colour = {120, 120, 200, 255};
+                titleText.x = 525;
+                titleText.y = 300;
+                titleText.centered = true;
+                titleText.value = "Home Button Binding";
+
+                auto const screenRenderer = MainScreenRenderer();
+                auto const rendererRef = screenRenderer->Renderer();
+                auto const fontRef = MainSystemFont();
+                
+                auto renderer = [&](std::string str)
+                {
+                    screenRenderer->ClearScreen({0,0,0,255});
+
+                    titleText.Render(rendererRef, fontRef);
+
+                    displayText.value = str;
+                    displayText.Render(rendererRef, fontRef);
+
+                    screenRenderer->PresentScreen();
+                };
+
+                homeButton = MonitorKeys(renderer);
+            }
+        }
+        break;
+
+        case controller::Parameters::HomeButtonTriggerTime:
+        {
+            if(direction <= 0)
+                homeButtonTriggerTime = controller::DefaultHomeButtonTriggerTime;
+            else
+            {
+                auto const currentTime = timeutil::nanoToSecond(homeButtonTriggerTime);
+                auto const maxTime = timeutil::nanoToSecond(controller::MaxHomeButtonTriggerTime);
+                auto const minTime = timeutil::nanoToSecond(controller::MinHomeButtonTriggerTime);
+                auto const toggleTime = KeyboardDecimal(minTime, maxTime, currentTime);
+
+                homeButtonTriggerTime = timeutil::secondToNano(toggleTime);
+            }
+        }
         break;
 
         case controller::Parameters::ControllerCount:
@@ -122,9 +187,34 @@ void ControllerMenu::UpdateUI(controller::Parameters param)
             element.value = desc + ": " + *rightAnalogMapCursor;
         break;
 
+        case controller::Parameters::HomeButton:
+        {
+            auto btns = controller::SwitchButtonsToString(homeButton);
+            if(btns.size() != 0)
+            {
+                auto str = btns[0];
+                for(auto i = 1U; i < btns.size(); ++i)
+                    str += "+" + btns[i];
+                
+                element.value = desc + ": " + str;
+            }
+            else
+                element.value = desc + ":";
+        }
+        break;
+        
+        case controller::Parameters::HomeButtonTriggerTime:
+        {
+            auto seconds = timeutil::nanoToSecond(homeButtonTriggerTime);
+            auto str = std::to_string(seconds) + "s";
+            element.value = desc + ": " + str;
+        }
+        break;
+
         case controller::Parameters::ControllerCount:
             element.value = desc + ": " + std::to_string(controllerCount);
         break;
+
     }
 }
 
