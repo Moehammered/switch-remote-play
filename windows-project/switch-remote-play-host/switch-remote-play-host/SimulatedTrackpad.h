@@ -5,10 +5,10 @@
 #include "VirtualFinger.h"
 #include "VirtualMouse.h"
 
-class SimulatedTouchMouse
+class SimulatedTrackpad
 {
 public:
-    SimulatedTouchMouse(int deadzoneRadius, int32_t mouseSensitivity, double doubleTapTime);
+    SimulatedTrackpad(int deadzoneRadius, int32_t mouseSensitivity, double doubleTapTime);
 
     void Update(std::vector<VirtualFinger> const fingers);
     void Release();

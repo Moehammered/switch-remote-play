@@ -6,7 +6,8 @@
 #include "DS4Controller.h"
 #include "VirtualMouse.h"
 #include "VirtualTouch.h"
-#include "SimulatedTouchMouse.h"
+#include "SimulatedTrackpad.h"
+#include "AbsoluteTouchMouse.h"
 #include "VirtualKeyboard.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
@@ -26,6 +27,11 @@ namespace
     auto constexpr buttonHeldTime = (long long)3e+8;
     std::unordered_map<uint32_t, uint16_t> keyboardMap{};
     std::unordered_map<uint32_t, long long> buttonTimers{};
+
+    auto constexpr PrimaryMonitorTopLeft = Point<int32_t>{ 0, 0 };
+    //65535 is Window's co-ordinate values for display extents
+    //https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-mouseinput#remarks
+    auto constexpr PrimaryMonitorBottomRight = Point<int32_t>{ 65535, 65535 };
 
     template<typename numberType>
     std::string BitString(numberType val, int bitCount = 32)
@@ -332,10 +338,18 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 auto deadzoneRad = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
                     ? touchConfig.virtualTouchSettings.deadzoneRadius
                     : touchConfig.simulatedTouchMouseSettings.deadzoneRadius;
+
                 auto touch = VirtualTouch(deadzoneRad, 2);
-                auto simulatedTouchMouse = SimulatedTouchMouse(deadzoneRad, mouseConfig.mouseSensitivity, 0.2);
-                auto const simulateMouse = true;
-                    
+                auto trackpad = SimulatedTrackpad(deadzoneRad, mouseConfig.mouseSensitivity, 0.2);
+                auto absoluteMouse = AbsoluteTouchMouse(deadzoneRad, 0.2, 
+                                                        sessionDisplay.width, 
+                                                        sessionDisplay.height,
+                                                        PrimaryMonitorTopLeft,
+                                                        PrimaryMonitorBottomRight);
+
+                auto const touchInterfaceType = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
+                                              ? 0 : 1; //0 - vtouch, 1 - trackpad, 2 - absolute mouse
+                
                 auto streamDead = killStream.load(memory_order_acquire);
                 gamepadActive.store(true, memory_order_release);
                 auto active = true;
@@ -485,29 +499,43 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                                 fingers.back().x = x + sessionDisplay.x;
                                 fingers.back().y = y + sessionDisplay.y;
                             }
-                            if (simulateMouse)
+                            switch (touchInterfaceType)
                             {
-                                simulatedTouchMouse.Update(fingers);
-                                simulatedTouchMouse.Commit();
-                            }
-                            else
-                            {
+                            case 0:
                                 touch.Press(fingers);
                                 touch.Move(fingers);
                                 touch.Commit();
+                                break;
+
+                            case 1:
+                                trackpad.Update(fingers);
+                                trackpad.Commit();
+                                break;
+
+                            case 2:
+                                absoluteMouse.Update(fingers);
+                                absoluteMouse.Commit();
+                                break;
                             }
                         }
                         else
                         {
-                            if (simulateMouse)
+                            switch (touchInterfaceType)
                             {
-                                simulatedTouchMouse.Release();
-                                simulatedTouchMouse.Commit();
-                            }
-                            else
-                            {
+                            case 0:
                                 touch.Release();
                                 touch.Commit();
+                                break;
+
+                            case 1:
+                                trackpad.Release();
+                                trackpad.Commit();
+                                break;
+
+                            case 2:
+                                absoluteMouse.Release();
+                                absoluteMouse.Commit();
+                                break;
                             }
                         }
                         //testing touch stuff here

@@ -1,12 +1,7 @@
 #ifndef __DEADZONEUTILITY_H__
 #define __DEADZONEUTILITY_H__
 
-template<typename numeral>
-struct Point
-{
-    numeral x;
-    numeral y;
-};
+#include "Point.h"
 
 #include <limits>
 

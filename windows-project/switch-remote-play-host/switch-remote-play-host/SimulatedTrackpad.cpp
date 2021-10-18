@@ -1,4 +1,4 @@
-#include "SimulatedTouchMouse.h"
+#include "SimulatedTrackpad.h"
 #include "DeadzoneUtility.h"
 #include "TimeUtil.h"
 #include <chrono>
@@ -8,7 +8,7 @@ namespace
     auto doubleTapTimestamp = std::chrono::high_resolution_clock::now();
 }
 
-SimulatedTouchMouse::SimulatedTouchMouse(int deadzoneRadius, int32_t mouseSensitivity, double doubleTapTime)
+SimulatedTrackpad::SimulatedTrackpad(int deadzoneRadius, int32_t mouseSensitivity, double doubleTapTime)
     : deadzoneRadius{ deadzoneRadius }, deadzoneMagSqr{ deadzoneRadius * deadzoneRadius },
     mouseSensitivity{ mouseSensitivity }, doubleTapNanoTime{ (uint32_t)timeutil::secondToNano(doubleTapTime) },
     moved{ false }, mouse{},
@@ -18,7 +18,7 @@ SimulatedTouchMouse::SimulatedTouchMouse(int deadzoneRadius, int32_t mouseSensit
     doubleTapTimestamp = std::chrono::high_resolution_clock::now();
 }
 
-void SimulatedTouchMouse::Update(std::vector<VirtualFinger> const fingers)
+void SimulatedTrackpad::Update(std::vector<VirtualFinger> const fingers)
 {
     auto const now = std::chrono::high_resolution_clock::now();
     auto const delta = now - doubleTapTimestamp;
@@ -28,11 +28,8 @@ void SimulatedTouchMouse::Update(std::vector<VirtualFinger> const fingers)
         // release any buttons that may have been pressed
         if (lastFingerCount == 0)
         {
-            //if (!moved) //this shouldn't be necessary as mouse already tracks click states
-            {
-                mouse.Release(SupportedMouseButtons::Left);
-                mouse.Release(SupportedMouseButtons::Right);
-            }
+            mouse.Release(SupportedMouseButtons::Left);
+            mouse.Release(SupportedMouseButtons::Right);
             moved = false;
         }
         else if (lastFingerCount == 1)
@@ -93,23 +90,20 @@ void SimulatedTouchMouse::Update(std::vector<VirtualFinger> const fingers)
     }
 }
 
-void SimulatedTouchMouse::Release()
+void SimulatedTrackpad::Release()
 {
     auto const now = std::chrono::high_resolution_clock::now();
     auto const delta = now - doubleTapTimestamp;
     if (lastFingerCount == 0)
     {
-        //if (!moved) //this shouldn't be necessary as mouse already tracks click states
-        {
-            mouse.Release(SupportedMouseButtons::Left);
-            mouse.Release(SupportedMouseButtons::Right);
-        }
+        mouse.Release(SupportedMouseButtons::Left);
+        mouse.Release(SupportedMouseButtons::Right);
         moved = false;
     }
     else if (lastFingerCount == 1)
     {
         doubleTapTimestamp = now; // a finger's been released, timestamp it
-        // press left mouse button
+        // no finger movement occurred
         if (!moved)
             mouse.Press(SupportedMouseButtons::Left);
         lastFingerCount = 0;
@@ -125,7 +119,7 @@ void SimulatedTouchMouse::Release()
     lastInitialFinger.id = UINT32_MAX;
 }
 
-void SimulatedTouchMouse::Commit()
+void SimulatedTrackpad::Commit()
 {
     mouse.Commit();
 }

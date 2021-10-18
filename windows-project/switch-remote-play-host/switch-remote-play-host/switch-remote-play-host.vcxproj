@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AbsoluteTouchMouse.cpp" />
     <ClCompile Include="AtomicTest.cpp" />
     <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Configuration.cpp" />
@@ -194,7 +195,7 @@
     <ClCompile Include="NetworkOptions.cpp" />
     <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="SimulatedMouseOptions.cpp" />
-    <ClCompile Include="SimulatedTouchMouse.cpp" />
+    <ClCompile Include="SimulatedTrackpad.cpp" />
     <ClCompile Include="DeadzoneUtility.cpp" />
     <ClCompile Include="SwitchButtons.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
@@ -244,10 +245,12 @@
     <ClInclude Include="NetworkConfiguration.h" />
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="NetworkOptions.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="AbsoluteTouchMouse.h" />
     <ClInclude Include="SimulatedMouseOptions.h" />
-    <ClInclude Include="SimulatedTouchMouse.h" />
+    <ClInclude Include="SimulatedTrackpad.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="SwitchButtons.h" />
     <ClInclude Include="SwitchControlsDefinitions.h" />

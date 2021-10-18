@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 struct VirtualFinger
 {
     uint32_t id;

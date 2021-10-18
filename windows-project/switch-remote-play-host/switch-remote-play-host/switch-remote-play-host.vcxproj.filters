@@ -136,10 +136,13 @@
     <ClCompile Include="KeyboardEnumUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimulatedTouchMouse.cpp">
+    <ClCompile Include="SimulatedTrackpad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DeadzoneUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AbsoluteTouchMouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -303,7 +306,13 @@
     <ClInclude Include="TimeUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulatedTouchMouse.h">
+    <ClInclude Include="SimulatedTrackpad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AbsoluteTouchMouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
