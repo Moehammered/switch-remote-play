@@ -34,9 +34,9 @@ void VirtualTouchMenu::ProcessInput(PadState const & pad)
     auto kDown = padGetButtonsDown(&pad);
 
     if(kDown & HidNpadButton::HidNpadButton_Up)
-        ++selected;
-    else if (kDown & HidNpadButton::HidNpadButton_Down)
         --selected;
+    else if (kDown & HidNpadButton::HidNpadButton_Down)
+        ++selected;
 
     if(kDown & HidNpadButton::HidNpadButton_A)
         PromptValueInput(*selected);

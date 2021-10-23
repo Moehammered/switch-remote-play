@@ -194,6 +194,7 @@
     <ClCompile Include="NetworkConfiguration.cpp" />
     <ClCompile Include="NetworkOptions.cpp" />
     <ClCompile Include="Resolution.cpp" />
+    <ClCompile Include="SimulatedMouseBehaviour.cpp" />
     <ClCompile Include="SimulatedMouseOptions.cpp" />
     <ClCompile Include="SimulatedTrackpad.cpp" />
     <ClCompile Include="DeadzoneUtility.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="AbsoluteTouchMouse.h" />
+    <ClInclude Include="SimulatedMouseBehaviour.h" />
     <ClInclude Include="SimulatedMouseOptions.h" />
     <ClInclude Include="SimulatedTrackpad.h" />
     <ClInclude Include="StringUtils.h" />

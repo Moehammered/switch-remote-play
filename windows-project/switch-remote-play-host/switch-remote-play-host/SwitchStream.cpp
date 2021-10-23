@@ -343,12 +343,15 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     ? touchConfig.virtualTouchSettings.deadzoneRadius
                     : touchConfig.simulatedTouchMouseSettings.deadzoneRadius;
 
+                auto doubleTapTime = timeutil::nanoToSecond(touchConfig.simulatedTouchMouseSettings.doubleTapTime);
                 auto touch = VirtualTouch(deadzoneRad, 2);
-                auto trackpad = SimulatedTrackpad(deadzoneRad, mouseConfig.mouseSensitivity, 0.2);
-                auto absoluteMouse = AbsoluteTouchMouse(deadzoneRad, 0.3, desktop);
+                auto trackpad = SimulatedTrackpad(deadzoneRad, mouseConfig.mouseSensitivity, doubleTapTime);
+                auto absoluteMouse = AbsoluteTouchMouse(deadzoneRad, doubleTapTime, desktop);
 
                 auto const touchInterfaceType = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
-                                              ? 0 : 2; //0 - vtouch, 1 - trackpad, 2 - absolute mouse
+                                              ? 0 //0 - vtouch, otherwise...
+                : touchConfig.simulatedTouchMouseSettings.behaviour == touch::SimulatedMouseBehaviour::Trackpad 
+                    ? 1 : 2; //1 - trackpad, 2 - absolute mouse
                 
                 auto streamDead = killStream.load(memory_order_acquire);
                 gamepadActive.store(true, memory_order_release);

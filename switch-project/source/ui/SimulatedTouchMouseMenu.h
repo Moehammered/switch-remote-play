@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "../touch/SimulatedMouseOptions.h"
 #include "../utils/ArrayCirculator.h"
+#include "../utils/UnorderedMapCirculator.h"
 #include <unordered_map>
 
 class SimulatedTouchMouseMenu : public Menu
@@ -21,8 +22,10 @@ class SimulatedTouchMouseMenu : public Menu
         std::unordered_map<touch::SimulatedTouchMouseParameters, Text> textElements;
         ArrayCirculator<touch::SimulatedTouchMouseParameters, std::vector> selected;
         int16_t deadzoneRadius;
+        UnorderedMapCirculator<touch::SimulatedMouseBehaviour, std::string> behaviourCursor;
+        uint32_t doubleTapTime;
 
-        void PromptValueInput(touch::SimulatedTouchMouseParameters param);
+        void PromptValueInput(touch::SimulatedTouchMouseParameters param, int value);
 
         void UpdateUI(touch::SimulatedTouchMouseParameters param);
 

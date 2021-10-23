@@ -3,17 +3,17 @@
 #include "../system/SoftwareKeyboard.h"
 #include <switch.h>
 
-auto const simulatedTouchHelpText =
-"/!\\ This mode will only work for the primary display monitor /!\\\n\
-\n\
-Simulated Mouse mode allows the touch input to be interpreted as mouse input on the PC.\n\
+auto const simulatedTouchHelpText = 
+"Simulated Mouse mode allows the touch input to be interpreted as mouse input on the PC.\n\
 DeadzoneRadius = how far a finger has to travel to register movement.\n\
-\n\
-/!\\ This mode will only work for the primary display monitor /!\\\n";
+Behaviour = how the touch screen input maps to the mouse behaviour and position.\n\
+Double Tap Time = effects click and drag behaviour when quick touches occur.";
 
 SimulatedTouchMouseMenu::SimulatedTouchMouseMenu() : Menu(), helpText{},
-textElements{}, selected{touch::SimulatedTouchParamsList},
-deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius}
+    textElements{}, selected{touch::SimulatedTouchParamsList},
+    deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius},
+    behaviourCursor{touch::SimulatedMouseBehaviourParamsDesc},
+    doubleTapTime{touch::DefaultDoubleTapTime}
 {
     title.value = "Simulated Mouse Options";
     title.y += 150;
@@ -21,6 +21,8 @@ deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius}
     auto config = SimulatedMouseConfiguration{};
     auto savedData = config.Data();
     deadzoneRadius = savedData.deadzoneRadius;
+    cycleMap(behaviourCursor, savedData.behaviour);
+    doubleTapTime = savedData.doubleTapTime;
 
     helpText.y += 500;
     helpText.x = 30;
@@ -35,12 +37,14 @@ void SimulatedTouchMouseMenu::ProcessInput(PadState const & pad)
     auto kDown = padGetButtonsDown(&pad);
 
     if(kDown & HidNpadButton::HidNpadButton_Up)
-        ++selected;
-    else if (kDown & HidNpadButton::HidNpadButton_Down)
         --selected;
+    else if (kDown & HidNpadButton::HidNpadButton_Down)
+        ++selected;
 
     if(kDown & HidNpadButton::HidNpadButton_A)
-        PromptValueInput(*selected);
+        PromptValueInput(*selected, 1);
+    else if(kDown & HidNpadButton::HidNpadButton_B)
+        PromptValueInput(*selected, -1);
     
     UpdateUI(*selected);
 }
@@ -67,31 +71,81 @@ touch::SimulatedTouchConfig const SimulatedTouchMouseMenu::Settings() const
     auto config = touch::SimulatedTouchConfig{};
 
     config.deadzoneRadius = deadzoneRadius;
+    config.behaviour = behaviourCursor.KeyPair().first;
+    config.doubleTapTime = doubleTapTime;
 
     return config;
 }
 
-void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParameters param)
+void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParameters param, int value)
 {
     switch(param)
     {
         case touch::SimulatedTouchMouseParameters::DeadzoneRadius:
-            deadzoneRadius = KeyboardNumber(touch::MinSimulatedMouseDeadzoneRadius,
-                                            touch::MaxSimulatedMouseDeadzoneRadius,
-                                            deadzoneRadius);
-            break;
+        {
+            if(value <= 0)
+                deadzoneRadius = touch::DefaultSimulatedMouseDeadzoneRadius;
+            else
+            {
+                deadzoneRadius = KeyboardNumber(touch::MinSimulatedMouseDeadzoneRadius,
+                                                touch::MaxSimulatedMouseDeadzoneRadius,
+                                                deadzoneRadius);
+            }
+        }
+        break;
+
+        case touch::SimulatedTouchMouseParameters::Behaviour:
+        {
+            behaviourCursor += value;
+        }
+        break;
+
+        case touch::SimulatedTouchMouseParameters::DoubleTapTime:
+        {
+            if(value <= 0)
+                doubleTapTime = touch::DefaultDoubleTapTime;
+            else
+            {
+                auto const currentTime = timeutil::nanoToSecond(doubleTapTime);
+                auto const maxTime = timeutil::nanoToSecond(touch::MaxDoubleTapTime);
+                auto const minTime = timeutil::nanoToSecond(touch::MinDoubleTapTime);
+                auto const toggleTime = KeyboardDecimal(minTime, maxTime, currentTime);
+
+                doubleTapTime = timeutil::secondToNano(toggleTime);
+            }
+        }
+        break;
     }
 }
 
 void SimulatedTouchMouseMenu::UpdateUI(touch::SimulatedTouchMouseParameters param)
 {
     auto prefix = touch::SimulatedTouchParamsDesc.at(param);
+    auto updateElement = [&](auto str)
+    {
+        textElements[param].value = prefix + ": " + str;
+    };
+
     switch(param)
     {
         case touch::SimulatedTouchMouseParameters::DeadzoneRadius:
         {
             auto str = std::to_string(deadzoneRadius);
-            textElements[param].value = prefix + ": " + str;
+            updateElement(str);
+        }
+        break;
+
+        case touch::SimulatedTouchMouseParameters::Behaviour:
+        {
+            updateElement(*behaviourCursor);
+        }
+        break;
+
+        case touch::SimulatedTouchMouseParameters::DoubleTapTime:
+        {
+            auto seconds = timeutil::nanoToSecond(doubleTapTime);
+            auto str = std::to_string(seconds) + "s";
+            updateElement(str);
         }
         break;
     }

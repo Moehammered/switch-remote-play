@@ -1,4 +1,5 @@
 #include "SimulatedMouseOptions.h"
+#include <algorithm>
 
 namespace touch
 {
@@ -7,6 +8,11 @@ namespace touch
         auto values = std::unordered_map<SimulatedTouchMouseParameters, std::string>{};
 
         values[SimulatedTouchMouseParameters::DeadzoneRadius] = std::to_string(config.deadzoneRadius);
+        values[SimulatedTouchMouseParameters::Behaviour] = SimulatedMouseBehaviourToStr(config.behaviour);
+
+        auto const triggerTimeSeconds = timeutil::nanoToSecond(config.doubleTapTime);
+        auto secondsStr = std::to_string(triggerTimeSeconds);
+        values[SimulatedTouchMouseParameters::DoubleTapTime] = secondsStr;
 
         return values;
     }
@@ -25,6 +31,30 @@ namespace touch
         }
         else
             config.deadzoneRadius = DefaultSimulatedMouseDeadzoneRadius;
+
+        {
+            auto entry = map.find(SimulatedTouchMouseParameters::Behaviour);
+            if(entry != map.end())
+            {
+                auto behaviour = SimulatedMouseBehaviourFromStr(entry->second);
+                config.behaviour = behaviour;
+            }
+            else
+                config.behaviour = DefaultMouseBehaviour;
+        }
+
+        {
+            auto entry = map.find(SimulatedTouchMouseParameters::DoubleTapTime);
+            if(entry != map.end())
+            {
+                auto secondsStr = entry->second;
+                auto const seconds = std::atof(secondsStr.c_str());
+                auto const nanoseconds = (uint32_t)timeutil::secondToNano(seconds);
+                config.doubleTapTime = std::clamp(nanoseconds, MinDoubleTapTime, MaxDoubleTapTime);
+            }
+            else
+                config.doubleTapTime = DefaultDoubleTapTime;
+        }
 
         return config;
     }
