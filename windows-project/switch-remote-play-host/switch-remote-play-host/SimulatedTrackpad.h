@@ -4,21 +4,22 @@
 #include <unordered_map>
 #include "VirtualFinger.h"
 #include "VirtualMouse.h"
+#include "TouchInterface.h"
 
-class SimulatedTrackpad
+class SimulatedTrackpad : public TouchInterface
 {
 public:
-    SimulatedTrackpad(int deadzoneRadius, int32_t mouseSensitivity, double doubleTapTime);
+    SimulatedTrackpad(int deadzoneRadius, double mouseSensitivity, double doubleTapTime);
 
-    void Update(std::vector<VirtualFinger> const fingers);
-    void Release();
+    void Update(std::vector<VirtualFinger> const fingers) override;
+    void Release() override;
 
-    void Commit();
+    void Commit() override;
 
 private:
     int const deadzoneRadius;
     int const deadzoneMagSqr;
-    int32_t const mouseSensitivity;
+    double const mouseSensitivity;
     uint32_t const doubleTapNanoTime;
     bool moved;
 

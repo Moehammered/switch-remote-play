@@ -6,7 +6,7 @@
 
 namespace timeutil
 {
-    double constexpr secondToNanoRatio = 1000 * 1000 * 1000;
+    double constexpr secondToNanoRatio = 1000L * 1000L * 1000L;
 
     double constexpr nanoToSecond(uint64_t const nano)
     {

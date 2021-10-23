@@ -47,7 +47,7 @@ enum Command : int16_t
 
 constexpr int COMMAND_CODE_SIZE = sizeof(Command);
 
-auto constexpr PayloadPaddingSize = 256 - ENCODER_CONFIG_SIZE 
+auto constexpr PayloadPaddingSize = 264 - ENCODER_CONFIG_SIZE 
 - COMMAND_CODE_SIZE - controller::ControllerConfigSize
 - mouse::MouseConfigSize - touch::TouchConfigSize - keyboard::KeyboardConfigSize;
 struct alignas(8) CommandPayload
@@ -59,7 +59,7 @@ struct alignas(8) CommandPayload
     keyboard::KeyboardConfig        keyboardData;
     touch::TouchConfig              touchData;
     Command                         commandCode;
-    //fill the struct to pad it out to 256 bytes
+    //fill the struct to pad it out to 264 bytes
     int8_t                          padding[PayloadPaddingSize];
 };
 

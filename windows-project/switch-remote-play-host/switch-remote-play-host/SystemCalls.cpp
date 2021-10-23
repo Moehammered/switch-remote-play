@@ -2,6 +2,7 @@
 #include "SystemCalls.h"
 #include "VirtualController.h"
 #include <iostream>
+#include <sstream>
 
 MONITORINFOEX DefaultMonitorInfo()
 {
@@ -257,6 +258,65 @@ bool StartupTouchContext()
 	}
 
 	return result == TRUE;
+}
+
+std::string GetLastErrorAsString()
+{
+	//Get the error message ID, if any.
+	DWORD errorMessageID = ::GetLastError();
+	if (errorMessageID == 0) {
+		return std::string(); //No error message has been recorded
+	}
+
+	LPSTR messageBuffer = nullptr;
+
+	//Ask Win32 to give us the string version of that message ID.
+	//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
+	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+	//Copy the error message into a std::string.
+	std::string message(messageBuffer, size);
+
+	//Free the Win32's string's buffer.
+	LocalFree(messageBuffer);
+
+	return message;
+}
+
+std::string PointerFlagToStr(POINTER_FLAGS pointerFlags)
+{
+	auto ss = std::stringstream{};
+
+	auto map = std::unordered_map<POINTER_FLAGS, std::string>{
+		{ POINTER_FLAG_UPDATE, "pf_UPDATE" },
+		{ POINTER_FLAG_DOWN, "pf_DOWN" },
+		{ POINTER_FLAG_INRANGE, "pf_INRANGE" },
+		{ POINTER_FLAG_INCONTACT, "pf_INCONTACT" },
+		{ POINTER_FLAG_UP, "pf_UP" }
+	};
+
+	for (auto const& pair : map)
+	{
+		if (pair.first & pointerFlags)
+			ss << pair.second << " ";
+	}
+
+	return ss.str();
+}
+
+std::string CreateDiagnosticOutput(std::vector<POINTER_TOUCH_INFO> const& contacts)
+{
+	auto ss = std::stringstream{};
+
+	for (auto const& c : contacts)
+	{
+		ss << c.pointerInfo.pointerId << ":  ";
+		ss << "[ " << PointerFlagToStr(c.pointerInfo.pointerFlags) << "] ";
+		ss << "\n";
+	}
+
+	return ss.str();
 }
 
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")

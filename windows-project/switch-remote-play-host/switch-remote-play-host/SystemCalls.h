@@ -1,5 +1,7 @@
 #pragma once
 #include <WinUser.h>
+#include <vector>
+#include <string>
 #include "Broadcast.h"
 #include "Connection.h"
 
@@ -27,5 +29,11 @@ bool WinsockReady();
 bool VirtualControllerDriverAvailable();
 
 bool StartupTouchContext();
+
+std::string GetLastErrorAsString();
+
+std::string PointerFlagToStr(POINTER_FLAGS pointerFlags);
+
+std::string CreateDiagnosticOutput(std::vector<POINTER_TOUCH_INFO> const& contacts);
 
 void minimiseToTray(HWND hWnd);

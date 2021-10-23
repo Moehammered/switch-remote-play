@@ -14,14 +14,14 @@ deadzoneRadius{touch::DefaultVirtualTouchDeadzoneRadius},
 maxFingerCount{touch::DefaultMaxFingerCount}
 {
     title.value = "Virtual Touch Options";
-    title.y += 150;
+    title.y += 130;
 
     auto config = VirtualTouchConfiguration{};
     auto savedData = config.Data();
     deadzoneRadius = savedData.deadzoneRadius;
     maxFingerCount = savedData.maxFingerCount;
 
-    helpText.y += 500;
+    helpText.y += 520;
     helpText.x = 30;
     helpText.colour = { 255, 190, 90, 255 };
     helpText.value = virtualTouchHelpText;

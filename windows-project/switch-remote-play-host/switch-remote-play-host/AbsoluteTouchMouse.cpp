@@ -92,4 +92,3 @@ void AbsoluteTouchMouse::Commit()
 {
     mouse.Commit();
 }
-

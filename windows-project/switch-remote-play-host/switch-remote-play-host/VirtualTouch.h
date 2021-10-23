@@ -4,28 +4,24 @@
 #include <vector>
 #include <unordered_map>
 #include "VirtualFinger.h"
+#include "TouchInterface.h"
 
-class VirtualTouch
+class VirtualTouch : public TouchInterface
 {
 public:
     VirtualTouch(int deadzoneRadius, int radius);
 
-    void Press();
-    void Move(int x, int y);
-    void Press(std::vector<VirtualFinger> const fingers);
-    void Move(std::vector<VirtualFinger> const fingers);
-    void Release();
+    void Update(std::vector<VirtualFinger> const fingers) override;
+    void Release() override;
 
-    void Commit();
+    void Commit() override;
 
 private:
     int const deadzoneRadius;
-    int const deadzoneMagSqr;
+    long const deadzoneMagSqr;
     int const radius;
     std::unordered_map<uint32_t, POINTER_TOUCH_INFO> contacts;
     std::unordered_map<uint32_t, POINTER_TOUCH_INFO> released;
-
-    bool OutsideDeadzone(int x1, int y1, int x2, int y2);
 
     POINTER_TOUCH_INFO CreateContact(uint32_t id);
     void TrackMissing(std::vector<VirtualFinger> const& fingers);

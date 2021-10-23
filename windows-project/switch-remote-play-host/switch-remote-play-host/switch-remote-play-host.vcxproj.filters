@@ -330,6 +330,9 @@
     <ClInclude Include="SimulatedMouseBehaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TouchInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />

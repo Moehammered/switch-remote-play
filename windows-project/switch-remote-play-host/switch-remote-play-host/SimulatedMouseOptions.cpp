@@ -14,6 +14,8 @@ namespace touch
         auto secondsStr = std::to_string(triggerTimeSeconds);
         values[SimulatedTouchMouseParameters::DoubleTapTime] = secondsStr;
 
+        values[SimulatedTouchMouseParameters::TrackpadSensitivity] = std::to_string(config.trackpadSensitivityPercentage);
+
         return values;
     }
 
@@ -54,6 +56,18 @@ namespace touch
             }
             else
                 config.doubleTapTime = DefaultDoubleTapTime;
+        }
+
+        {
+            auto entry = map.find(SimulatedTouchMouseParameters::TrackpadSensitivity);
+            if (entry != map.end())
+            {
+                auto sensitivityStr = entry->second;
+                auto const sensitivity = (int16_t)std::atoi(sensitivityStr.c_str());
+                config.trackpadSensitivityPercentage = std::clamp(sensitivity, MinTrackpadSensitivityPercentage, MaxTrackpadSensitivityPercentage);
+            }
+            else
+                config.trackpadSensitivityPercentage = DefaultTrackpadSensitivityPercentage;
         }
 
         return config;

@@ -1,6 +1,7 @@
 #ifndef __ABSOLUTETOUCHMOUSE_H__
 #define __ABSOLUTETOUCHMOUSE_H__
 
+#include "TouchInterface.h"
 #include "VirtualFinger.h"
 #include "VirtualMouse.h"
 #include "Point.h"
@@ -8,16 +9,16 @@
 #include <stdint.h>
 #include <vector>
 
-class AbsoluteTouchMouse
+class AbsoluteTouchMouse : public TouchInterface
 {
 public:
     AbsoluteTouchMouse(int deadzoneRadius, double doubleTapTime,
                         VirtualDesktop desktopBounds);
 
-    void Update(std::vector<VirtualFinger> const fingers);
-    void Release();
+    void Update(std::vector<VirtualFinger> const fingers) override;
+    void Release() override;
 
-    void Commit();
+    void Commit() override;
 
 private:
     int const deadzoneRadius;

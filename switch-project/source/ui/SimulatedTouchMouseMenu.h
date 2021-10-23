@@ -24,6 +24,7 @@ class SimulatedTouchMouseMenu : public Menu
         int16_t deadzoneRadius;
         UnorderedMapCirculator<touch::SimulatedMouseBehaviour, std::string> behaviourCursor;
         uint32_t doubleTapTime;
+        int16_t trackpadSensitivity;
 
         void PromptValueInput(touch::SimulatedTouchMouseParameters param, int value);
 

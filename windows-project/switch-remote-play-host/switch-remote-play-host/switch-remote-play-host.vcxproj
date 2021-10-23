@@ -239,6 +239,7 @@
     <ClInclude Include="H264Options.h" />
     <ClInclude Include="HWAccel.h" />
     <ClInclude Include="Interpolation.h" />
+    <ClInclude Include="TouchInterface.h" />
     <ClInclude Include="KeyboardEnumUtil.h" />
     <ClInclude Include="KeyboardOptions.h" />
     <ClInclude Include="MappedDataConfiguration.h" />

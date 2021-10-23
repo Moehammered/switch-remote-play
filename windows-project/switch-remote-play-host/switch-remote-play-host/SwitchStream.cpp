@@ -51,6 +51,73 @@ namespace
         return bits;
     }
 
+    int const MaxFingerCount(touch::TouchConfig const config)
+    {
+        switch (config.touchMode)
+        {
+            case touch::TouchScreenMode::VirtualTouch:
+            {
+                auto const fingerCount = config.virtualTouchSettings.maxFingerCount;
+                return std::min<int>(fingerCount, touch::MaxFingerCount);
+            }
+
+            default:
+            case touch::TouchScreenMode::SimulatedMouse:
+                return touch::MaxFingerCount;
+        }
+    }
+
+    void CenterMouse(VirtualDesktop const desktop, DisplayDeviceInfo const targetDisplay)
+    {
+        auto center = Point<int64_t>{
+            targetDisplay.x + targetDisplay.width / 2,
+            targetDisplay.y + targetDisplay.height / 2
+        };
+
+        auto const virtualCoordinates = TransformCursorToVirtual(desktop, center);
+
+        auto mouse = VirtualMouse();
+        mouse.Move(SupportedMouseMovement::Absolute, (int)virtualCoordinates.x, (int)virtualCoordinates.y);
+        mouse.Commit();
+    }
+
+    std::unique_ptr<TouchInterface> createVirtualTouchInterface(touch::TouchConfig const touchConfig, VirtualDesktop const desktop)
+    {
+        using namespace std;
+
+        auto buildSimulatedMouse = [&]() -> unique_ptr<TouchInterface> 
+        {
+            auto const data = touchConfig.simulatedTouchMouseSettings;
+            auto doubleTapTime = timeutil::nanoToSecond(data.doubleTapTime);
+
+            switch (data.behaviour)
+            {
+                default:
+                case touch::SimulatedMouseBehaviour::Trackpad:
+                {
+                    auto const trackpadSensitivity = data.trackpadSensitivityPercentage / 100.0;
+                    return make_unique<SimulatedTrackpad>(data.deadzoneRadius, trackpadSensitivity, doubleTapTime);
+                }
+
+                case touch::SimulatedMouseBehaviour::Absolute:
+                    return make_unique<AbsoluteTouchMouse>(data.deadzoneRadius, doubleTapTime, desktop);
+            }
+        };
+
+        switch (touchConfig.touchMode)
+        {
+            default:
+            case touch::TouchScreenMode::VirtualTouch:
+            {
+                auto const data = touchConfig.virtualTouchSettings;
+                return make_unique<VirtualTouch>(data.deadzoneRadius, 2);
+            }
+
+            case touch::TouchScreenMode::SimulatedMouse:
+                return buildSimulatedMouse();
+        }
+    }
+
     std::vector<std::unique_ptr<IVirtualController>> createVirtualControllers(controller::ControllerConfig const controllerConfig,
         int count, int& failCount)
     {
@@ -334,24 +401,10 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 auto keyboardPollTime = 0;
                 auto mouse = VirtualMouse{};
                 auto mousePollTime = 0;
-                auto maxFingers = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
-                    ? touchConfig.virtualTouchSettings.maxFingerCount
-                    : touch::MaxFingerCount;
-                maxFingers = min(touch::MaxFingerCount, maxFingers);
-
-                auto deadzoneRad = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
-                    ? touchConfig.virtualTouchSettings.deadzoneRadius
-                    : touchConfig.simulatedTouchMouseSettings.deadzoneRadius;
-
-                auto doubleTapTime = timeutil::nanoToSecond(touchConfig.simulatedTouchMouseSettings.doubleTapTime);
-                auto touch = VirtualTouch(deadzoneRad, 2);
-                auto trackpad = SimulatedTrackpad(deadzoneRad, mouseConfig.mouseSensitivity, doubleTapTime);
-                auto absoluteMouse = AbsoluteTouchMouse(deadzoneRad, doubleTapTime, desktop);
-
-                auto const touchInterfaceType = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
-                                              ? 0 //0 - vtouch, otherwise...
-                : touchConfig.simulatedTouchMouseSettings.behaviour == touch::SimulatedMouseBehaviour::Trackpad 
-                    ? 1 : 2; //1 - trackpad, 2 - absolute mouse
+                CenterMouse(desktop, sessionDisplay);
+                
+                auto const maxFingers = MaxFingerCount(touchConfig);
+                auto touch = createVirtualTouchInterface(touchConfig, desktop);
                 
                 auto streamDead = killStream.load(memory_order_acquire);
                 gamepadActive.store(true, memory_order_release);
@@ -502,44 +555,13 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                                 fingers.back().x = x + sessionDisplay.x;
                                 fingers.back().y = y + sessionDisplay.y;
                             }
-                            switch (touchInterfaceType)
-                            {
-                            case 0:
-                                touch.Press(fingers);
-                                touch.Move(fingers);
-                                touch.Commit();
-                                break;
-
-                            case 1:
-                                trackpad.Update(fingers);
-                                trackpad.Commit();
-                                break;
-
-                            case 2:
-                                absoluteMouse.Update(fingers);
-                                absoluteMouse.Commit();
-                                break;
-                            }
+                            touch->Update(fingers);
+                            touch->Commit();
                         }
                         else
                         {
-                            switch (touchInterfaceType)
-                            {
-                            case 0:
-                                touch.Release();
-                                touch.Commit();
-                                break;
-
-                            case 1:
-                                trackpad.Release();
-                                trackpad.Commit();
-                                break;
-
-                            case 2:
-                                absoluteMouse.Release();
-                                absoluteMouse.Commit();
-                                break;
-                            }
+                            touch->Release();
+                            touch->Commit();
                         }
                         //testing touch stuff here
                     }
@@ -563,6 +585,9 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     controller->UpdateController();
                     controller->Disconnect();
                 }
+
+                touch->Release();
+                touch->Commit();
             }
         }
 

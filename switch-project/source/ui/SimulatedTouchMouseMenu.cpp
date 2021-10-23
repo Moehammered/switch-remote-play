@@ -13,18 +13,20 @@ SimulatedTouchMouseMenu::SimulatedTouchMouseMenu() : Menu(), helpText{},
     textElements{}, selected{touch::SimulatedTouchParamsList},
     deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius},
     behaviourCursor{touch::SimulatedMouseBehaviourParamsDesc},
-    doubleTapTime{touch::DefaultDoubleTapTime}
+    doubleTapTime{touch::DefaultDoubleTapTime},
+    trackpadSensitivity{touch::DefaultTrackpadSensitivityPercentage}
 {
     title.value = "Simulated Mouse Options";
-    title.y += 150;
+    title.y += 130;
 
     auto config = SimulatedMouseConfiguration{};
     auto savedData = config.Data();
     deadzoneRadius = savedData.deadzoneRadius;
     cycleMap(behaviourCursor, savedData.behaviour);
     doubleTapTime = savedData.doubleTapTime;
+    trackpadSensitivity = savedData.trackpadSensitivityPercentage;
 
-    helpText.y += 500;
+    helpText.y += 520;
     helpText.x = 30;
     helpText.colour = { 255, 190, 90, 255 };
     helpText.value = simulatedTouchHelpText;
@@ -73,6 +75,7 @@ touch::SimulatedTouchConfig const SimulatedTouchMouseMenu::Settings() const
     config.deadzoneRadius = deadzoneRadius;
     config.behaviour = behaviourCursor.KeyPair().first;
     config.doubleTapTime = doubleTapTime;
+    config.trackpadSensitivityPercentage = trackpadSensitivity;
 
     return config;
 }
@@ -115,6 +118,19 @@ void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParamet
             }
         }
         break;
+
+        case touch::SimulatedTouchMouseParameters::TrackpadSensitivityPercentage:
+        {
+            if(value <= 0)
+                trackpadSensitivity = touch::DefaultTrackpadSensitivityPercentage;
+            else
+            {
+                trackpadSensitivity = (int16_t)KeyboardNumber(touch::MinTrackpadSensitivityPercentage, 
+                                                                touch::MaxTrackpadSensitivityPercentage,
+                                                                trackpadSensitivity);
+            }
+        }
+        break;
     }
 }
 
@@ -145,6 +161,13 @@ void SimulatedTouchMouseMenu::UpdateUI(touch::SimulatedTouchMouseParameters para
         {
             auto seconds = timeutil::nanoToSecond(doubleTapTime);
             auto str = std::to_string(seconds) + "s";
+            updateElement(str);
+        }
+        break;
+
+        case touch::SimulatedTouchMouseParameters::TrackpadSensitivityPercentage:
+        {
+            auto str = std::to_string(trackpadSensitivity) + "%%";
             updateElement(str);
         }
         break;
