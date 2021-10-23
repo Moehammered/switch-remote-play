@@ -13,9 +13,7 @@ namespace
     }
 }
 
-AbsoluteTouchMouse::AbsoluteTouchMouse(int deadzoneRadius, double doubleTapTime,
-    int64_t sessionWidth, int64_t sessionHeight,
-    Point<int32_t> topLeft, Point<int32_t> bottomRight)
+AbsoluteTouchMouse::AbsoluteTouchMouse(int deadzoneRadius, double doubleTapTime, VirtualDesktop desktopBounds)
     : deadzoneRadius{ deadzoneRadius },
     deadzoneRadiusSqr{ deadzoneRadius * deadzoneRadius },
     doubleTapNanoTime{ (uint32_t)timeutil::secondToNano(doubleTapTime) },
@@ -24,10 +22,7 @@ AbsoluteTouchMouse::AbsoluteTouchMouse(int deadzoneRadius, double doubleTapTime,
     mouse{},
     lastInitialFinger{},
     lastFingerCount{ 0 },
-    topLeft{ topLeft },
-    bottomRight{ bottomRight },
-    sessionWidth{ sessionWidth },
-    sessionHeight{ sessionHeight }
+    desktop{desktopBounds}
 {
     lastInitialFinger.id = UINT32_MAX;
     doubleTapTimestamp = nowNanoseconds();
@@ -42,23 +37,16 @@ void AbsoluteTouchMouse::Update(std::vector<VirtualFinger> const fingers)
         auto const& firstFinger = fingers[0];
         if (lastInitialFinger.id != UINT32_MAX && lastInitialFinger.id == firstFinger.id)
         {
-            auto lastPoint = Point<int64_t>{ lastInitialFinger.x, lastInitialFinger.y };
-            auto currentPoint = Point<int64_t>{ firstFinger.x, firstFinger.y };
+            auto const lastPoint = Point<int64_t>{ lastInitialFinger.x, lastInitialFinger.y };
+            auto const currentPoint = Point<int64_t>{ firstFinger.x, firstFinger.y };
             if (outsideDeadzoneSqr(deadzoneRadiusSqr, lastPoint, currentPoint))
             {
                 if (delta <= doubleTapNanoTime)
                     mouse.Press(SupportedMouseButtons::Left);
 
-                auto const normalisedX = currentPoint.x / (double)sessionWidth;
-                auto const normalisedY = currentPoint.y / (double)sessionHeight;
+                auto const virtualCoordinates = TransformCursorToVirtual(desktop, currentPoint);
 
-                auto const deltaX = normalisedX * bottomRight.x;
-                auto const deltaY = normalisedY * bottomRight.y;
-
-                auto const absoluteX = (int)(topLeft.x + deltaX);
-                auto const absoluteY = (int)(topLeft.y + deltaY);
-
-                mouse.Move(SupportedMouseMovement::Absolute, absoluteX, absoluteY);
+                mouse.Move(SupportedMouseMovement::Absolute, (int)virtualCoordinates.x, (int)virtualCoordinates.y);
                 lastInitialFinger = firstFinger;
                 moved = true;
             }

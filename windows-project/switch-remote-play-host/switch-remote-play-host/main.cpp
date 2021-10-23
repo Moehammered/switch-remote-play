@@ -19,8 +19,9 @@
 #include "FfmpegOutputConfiguration.h"
 #include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
+#include "VirtualDesktop.h"
 
-auto constexpr applicationVersion = "0.9.8";
+auto constexpr applicationVersion = "0.9.9";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -282,7 +283,11 @@ int main(int argc, char* argv[])
                     if (switchHandshakeConnection != nullptr)
                         switchHandshakeConnection->Shutdown();
 
+                    auto tempService = DisplayDeviceService{};
+                    auto virtualDesktop = MapVirtualDesktop(tempService.ActiveDisplays(), 65535, 65535);
+
                     gamepadThread = StartGamepadListener(currentDisplay,
+                        virtualDesktop,
                         encoderConfigData.commonSettings.switchResolution,
                         lastPayload.controllerData,
                         lastPayload.mouseData,

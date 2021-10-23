@@ -13,6 +13,8 @@
 #include "FFMPEGHelper.h"
 #include "WSAHelper.h"
 #include "KeyboardEnumUtil.h"
+#include "DisplayDeviceService.h"
+#include "VirtualDesktop.h"
 #include <memory>
 #include <chrono>
 #include <algorithm>
@@ -261,15 +263,17 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 
 //session resolution needed to clamp and normalise simulated absolute mouse movement
 std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
-    Resolution switchResolution,
-    controller::ControllerConfig controllerConfig, 
-    mouse::MouseConfig mouseConfig,
-    keyboard::KeyboardConfig keyboardConfig,
-    touch::TouchConfig touchConfig,
+    VirtualDesktop const desktop,
+    Resolution const switchResolution,
+    controller::ControllerConfig const controllerConfig, 
+    mouse::MouseConfig const mouseConfig,
+    keyboard::KeyboardConfig const keyboardConfig,
+    touch::TouchConfig const touchConfig,
     std::atomic_bool& killStream, 
     std::atomic_bool& gamepadActive, 
-    uint16_t gamepadPort)
+    uint16_t const gamepadPort)
 {
+    //load displays and calc virtual desktop
     using namespace std;
     thread workerThread{};
 
@@ -341,14 +345,10 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
 
                 auto touch = VirtualTouch(deadzoneRad, 2);
                 auto trackpad = SimulatedTrackpad(deadzoneRad, mouseConfig.mouseSensitivity, 0.2);
-                auto absoluteMouse = AbsoluteTouchMouse(deadzoneRad, 0.2, 
-                                                        sessionDisplay.width, 
-                                                        sessionDisplay.height,
-                                                        PrimaryMonitorTopLeft,
-                                                        PrimaryMonitorBottomRight);
+                auto absoluteMouse = AbsoluteTouchMouse(deadzoneRad, 0.3, desktop);
 
                 auto const touchInterfaceType = touchConfig.touchMode == touch::TouchScreenMode::VirtualTouch
-                                              ? 0 : 1; //0 - vtouch, 1 - trackpad, 2 - absolute mouse
+                                              ? 0 : 2; //0 - vtouch, 1 - trackpad, 2 - absolute mouse
                 
                 auto streamDead = killStream.load(memory_order_acquire);
                 gamepadActive.store(true, memory_order_release);
