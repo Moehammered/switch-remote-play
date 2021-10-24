@@ -1,9 +1,9 @@
 #ifndef __NETWORKCONFIGURATION_H__
 #define __NETWORKCONFIGURATION_H__
 
-#include <string>
 #include "NetworkOptions.h"
-#include "MappedDataConfiguration.h"
+#include "srp/utils/MappedDataConfiguration.h"
+#include <string>
 
 class NetworkConfiguration
 {

@@ -1,7 +1,5 @@
 #include "SwitchStream.h"
 
-#include <processthreadsapi.h>
-#include "SwitchControlsDefinitions.h"
 #include "X360Controller.h"
 #include "DS4Controller.h"
 #include "VirtualMouse.h"
@@ -15,6 +13,8 @@
 #include "KeyboardEnumUtil.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
+#include "srp/controller/SwitchHidDefinition.h"
+#include <processthreadsapi.h>
 #include <memory>
 #include <chrono>
 #include <algorithm>
@@ -58,12 +58,12 @@ namespace
             case touch::TouchScreenMode::VirtualTouch:
             {
                 auto const fingerCount = config.virtualTouchSettings.maxFingerCount;
-                return std::min<int>(fingerCount, touch::MaxFingerCount);
+                return std::min<int>(fingerCount, touch::maxFingerCount);
             }
 
             default:
             case touch::TouchScreenMode::SimulatedMouse:
-                return touch::MaxFingerCount;
+                return touch::maxFingerCount;
         }
     }
 
@@ -122,7 +122,7 @@ namespace
         int count, int& failCount)
     {
         using namespace std;
-        auto controllerCount = clamp(controllerConfig.controllerCount, controller::MinControllerCount, controller::MaxControllerCount);
+        auto controllerCount = clamp(controllerConfig.controllerCount, controller::minControllerCount, controller::maxControllerCount);
         auto controllers = vector<unique_ptr<IVirtualController>>(controllerCount);
         
         for (auto& controller : controllers)
@@ -299,7 +299,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 {
     using namespace std;
 
-    cout << "Expected size of command payload: " << COMMAND_PAYLOAD_SIZE << " bytes" << endl;
+    cout << "Expected size of command payload: " << commandPayloadSize << " bytes" << endl;
 
     CommandPayload data{};
     char* readBuffer = (char*)(&data);
@@ -309,7 +309,7 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
 
     do
     {
-        auto result = recv(switchSocket, readBuffer, COMMAND_PAYLOAD_SIZE, 0);
+        auto result = recv(switchSocket, readBuffer, commandPayloadSize, 0);
         if (result == SOCKET_ERROR)
         {
             cout << "Failed to receive data" << endl;
@@ -443,7 +443,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                     auto bytesRead = 0;
                     do
                     {
-                        auto received = recv(connection.ConnectedSocket(), inputDataBuffer + bytesRead, InputDataPayloadSize - bytesRead, 0);
+                        auto received = recv(connection.ConnectedSocket(), inputDataBuffer + bytesRead, inputDataPayloadSize - bytesRead, 0);
                         if (received == SOCKET_ERROR || received == 0)
                         {
                             bytesRead = received;
@@ -451,7 +451,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                         }
                         else
                             bytesRead += received;
-                    } while (bytesRead < InputDataPayloadSize);
+                    } while (bytesRead < inputDataPayloadSize);
 
                     currentFrameTime = chrono::high_resolution_clock::now();
                     auto deltaTime = currentFrameTime - lastFrameTime;
@@ -469,7 +469,7 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                             streamDead = true;
                         }
                     }
-                    else if (bytesRead == InputDataPayloadSize)
+                    else if (bytesRead == inputDataPayloadSize)
                     {
                         if (firstGamepad.keys == 0xFFFF)
                         {

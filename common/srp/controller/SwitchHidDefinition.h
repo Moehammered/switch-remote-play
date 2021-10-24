@@ -8,6 +8,13 @@ extern "C"
 }
 #else
 #include <stdint.h>
+
+typedef struct HidVector {
+    float x;
+    float y;
+    float z;
+} HidVector;
+
 uint32_t constexpr BIT(uint32_t const position)
 {
     return 1 << position;

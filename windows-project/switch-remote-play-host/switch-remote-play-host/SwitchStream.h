@@ -5,7 +5,7 @@
 #include <string>
 #include <thread>
 #include <atomic>
-#include "NetworkData.h"
+#include "srp/network/NetworkData.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
 

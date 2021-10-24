@@ -3,7 +3,7 @@
 
 #include <string>
 #include "FfmpegOutputOptions.h"
-#include "MappedDataConfiguration.h"
+#include "srp/utils/MappedDataConfiguration.h"
 
 class FfmpegOutputConfiguration
 {

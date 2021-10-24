@@ -10,19 +10,10 @@
     <ClCompile Include="Connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ControllerButtonMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ControllerMode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DS4Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FFMPEGHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HWAccel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -31,19 +22,10 @@
     <ClCompile Include="MasterVolume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Resolution.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SwitchStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SystemCalls.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoCodecMode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VsyncMode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="X360Controller.cpp">
@@ -61,31 +43,7 @@
     <ClCompile Include="WSAHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ControllerOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SwitchButtons.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GenericOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoCodec.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="H264Options.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="h264amfEnums.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="h264amfOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FfmpegArgParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ControllerAnalogMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VirtualMouse.cpp">
@@ -100,22 +58,7 @@
     <ClCompile Include="VirtualTouchMouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MouseOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TouchOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulatedMouseOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VirtualTouchOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VirtualKeyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Configuration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FfmpegOutputOptions.cpp">
@@ -128,9 +71,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NetworkConfiguration.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyboardOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyboardEnumUtil.cpp">
@@ -148,8 +88,122 @@
     <ClCompile Include="VirtualDesktop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimulatedMouseBehaviour.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\common\srp\codec\general\GenericCodec.cpp">
+      <Filter>Common Files\srp\codec\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\general\GenericCodecConfiguration.cpp">
+      <Filter>Common Files\srp\codec\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\general\GenericOptions.cpp">
+      <Filter>Common Files\srp\codec\general</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264\H264Codec.cpp">
+      <Filter>Common Files\srp\codec\h264</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264\H264Configuration.cpp">
+      <Filter>Common Files\srp\codec\h264</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264\H264Options.cpp">
+      <Filter>Common Files\srp\codec\h264</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\H264AmfCodec.cpp">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\H264AmfConfiguration.cpp">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\h264AmfEnums.cpp">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\h264AmfOptions.cpp">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerAnalogMap.cpp">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerButtonMap.cpp">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerConfiguration.cpp">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerMode.cpp">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerOptions.cpp">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\controller\SwitchButtons.cpp">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderAccel.cpp">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderConfiguration.cpp">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderFlag.cpp">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderOptions.cpp">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\decoder\DiscardType.cpp">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\decoder\ThreadType.cpp">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\HWAccel.cpp">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\Resolution.cpp">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\VideoCodec.cpp">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\VsyncMode.cpp">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\keyboard\KeyboardConfiguration.cpp">
+      <Filter>Common Files\srp\keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\keyboard\KeyboardOptions.cpp">
+      <Filter>Common Files\srp\keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\mouse\MouseConfiguration.cpp">
+      <Filter>Common Files\srp\mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\mouse\MouseOptions.cpp">
+      <Filter>Common Files\srp\mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\SimulatedMouseBehaviour.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\SimulatedMouseConfiguration.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\SimulatedMouseOptions.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\TouchConfiguration.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\TouchOptions.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\VirtualTouchConfiguration.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\touch\VirtualTouchOptions.cpp">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\utils\Configuration.cpp">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\utils\FlagMapUtils.cpp">
+      <Filter>Common Files\srp\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -162,25 +216,10 @@
     <ClInclude Include="Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ControllerMode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FFMPEGHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ControllerButtonMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HWAccel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MasterVolume.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resolution.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SwitchStream.h">
@@ -189,20 +228,11 @@
     <ClInclude Include="SystemCalls.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VideoCodecMode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VirtualController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VsyncMode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SwitchControlsDefinitions.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="X360Controller.h">
       <Filter>Header Files</Filter>
@@ -219,34 +249,7 @@
     <ClInclude Include="WSAHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ControllerOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SwitchButtons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnumMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GenericOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoCodec.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H264Options.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="h264amfEnums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="h264amfOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FfmpegArgParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ControllerAnalogMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VirtualMouse.h">
@@ -267,28 +270,7 @@
     <ClInclude Include="DeadzoneUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MouseOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TouchOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulatedMouseOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VirtualTouchOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VirtualKeyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Configuration.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MappedDataConfiguration.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FfmpegOutputOptions.h">
@@ -303,13 +285,7 @@
     <ClInclude Include="NetworkConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KeyboardOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KeyboardEnumUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimulatedTrackpad.h">
@@ -327,11 +303,152 @@
     <ClInclude Include="VirtualDesktop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulatedMouseBehaviour.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TouchInterface.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\general\GenericCodec.h">
+      <Filter>Common Files\srp\codec\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\general\GenericCodecConfiguration.h">
+      <Filter>Common Files\srp\codec\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\general\GenericOptions.h">
+      <Filter>Common Files\srp\codec\general</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264\H264Codec.h">
+      <Filter>Common Files\srp\codec\h264</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264\H264Configuration.h">
+      <Filter>Common Files\srp\codec\h264</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264\H264Options.h">
+      <Filter>Common Files\srp\codec\h264</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\H264AmfCodec.h">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\H264AmfConfiguration.h">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\h264AmfEnums.h">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\h264AmfOptions.h">
+      <Filter>Common Files\srp\codec\h264_amf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerAnalogMap.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerButtonMap.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerConfiguration.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerMode.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerOptions.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\SwitchButtons.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\controller\SwitchHidDefinition.h">
+      <Filter>Common Files\srp\controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderAccel.h">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderConfiguration.h">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderFlag.h">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderOptions.h">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\decoder\DiscardType.h">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\decoder\ThreadType.h">
+      <Filter>Common Files\srp\decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\HWAccel.h">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\Resolution.h">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\VideoCodec.h">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\VsyncMode.h">
+      <Filter>Common Files\srp\ffmpegHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\keyboard\KeyboardConfiguration.h">
+      <Filter>Common Files\srp\keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\keyboard\KeyboardOptions.h">
+      <Filter>Common Files\srp\keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\mouse\MouseConfiguration.h">
+      <Filter>Common Files\srp\mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\mouse\MouseOptions.h">
+      <Filter>Common Files\srp\mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\network\NetworkData.h">
+      <Filter>Common Files\srp\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\SimulatedMouseBehaviour.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\SimulatedMouseConfiguration.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\SimulatedMouseOptions.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\TouchConfiguration.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\TouchOptions.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\VirtualTouchConfiguration.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\touch\VirtualTouchOptions.h">
+      <Filter>Common Files\srp\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\ArrayCirculator.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\Configuration.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\EnumMapper.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\FlagMapUtils.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\MappedDataConfiguration.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\RangedIterator.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\StringUtils.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\TimeUtil.h">
+      <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\srp\utils\UnorderedMapCirculator.h">
+      <Filter>Common Files\srp\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -355,6 +472,48 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{f5a6af4c-fdf6-4653-afec-d5c390151fd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files">
+      <UniqueIdentifier>{d17db9b5-32a6-4843-b9aa-d93e88cf5ba8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp">
+      <UniqueIdentifier>{efab8569-4e76-49d9-ba5f-9e88573412d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\codec">
+      <UniqueIdentifier>{63b1fdfa-799d-47be-8cd1-57df30b1060b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\codec\general">
+      <UniqueIdentifier>{6bfa72ea-60a3-408e-ad55-019d7ea7fb9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\codec\h264">
+      <UniqueIdentifier>{49e1b595-616e-46a2-8e64-8bcc46bbc9b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\codec\h264_amf">
+      <UniqueIdentifier>{6ccb1bbe-73d4-48b5-b1d1-7f4c41d85efb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\controller">
+      <UniqueIdentifier>{90c6b51e-7149-4cd6-9ead-c28f8d4439f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\decoder">
+      <UniqueIdentifier>{76d5f8bc-74b9-4b59-8b17-c89ca1751c62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\ffmpegHelpers">
+      <UniqueIdentifier>{668533a1-bb7b-4e1f-8676-3df796d8a445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\keyboard">
+      <UniqueIdentifier>{28014028-5e7f-4162-8e6c-faf09d11ba81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\mouse">
+      <UniqueIdentifier>{ed816952-f018-4aca-8a10-f0046063243a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\network">
+      <UniqueIdentifier>{e6043b89-23da-4cc5-944d-64ae725ee401}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\touch">
+      <UniqueIdentifier>{78a3b061-fd70-4c36-9291-02db748297c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Files\srp\utils">
+      <UniqueIdentifier>{ca75d674-10c6-4298-8057-9aa814c6092e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

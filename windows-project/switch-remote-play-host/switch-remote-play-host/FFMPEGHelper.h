@@ -1,9 +1,9 @@
 #pragma once
 
-#include "NetworkData.h"
 #include <string>
 #include <windows.h>
 #include <processthreadsapi.h>
+#include "srp/network/NetworkData.h"
 #include "DisplayDeviceService.h"
 
 void SetParentDirectory(std::string path);

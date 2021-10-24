@@ -1,14 +1,10 @@
 #ifndef __DECODEROPTIONS_H__
 #define __DECODEROPTIONS_H__
 
+#include "AVCodecDefinitions.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-}
 
 enum class DecoderParameters
 {

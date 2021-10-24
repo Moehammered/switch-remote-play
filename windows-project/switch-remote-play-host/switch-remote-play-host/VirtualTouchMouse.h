@@ -1,6 +1,6 @@
 #pragma once
 #include "VirtualMouse.h"
-#include "Resolution.h"
+#include "srp/ffmpegHelpers/Resolution.h"
 #include "VirtualFinger.h"
 
 class VirtualTouchMouse

@@ -1,13 +1,10 @@
 #ifndef __DECODERFLAG_H__
 #define __DECODERFLAG_H__
 
+#include "AVCodecDefinitions.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-}
 
 namespace decoder
 {

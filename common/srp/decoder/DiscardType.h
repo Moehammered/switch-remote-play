@@ -1,13 +1,9 @@
 #ifndef __DISCARDTYPE_H__
 #define __DISCARDTYPE_H__
 
+#include "AVCodecDefinitions.h"
 #include <unordered_map>
 #include <string>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-}
 
 namespace decoder
 {

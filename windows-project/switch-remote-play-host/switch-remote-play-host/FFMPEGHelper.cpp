@@ -1,8 +1,8 @@
 #include "FFMPEGHelper.h"
+#include "FfmpegArgParser.h"
+#include "srp/utils/Configuration.h"
 #include <iostream>
 #include <sstream>
-#include "Configuration.h"
-#include "FfmpegArgParser.h"
 
 std::string parentDirectory{};
 std::string ffmpegPath{};
@@ -137,19 +137,19 @@ std::string ConfigToString(EncoderConfig const config)
     auto vsyncText = "";
     switch (config.commonSettings.vsyncMode)
     {
-    case VsyncMode::VSYNC_PASSTHROUGH:
+    case ffmpeg::VsyncMode::Passthrough:
         vsyncText = "passthrough"; //each frame is passed to the muxer
         break;
-    case VsyncMode::CONSTANT_FPS:
+    case ffmpeg::VsyncMode::ConstantFps:
         vsyncText = "constant frame rate"; //constant fps
         break;
-    case VsyncMode::VARIABLE_FPS:
+    case ffmpeg::VsyncMode::VariableFps:
         vsyncText = "variable frame rate"; //variable fps (prevent duplicate frames)
         break;
-    case VsyncMode::VSYNC_DROP_TIME:
+    case ffmpeg::VsyncMode::DropTime:
         vsyncText = "drop duplicate frames"; //same as passthrough, but removes timestamps
         break;
-    case VsyncMode::VSYNC_AUTO:
+    case ffmpeg::VsyncMode::Auto:
         vsyncText = "auto"; //automatically choose between 1 or 2
         break;
     default:
@@ -164,8 +164,8 @@ std::string ConfigToString(EncoderConfig const config)
     args << "Target Framerate: " << config.commonSettings.desiredFrameRate << " fps" << endl;
     args << "Video Capture Size(x,y): " << desktopRes.width << ", " << desktopRes.height << endl;
     args << "Stream Scale Size(x,y): " << switchRes.width << ", " << switchRes.height << endl;
-    args << "Preset: " << h264::EncoderPresetToStr(config.cpuSettings.Preset) << endl;
-    args << "CRF: " << config.cpuSettings.ConstantRateFactor << endl;
+    args << "Preset: " << h264::encoderPresetToStr(config.cpuSettings.preset) << endl;
+    args << "CRF: " << config.cpuSettings.constantRateFactor << endl;
     //args << "Target Stream Bitrate: " << config.bitrateKB << " kb/s" << endl;
 
     return args.str();

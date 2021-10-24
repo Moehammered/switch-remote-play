@@ -7,19 +7,19 @@ FfmpegArgParser::FfmpegArgParser(EncoderConfig const conf, DisplayDeviceInfo con
 	commonArgs = ParseCommon(config.commonSettings, display);
     switch (config.commonSettings.videoCodec)
     {
-    case VideoCodec::H264:
+    case ffmpeg::VideoCodec::H264:
         encoderArgs = ParseCpuSettings(config.cpuSettings);
         break;
 
-    case VideoCodec::H264_AMF:
+    case ffmpeg::VideoCodec::H264_AMF:
         encoderArgs = ParseAmdSettings(config.amdSettings);
         break;
 
-    case VideoCodec::H264_QSV:
+    case ffmpeg::VideoCodec::H264_QSV:
         encoderArgs = "Unsupported";
         break;
 
-    case VideoCodec::H264_NVENC:
+    case ffmpeg::VideoCodec::H264_NVENC:
         encoderArgs = "Unsupported";
         break;
     }
@@ -40,13 +40,13 @@ std::string const FfmpegArgParser::CompleteArgs()
     return commonArgs + encoderArgs;
 }
 
-std::string const FfmpegArgParser::ParseCommon(VideoData const& data, DisplayDeviceInfo const display)
+std::string const FfmpegArgParser::ParseCommon(codec::VideoData const& data, DisplayDeviceInfo const display)
 {
     auto vsync = ParseVsyncMode(data.vsyncMode);
-    auto hwaccel = HWAccelModeToStr(data.hwaccelMode);
-    auto desktopRes = ResolutionToString(data.desktopResolution);
-    auto switchRes = ResolutionToString(data.switchResolution);
-    auto codec = VideoCodecToStr(data.videoCodec);
+    auto hwaccel = ffmpeg::hwAccelModeToStr(data.hwaccelMode);
+    auto desktopRes = resolutionToString(data.desktopResolution);
+    auto switchRes = resolutionToString(data.switchResolution);
+    auto codec = ffmpeg::videoCodecToStr(data.videoCodec);
     auto bitrate = std::to_string(data.bitrateKB) + "k";
 
     auto ss = std::stringstream{};
@@ -66,19 +66,19 @@ std::string const FfmpegArgParser::ParseCommon(VideoData const& data, DisplayDev
     return ss.str();
 }
 
-std::string const FfmpegArgParser::ParseVsyncMode(VsyncMode mode)
+std::string const FfmpegArgParser::ParseVsyncMode(ffmpeg::VsyncMode mode)
 {
 	switch (mode)
 	{
-    case VsyncMode::VSYNC_PASSTHROUGH:
+    case ffmpeg::VsyncMode::Passthrough:
         return "passthrough"; //each frame is passed to the muxer
-    case VsyncMode::CONSTANT_FPS:
+    case ffmpeg::VsyncMode::ConstantFps:
         return "cfr"; //constant fps
-    case VsyncMode::VARIABLE_FPS:
+    case ffmpeg::VsyncMode::VariableFps:
         return "vfr"; //variable fps (prevent duplicate frames)
-    case VsyncMode::VSYNC_DROP_TIME:
+    case ffmpeg::VsyncMode::DropTime:
         return "drop"; //same as passthrough, but removes timestamps
-    case VsyncMode::VSYNC_AUTO:
+    case ffmpeg::VsyncMode::Auto:
         return "-1"; //automatically choose between 1 or 2
     default:
         return "vfr";
@@ -100,15 +100,15 @@ std::string const FfmpegArgParser::ParseCpuSettings(h264::H264Data const& data)
         }
     };
 
-    auto preset = h264::EncoderPresetToStr(data.Preset);
-    auto bitrateMode = parseBitrateMode(data.BitrateMode);
-    auto profile = h264::EncoderProfileToStr(data.Profile);
+    auto preset = h264::encoderPresetToStr(data.preset);
+    auto bitrateMode = parseBitrateMode(data.bitrateMode);
+    auto profile = h264::encoderProfileToStr(data.profile);
 
     auto ss = std::stringstream{};
 
     ss << "-preset " << preset << " ";
-    ss << "-crf " << data.ConstantRateFactor << " ";
-    if(data.ConstantRateFactor != 0)
+    ss << "-crf " << data.constantRateFactor << " ";
+    if(data.constantRateFactor != 0)
         ss << "-profile:v " << profile << " ";
     ss << "-tune zerolatency -pix_fmt yuv420p ";
     
@@ -117,23 +117,23 @@ std::string const FfmpegArgParser::ParseCpuSettings(h264::H264Data const& data)
     return ss.str();
 }
 
-std::string const FfmpegArgParser::ParseAmdSettings(h264amf::H264AMFData const& data)
+std::string const FfmpegArgParser::ParseAmdSettings(h264amf::H264AmfData const& data)
 {
-    auto parseRateControl = [](h264amf::H264AMF_RATECONTROL rate)
+    auto parseRateControl = [](h264amf::H264AmfRateControl rate)
     {
         switch (rate)
         {
         default:
-        case h264amf::H264AMF_RATECONTROL::CQP:
+        case h264amf::H264AmfRateControl::CQP:
             return "cqp";
 
-        case h264amf::H264AMF_RATECONTROL::CBR:
+        case h264amf::H264AmfRateControl::CBR:
             return "cbr";
 
-        case h264amf::H264AMF_RATECONTROL::VBR_PEAK:
+        case h264amf::H264AmfRateControl::VBR_Peak:
             return "vbr_peak";
 
-        case h264amf::H264AMF_RATECONTROL::VBR_LATENCY:
+        case h264amf::H264AmfRateControl::VBR_Latency:
             return "vbr_latency";
         }
     };

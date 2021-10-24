@@ -96,6 +96,7 @@
       <DisableSpecificWarnings>26812;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\Users\Moehammered\source\repos\switch-remote-play\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,6 +116,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\Users\Moehammered\source\repos\switch-remote-play\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,6 +136,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\Users\Moehammered\source\repos\switch-remote-play\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,6 +156,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\Users\Moehammered\source\repos\switch-remote-play\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,15 +168,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\common\srp\codec\general\GenericCodec.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\general\GenericCodecConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\general\GenericOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264\H264Codec.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264\H264Configuration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264\H264Options.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\H264AmfCodec.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\H264AmfConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\h264AmfEnums.cpp" />
+    <ClCompile Include="..\..\..\common\srp\codec\h264_amf\h264AmfOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerAnalogMap.cpp" />
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerButtonMap.cpp" />
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerMode.cpp" />
+    <ClCompile Include="..\..\..\common\srp\controller\ControllerOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\controller\SwitchButtons.cpp" />
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderAccel.cpp" />
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderFlag.cpp" />
+    <ClCompile Include="..\..\..\common\srp\decoder\DecoderOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\decoder\DiscardType.cpp" />
+    <ClCompile Include="..\..\..\common\srp\decoder\ThreadType.cpp" />
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\HWAccel.cpp" />
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\Resolution.cpp" />
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\VideoCodec.cpp" />
+    <ClCompile Include="..\..\..\common\srp\ffmpegHelpers\VsyncMode.cpp" />
+    <ClCompile Include="..\..\..\common\srp\keyboard\KeyboardConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\keyboard\KeyboardOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\mouse\MouseConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\mouse\MouseOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\SimulatedMouseBehaviour.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\SimulatedMouseConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\SimulatedMouseOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\TouchConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\TouchOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\VirtualTouchConfiguration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\touch\VirtualTouchOptions.cpp" />
+    <ClCompile Include="..\..\..\common\srp\utils\Configuration.cpp" />
+    <ClCompile Include="..\..\..\common\srp\utils\FlagMapUtils.cpp" />
     <ClCompile Include="AbsoluteTouchMouse.cpp" />
     <ClCompile Include="AtomicTest.cpp" />
     <ClCompile Include="Broadcast.cpp" />
-    <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="ControllerAnalogMap.cpp" />
-    <ClCompile Include="ControllerButtonMap.cpp" />
-    <ClCompile Include="ControllerMode.cpp" />
-    <ClCompile Include="ControllerOptions.cpp" />
     <ClCompile Include="DisplayDeviceService.cpp" />
     <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="FfmpegArgParser.cpp" />
@@ -180,91 +218,98 @@
     <ClCompile Include="FfmpegOutputConfiguration.cpp" />
     <ClCompile Include="FfmpegOutputOptions.cpp" />
     <ClCompile Include="FileOperations.cpp" />
-    <ClCompile Include="GenericOptions.cpp" />
-    <ClCompile Include="h264amfEnums.cpp" />
-    <ClCompile Include="h264amfOptions.cpp" />
-    <ClCompile Include="H264Options.cpp" />
-    <ClCompile Include="HWAccel.cpp" />
     <ClCompile Include="KeyboardEnumUtil.cpp" />
-    <ClCompile Include="KeyboardOptions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
-    <ClCompile Include="MouseOptions.cpp" />
     <ClCompile Include="NetworkAdapter.cpp" />
     <ClCompile Include="NetworkConfiguration.cpp" />
     <ClCompile Include="NetworkOptions.cpp" />
-    <ClCompile Include="Resolution.cpp" />
-    <ClCompile Include="SimulatedMouseBehaviour.cpp" />
-    <ClCompile Include="SimulatedMouseOptions.cpp" />
     <ClCompile Include="SimulatedTrackpad.cpp" />
     <ClCompile Include="DeadzoneUtility.cpp" />
-    <ClCompile Include="SwitchButtons.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
-    <ClCompile Include="TouchOptions.cpp" />
-    <ClCompile Include="VideoCodec.cpp" />
     <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VirtualDesktop.cpp" />
     <ClCompile Include="VirtualKeyboard.cpp" />
     <ClCompile Include="VirtualMouse.cpp" />
     <ClCompile Include="VirtualTouch.cpp" />
     <ClCompile Include="VirtualTouchMouse.cpp" />
-    <ClCompile Include="VirtualTouchOptions.cpp" />
     <ClCompile Include="WSAHelper.cpp" />
     <ClCompile Include="X360Controller.cpp" />
-    <ClCompile Include="VideoCodecMode.cpp" />
-    <ClCompile Include="VsyncMode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\common\srp\codec\general\GenericCodec.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\general\GenericCodecConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\general\GenericOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264\H264Codec.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264\H264Configuration.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264\H264Options.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\H264AmfCodec.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\H264AmfConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\h264AmfEnums.h" />
+    <ClInclude Include="..\..\..\common\srp\codec\h264_amf\h264AmfOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerAnalogMap.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerButtonMap.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerMode.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\ControllerOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\SwitchButtons.h" />
+    <ClInclude Include="..\..\..\common\srp\controller\SwitchHidDefinition.h" />
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderAccel.h" />
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderFlag.h" />
+    <ClInclude Include="..\..\..\common\srp\decoder\DecoderOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\decoder\DiscardType.h" />
+    <ClInclude Include="..\..\..\common\srp\decoder\ThreadType.h" />
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\HWAccel.h" />
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\Resolution.h" />
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\VideoCodec.h" />
+    <ClInclude Include="..\..\..\common\srp\ffmpegHelpers\VsyncMode.h" />
+    <ClInclude Include="..\..\..\common\srp\keyboard\KeyboardConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\keyboard\KeyboardOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\mouse\MouseConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\mouse\MouseOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\network\NetworkData.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\SimulatedMouseBehaviour.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\SimulatedMouseConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\SimulatedMouseOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\TouchConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\TouchOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\VirtualTouchConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\touch\VirtualTouchOptions.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\ArrayCirculator.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\Configuration.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\EnumMapper.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\FlagMapUtils.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\MappedDataConfiguration.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\RangedIterator.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\StringUtils.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\TimeUtil.h" />
+    <ClInclude Include="..\..\..\common\srp\utils\UnorderedMapCirculator.h" />
     <ClInclude Include="AtomicTest.h" />
     <ClInclude Include="Broadcast.h" />
-    <ClInclude Include="Configuration.h" />
     <ClInclude Include="Connection.h" />
-    <ClInclude Include="ControllerAnalogMap.h" />
-    <ClInclude Include="ControllerButtonMap.h" />
-    <ClInclude Include="ControllerMode.h" />
-    <ClInclude Include="ControllerOptions.h" />
     <ClInclude Include="DeadzoneUtility.h" />
     <ClInclude Include="DisplayDeviceService.h" />
     <ClInclude Include="DS4Controller.h" />
-    <ClInclude Include="EnumMapper.h" />
     <ClInclude Include="FfmpegArgParser.h" />
     <ClInclude Include="FFMPEGHelper.h" />
     <ClInclude Include="FfmpegOutputConfiguration.h" />
     <ClInclude Include="FfmpegOutputOptions.h" />
     <ClInclude Include="FileOperations.h" />
-    <ClInclude Include="GenericOptions.h" />
-    <ClInclude Include="h264amfEnums.h" />
-    <ClInclude Include="h264amfOptions.h" />
-    <ClInclude Include="H264Options.h" />
-    <ClInclude Include="HWAccel.h" />
     <ClInclude Include="Interpolation.h" />
     <ClInclude Include="TouchInterface.h" />
     <ClInclude Include="KeyboardEnumUtil.h" />
-    <ClInclude Include="KeyboardOptions.h" />
-    <ClInclude Include="MappedDataConfiguration.h" />
     <ClInclude Include="MasterVolume.h" />
-    <ClInclude Include="MouseOptions.h" />
     <ClInclude Include="NetworkAdapter.h" />
     <ClInclude Include="NetworkConfiguration.h" />
-    <ClInclude Include="NetworkData.h" />
     <ClInclude Include="NetworkOptions.h" />
     <ClInclude Include="Point.h" />
-    <ClInclude Include="Resolution.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="AbsoluteTouchMouse.h" />
-    <ClInclude Include="SimulatedMouseBehaviour.h" />
-    <ClInclude Include="SimulatedMouseOptions.h" />
     <ClInclude Include="SimulatedTrackpad.h" />
-    <ClInclude Include="StringUtils.h" />
-    <ClInclude Include="SwitchButtons.h" />
-    <ClInclude Include="SwitchControlsDefinitions.h" />
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />
-    <ClInclude Include="TimeUtil.h" />
-    <ClInclude Include="TouchOptions.h" />
-    <ClInclude Include="VideoCodec.h" />
-    <ClInclude Include="VideoCodecMode.h" />
     <ClInclude Include="VirtualController.h" />
     <ClInclude Include="VirtualDesktop.h" />
     <ClInclude Include="VirtualFinger.h" />
@@ -272,8 +317,6 @@
     <ClInclude Include="VirtualMouse.h" />
     <ClInclude Include="VirtualTouch.h" />
     <ClInclude Include="VirtualTouchMouse.h" />
-    <ClInclude Include="VirtualTouchOptions.h" />
-    <ClInclude Include="VsyncMode.h" />
     <ClInclude Include="WSAHelper.h" />
     <ClInclude Include="X360Controller.h" />
   </ItemGroup>

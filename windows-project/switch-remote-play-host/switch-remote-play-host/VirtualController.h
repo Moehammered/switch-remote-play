@@ -1,13 +1,12 @@
 #pragma once
 #include "SwitchStream.h"
+#include "srp/controller/ControllerButtonMap.h"
+#include "srp/controller/SwitchHidDefinition.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-
 #include <Xinput.h>
 #include <ViGEm/Client.h>
-#include "ControllerButtonMap.h"
-#include "SwitchControlsDefinitions.h"
 
 class IVirtualController 
 {
