@@ -95,22 +95,22 @@ namespace
             generalConf.Save(encoderData.commonSettings);
             switch(encoderData.commonSettings.videoCodec)
             {
-                case VideoCodec::H264:
+                case ffmpeg::VideoCodec::H264:
                 {
                     auto conf = H264Configuration{};
                     conf.Save(encoderData.cpuSettings);
                 }
                 break;
 
-                case VideoCodec::H264_AMF:
+                case ffmpeg::VideoCodec::H264_AMF:
                 {
                     auto conf = H264AmfConfiguration{};
                     conf.Save(encoderData.amdSettings);
                 }
                 break;
 
-                case VideoCodec::H264_NVENC:
-                case VideoCodec::H264_QSV:
+                case ffmpeg::VideoCodec::H264_NVENC:
+                case ffmpeg::VideoCodec::H264_QSV:
                 break;
             }
         }
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 
         consoleExit(NULL);
         
-        CleanupSystem();
+        cleanupSystem();
         return -1;
     }
 
@@ -196,8 +196,8 @@ int main(int argc, char **argv)
     auto renderRegion = screen.Region();
     
     std::cout << "Loading System Fonts\n";
-    auto systemFont = LoadSystemFont(screen.Renderer(), fontSize, white);
-    SetMainSystemFont(systemFont);
+    auto systemFont = loadSystemFont(screen.Renderer(), fontSize, {255, 255, 255, 255});
+    setMainSystemFont(systemFont);
     
     auto runApp {true};
     std::cout << "Starting main loop\n";
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
                     auto keyboardConfig = menuScreens.KeyboardSettings();
                     auto touchConfig = menuScreens.TouchSettings();
 
-                    RunStartConfiguredStreamCommand(ip, startupNetworkSettings.commandPort, 
+                    runStartConfiguredStreamCommand(ip, startupNetworkSettings.commandPort, 
                         ffmpegConfig, 
                         controllerConfig,
                         mouseConfig,
@@ -294,8 +294,8 @@ int main(int argc, char **argv)
                         if(streamDecoder != nullptr)
                             delete streamDecoder;
 
-                        streamDecoder = new StreamDecoder(streamInfo->codecpar, false);
-                        gamepadThread = std::thread(RunGamepadThread, ip, startupNetworkSettings.gamepadPort);
+                        streamDecoder = new StreamDecoder(streamInfo->codecpar);
+                        gamepadThread = std::thread(runGamepadThread, ip, startupNetworkSettings.gamepadPort);
                         streamState.store(StreamState::ACTIVE, std::memory_order_release);
 
                         if(audioStream.Ready() && !audioStream.Running())
@@ -355,8 +355,8 @@ int main(int argc, char **argv)
     auto libnxRes = audoutStopAudioOut();
     if(!R_SUCCEEDED(libnxRes))
         std::cout << "Failed to call audoutStopAudioOut with result: " << libnxRes << std::endl;
-    FreeFont(systemFont);
-    CleanupSystem();
+    freeFont(systemFont);
+    cleanupSystem();
     
     return 0;
 }

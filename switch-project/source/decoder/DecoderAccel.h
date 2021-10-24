@@ -12,9 +12,9 @@ extern "C"
 
 namespace decoder
 {
-    std::unordered_map<int32_t, std::string> const AccelFlagsToStrings(int32_t flags);
-    std::unordered_map<int32_t, std::string> const AccelFlagsToDescriptions(int32_t flags);
-    int32_t const ParseAccelFlagStrings(std::vector<std::string> const & strings);
+    std::unordered_map<int32_t, std::string> const accelFlagsToStrings(int32_t flags);
+    std::unordered_map<int32_t, std::string> const accelFlagsToDescriptions(int32_t flags);
+    int32_t const parseAccelFlagStrings(std::vector<std::string> const & strings);
 
     static std::unordered_map<int32_t, std::string> const accelOptions
     {

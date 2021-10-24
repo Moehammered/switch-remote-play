@@ -4,35 +4,35 @@
 
 namespace mouse
 {
-    std::unordered_map<Parameters, std::string> const MouseParamsToStr(MouseConfig const config)
+    std::unordered_map<MouseParameters, std::string> const mouseParamsToStr(MouseConfig const config)
     {
-        auto values = std::unordered_map<Parameters, std::string>{};
+        auto values = std::unordered_map<MouseParameters, std::string>{};
 
-        values[Parameters::LeftMouseButton] = controller::SwitchButtonToString(config.leftClickButton);
-        values[Parameters::RightMouseButton] = controller::SwitchButtonToString(config.rightClickButton);
-        values[Parameters::MiddleMouseButton] = controller::SwitchButtonToString(config.middleClickButton);
-        values[Parameters::MouseWheelAnalog] = controller::AnalogStickToString(config.mouseWheelAnalog);
-        values[Parameters::MouseSensitivity] = std::to_string(config.mouseSensitivity);
-        values[Parameters::MouseOnConnect] = config.mouseOnConnect ? "yes" : "no";
+        values[MouseParameters::LeftMouseButton] = controller::switchButtonToString(config.leftClickButton);
+        values[MouseParameters::RightMouseButton] = controller::switchButtonToString(config.rightClickButton);
+        values[MouseParameters::MiddleMouseButton] = controller::switchButtonToString(config.middleClickButton);
+        values[MouseParameters::MouseWheelAnalog] = controller::analogStickToString(config.mouseWheelAnalog);
+        values[MouseParameters::MouseSensitivity] = std::to_string(config.mouseSensitivity);
+        values[MouseParameters::MouseOnConnect] = config.mouseOnConnect ? "yes" : "no";
 
-        auto btns = controller::SwitchButtonsToString(config.mouseModeToggleKey);
+        auto btns = controller::switchButtonsToString(config.mouseModeToggleKey);
         if(btns.size() != 0)
         {
             auto str = btns[0];
             for(auto i = 1U; i < btns.size(); ++i)
                 str += "," + btns[i];
             
-            values[Parameters::MouseModeToggleKey] = str;
+            values[MouseParameters::MouseModeToggleKey] = str;
         }
 
         auto const toggleTimeSeconds = timeutil::nanoToSecond(config.mouseModeToggleTime);
         auto secondsStr = std::to_string(toggleTimeSeconds);
-        values[Parameters::MouseModeToggleTime] = secondsStr;
+        values[MouseParameters::MouseModeToggleTime] = secondsStr;
 
         return values;
     }
 
-    MouseConfig const MouseParamsFromStr(std::unordered_map<Parameters, std::string> const & map)
+    MouseConfig const mouseParamsFromStr(std::unordered_map<MouseParameters, std::string> const & map)
     {
         auto config = MouseConfig{};
 
@@ -42,19 +42,19 @@ namespace mouse
             if(entry != map.end())
             {
                 auto btnStr = entry->second;
-                auto btn = controller::ParseSwitchButtonString(btnStr);
+                auto btn = controller::parseSwitchButtonString(btnStr);
                 member = btn;
             }
             else
                 member = defVal;
         };
 
-        parseMouseButton(Parameters::LeftMouseButton, config.leftClickButton, DefaultLeftClickButton);
-        parseMouseButton(Parameters::RightMouseButton, config.rightClickButton, DefaultRightClickButton);
-        parseMouseButton(Parameters::MiddleMouseButton, config.middleClickButton, DefaultMiddleClickButton);
+        parseMouseButton(MouseParameters::LeftMouseButton, config.leftClickButton, defaultLeftClickButton);
+        parseMouseButton(MouseParameters::RightMouseButton, config.rightClickButton, defaultRightClickButton);
+        parseMouseButton(MouseParameters::MiddleMouseButton, config.middleClickButton, defaultMiddleClickButton);
 
         {
-            auto entry = map.find(Parameters::MouseOnConnect);
+            auto entry = map.find(MouseParameters::MouseOnConnect);
             if(entry != map.end())
             {
                 auto str = entry->second;
@@ -66,29 +66,29 @@ namespace mouse
 
         
         {
-            auto entry = map.find(Parameters::MouseSensitivity);
+            auto entry = map.find(MouseParameters::MouseSensitivity);
             if(entry != map.end())
             {
                 auto str = entry->second;
                 auto val = std::atoi(str.c_str());
-                auto sens = std::min(val, (int)MaxMouseSensitivity);
-                sens = std::max(sens, (int)MinMouseSensitivity);
+                auto sens = std::min(val, (int)maxMouseSensitivity);
+                sens = std::max(sens, (int)minMouseSensitivity);
                 config.mouseSensitivity = (int16_t)sens;
             }
             else
-                config.mouseSensitivity = DefaultMouseSensitivity;
+                config.mouseSensitivity = defaultMouseSensitivity;
         }
 
         {
-            auto entry = map.find(Parameters::MouseWheelAnalog);
+            auto entry = map.find(MouseParameters::MouseWheelAnalog);
             if(entry != map.end())
             {
                 auto str = entry->second;
-                auto analog = controller::ParseAnalogStickString(str);
+                auto analog = controller::parseAnalogStickString(str);
                 config.mouseWheelAnalog = analog;
             }
             else
-                config.mouseWheelAnalog = DefaultMouseWheelAnalog;
+                config.mouseWheelAnalog = defaultMouseWheelAnalog;
         }
 
         auto csvToList = [](auto const & csv)
@@ -103,32 +103,32 @@ namespace mouse
         };
 
         {
-            auto entry = map.find(Parameters::MouseModeToggleKey);
+            auto entry = map.find(MouseParameters::MouseModeToggleKey);
             if(entry != map.end())
             {
                 auto btnList = csvToList(entry->second);
-                auto btns = controller::ParseSwitchButtonStrings(btnList);
+                auto btns = controller::parseSwitchButtonStrings(btnList);
                 auto btnFlags = 0U;
                 for(auto const & btn : btns)
                     btnFlags |= btn;
                 
-                config.mouseModeToggleKey = btnFlags != 0 ? btnFlags : DefaultMouseModeToggleKey;
+                config.mouseModeToggleKey = btnFlags != 0 ? btnFlags : defaultMouseModeToggleKey;
             }
             else
-                config.mouseModeToggleKey = DefaultMouseModeToggleKey;
+                config.mouseModeToggleKey = defaultMouseModeToggleKey;
         }
 
         {
-            auto entry = map.find(Parameters::MouseModeToggleTime);
+            auto entry = map.find(MouseParameters::MouseModeToggleTime);
             if(entry != map.end())
             {
                 auto secondsStr = entry->second;
                 auto const seconds = std::atof(secondsStr.c_str());
                 auto const nanoseconds = (uint32_t)timeutil::secondToNano(seconds);
-                config.mouseModeToggleTime = std::clamp(nanoseconds, MinMouseModeToggleTime, MaxMouseModeToggleTime);
+                config.mouseModeToggleTime = std::clamp(nanoseconds, minMouseModeToggleTime, maxMouseModeToggleTime);
             }
             else
-                config.mouseModeToggleTime = DefaultMouseModeToggleTime;
+                config.mouseModeToggleTime = defaultMouseModeToggleTime;
         }
 
         return config;

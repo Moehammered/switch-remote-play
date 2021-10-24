@@ -1,21 +1,21 @@
 #include "SimulatedMouseConfiguration.h"
 
 SimulatedMouseConfiguration::SimulatedMouseConfiguration()
-    : configMap{ "sdmc:/switch/switch-remote-play/simulated_mouse.ini", touch::SimulatedTouchParamsDesc }
+    : configMap{ "sdmc:/switch/switch-remote-play/simulated_mouse.ini", touch::simulatedTouchParamsDesc }
 {
 }
 
 SimulatedMouseConfiguration::SimulatedMouseConfiguration(std::string const file)
-    : configMap{ file, touch::SimulatedTouchParamsDesc }
+    : configMap{ file, touch::simulatedTouchParamsDesc }
 {
 }
 
 bool SimulatedMouseConfiguration::Save(touch::SimulatedTouchConfig const data)
 {
-    return configMap.Save(data, touch::SimulatedTouchParamsToStr);
+    return configMap.Save(data, touch::simulatedTouchParamsToStr);
 }
 
 touch::SimulatedTouchConfig const SimulatedMouseConfiguration::Data() const
 {
-    return configMap.Data(touch::SimulatedTouchParamsFromStr);
+    return configMap.Data(touch::simulatedTouchParamsFromStr);
 }

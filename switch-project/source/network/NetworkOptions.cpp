@@ -16,24 +16,24 @@ namespace network
         }
     }
 
-    std::unordered_map<Parameters, std::string> const NetworkParamsToStr(NetworkConfig const config)
+    std::unordered_map<NetworkParameters, std::string> const networkParamsToStr(NetworkConfig const config)
     {
-        auto values = std::unordered_map<Parameters, std::string>{};
+        auto values = std::unordered_map<NetworkParameters, std::string>{};
         
-        values[Parameters::ManualIPAddress] = config.manualIP;
-        values[Parameters::ManualIPEnabled] = boolToStr(config.manualIPEnabled);
-        values[Parameters::BroadcastAddress] = config.broadcastIP;
-        values[Parameters::HandshakePort] = std::to_string(config.handshakePort);
-        values[Parameters::BroadcastPort] = std::to_string(config.broadcastPort);
-        values[Parameters::CommandPort] = std::to_string(config.commandPort);
-        values[Parameters::GamepadPort] = std::to_string(config.gamepadPort);
-        values[Parameters::VideoPort] = std::to_string(config.videoPort);
-        values[Parameters::AudioPort] = std::to_string(config.audioPort);
+        values[NetworkParameters::ManualIPAddress] = config.manualIP;
+        values[NetworkParameters::ManualIPEnabled] = boolToStr(config.manualIPEnabled);
+        values[NetworkParameters::BroadcastAddress] = config.broadcastIP;
+        values[NetworkParameters::HandshakePort] = std::to_string(config.handshakePort);
+        values[NetworkParameters::BroadcastPort] = std::to_string(config.broadcastPort);
+        values[NetworkParameters::CommandPort] = std::to_string(config.commandPort);
+        values[NetworkParameters::GamepadPort] = std::to_string(config.gamepadPort);
+        values[NetworkParameters::VideoPort] = std::to_string(config.videoPort);
+        values[NetworkParameters::AudioPort] = std::to_string(config.audioPort);
 
         return values;
     }
 
-    NetworkConfig const NetworkParamsFromStr(std::unordered_map<Parameters, std::string> const & map)
+    NetworkConfig const networkParamsFromStr(std::unordered_map<NetworkParameters, std::string> const & map)
     {
         auto config = NetworkConfig{};
 
@@ -44,42 +44,42 @@ namespace network
             {
                 auto str = entry->second;
                 auto number = std::atoi(str.c_str());
-                auto clamped = std::clamp(number, MinPortNumber, MaxPortNumber);
+                auto clamped = std::clamp(number, minPortNumber, maxPortNumber);
                 member = (uint16_t)clamped;
             }
             else
                 member = defaultValue;
         };
 
-        parsePort(Parameters::HandshakePort, config.handshakePort, DefaultHandshakePort);
-        parsePort(Parameters::BroadcastPort, config.broadcastPort, DefaultBroadcastPort);
-        parsePort(Parameters::CommandPort, config.commandPort, DefaultCommandPort);
-        parsePort(Parameters::GamepadPort, config.gamepadPort, DefaultGamepadPort);
-        parsePort(Parameters::VideoPort, config.videoPort, DefaultVideoPort);
-        parsePort(Parameters::AudioPort, config.audioPort, DefaultAudioPort);
+        parsePort(NetworkParameters::HandshakePort, config.handshakePort, defaultHandshakePort);
+        parsePort(NetworkParameters::BroadcastPort, config.broadcastPort, defaultBroadcastPort);
+        parsePort(NetworkParameters::CommandPort, config.commandPort, defaultCommandPort);
+        parsePort(NetworkParameters::GamepadPort, config.gamepadPort, defaultGamepadPort);
+        parsePort(NetworkParameters::VideoPort, config.videoPort, defaultVideoPort);
+        parsePort(NetworkParameters::AudioPort, config.audioPort, defaultAudioPort);
 
         {
-            auto entry = map.find(Parameters::ManualIPAddress);
+            auto entry = map.find(NetworkParameters::ManualIPAddress);
             if(entry != map.end())
                 config.manualIP = entry->second;
             else
-                config.manualIP = DefaultManualIPAddress;
+                config.manualIP = defaultManualIPAddress;
         }
 
         {
-            auto entry = map.find(Parameters::BroadcastAddress);
+            auto entry = map.find(NetworkParameters::BroadcastAddress);
             if(entry != map.end())
                 config.broadcastIP = entry->second;
             else
-                config.broadcastIP = DefaultBroadcastAddress;
+                config.broadcastIP = defaultBroadcastAddress;
         }
 
         {
-            auto entry = map.find(Parameters::ManualIPEnabled);
+            auto entry = map.find(NetworkParameters::ManualIPEnabled);
             if(entry != map.end())
                 config.manualIPEnabled = boolFromStr(entry->second);
             else
-                config.manualIPEnabled = DefaultManualIPEnabled;
+                config.manualIPEnabled = defaultManualIPEnabled;
         }
 
         return config;

@@ -1,9 +1,9 @@
 #ifndef __H264AMFCONFIGURATION_H__
 #define __H264AMFCONFIGURATION_H__
 
-#include <string>
-#include "h264amfOptions.h"
+#include "h264AmfOptions.h"
 #include "../../utils/MappedDataConfiguration.h"
+#include <string>
 
 class H264AmfConfiguration
 {
@@ -11,11 +11,11 @@ public:
 	H264AmfConfiguration();
 	H264AmfConfiguration(std::string const file);
 
-	bool Save(h264amf::H264AMFData const data);
-	h264amf::H264AMFData const Data() const;
+	bool Save(h264amf::H264AmfData const data);
+	h264amf::H264AmfData const Data() const;
 
 private:
-	MappedDataConfiguration<h264amf::H264AMFData, h264amf::Parameters> configMap;
+	MappedDataConfiguration<h264amf::H264AmfData, h264amf::H264AmfParameters> configMap;
 };
 
 #endif

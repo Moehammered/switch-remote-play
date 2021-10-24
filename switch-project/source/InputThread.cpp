@@ -1,13 +1,11 @@
 #include "InputThread.h"
+#include "network/CommandSender.h"
+#include "utils/pad/PadUtility.h"
+#include "utils/pad/JoyConUtility.h"
 #include <switch.h>
 #include <iostream>
 #include <thread>
-// #include <atomic>
-#include "network/CommandSender.h"
 #include <sys/socket.h>
-
-#include "utils/pad/PadUtility.h"
-#include "utils/pad/JoyConUtility.h"
 
 namespace
 {
@@ -15,13 +13,13 @@ namespace
     {
         padUpdate(&controller);
 
-        if(padutility::IsLeftJoyCon(controller))
+        if(padutility::isLeftJoyCon(controller))
         {
-            controller = joyconutility::TranslateJoyConPad(controller, joyconutility::DefaultLeftJoyConMapping);
+            controller = joyconutility::translateJoyConPad(controller, joyconutility::defaultLeftJoyConMapping);
         }
-        else if(padutility::IsRightJoyCon(controller))
+        else if(padutility::isRightJoyCon(controller))
         {
-            controller = joyconutility::TranslateJoyConPad(controller, joyconutility::DefaultRightJoyConMapping);
+            controller = joyconutility::translateJoyConPad(controller, joyconutility::defaultRightJoyConMapping);
         }
 
         u32 kHeld = padGetButtons(&controller);
@@ -45,7 +43,7 @@ namespace
     }
 }
 
-void RunStartConfiguredStreamCommand(std::string ip, uint16_t port, 
+void runStartConfiguredStreamCommand(std::string ip, uint16_t port, 
     EncoderConfig const config, 
     controller::ControllerConfig const controllerConfig,
     mouse::MouseConfig const mouseConfig,
@@ -72,25 +70,19 @@ void RunStartConfiguredStreamCommand(std::string ip, uint16_t port,
 }
 
 // input scanning needs refactoring for libnx 4.0
-void RunGamepadThread(std::string ip, uint16_t port)
+void runGamepadThread(std::string ip, uint16_t port)
 {
     int padSocket{-1};
     if(ConnectTo(ip, port, padSocket))
     {
-        auto controllers = padutility::InitialisePads(maxControllerCount);
-        // padConfigureInput(1, HidNpadStyleSet_NpadStandard); //de
-        // PadState defaultPad{0}; //de
-        // padInitializeDefault(&defaultPad); //de
+        auto controllers = padutility::initialisePads(maxControllerCount);
 
         HidTouchScreenState touchState {0};
         hidInitializeTouchScreen();
 
-        // HidAnalogStickState lStick{0}; //de
-        // HidAnalogStickState rStick{0}; //de
-
         // SixAxisSensorValues sixaxis{0};
 
-        int const dataSize = InputDataPayloadSize;//sizeof(GamepadDataPayload);
+        int const dataSize = inputDataPayloadSize;
         auto gamepadPayloads = std::vector<GamepadDataPayload>(controllers.size());
         for(auto & payload : gamepadPayloads)
         {
@@ -98,9 +90,6 @@ void RunGamepadThread(std::string ip, uint16_t port)
             for(auto & c : payload.padding)
                 c = 0;
         }
-        // auto inputData = GamepadDataPayload{0}; //de
-        // for(auto& c : inputData.padding) //de
-        //     c = 0; //de
 
         const double quitTimer = 3.0;
         const double NANO_TO_SECONDS = 1000000000.0;

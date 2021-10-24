@@ -1,9 +1,9 @@
 #ifndef __SCREENRENDERER__H_
 #define __SCREENRENDERER__H_
 
+#include "SDL_FontCache.h"
 #include <SDL2/SDL.h>
 #include <string>
-#include "SDL_FontCache.h"
 
 class ScreenRenderer
 {

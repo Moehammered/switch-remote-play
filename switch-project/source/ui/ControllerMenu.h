@@ -17,8 +17,8 @@ class ControllerMenu : public Menu
         controller::ControllerConfig const Settings() const;
 
     private:
-        std::unordered_map<controller::Parameters, Text> textElements;
-        ArrayCirculator<controller::Parameters, std::vector> paramCursor;
+        std::unordered_map<controller::ControllerParameters, Text> textElements;
+        ArrayCirculator<controller::ControllerParameters, std::vector> paramCursor;
         UnorderedMapCirculator<controller::ControllerMode, std::string> modeCursor;
         UnorderedMapCirculator<controller::ControllerButtonMap, std::string> buttonMapCursor;
         UnorderedMapCirculator<controller::ControllerAnalogMap, std::string> leftAnalogMapCursor;
@@ -27,8 +27,8 @@ class ControllerMenu : public Menu
         uint32_t homeButton;
         uint32_t homeButtonTriggerTime;
 
-        void UpdateSetting(controller::Parameters, int direction);
-        void UpdateUI(controller::Parameters param);
+        void UpdateSetting(controller::ControllerParameters, int direction);
+        void UpdateUI(controller::ControllerParameters param);
         void SetupText();
 };
 

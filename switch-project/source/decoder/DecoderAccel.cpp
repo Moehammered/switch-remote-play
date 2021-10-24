@@ -1,23 +1,21 @@
 #include "DecoderAccel.h"
 #include "../utils/EnumMapper.h"
 #include "../utils/FlagMapUtils.h"
-#include <algorithm>
-#include <numeric>
 
 namespace decoder
 {
-    std::unordered_map<int32_t, std::string> const AccelFlagsToStrings(int32_t flags)
+    std::unordered_map<int32_t, std::string> const accelFlagsToStrings(int32_t flags)
     {
-        return ToStrings(flags, accelOptions);
+        return bitflagutil::toStrings(flags, accelOptions);
     }
 
-    std::unordered_map<int32_t, std::string> const AccelFlagsToDescriptions(int32_t flags)
+    std::unordered_map<int32_t, std::string> const accelFlagsToDescriptions(int32_t flags)
     {
-        return ToStrings(flags, accelDesc);
+        return bitflagutil::toStrings(flags, accelDesc);
     }
 
-    int32_t const ParseAccelFlagStrings(std::vector<std::string> const & strings)
+    int32_t const parseAccelFlagStrings(std::vector<std::string> const & strings)
     {
-        return ParseFlagStrings(strings, accelOptions);
+        return bitflagutil::parseFlagStrings(strings, accelOptions);
     }
 }

@@ -1,12 +1,22 @@
 #ifndef __AUDIOPLAYBACK_H__
 #define __AUDIOPLAYBACK_H__
 
-#include <vector>
 #include "../network/NetworkData.h"
+#include <vector>
 extern "C"
 {
     #include <switch/services/audout.h>
 }
+
+struct alignas(16) AudioConfig
+{
+    uint32_t    sampleRate;
+    uint32_t    framerate;
+    uint32_t    channelCount;
+    uint32_t    bitrate;
+};
+
+auto constexpr audioConfigSize = {sizeof(AudioConfig)};
 
 class AudioPlayback
 {
@@ -30,7 +40,7 @@ private:
     std::vector<AudioOutBuffer> switchAudioBuffers;
     AudioOutBuffer* releaseBuffer;
 
-    static uint32_t constexpr AudioBufferAlignment {0x1000};
+    static uint32_t constexpr audioBufferAlignment {0x1000};
 };
 
 #endif

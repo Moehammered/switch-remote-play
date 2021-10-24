@@ -2,7 +2,7 @@
 #include "../decoder/DecoderOptions.h"
 
 DecoderAccelMenu::DecoderAccelMenu() : Menu(),
-textElements{}, cursor{AvailableAccelFlags}, selected{}, flags{}
+textElements{}, cursor{availableAccelFlags}, selected{}, flags{}
 {
     title.value = "Decoder Accel Flags";
     title.y += 45;
@@ -74,7 +74,7 @@ void DecoderAccelMenu::ToggleFlag(int32_t flag)
 void DecoderAccelMenu::UpdateUI(int32_t flags)
 {
     auto& all = decoder::accelDesc;
-    auto const found = decoder::AccelFlagsToDescriptions(flags);
+    auto const found = decoder::accelFlagsToDescriptions(flags);
     for(auto& item : textElements)
     {
         if(auto active = found.find(item.first); active != found.end())
@@ -96,7 +96,7 @@ void DecoderAccelMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = AvailableAccelFlags;
+    auto params = availableAccelFlags;
     for(auto& p : params)
     {
         textElements[p] = Text{};

@@ -3,7 +3,7 @@
 #include <thread>
 #include <switch.h>
 
-uint64_t MonitorKeys(std::function<void(std::string)> renderFunction)
+uint64_t monitorButtons(std::function<void(std::string)> renderFunction)
 {
     auto const frameTime = std::chrono::duration<long, std::milli>(100000/3000);
     auto lastTime = std::chrono::high_resolution_clock::now();

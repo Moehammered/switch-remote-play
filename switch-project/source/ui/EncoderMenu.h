@@ -3,11 +3,11 @@
 
 #include "Menu.h"
 #include "../network/NetworkData.h"
-#include <vector>
-#include <unordered_map>
 #include "H264Menu.h"
 #include "H264AmfMenu.h"
 #include "GenericCodecMenu.h"
+#include <vector>
+#include <unordered_map>
 
 class EncoderMenu : public Menu
 {
@@ -23,7 +23,7 @@ class EncoderMenu : public Menu
         H264Menu h264Menu;
         H264AmfMenu amdMenu;
         GenericCodecMenu generalMenu;
-        std::unordered_map<VideoCodec, Menu*> const menus;
+        std::unordered_map<ffmpeg::VideoCodec, Menu*> const menus;
         bool advancedOptions;
         Text pageText;
 };

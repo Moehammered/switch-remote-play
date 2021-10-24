@@ -11,7 +11,7 @@
 
 namespace controller
 {
-    enum class Parameters
+    enum class ControllerParameters
     {
         Mode,
         ButtonMapping,
@@ -22,23 +22,23 @@ namespace controller
         ControllerCount
     };
 
-    static std::vector<Parameters> const ParamsList
+    static std::vector<ControllerParameters> const controllerParamsList
     {
-        Parameters::Mode, Parameters::ButtonMapping,
-        Parameters::LeftAnalogMapping, Parameters::RightAnalogMapping,
-        Parameters::HomeButton, Parameters::HomeButtonTriggerTime,
-        Parameters::ControllerCount
+        ControllerParameters::Mode, ControllerParameters::ButtonMapping,
+        ControllerParameters::LeftAnalogMapping, ControllerParameters::RightAnalogMapping,
+        ControllerParameters::HomeButton, ControllerParameters::HomeButtonTriggerTime,
+        ControllerParameters::ControllerCount
     };
 
-    static std::unordered_map<Parameters, std::string> const ParamsDesc
+    static std::unordered_map<ControllerParameters, std::string> const controllerParamsDesc
     {
-        { Parameters::Mode, "Controller Mode" },
-        { Parameters::ButtonMapping, "Controller Mapping" },
-        { Parameters::LeftAnalogMapping, "Left Analog Mapping" },
-        { Parameters::RightAnalogMapping, "Right Analog Mapping" },
-        { Parameters::HomeButton, "Home Button Key" },
-        { Parameters::HomeButtonTriggerTime, "Home Button Trigger Time" },
-        { Parameters::ControllerCount, "Controller Count" }
+        { ControllerParameters::Mode, "Controller Mode" },
+        { ControllerParameters::ButtonMapping, "Controller Mapping" },
+        { ControllerParameters::LeftAnalogMapping, "Left Analog Mapping" },
+        { ControllerParameters::RightAnalogMapping, "Right Analog Mapping" },
+        { ControllerParameters::HomeButton, "Home Button Key" },
+        { ControllerParameters::HomeButtonTriggerTime, "Home Button Trigger Time" },
+        { ControllerParameters::ControllerCount, "Controller Count" }
     };
 
     struct alignas(4) ControllerConfig
@@ -52,22 +52,22 @@ namespace controller
         int16_t             controllerCount;
     };
 
-    constexpr int ControllerConfigSize = sizeof(controller::ControllerConfig);
+    auto constexpr controllerConfigSize = sizeof(controller::ControllerConfig);
 
-    auto constexpr DefaultMode = ControllerMode::X360;
-    auto constexpr DefaultButtonMap = ControllerButtonMap::None;
-    auto constexpr DefaultAnalogMap = ControllerAnalogMap::None;
-    uint32_t constexpr DefaultHomeButton = HidNpadButton_StickL;
-    uint32_t constexpr MinHomeButtonTriggerTime = timeutil::secondToNano(0.1);
-    uint32_t constexpr MaxHomeButtonTriggerTime = timeutil::secondToNano(4.0);
-    uint32_t constexpr DefaultHomeButtonTriggerTime = timeutil::secondToNano(1.0);
+    auto constexpr defaultMode = ControllerMode::X360;
+    auto constexpr defaultButtonMap = ControllerButtonMap::None;
+    auto constexpr defaultAnalogMap = ControllerAnalogMap::None;
+    uint32_t constexpr defaultHomeButton = HidNpadButton_StickL;
+    uint32_t constexpr minHomeButtonTriggerTime = timeutil::secondToNano(0.1);
+    uint32_t constexpr maxHomeButtonTriggerTime = timeutil::secondToNano(4.0);
+    uint32_t constexpr defaultHomeButtonTriggerTime = timeutil::secondToNano(1.0);
 
-    int16_t constexpr DefaultControllerCount = 1;
-    int16_t constexpr MaxControllerCount = 4;
-    int16_t constexpr MinControllerCount = 1;
+    int16_t constexpr defaultControllerCount = 1;
+    int16_t constexpr maxControllerCount = 4;
+    int16_t constexpr minControllerCount = 1;
 
-    std::unordered_map<controller::Parameters, std::string> const ControllerParamsToStr(ControllerConfig const data);
-    ControllerConfig const ControllerParamsFromStr(std::unordered_map<controller::Parameters, std::string> const & map);
+    std::unordered_map<controller::ControllerParameters, std::string> const controllerParamsToStr(ControllerConfig const data);
+    ControllerConfig const controllerParamsFromStr(std::unordered_map<controller::ControllerParameters, std::string> const & map);
 }
 
 #endif

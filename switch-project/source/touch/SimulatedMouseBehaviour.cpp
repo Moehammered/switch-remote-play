@@ -3,13 +3,13 @@
 
 namespace touch
 {
-    std::string const SimulatedMouseBehaviourToStr(SimulatedMouseBehaviour const behaviour)
+    std::string const simulatedMouseBehaviourToStr(SimulatedMouseBehaviour const behaviour)
     {
-        return enumToStr(SimulatedMouseBehaviourParamsDesc, behaviour);
+        return enumToStr(simulatedMouseBehaviourParamsDesc, behaviour);
     }
 
-    SimulatedMouseBehaviour const SimulatedMouseBehaviourFromStr(std::string const str)
+    SimulatedMouseBehaviour const simulatedMouseBehaviourFromStr(std::string const str)
     {
-        return strToEnum(SimulatedMouseBehaviourParamsDesc, str);
+        return strToEnum(simulatedMouseBehaviourParamsDesc, str);
     }
 }

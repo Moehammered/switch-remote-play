@@ -1,9 +1,9 @@
 #ifndef __MOUSECONFIGURATION_H__
 #define __MOUSECONFIGURATION_H__
 
-#include <string>
 #include "MouseOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
 
 class MouseConfiguration
 {
@@ -15,7 +15,7 @@ public:
     mouse::MouseConfig const Data() const;
 
 private:
-    MappedDataConfiguration<mouse::MouseConfig, mouse::Parameters> configMap;
+    MappedDataConfiguration<mouse::MouseConfig, mouse::MouseParameters> configMap;
 };
 
 #endif

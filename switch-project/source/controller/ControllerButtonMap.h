@@ -15,9 +15,9 @@ namespace controller
         InvertXYAB
     };
 
-    ControllerButtonMap ParseControllerButtonMapString(std::string s);
-    std::string ControllerButtonMapToString(ControllerButtonMap map);
-    std::string ControllerButtonMapDescription(ControllerButtonMap map);
+    ControllerButtonMap parseControllerButtonMapString(std::string s);
+    std::string controllerButtonMapToString(ControllerButtonMap map);
+    std::string controllerButtonMapDescription(ControllerButtonMap map);
 
     static std::unordered_map<ControllerButtonMap, std::string> const controlMapOptions
     {

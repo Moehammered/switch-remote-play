@@ -11,9 +11,9 @@ extern "C"
 
 namespace decoder
 {
-    std::string const ThreadTypeToString(int32_t flag);
-    std::string const ThreadTypeToDescription(int32_t flag);
-    int32_t ParseThreadType(std::string const type);
+    std::string const threadTypeToString(int32_t flag);
+    std::string const threadTypeToDescription(int32_t flag);
+    int32_t parseThreadType(std::string const type);
 
     static std::unordered_map<int32_t, std::string> threadOptions
     {
@@ -27,12 +27,12 @@ namespace decoder
         { FF_THREAD_SLICE, "Thread Slice (many threads per frame)" }
     };
 
-    int32_t constexpr MinThreadCount = 1;
-    int32_t constexpr DefaultThreadCount = 4;
-    int32_t constexpr MaxThreadCount = 24;
+    int32_t constexpr defaultThreadCount = 4;
+    int32_t constexpr minThreadCount = 1;
+    int32_t constexpr maxThreadCount = 24;
 
-    std::string const ThreadCountToString(int32_t count);
-    int32_t ParseThreadCount(std::string const count);
+    std::string const threadCountToString(int32_t count);
+    int32_t parseThreadCount(std::string const count);
 }
 
 #endif

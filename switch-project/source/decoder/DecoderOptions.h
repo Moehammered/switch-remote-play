@@ -20,7 +20,7 @@ enum class DecoderParameters
     ThreadCount
 };
 
-static std::unordered_map<DecoderParameters, std::string> const DecoderParamsDesc
+static std::unordered_map<DecoderParameters, std::string> const decoderParamsDesc
 {
     { DecoderParameters::Flags1, "Flags 1" },
     { DecoderParameters::Flags2, "Flags 2" },
@@ -30,7 +30,7 @@ static std::unordered_map<DecoderParameters, std::string> const DecoderParamsDes
     { DecoderParameters::ThreadCount, "Thread Count" }
 };
 
-static std::vector<DecoderParameters> const DecoderParameterList
+static std::vector<DecoderParameters> const decoderParameterList
 {
     DecoderParameters::Flags1,
     DecoderParameters::Flags2,
@@ -49,30 +49,30 @@ struct DecoderData
     int32_t threadCount;
 };
 
-uint32_t constexpr DecoderDataSize = sizeof(DecoderData);
+auto constexpr decoderDataSize = sizeof(DecoderData);
 
-static std::vector<int32_t> const AvailableFlags1
+static std::vector<int32_t> const availableFlags1
 {
     AV_CODEC_FLAG_LOW_DELAY, AV_CODEC_FLAG_DROPCHANGED, 
     AV_CODEC_FLAG_PASS1, AV_CODEC_FLAG_PASS2,
     AV_CODEC_FLAG_LOOP_FILTER
 };
 
-static std::vector<int32_t> const AvailableFlags2
+static std::vector<int32_t> const availableFlags2
 {
     AV_CODEC_FLAG2_FAST,
     AV_CODEC_FLAG2_NO_OUTPUT,
     AV_CODEC_FLAG2_IGNORE_CROP
 };
 
-static std::vector<int32_t> const AvailableAccelFlags
+static std::vector<int32_t> const availableAccelFlags
 {
     AV_HWACCEL_CODEC_CAP_EXPERIMENTAL,
     AV_HWACCEL_FLAG_IGNORE_LEVEL,
     AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH
 };
 
-static std::vector<AVDiscard> const AvailableDiscardFilters
+static std::vector<AVDiscard> const availableDiscardFilters
 {
     AVDiscard::AVDISCARD_NONE, AVDiscard::AVDISCARD_DEFAULT,
     AVDiscard::AVDISCARD_NONREF, AVDiscard::AVDISCARD_BIDIR,
@@ -80,17 +80,17 @@ static std::vector<AVDiscard> const AvailableDiscardFilters
     AVDiscard::AVDISCARD_ALL
 };
 
-static std::vector<int32_t> const AvailableThreadTypes
+static std::vector<int32_t> const availableThreadTypes
 {
     FF_THREAD_FRAME, FF_THREAD_SLICE
 };
 
-int32_t constexpr MinThreadCount = 1;
-int32_t constexpr DefaultThreadCount = 4;
-int32_t constexpr MaxThreadCount = 8;
+int32_t constexpr minThreadCount = 1;
+int32_t constexpr defaultThreadCount = 4;
+int32_t constexpr maxThreadCount = 8;
 
-std::unordered_map<DecoderParameters, std::string> DecoderParamsToStr(DecoderData const data);
-DecoderData DecoderParamsFromStr(std::unordered_map<DecoderParameters, std::string> const & map);
+std::unordered_map<DecoderParameters, std::string> decoderParamsToStr(DecoderData const data);
+DecoderData decoderParamsFromStr(std::unordered_map<DecoderParameters, std::string> const & map);
 
 
 #endif

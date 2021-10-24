@@ -14,14 +14,14 @@ class H264AmfMenu : public Menu
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
-        h264amf::H264AMFData const Settings() const;
+        h264amf::H264AmfData const Settings() const;
 
     private:
-        std::unordered_map<h264amf::Parameters, Text> textElements;
+        std::unordered_map<h264amf::H264AmfParameters, Text> textElements;
         H264AmfCodec codec;
-        h264amf::Parameters selected;
+        h264amf::H264AmfParameters selected;
 
-        void UpdateUI(h264amf::Parameters param);
+        void UpdateUI(h264amf::H264AmfParameters param);
 
         void SetupText();
 };

@@ -11,7 +11,7 @@ extern "C"
 namespace
 {
     template<typename numberType>
-    std::string BitString(numberType val, int bitLength = 32)
+    std::string bitString(numberType val, int bitLength = 32)
     {
         auto bits = std::string{};
 
@@ -77,7 +77,7 @@ namespace padutility
         { HidDeviceTypeBits::HidDeviceTypeBits_System, "Generic Controller" }
     };
 
-    std::vector<PadState> InitialisePads(uint32_t max)
+    std::vector<PadState> initialisePads(uint32_t max)
     {
         auto controllerCount = max < maxControllers ? max : maxControllers;
         padConfigureInput(controllerCount, HidNpadStyleSet_NpadStandard);
@@ -99,27 +99,27 @@ namespace padutility
         return controllerPads;
     }
 
-    std::string PadIDToPort(int id)
+    std::string padIDToPort(int id)
     {
         auto match = PadIDPortStrMap.find((HidNpadIdType)id);
 
         if(match != PadIDPortStrMap.end())
             return match->second;
         else
-            return "ID Unknown: " + BitString(id);
+            return "ID Unknown: " + bitString(id);
     }
 
-    std::string PadDeviceTypeStr(HidDeviceTypeBits deviceType)
+    std::string padDeviceTypeStr(HidDeviceTypeBits deviceType)
     {
         auto match = DeviceTypeMap.find(deviceType);
 
         if(match != DeviceTypeMap.end())
             return match->second;
         else
-            return "Device Type Unknown: " + BitString(deviceType);
+            return "Device Type Unknown: " + bitString(deviceType);
     }
 
-    uint32_t PadIDToHidNpadIdType(int id)
+    uint32_t padIDToHidNpadIdType(int id)
     {
         auto copy = id >> 1;
         if(copy <= HidNpadIdType::HidNpadIdType_No8)
@@ -128,25 +128,25 @@ namespace padutility
             return id;
     }
 
-    bool DeviceTypeIdIsJoyCon(HidDeviceTypeBits deviceType)
+    bool deviceTypeIdIsJoyCon(HidDeviceTypeBits deviceType)
     {
         return deviceType == HidDeviceTypeBits::HidDeviceTypeBits_JoyLeft
             || deviceType == HidDeviceTypeBits::HidDeviceTypeBits_JoyRight;
     }
 
-    bool JoyconIsHorizontal(int id)
+    bool joyconIsHorizontal(int id)
     {
         auto padSystemProps = HidNpadSystemProperties{};
-        auto padTypeID = (HidNpadIdType)PadIDToHidNpadIdType(id);
+        auto padTypeID = (HidNpadIdType)padIDToHidNpadIdType(id);
 
         hidGetNpadSystemProperties(padTypeID, &padSystemProps);
         return padSystemProps.is_abxy_button_oriented;
     }
 
-    std::string PadPropertiesToString(int id)
+    std::string padPropertiesToString(int id)
     {
         auto padSystemProps = HidNpadSystemProperties{};
-        auto padTypeID = (HidNpadIdType)PadIDToHidNpadIdType(id);
+        auto padTypeID = (HidNpadIdType)padIDToHidNpadIdType(id);
 
         hidGetNpadSystemProperties(padTypeID, &padSystemProps);
 
@@ -168,7 +168,7 @@ namespace padutility
         return ss.str();
     }
 
-    int32_t PadNumber(PadState const & pad)
+    int32_t padNumber(PadState const & pad)
     {
         auto match = PadIDPortNoMap.find(pad.id_mask);
         if(match != PadIDPortNoMap.end())
@@ -177,27 +177,27 @@ namespace padutility
             return -1;
     }
 
-    HidDeviceTypeBits const PadDeviceType(PadState const & pad)
+    HidDeviceTypeBits const padDeviceType(PadState const & pad)
     {
-        auto padHidNPad = (HidNpadIdType)PadIDToHidNpadIdType(pad.id_mask);
+        auto padHidNPad = (HidNpadIdType)padIDToHidNpadIdType(pad.id_mask);
         return (HidDeviceTypeBits)hidGetNpadDeviceType(padHidNPad);
     }
 
-    bool PadIsSingleJoyCon(PadState const & pad)
+    bool padIsSingleJoyCon(PadState const & pad)
     {
-        auto deviceType = PadDeviceType(pad);
-        return DeviceTypeIdIsJoyCon(deviceType);
+        auto deviceType = padDeviceType(pad);
+        return deviceTypeIdIsJoyCon(deviceType);
     }
 
-    bool IsLeftJoyCon(PadState const & pad)
+    bool isLeftJoyCon(PadState const & pad)
     {
-        auto deviceTypeID = PadDeviceType(pad);
+        auto deviceTypeID = padDeviceType(pad);
         return deviceTypeID == HidDeviceTypeBits_JoyLeft;
     }
 
-    bool IsRightJoyCon(PadState const & pad)
+    bool isRightJoyCon(PadState const & pad)
     {
-        auto deviceTypeID = PadDeviceType(pad);
+        auto deviceTypeID = padDeviceType(pad);
         return deviceTypeID == HidDeviceTypeBits_JoyRight;
     }
 }

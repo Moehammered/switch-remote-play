@@ -10,20 +10,26 @@
 // this crashes other programs - assuming because the original stdout isn't restored
 //#define LOG_STDOUT
 
-int fileOutDescriptor {-1};
-FILE* outFile {nullptr};
-
-void redirectStdOut()
+namespace
 {
-    #ifdef LOG_STDOUT
-    auto path = "sdmc:/switch/switch-remote-play/log.txt";
-    fflush(stdout);
-    outFile = freopen(path, "w", stdout);
-    #else
-    auto libnxRes = nxlinkStdio();
-    if(libnxRes <= 0)
-        std::cout << "Failed to call nxlinkStdio with result: " << libnxRes << std::endl;
-    #endif
+    FC_Font * mainSystemFontRef = nullptr;
+
+#ifdef LOG_STDOUT
+    FILE* outFile {nullptr};
+#endif
+
+    void redirectStdOut()
+    {
+        #ifdef LOG_STDOUT
+        auto path = "sdmc:/switch/switch-remote-play/log.txt";
+        fflush(stdout);
+        outFile = freopen(path, "w", stdout);
+        #else
+        auto libnxRes = nxlinkStdio();
+        if(libnxRes <= 0)
+            std::cout << "Failed to call nxlinkStdio with result: " << libnxRes << std::endl;
+        #endif
+    }
 }
 
 void initialiseSwitch()
@@ -65,18 +71,13 @@ void initialiseSwitch()
         std::cout << "Failed to call audoutStartAudioOut with result: " << libnxRes << std::endl;
 }
 
-FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defaultCol)
+FC_Font* loadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defaultCol)
 {
     auto systemFont = FC_CreateFont();
     if(!TTF_WasInit() && TTF_Init() < 0)
         std::cout << "Failed to call TTF_Init: " << TTF_GetError() << std::endl;
     auto fontPath = "romfs:/fonts/RobotoMono-Regular.ttf";
-    //auto fontPath = "romfs:/fonts/RobotoCondensed-Regular.ttf";
-
-    /*
-        A crash occurs here if the application is opened a 2nd time after
-        previously streaming. Not sure why, could be a file handle leak?
-    */
+    
     std::cout << "Opening font " << fontPath << "\n";
     auto ttf = TTF_OpenFont(fontPath, fontSize);
     if(ttf == nullptr)
@@ -91,13 +92,13 @@ FC_Font* LoadSystemFont(SDL_Renderer* renderer, Uint32 fontSize, SDL_Color defau
     return systemFont;
 }
 
-void FreeFont(FC_Font* font)
+void freeFont(FC_Font* font)
 {
     FC_ClearFont(font);
     FC_FreeFont(font);
 }
 
-void CleanupSystem()
+void cleanupSystem()
 {
     #ifdef LOG_STDOUT
     fflush(outFile);
@@ -110,15 +111,14 @@ void CleanupSystem()
     socketExit();
 }
 
-FC_Font * mainSystemFont = nullptr;
-void SetMainSystemFont(FC_Font * const font)
+void setMainSystemFont(FC_Font * const font)
 {
-    mainSystemFont = font;
+    mainSystemFontRef = font;
 }
 
-FC_Font * const MainSystemFont()
+FC_Font * const mainSystemFont()
 {
-    return mainSystemFont;
+    return mainSystemFontRef;
 }
 
 template <typename T>
@@ -127,7 +127,7 @@ bool IsAtomicTypeLockFree()
     return std::atomic<T>{}.is_lock_free();
 }
 
-void PrintOutAtomicLockInfo()
+void printOutAtomicLockInfo()
 {
     auto boolToWord = [](bool value) 
     { 

@@ -1,12 +1,12 @@
 #include "Resolution.h"
 #include <iostream>
 
-std::string ResolutionToString(Resolution const & res)
+std::string resolutionToString(Resolution const & res)
 {
     return std::to_string(res.width) + "x" + std::to_string(res.height);
 }
 
-Resolution ParseResolutionString(std::string s)
+Resolution parseResolutionString(std::string s)
 {
     auto widthStart = 0;
     auto widthEnd = s.find('x', 0);

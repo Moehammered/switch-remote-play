@@ -1,10 +1,9 @@
 #ifndef __NETWORKDISCOVERY_H__
 #define __NETWORKDISCOVERY_H__
 
-#include <thread>
-#include <atomic>
 #include "Connection.h"
 #include "Broadcast.h"
+#include <thread>
 
 class NetworkDiscovery
 {

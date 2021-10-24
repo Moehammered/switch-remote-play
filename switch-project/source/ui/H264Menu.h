@@ -17,11 +17,11 @@ class H264Menu : public Menu
         h264::H264Data const Settings() const;
 
     private:
-        std::unordered_map<h264::Parameters, Text> textElements;
+        std::unordered_map<h264::H264Parameters, Text> textElements;
         H264Codec codec;
-        h264::Parameters selected;
+        h264::H264Parameters selected;
 
-        void UpdateUI(h264::Parameters param);
+        void UpdateUI(h264::H264Parameters param);
 
         void SetupText();
 };

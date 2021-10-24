@@ -1,29 +1,31 @@
 #include "PcmStream.h"
+#include "AudioPlayback.h"
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <string.h>
-
 #include <iostream>
 #include <atomic>
-#include "AudioPlayback.h"
 
-std::atomic_bool audioStreamOn {false};
-
-void ReadAudioStream(std::atomic_bool& running, int const & audioSocket)
+namespace
 {
-    AudioPlayback audioStream{};
-    while(running && audioSocket > 0)
-    {
-        auto result = audioStream.ReadPackets(audioSocket);
-        if(result > 0)
-            audioStream.Play();
-        else
-            running = false;
-    }
+    std::atomic_bool audioStreamOn {false};
 
-    std::cout << "Audio stream stopped - socket ID: " << audioSocket << "\n";
-    audioStream.Cleanup();
+    void readAudioStream(std::atomic_bool& running, int const & audioSocket)
+    {
+        AudioPlayback audioStream{};
+        while(running && audioSocket > 0)
+        {
+            auto result = audioStream.ReadPackets(audioSocket);
+            if(result > 0)
+                audioStream.Play();
+            else
+                running = false;
+        }
+
+        std::cout << "Audio stream stopped - socket ID: " << audioSocket << "\n";
+        audioStream.Cleanup();
+    }
 }
 
 PcmStream::PcmStream(uint16_t port)
@@ -48,7 +50,7 @@ void PcmStream::Start()
         audioSocket = CreateSocket(audioPort);
         auto processStream = [&]{
             audioStreamOn = true;
-            ReadAudioStream(audioStreamOn, audioSocket);
+            readAudioStream(audioStreamOn, audioSocket);
         };
 
         if(audioThread.joinable())

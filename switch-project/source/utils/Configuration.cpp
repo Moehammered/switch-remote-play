@@ -1,8 +1,8 @@
 #include "Configuration.h"
+#include "StringUtils.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "StringUtils.h"
 
 Configuration::Configuration(std::string const file)
 	: filepath{ file },
@@ -22,7 +22,7 @@ bool Configuration::SaveConfigFile()
 	else
 	{
 		for (auto& line : lines)
-			filestream << Trim(line) << "\n";
+			filestream << stringutil::trim(line) << "\n";
 		filestream.close();
 		return true;
 	}
@@ -32,8 +32,8 @@ bool Configuration::ExtractVariable(std::string const variable, std::string& res
 {
 	for (auto& line : lines)
 	{
-		auto loweredVariable = ToLower(variable);
-		auto loweredLine = ToLower(line);
+		auto loweredVariable = stringutil::toLower(variable);
+		auto loweredLine = stringutil::toLower(line);
 		auto location = loweredLine.find(loweredVariable + "=", 0);
 		if (location != std::string::npos && location == 0)
 		{
@@ -54,8 +54,8 @@ bool Configuration::ReplaceVariable(std::string const variable, std::string cons
 {
 	for (auto& line : lines)
 	{
-		auto loweredVariable = ToLower(variable);
-		auto loweredLine = ToLower(line);
+		auto loweredVariable = stringutil::toLower(variable);
+		auto loweredLine = stringutil::toLower(line);
 		auto location = loweredLine.find(loweredVariable + "=", 0);
 		if (location != std::string::npos && location == 0)
 		{
@@ -65,7 +65,6 @@ bool Configuration::ReplaceVariable(std::string const variable, std::string cons
 			{
 				end--;
 				line.replace(start+1, end-start, value);
-				//result = line.substr(location, end - location);
 				return ExtractVariable(variable, result);
 			}
 		}
@@ -96,12 +95,11 @@ std::vector<std::string> Configuration::LoadFile(std::string const filepath) con
 		filestream.close();
 
 		std::cout << data.str() << "\n";
-		auto dataLines = SplitLines(data.str());
+		auto dataLines = stringutil::splitLines(data.str());
 		auto trimmedLines = std::vector<std::string>{};
 		for(auto const& line : dataLines)
-			trimmedLines.push_back(Trim(line));
+			trimmedLines.push_back(stringutil::trim(line));
 
 		return trimmedLines;
 	}
-	return std::vector<std::string>();
 }

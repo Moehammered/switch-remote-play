@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-bool CreateKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfig & kbd)
+bool createKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfig & kbd)
 {
     kbd = SwkbdConfig{};
     auto created = swkbdCreate(&kbd, 0);
@@ -35,7 +35,7 @@ bool CreateKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfi
         return false;
 }
 
-int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue)
+int32_t const keyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue)
 {
     auto settings = KeyboardParserProperties<int32_t>{};
     settings.defaultValue = defaultValue;
@@ -57,10 +57,10 @@ int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int
     settings.keyboardConfig.inputLength = std::max(minStr.size(), maxStr.size());
     settings.keyboardConfig.optionalLeftSymbol = "-";
 
-    return OpenKeyboard(settings);
+    return openKeyboard(settings);
 }
 
-double const KeyboardDecimal(double const minValue, double const maxValue, double const defaultValue)
+double const keyboardDecimal(double const minValue, double const maxValue, double const defaultValue)
 {
     auto settings = KeyboardParserProperties<double>{};
     settings.defaultValue = defaultValue;
@@ -83,5 +83,5 @@ double const KeyboardDecimal(double const minValue, double const maxValue, doubl
     settings.keyboardConfig.optionalLeftSymbol = "-";
     settings.keyboardConfig.optionalRightSymbol = ".";
 
-    return OpenKeyboard(settings);
+    return openKeyboard(settings);
 }

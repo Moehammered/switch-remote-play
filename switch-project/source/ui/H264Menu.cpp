@@ -52,37 +52,37 @@ h264::H264Data const H264Menu::Settings() const
     return codec.Data();
 }
 
-void H264Menu::UpdateUI(h264::Parameters param)
+void H264Menu::UpdateUI(h264::H264Parameters param)
 {
-    auto prefix = h264::ParamsToDesc.at(param);
+    auto prefix = h264::h264ParamsDesc.at(param);
     auto data = codec.Data();
 
     switch(param)
     {
-        case h264::Parameters::ConstantRateFactor:
+        case h264::H264Parameters::ConstantRateFactor:
         {
-            auto crfStr = h264::ConstantRateFactorToDesc(data.ConstantRateFactor);
+            auto crfStr = h264::constantRateFactorToDesc(data.constantRateFactor);
             textElements[param].value = prefix + ": " + crfStr;
         }
         break;
 
-        case h264::Parameters::Preset:
+        case h264::H264Parameters::Preset:
         {
-            auto presetStr = h264::EncoderPresetToDesc(data.Preset);
+            auto presetStr = h264::encoderPresetToDesc(data.preset);
             textElements[param].value = prefix + ": " + presetStr;
         }
         break;
 
-        case h264::Parameters::RateControlMode:
+        case h264::H264Parameters::RateControlMode:
         {
-            auto modeStr = h264::EncoderBitrateModeToDesc(data.BitrateMode);
+            auto modeStr = h264::encoderBitrateModeToDesc(data.bitrateMode);
             textElements[param].value = prefix + ": " + modeStr;
         }
         break;
 
-        case h264::Parameters::Profile:
+        case h264::H264Parameters::Profile:
         {
-            auto profileStr = h264::EncoderProfileToDesc(data.Profile);
+            auto profileStr = h264::encoderProfileToDesc(data.profile);
             textElements[param].value = prefix + ": " + profileStr;
         }
         break;
@@ -97,7 +97,7 @@ void H264Menu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = h264::ParamsList;
+    auto params = h264::h264ParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

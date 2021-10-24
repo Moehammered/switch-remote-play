@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __CONNECTION_H__
+#define __CONNECTION_H__
+
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <stdint.h>
@@ -32,3 +34,4 @@ private:
 	uint16_t portNo;
 };
 
+#endif

@@ -3,17 +3,17 @@
 
 namespace decoder
 {
-    std::string const AVDiscardToString(AVDiscard type)
+    std::string const avDiscardToString(AVDiscard type)
     {
         return enumToStr(discardOptions, type);
     }
 
-    std::string const AVDiscardToDescription(AVDiscard type)
+    std::string const avDiscardToDescription(AVDiscard type)
     {
         return enumToStr(discardDesc, type);
     }
 
-    AVDiscard ParseAVDiscardString(std::string const type)
+    AVDiscard parseAVDiscardString(std::string const type)
     {
         return strToEnum(discardOptions, type);
     }

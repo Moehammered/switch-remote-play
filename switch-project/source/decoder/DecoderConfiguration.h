@@ -1,10 +1,10 @@
 #ifndef __DECODERCONFIGURATION_H__
 #define __DECODERCONFIGURATION_H__
 
-#include <string>
-#include <vector>
 #include "DecoderOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
+#include <vector>
 
 class DecoderConfiguration
 {

@@ -11,7 +11,7 @@ namespace
 }
 
 KeyboardMenu::KeyboardMenu() : Menu(),
-    selectionCursor{keyboard::ParamsList},
+    selectionCursor{keyboard::keyParamsList},
     textElements{}, bindingMap{}
 {
     title.y += 30;
@@ -85,7 +85,7 @@ void KeyboardMenu::ChangeParam(keyboard::KeyParameter param, bool clear)
 
         auto const screenRenderer = MainScreenRenderer();
         auto const rendererRef = screenRenderer->Renderer();
-        auto const fontRef = MainSystemFont();
+        auto const fontRef = mainSystemFont();
         
         auto renderer = [&](std::string str)
         {
@@ -99,7 +99,7 @@ void KeyboardMenu::ChangeParam(keyboard::KeyParameter param, bool clear)
             screenRenderer->PresentScreen();
         };
 
-        auto keys = MonitorKeys(renderer);
+        auto keys = monitorButtons(renderer);
 
         bindingMap[param] = keys;
     }
@@ -109,12 +109,12 @@ keyboard::KeyboardConfig const KeyboardMenu::Settings() const
 {
     auto config = keyboard::KeyboardConfig{};
 
-    auto const maxKeyCount = std::min(keyboard::TotalSupportedKeys, keyboard::ParamsList.size());
+    auto const maxKeyCount = std::min(keyboard::totalSupportedKeys, keyboard::keyParamsList.size());
 
     for(auto i = 0U; i < maxKeyCount; ++i)
     {
         auto keyBinding = keyboard::KeyboardBinding{};
-        keyBinding.key = keyboard::ParamsList[i];
+        keyBinding.key = keyboard::keyParamsList[i];
 
         auto binding = bindingMap.find(keyBinding.key);
         if(binding != bindingMap.end())
@@ -130,12 +130,12 @@ keyboard::KeyboardConfig const KeyboardMenu::Settings() const
 
 void KeyboardMenu::UpdateUI(keyboard::KeyParameter param)
 {
-    auto prefix = keyboard::ParamsDesc.at(param);
+    auto prefix = keyboard::keyParamsDesc.at(param);
     auto binding = bindingMap.find(param);
     if(binding != bindingMap.end())
     {
         auto btns = (HidNpadButton)binding->second;
-        auto btnStrings = controller::SwitchButtonsToString(btns);
+        auto btnStrings = controller::switchButtonsToString(btns);
         if(btnStrings.size() > 1)
         {
             auto str = btnStrings[0];
@@ -165,7 +165,7 @@ void KeyboardMenu::SetupText()
     int counter = 0;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = keyboard::ParamsList;
+    auto params = keyboard::keyParamsList;
     for(auto& p : params)
     {
         auto col = counter / itemsPerCol;

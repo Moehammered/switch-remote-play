@@ -9,13 +9,13 @@ extern "C"
 
 namespace joyconutility
 {
-    void RemapKey(PadState & pad, HidNpadButton const from, HidNpadButton const to);
-    void ClearAnalogSticks(PadState & pad);
-    void ClearShoulderButtons(PadState & pad);
+    void remapKey(PadState & pad, HidNpadButton const from, HidNpadButton const to);
+    void clearAnalogSticks(PadState & pad);
+    void clearShoulderButtons(PadState & pad);
 
-    HidAnalogStickState const RotateAnalogAxis(HidAnalogStickState const analogStick, JoyConAnalogRotation const rotation);
-    JoyConMapping const CreateJoyConMapping(uint32_t const analogFlags, uint32_t const buttonFlags);
-    PadState const TranslateJoyConPad(PadState const & pad, JoyConMapping const options);
+    HidAnalogStickState const rotateAnalogAxis(HidAnalogStickState const analogStick, JoyConAnalogRotation const rotation);
+    JoyConMapping const createJoyConMapping(uint32_t const analogFlags, uint32_t const buttonFlags);
+    PadState const translateJoyConPad(PadState const & pad, JoyConMapping const options);
 }
 
 #endif

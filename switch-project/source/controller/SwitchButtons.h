@@ -23,14 +23,14 @@ namespace controller
         { AnalogStick::Right, "Right Analog Stick" }
     };
 
-    std::string AnalogStickToString(AnalogStick stick);
-    AnalogStick ParseAnalogStickString(std::string s);
+    std::string analogStickToString(AnalogStick stick);
+    AnalogStick parseAnalogStickString(std::string s);
 
-    std::string SwitchButtonToString(HidNpadButton btn);
-    HidNpadButton ParseSwitchButtonString(std::string s);
+    std::string switchButtonToString(HidNpadButton btn);
+    HidNpadButton parseSwitchButtonString(std::string s);
     
-    std::vector<std::string> const SwitchButtonsToString(uint64_t const keys);
-    std::vector<HidNpadButton> const ParseSwitchButtonStrings(std::vector<std::string> const & strings);
+    std::vector<std::string> const switchButtonsToString(uint64_t const keys);
+    std::vector<HidNpadButton> const parseSwitchButtonStrings(std::vector<std::string> const & strings);
     
     static std::unordered_map<HidNpadButton, std::string> const switchButtonOptions
     {
@@ -73,9 +73,6 @@ namespace controller
         { HidNpadButton::HidNpadButton_StickL, "Left Analog Button" },
         { HidNpadButton::HidNpadButton_StickR, "Right Analog Button" }
     };
-
-    HidNpadButton constexpr DefaultLeftMouseButton = HidNpadButton_R;
-    HidNpadButton constexpr DefaultRightMouseButton = HidNpadButton_ZR;
 }
 
 #endif

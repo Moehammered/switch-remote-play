@@ -11,9 +11,9 @@ extern "C"
 
 namespace decoder
 {
-    std::string const AVDiscardToString(AVDiscard type);
-    std::string const AVDiscardToDescription(AVDiscard type);
-    AVDiscard ParseAVDiscardString(std::string const type);
+    std::string const avDiscardToString(AVDiscard type);
+    std::string const avDiscardToDescription(AVDiscard type);
+    AVDiscard parseAVDiscardString(std::string const type);
 
     static std::unordered_map<AVDiscard, std::string> const discardOptions
     {

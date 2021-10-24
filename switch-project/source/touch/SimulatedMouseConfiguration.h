@@ -1,9 +1,9 @@
 #ifndef __SIMULATEDMOUSECONFIGURATION_H__
 #define __SIMULATEDMOUSECONFIGURATION_H__
 
-#include <string>
 #include "SimulatedMouseOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
 
 class SimulatedMouseConfiguration
 {

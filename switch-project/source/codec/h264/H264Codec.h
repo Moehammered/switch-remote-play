@@ -16,16 +16,16 @@ public:
 	void Set(h264::H264Data const data);
 	h264::H264Data const Data() const;
 
-	h264::Parameters Current();
-	h264::Parameters Next();
-	h264::Parameters Prev();
+	h264::H264Parameters Current();
+	h264::H264Parameters Next();
+	h264::H264Parameters Prev();
 
 	void Increase();
 	void Decrease();
 
 private:
 	//selection cursor
-	ArrayCirculator<h264::Parameters, std::vector> cursor;
+	ArrayCirculator<h264::H264Parameters, std::vector> cursor;
 
 	//enum cursors
 	UnorderedMapCirculator<h264::EncoderPreset, std::string> presetCursor;

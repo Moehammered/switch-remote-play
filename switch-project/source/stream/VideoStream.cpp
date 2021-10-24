@@ -1,176 +1,64 @@
 #include "VideoStream.h"
-
+#include "StreamDecoder.h"
+#include <iostream>
+#include <unordered_map>
 extern "C" 
 {
     #include <libavutil/imgutils.h>
     #include <libavutil/avutil.h>
 }
 
-//#include <switch.h>
-#include <iostream>
-#include "StreamDecoder.h"
-#include <unordered_map>
-
-std::string SkipLoopFilterToString(AVDiscard discard)
+namespace
 {
-    switch(discard)
+    auto constexpr streamURL = "tcp://0.0.0.0";
+
+    std::string SkipLoopFilterToString(AVDiscard discard)
     {
-        case AVDISCARD_NONE:
-            return "Discard None\n";
+        switch(discard)
+        {
+            case AVDISCARD_NONE:
+                return "Discard None\n";
 
-        case AVDISCARD_DEFAULT: 
-            return "discard useless packets like 0 size packets in avi\n";
+            case AVDISCARD_DEFAULT: 
+                return "discard useless packets like 0 size packets in avi\n";
 
-        case AVDISCARD_NONREF:
-            return "discard all non reference\n";
+            case AVDISCARD_NONREF:
+                return "discard all non reference\n";
 
-        case AVDISCARD_BIDIR:
-            return "discard all bidirectional frames\n";
-        
-        case AVDISCARD_NONINTRA: 
-            return "discard all non intra frames\n";
+            case AVDISCARD_BIDIR:
+                return "discard all bidirectional frames\n";
+            
+            case AVDISCARD_NONINTRA: 
+                return "discard all non intra frames\n";
 
-        case AVDISCARD_NONKEY:
-            return "discard all frames except keyframes\n";
+            case AVDISCARD_NONKEY:
+                return "discard all frames except keyframes\n";
 
-        case AVDISCARD_ALL:
-            return "discard all\n";
+            case AVDISCARD_ALL:
+                return "discard all\n";
 
-        default:
-            return "unknown";
-    }
-}
-
-std::string HWAccelFlagsDescription(uint32_t flags)
-{
-    std::string setFlags{};
-    std::unordered_map<int, std::string> flagToString{
-        {AV_HWACCEL_CODEC_CAP_EXPERIMENTAL,  "EXPERIMENTAL"},
-        {AV_HWACCEL_FLAG_IGNORE_LEVEL,  "IGNORE HW SUPPORT LEVEL"},
-        {AV_HWACCEL_FLAG_ALLOW_HIGH_DEPTH,  "OUTPUT YUV GREATER THAN 4:2:0"},
-        {AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH,  "ATTEMPT HW ACCEL EVEN IF MISMATCHED"}
-    };
-
-    for(auto item : flagToString)
-    {
-        if(flags & item.first)
-            setFlags += "    " + item.second + "\n";
+            default:
+                return "unknown";
+        }
     }
 
-    if(setFlags.size() == 0)
-        setFlags += "   NONE";
-
-    return setFlags;
-}
-
-/*
-    Flag propeties and examples
-    https://ffmpeg.org/doxygen/4.0/group__lavc__core.html#ga1a6a486e686ab6c581ffffcb88cb31b3
-*/
-std::string DecoderFlags2Description(uint32_t flags)
-{
-    std::string setFlags{};
-    std::unordered_map<int, std::string> flagToString{
-        {AV_CODEC_FLAG2_FAST,  "FAST - ENABLE SPEEDUPS"},
-        {AV_CODEC_FLAG2_NO_OUTPUT,  "SKIP BITSTREAM ENCODE"},
-        {AV_CODEC_FLAG2_LOCAL_HEADER,  "GLOBAL HEADERS IN KEYFRAME"},
-        {AV_CODEC_FLAG2_DROP_FRAME_TIMECODE,  "DROP FRAME FORMAT - DEPRECATED"},
-        {AV_CODEC_FLAG2_CHUNKS,  "TRUNCATED FRAMES"},
-        {AV_CODEC_FLAG2_IGNORE_CROP,  "IGNORE CROP INFO"},
-        {AV_CODEC_FLAG2_SHOW_ALL,  "SHOW ALL BEFORE 1ST KEYFRAME"},
-        {AV_CODEC_FLAG2_EXPORT_MVS,  "EXPORT MOTION VECTOR SIDEDATA"},
-        {AV_CODEC_FLAG2_SKIP_MANUAL,  "EXPORT SKIP INFO AS SIDE DATA"},
-        {AV_CODEC_FLAG2_RO_FLUSH_NOOP,  "DONT RESET ASS ON FLUSH (SUBTITLES)"}
-    };
-
-    for(auto item : flagToString)
+    void PrintDecoderContextSettings(AVCodecContext const & decoderContext)
     {
-        if(flags & item.first)
-            setFlags += "    " + item.second + "\n";
+        std::cout << "Skip Loop Filter: " << SkipLoopFilterToString(decoderContext.skip_loop_filter);
+        std::cout << "\nThread Count: " << decoderContext.thread_count << "\n";
+        std::cout << "Threading Type\n";
+        if(decoderContext.thread_type == FF_THREAD_SLICE)
+            std::cout << "    SLICE: Decode more slices of a SINGLE frame at once\n\n";
+        else if(decoderContext.thread_type == FF_THREAD_FRAME)
+            std::cout << "    FRAME: Decode more than one frame at once\n\n";
+        else
+            std::cout << "    Unknown thread_type: " << decoderContext.thread_type << "\n\n";
     }
-
-    if(setFlags.size() == 0)
-        setFlags += "   NONE";
-
-    return setFlags;
 }
-
-/*
-    Flag propeties and examples
-    https://ffmpeg.org/doxygen/4.0/group__lavc__core.html#ga1a6a486e686ab6c581ffffcb88cb31b3
-*/
-std::string DecoderFlags1Description(uint32_t flags)
-{
-    std::string setFlags{};
-    std::unordered_map<int, std::string> flagToString{
-        {AV_CODEC_FLAG_UNALIGNED,  "UNALIGNED FRAMES"},
-        {AV_CODEC_FLAG_QSCALE,  "FIXED QSCALE"},
-        {AV_CODEC_FLAG_4MV,  "H263 PREDICTION"},
-        {AV_CODEC_FLAG_OUTPUT_CORRUPT,  "OUTPUT CORRUPT FRAMES"},
-        {AV_CODEC_FLAG_QPEL,  "QPEL MC"},
-        {AV_CODEC_FLAG_DROPCHANGED,  "DROP DIFFERING FRAMES"},
-        {AV_CODEC_FLAG_PASS1,  "2PASS in 1st PASS MODE"},
-        {AV_CODEC_FLAG_PASS2,  "2PASS in 2nd PASS MODE"},
-        {AV_CODEC_FLAG_LOOP_FILTER,  "LOOP FILTER"},
-        {AV_CODEC_FLAG_GRAY,  "GRAYSCALE ONLY"},
-        {AV_CODEC_FLAG_PSNR,  "ERRORS SET IN ENCODING"},
-        {AV_CODEC_FLAG_TRUNCATED,  "TRUNCATED FRAMES"},
-        {AV_CODEC_FLAG_INTERLACED_DCT,  "INTERLACTED DCT"},
-        {AV_CODEC_FLAG_LOW_DELAY,  "FORCE LOW DELAY"},
-        {AV_CODEC_FLAG_GLOBAL_HEADER,  "GLOBAL HEADER IN EXTRADATA"},
-        {AV_CODEC_FLAG_BITEXACT,  "ONLY BITEXACT STUFF"},
-        {AV_CODEC_FLAG_AC_PRED,  "H263 ADV INTRACODING / PREDICITION"},
-        {AV_CODEC_FLAG_INTERLACED_ME,  "INTERLACED MOTION EST."},
-        {AV_CODEC_FLAG_CLOSED_GOP,  "CLOSED GOP"}
-    };
-
-    for(auto item : flagToString)
-    {
-        if(flags & item.first)
-            setFlags += "    " + item.second + "\n";
-    }
-
-    if(setFlags.size() == 0)
-        setFlags += "   NONE";
-
-    return setFlags;
-}
-
-void PrintDecoderContextSettings(AVCodecContext const & decoderContext)
-{
-    // std::cout << "HW Accel Flags\n";
-    // {
-    //     auto hwaccelFlags = HWAccelFlagsDescriptions(decoderContext.hwaccel_flags);
-    //     for(auto& flag : hwaccelFlags)
-    //         std::cout << flag.second << "\n";
-    // }
-    // std::cout << "Flag 1\n";
-    // {
-    //     auto flagsSet = DecoderFlags1Descriptions(decoderContext.flags);
-    //     for(auto& flag : flagsSet)
-    //         std::cout << flag.second << "\n";
-    // }
-    // std::cout << "Flag 2\n";
-    // {
-    //     auto flags2Set = DecoderFlags2Descriptions(decoderContext.flags2);
-    //     for(auto& flag : flags2Set)
-    //         std::cout << flag.second << "\n";
-    // }
-    std::cout << "Skip Loop Filter: " << SkipLoopFilterToString(decoderContext.skip_loop_filter);
-    std::cout << "\nThread Count: " << decoderContext.thread_count << "\n";
-    std::cout << "Threading Type\n";
-    if(decoderContext.thread_type == FF_THREAD_SLICE)
-        std::cout << "    SLICE: Decode more slices of a SINGLE frame at once\n\n";
-    else if(decoderContext.thread_type == FF_THREAD_FRAME)
-        std::cout << "    FRAME: Decode more than one frame at once\n\n";
-    else
-        std::cout << "    Unknown thread_type: " << decoderContext.thread_type << "\n\n";
-}
-
-auto constexpr streamURL = "tcp://0.0.0.0";
 
 VideoStream::VideoStream()
-    : streamFormat{nullptr}, stream{nullptr}, decoder{nullptr},
+    : streamMediaType{AVMEDIA_TYPE_VIDEO},
+    streamFormat{nullptr}, stream{nullptr}, decoder{nullptr},
     decoderContext{nullptr}, frame{nullptr}
 {   
 }
@@ -251,26 +139,6 @@ bool VideoStream::WaitForStream(DecoderData decoderSettings, uint16_t port)
     decoderContext->thread_count = decoderSettings.threadCount;
 
     PrintDecoderContextSettings(*decoderContext);
-
-    // if(decoderContext->flags & AV_CODEC_FLAG_LOW_DELAY)
-    //     std::cout << "Decoder already flagged for low delay\n";
-    // else
-	//     decoderContext->flags |= AV_CODEC_FLAG_LOW_DELAY;
-
-    // if(decoderContext->flags2 & AV_CODEC_FLAG2_FAST)
-    //     std::cout <<"Decoder already flagged for fast\n";
-    // else
-	//     decoderContext->flags2 |= AV_CODEC_FLAG2_FAST;
-    
-    // /*
-    //     https://ffmpeg.org/doxygen/4.0/structAVCodecContext.html#a7651614f4309122981d70e06a4b42fcb
-    //     Considering we never supply more than 1 frame at a time, we should set it to SLICE
-    //     as FRAME incurs a 1 frame delay per thread
-    // */
-    // decoderContext->thread_type = FF_THREAD_SLICE;
-    // decoderContext->thread_count = 4;
-
-	// decoderContext->skip_loop_filter = AVDISCARD_ALL;
 
     std::cout << "Decoder settings after alteration\n";
     PrintDecoderContextSettings(*decoderContext);

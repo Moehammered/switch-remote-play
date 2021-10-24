@@ -14,21 +14,21 @@ namespace padutility
     auto constexpr leftAnalogIndex = 0;
     auto constexpr rightAnalogIndex = 1;
     
-    std::vector<PadState> InitialisePads(uint32_t max);
+    std::vector<PadState> initialisePads(uint32_t max);
 
-    std::string PadIDToPort(int id);
-    std::string PadDeviceTypeStr(HidDeviceTypeBits deviceID);
-    uint32_t PadIDToHidNpadIdType(int id);
+    std::string padIDToPort(int id);
+    std::string padDeviceTypeStr(HidDeviceTypeBits deviceID);
+    uint32_t padIDToHidNpadIdType(int id);
 
-    bool DeviceTypeIdIsJoyCon(HidDeviceTypeBits deviceType);
-    bool JoyconIsHorizontal(int id);
-    std::string PadPropertiesToString(int id);
+    bool deviceTypeIdIsJoyCon(HidDeviceTypeBits deviceType);
+    bool joyconIsHorizontal(int id);
+    std::string padPropertiesToString(int id);
 
-    int32_t PadNumber(PadState const & pad);
-    HidDeviceTypeBits const PadDeviceType(PadState const & pad);
-    bool PadIsSingleJoyCon(PadState const & pad);
-    bool IsLeftJoyCon(PadState const & pad);
-    bool IsRightJoyCon(PadState const & pad);
+    int32_t padNumber(PadState const & pad);
+    HidDeviceTypeBits const padDeviceType(PadState const & pad);
+    bool padIsSingleJoyCon(PadState const & pad);
+    bool isLeftJoyCon(PadState const & pad);
+    bool isRightJoyCon(PadState const & pad);
 }
 
 #endif

@@ -1,15 +1,15 @@
-#include "h264amfEnums.h"
-#include <unordered_map>
+#include "h264AmfEnums.h"
 #include "../../utils/EnumMapper.h"
+#include <unordered_map>
 
 namespace h264amf
 {
-    std::string amfUsageToStr(H264AMF_USAGE usage)
+    std::string amfUsageToStr(H264AmfUsage usage)
     {
         return enumToStr(usageMap, usage);
     }
 
-    std::string amfUsageToDescription(H264AMF_USAGE usage)
+    std::string amfUsageToDescription(H264AmfUsage usage)
     {
         auto pair = usageDescriptions.find(usage);
         if(pair != usageDescriptions.end())
@@ -18,37 +18,37 @@ namespace h264amf
             return enumToStr(usageMap, usage) + " - no description";
     }
 
-    H264AMF_USAGE amfUsageStrToEnum(std::string s)
+    H264AmfUsage amfUsageFromStr(std::string s)
     {
         return strToEnum(usageMap, s);
     }
 
-    std::string amfProfileToStr(H264AMF_PROFILE prof)
+    std::string amfProfileToStr(H264AmfProfile prof)
     {
         return enumToStr(profileMap, prof);
     }
 
-    H264AMF_PROFILE amfProfileStrToEnum(std::string s)
+    H264AmfProfile amfProfileFromStr(std::string s)
     {
         return strToEnum(profileMap, s);
     }
 
-    std::string amfQualityToStr(H264AMF_QUALITY qual)
+    std::string amfQualityToStr(H264AmfQuality qual)
     {
         return enumToStr(qualityMap, qual);
     }
 
-    H264AMF_QUALITY amfQualityStrToEnum(std::string s)
+    H264AmfQuality amfQualityFromStr(std::string s)
     {
         return strToEnum(qualityMap, s);
     }
 
-    std::string amfRateControlToStr(H264AMF_RATECONTROL rc)
+    std::string amfRateControlToStr(H264AmfRateControl rc)
     {
         return enumToStr(rateControlMap, rc);
     }
 
-    H264AMF_RATECONTROL amfRateControlStrToEnum(std::string s)
+    H264AmfRateControl amfRateControlFromStr(std::string s)
     {
         return strToEnum(rateControlMap, s);
     }

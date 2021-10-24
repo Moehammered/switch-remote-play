@@ -11,7 +11,7 @@ extern "C"
 class StreamDecoder
 {
     public:
-        StreamDecoder(AVCodecParameters const * const codecConfig, bool skipFrames);
+        StreamDecoder(AVCodecParameters const * const codecConfig);
 
         bool Initialised();
 
@@ -27,12 +27,6 @@ class StreamDecoder
         AVCodec* codec;
         AVCodecContext* context;
         AVFrame* currentFrame;
-
-        uint64_t lastPacketTime;
-        const double targetFrameTime = 1.0/60.0; //1 frame every 60th of a second
-        const double NANO_TO_SECONDS = 1000000000.0;
-        uint64_t frameSkipCount;
-        bool skipFrames;
 };
 
 #endif

@@ -4,7 +4,7 @@
 
 DecoderThreadMenu::DecoderThreadMenu() : Menu(),
 textElements{}, itemCursor{decoderUtils::ThreadProperties},
-typeCursor{decoder::threadDesc}, threadCount{MinThreadCount}
+typeCursor{decoder::threadDesc}, threadCount{minThreadCount}
 {
     title.value = "Decoder Thread Behaviour";
     title.y += 45;
@@ -57,7 +57,7 @@ void DecoderThreadMenu::SetTypeFlag(int32_t flag)
 
 void DecoderThreadMenu::SetThreadCount(int32_t count)
 {
-    threadCount = std::clamp(count, MinThreadCount, MaxThreadCount);
+    threadCount = std::clamp(count, minThreadCount, maxThreadCount);
     UpdateUI(decoderUtils::DecoderThreadProp::Count);
 }
 
@@ -94,7 +94,7 @@ void DecoderThreadMenu::ShiftParam(decoderUtils::DecoderThreadProp prop, int dir
             break;
 
         case decoderUtils::DecoderThreadProp::Count:
-            threadCount = KeyboardNumber(MinThreadCount, MaxThreadCount, threadCount);
+            threadCount = keyboardNumber(minThreadCount, maxThreadCount, threadCount);
             break;
     }
 }

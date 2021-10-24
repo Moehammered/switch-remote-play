@@ -3,17 +3,17 @@
 
 namespace controller
 {
-    ControllerAnalogMap ParseControllerAnalogMapString(std::string s)
+    ControllerAnalogMap parseControllerAnalogMapString(std::string s)
     {
         return strToEnum(analogMapOptions, s);
     }
 
-    std::string ControllerAnalogMapToString(ControllerAnalogMap map)
+    std::string controllerAnalogMapToString(ControllerAnalogMap map)
     {
         return enumToStr(analogMapOptions, map);
     }
 
-    std::string ControllerAnalogMapDescription(ControllerAnalogMap map)
+    std::string controllerAnalogMapDescription(ControllerAnalogMap map)
     {
         return enumToStr(analogMapDesc, map);
     }

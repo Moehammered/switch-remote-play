@@ -3,17 +3,17 @@
 
 namespace controller
 {
-    std::string ControllerModeToString(ControllerMode mode)
+    std::string controllerModeToString(ControllerMode mode)
     {
         return enumToStr(controllerModeOptions, mode);
     }
 
-    std::string ControllerModeDescription(ControllerMode mode)
+    std::string controllerModeDescription(ControllerMode mode)
     {
         return enumToStr(controllerModeDesc, mode);
     }
 
-    ControllerMode ParseControllerModeString(std::string s)
+    ControllerMode parseControllerModeString(std::string s)
     {
         return strToEnum(controllerModeOptions, s);
     }

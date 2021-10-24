@@ -1,21 +1,21 @@
 #include "MouseConfiguration.h"
 
 MouseConfiguration::MouseConfiguration()
-    : configMap{ "sdmc:/switch/switch-remote-play/mouse.ini", mouse::ParamsDesc }
+    : configMap{ "sdmc:/switch/switch-remote-play/mouse.ini", mouse::mouseParamsDesc }
 {
 }
 
 MouseConfiguration::MouseConfiguration(std::string const file)
-    : configMap{ file, mouse::ParamsDesc }
+    : configMap{ file, mouse::mouseParamsDesc }
 {
 }
 
 bool MouseConfiguration::Save(mouse::MouseConfig const data)
 {
-    return configMap.Save(data, mouse::MouseParamsToStr);
+    return configMap.Save(data, mouse::mouseParamsToStr);
 }
 
 mouse::MouseConfig const MouseConfiguration::Data() const
 {
-    return configMap.Data(mouse::MouseParamsFromStr);
+    return configMap.Data(mouse::mouseParamsFromStr);
 }

@@ -3,7 +3,7 @@
 #include "../decoder/DecoderOptions.h"
 
 DecoderFlag1Menu::DecoderFlag1Menu() : Menu(),
-    textElements{}, cursor{AvailableFlags1}, selected{}, flags{}
+    textElements{}, cursor{availableFlags1}, selected{}, flags{}
 {
     title.value = "Decoder Flags 1 - Frame Behaviour";
     title.y += 45;
@@ -75,7 +75,7 @@ void DecoderFlag1Menu::ToggleFlag(int32_t flag)
 void DecoderFlag1Menu::UpdateUI(int32_t flags)
 {
     auto& all = decoder::flag1Desc;
-    auto const found = decoder::Flags1ToDescriptions(flags);
+    auto const found = decoder::flags1ToDescriptions(flags);
     for(auto& item : textElements)
     {
         if(auto active = found.find(item.first); active != found.end())
@@ -97,7 +97,7 @@ void DecoderFlag1Menu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = AvailableFlags1;
+    auto params = availableFlags1;
     for(auto& p : params)
     {
         textElements[p] = Text{};

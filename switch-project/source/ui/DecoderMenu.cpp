@@ -2,7 +2,7 @@
 #include "../decoder/DecoderConfiguration.h"
 
 DecoderMenu::DecoderMenu() : Menu(),
-cursor{DecoderParameterList}, selected{},
+cursor{decoderParameterList}, selected{},
 flag1Menu{}, flag2Menu{}, accelMenu{},
 discardMenu{}, menus{}, pageText{}
 {

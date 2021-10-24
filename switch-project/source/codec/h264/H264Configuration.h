@@ -1,10 +1,10 @@
 #ifndef __H264CONFIGURATION_H__
 #define __H264CONFIGURATION_H__
 
-#include <string>
-#include <vector>
 #include "H264Options.h"
 #include "../../utils/MappedDataConfiguration.h"
+#include <string>
+#include <vector>
 
 class H264Configuration
 {
@@ -16,7 +16,7 @@ public:
 	h264::H264Data const Data() const;
 
 private:
-	MappedDataConfiguration<h264::H264Data, h264::Parameters> configMap;
+	MappedDataConfiguration<h264::H264Data, h264::H264Parameters> configMap;
 };
 
 #endif

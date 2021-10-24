@@ -21,10 +21,10 @@ inline bool operator!=(Resolution const & a, Resolution const & b)
     return !(a == b);
 }
 
-std::string ResolutionToString(Resolution const & res);
-Resolution ParseResolutionString(std::string s);
+std::string resolutionToString(Resolution const & res);
+Resolution parseResolutionString(std::string s);
 
-static std::vector<Resolution> const DesktopResolutions
+static std::vector<Resolution> const desktopResolutions
 {
     Resolution{1024, 576}, Resolution{1152, 648}, 
     Resolution{1280, 720}, Resolution{1366, 768},
@@ -32,7 +32,7 @@ static std::vector<Resolution> const DesktopResolutions
     Resolution{2560, 1440}
 };
 
-static std::vector<Resolution> const SwitchResolutions 
+static std::vector<Resolution> const switchResolutions 
 { 
     Resolution{1280, 720}//, Resolution{1920, 1080}
 };

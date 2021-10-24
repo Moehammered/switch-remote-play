@@ -13,9 +13,9 @@ namespace controller
       DS4
    };
 
-   std::string ControllerModeToString(ControllerMode mode);
-   std::string ControllerModeDescription(ControllerMode mode);
-   ControllerMode ParseControllerModeString(std::string s);
+   std::string controllerModeToString(ControllerMode mode);
+   std::string controllerModeDescription(ControllerMode mode);
+   ControllerMode parseControllerModeString(std::string s);
 
    static std::unordered_map<ControllerMode, std::string> const controllerModeOptions
    {

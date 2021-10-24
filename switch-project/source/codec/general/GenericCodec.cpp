@@ -2,19 +2,19 @@
 #include "../../system/SoftwareKeyboard.h"
 
 GenericCodec::GenericCodec()
-    : cursor{VideoParametersList},
-    desktopResCursor{DesktopResolutions},
-    switchResCursor{SwitchResolutions},
-    bitrateCursor{Bitrates},
-    vsyncCursor{VsyncModeStrMap},
-    hwaccelCursor{HWAccelModeStrMap},
-    videoCursor{VideoCodecStrMap},
-    desiredFramerate{DefaultDesiredFramerate},
-    monitorNumber{DefaultMonitorNumber}
+    : cursor{codec::videoParametersList},
+    desktopResCursor{desktopResolutions},
+    switchResCursor{switchResolutions},
+    bitrateCursor{codec::bitrates},
+    vsyncCursor{ffmpeg::vsyncModeStrMap},
+    hwaccelCursor{ffmpeg::hwAccelModeStrMap},
+    videoCursor{ffmpeg::videoCodecStrMap},
+    desiredFramerate{codec::defaultDesiredFramerate},
+    monitorNumber{codec::defaultMonitorNumber}
 {
 }
 
-void GenericCodec::Set(VideoData const data)
+void GenericCodec::Set(codec::VideoData const data)
 {
 	cycleNumber(desktopResCursor, data.desktopResolution);
 	cycleNumber(switchResCursor, data.switchResolution);
@@ -28,9 +28,9 @@ void GenericCodec::Set(VideoData const data)
     monitorNumber = data.monitorNumber;
 }
 
-VideoData const GenericCodec::Data() const
+codec::VideoData const GenericCodec::Data() const
 {
-	auto data = VideoData{};
+	auto data = codec::VideoData{};
 
 	data.desktopResolution = *desktopResCursor;
 	data.switchResolution = *switchResCursor;
@@ -44,18 +44,18 @@ VideoData const GenericCodec::Data() const
 	return data;
 }
 
-VideoParameters GenericCodec::Current()
+codec::VideoParameters GenericCodec::Current()
 {
 	return *cursor;
 }
 
-VideoParameters GenericCodec::Next()
+codec::VideoParameters GenericCodec::Next()
 {
 	++cursor;
 	return *cursor;
 }
 
-VideoParameters GenericCodec::Prev()
+codec::VideoParameters GenericCodec::Prev()
 {
 	--cursor;
 	return *cursor;
@@ -75,36 +75,36 @@ void GenericCodec::ShiftParam(int direction)
 {
 	switch (*cursor)
 	{
-	case VideoParameters::DesktopResolution:
+	case codec::VideoParameters::DesktopResolution:
 		desktopResCursor += direction;
 		break;
 
-	case VideoParameters::SwitchResolution:
+	case codec::VideoParameters::SwitchResolution:
 		switchResCursor += direction;
 		break;
 
-    case VideoParameters::DesiredFramerate:
-        desiredFramerate = (int16_t)KeyboardNumber(MinDesiredFramerate, MaxDesiredFramerate, desiredFramerate);
+    case codec::VideoParameters::DesiredFramerate:
+        desiredFramerate = (int16_t)keyboardNumber(codec::minDesiredFramerate, codec::maxDesiredFramerate, desiredFramerate);
         break;
 
-    case VideoParameters::BitrateKB:
+    case codec::VideoParameters::BitrateKB:
         bitrateCursor += direction;
         break;
 
-    case VideoParameters::VsyncMode:
+    case codec::VideoParameters::VsyncMode:
         vsyncCursor += direction;
         break;
     
-    case VideoParameters::HWAccelMode:
+    case codec::VideoParameters::HWAccelMode:
         hwaccelCursor += direction;
         break;
 
-    case VideoParameters::VideoCodec:
+    case codec::VideoParameters::VideoCodec:
         videoCursor += direction;
         break;
 
-    case VideoParameters::MonitorNumber:
-        monitorNumber = (int16_t)KeyboardNumber(MinMonitorNumber, MaxMonitorNumber, monitorNumber);
+    case codec::VideoParameters::MonitorNumber:
+        monitorNumber = (int16_t)keyboardNumber(codec::minMonitorNumber, codec::maxMonitorNumber, monitorNumber);
         break;
 	}
 }

@@ -7,95 +7,95 @@
 
 namespace h264amf
 {
-    enum class H264AMF_USAGE : int16_t
+    enum class H264AmfUsage : int16_t
     {
-        TRANSCODING = 0,
-        ULTRALOWLATENCY,
-        LOWLATENCY,
-        WEBCAM
+        Transcoding = 0,
+        UltraLowLatency,
+        LowLatency,
+        Webcam
     };
 
-    auto constexpr DefaultUsage {H264AMF_USAGE::LOWLATENCY};
+    auto constexpr defaultUsage {H264AmfUsage::LowLatency};
 
-    enum class H264AMF_PROFILE : int16_t
+    enum class H264AmfProfile : int16_t
     {
-        MAIN = 66,
-        HIGH,
-        CONSTRAINED_BASELINE,
-        CONSTRAINED_HIGH
+        Main = 66,
+        High,
+        ConstrainedBaseline,
+        ConstrainedHigh
     };
 
-    auto constexpr DefaultProfile {H264AMF_PROFILE::HIGH};
+    auto constexpr defaultProfile {H264AmfProfile::High};
 
-    enum class H264AMF_QUALITY : int16_t
+    enum class H264AmfQuality : int16_t
     {
-        SPEED = 0,
-        BALANCED,
-        QUALITY
+        Speed = 0,
+        Balanced,
+        Quality
     };
 
-    auto constexpr DefaultQuality {H264AMF_QUALITY::BALANCED};
+    auto constexpr defaultQuality {H264AmfQuality::Balanced};
 
-    enum class H264AMF_RATECONTROL : int16_t
+    enum class H264AmfRateControl : int16_t
     {
         CQP = -1,
         CBR,
-        VBR_PEAK,
-        VBR_LATENCY
+        VBR_Peak,
+        VBR_Latency
     };
 
-    auto constexpr DefaultRateControl {H264AMF_RATECONTROL::CQP};
+    auto constexpr defaultRateControl {H264AmfRateControl::CQP};
 
-    static std::unordered_map<H264AMF_USAGE, std::string> usageMap
+    static std::unordered_map<H264AmfUsage, std::string> usageMap
     {
-        {H264AMF_USAGE::ULTRALOWLATENCY, "ultralowlatency"},
-        {H264AMF_USAGE::TRANSCODING, "transcoding"},
-        {H264AMF_USAGE::LOWLATENCY, "lowlatency"},
-        {H264AMF_USAGE::WEBCAM, "webcam"}
+        {H264AmfUsage::UltraLowLatency, "ultralowlatency"},
+        {H264AmfUsage::Transcoding, "transcoding"},
+        {H264AmfUsage::LowLatency, "lowlatency"},
+        {H264AmfUsage::Webcam, "webcam"}
     };
 
-    static std::unordered_map<H264AMF_USAGE, std::string> usageDescriptions
+    static std::unordered_map<H264AmfUsage, std::string> usageDescriptions
     {
-        {H264AMF_USAGE::ULTRALOWLATENCY, "ultra low latency - prioritise latency at all costs"},
-        {H264AMF_USAGE::TRANSCODING, "transcoding - output is suited for further encoding"},
-        {H264AMF_USAGE::LOWLATENCY, "low latency - prioritise latency while maintaining quality"},
-        {H264AMF_USAGE::WEBCAM, "webcam - output is processed as a stream from a camera device"}
+        {H264AmfUsage::UltraLowLatency, "ultra low latency - prioritise latency at all costs"},
+        {H264AmfUsage::Transcoding, "transcoding - output is suited for further encoding"},
+        {H264AmfUsage::LowLatency, "low latency - prioritise latency while maintaining quality"},
+        {H264AmfUsage::Webcam, "webcam - output is processed as a stream from a camera device"}
     };
 
-    static std::unordered_map<H264AMF_PROFILE, std::string> profileMap
+    static std::unordered_map<H264AmfProfile, std::string> profileMap
     {
-        {H264AMF_PROFILE::MAIN, "main"},
-        {H264AMF_PROFILE::HIGH, "high"},
-        {H264AMF_PROFILE::CONSTRAINED_BASELINE, "constrained_baseline"},
-        {H264AMF_PROFILE::CONSTRAINED_HIGH, "constrained_high"}
+        {H264AmfProfile::Main, "main"},
+        {H264AmfProfile::High, "high"},
+        {H264AmfProfile::ConstrainedBaseline, "constrained_baseline"},
+        {H264AmfProfile::ConstrainedHigh, "constrained_high"}
     };
 
-    static std::unordered_map<H264AMF_QUALITY, std::string> qualityMap
+    static std::unordered_map<H264AmfQuality, std::string> qualityMap
     {
-        {H264AMF_QUALITY::SPEED, "speed"},
-        {H264AMF_QUALITY::BALANCED, "balanced"},
-        {H264AMF_QUALITY::QUALITY, "quality"},
+        {H264AmfQuality::Speed, "speed"},
+        {H264AmfQuality::Balanced, "balanced"},
+        {H264AmfQuality::Quality, "quality"},
     };
 
-    static std::unordered_map<H264AMF_RATECONTROL, std::string> rateControlMap
+    static std::unordered_map<H264AmfRateControl, std::string> rateControlMap
     {
-        {H264AMF_RATECONTROL::CQP, "constant_quantization_parameter"},
-        {H264AMF_RATECONTROL::CBR, "constant_bitrate"},
-        {H264AMF_RATECONTROL::VBR_PEAK, "peak_constrained_variable_bitrate"},
-        {H264AMF_RATECONTROL::VBR_LATENCY, "latency_constrained_variable_bitrate"}
+        {H264AmfRateControl::CQP, "constant_quantization_parameter"},
+        {H264AmfRateControl::CBR, "constant_bitrate"},
+        {H264AmfRateControl::VBR_Peak, "peak_constrained_variable_bitrate"},
+        {H264AmfRateControl::VBR_Latency, "latency_constrained_variable_bitrate"}
     };
 
-    std::string amfUsageToStr(H264AMF_USAGE usage);
-    std::string amfUsageToDescription(H264AMF_USAGE usage);
-    H264AMF_USAGE amfUsageStrToEnum(std::string s);
+    std::string amfUsageToStr(H264AmfUsage usage);
+    std::string amfUsageToDescription(H264AmfUsage usage);
+    H264AmfUsage amfUsageFromStr(std::string s);
 
-    std::string amfProfileToStr(H264AMF_PROFILE prof);
-    H264AMF_PROFILE amfProfileStrToEnum(std::string s);
+    std::string amfProfileToStr(H264AmfProfile prof);
+    H264AmfProfile amfProfileFromStr(std::string s);
 
-    std::string amfQualityToStr(H264AMF_QUALITY qual);
-    H264AMF_QUALITY amfQualityStrToEnum(std::string s);
+    std::string amfQualityToStr(H264AmfQuality qual);
+    H264AmfQuality amfQualityFromStr(std::string s);
 
-    std::string amfRateControlToStr(H264AMF_RATECONTROL rc);
-    H264AMF_RATECONTROL amfRateControlStrToEnum(std::string s);
+    std::string amfRateControlToStr(H264AmfRateControl rc);
+    H264AmfRateControl amfRateControlFromStr(std::string s);
 }
 #endif

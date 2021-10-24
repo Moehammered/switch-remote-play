@@ -3,27 +3,27 @@
 
 namespace controller
 {
-    std::string AnalogStickToString(AnalogStick stick)
+    std::string analogStickToString(AnalogStick stick)
     {
         return enumToStr(analogStickOptions, stick);
     }
 
-    AnalogStick ParseAnalogStickString(std::string s)
+    AnalogStick parseAnalogStickString(std::string s)
     {
         return strToEnum(analogStickOptions, s);
     }
 
-    std::string SwitchButtonToString(HidNpadButton btn)
+    std::string switchButtonToString(HidNpadButton btn)
     {
         return enumToStr(switchButtonOptions, btn);
     }
 
-    HidNpadButton ParseSwitchButtonString(std::string s)
+    HidNpadButton parseSwitchButtonString(std::string s)
     {
         return strToEnum(switchButtonOptions, s);
     }
 
-    std::vector<std::string> const SwitchButtonsToString(uint64_t const keys)
+    std::vector<std::string> const switchButtonsToString(uint64_t const keys)
     {
         auto btns = std::vector<std::string>{};
 
@@ -31,18 +31,18 @@ namespace controller
         {
             auto const btnMask = entry.first & keys;
             if(entry.first == btnMask)
-                btns.push_back(SwitchButtonToString(entry.first));
+                btns.push_back(switchButtonToString(entry.first));
         }
 
         return btns;
     }
 
-    std::vector<HidNpadButton> const ParseSwitchButtonStrings(std::vector<std::string> const & strings)
+    std::vector<HidNpadButton> const parseSwitchButtonStrings(std::vector<std::string> const & strings)
     {
         auto btns = std::vector<HidNpadButton>{};
 
         for(auto const & entry : strings)
-            btns.push_back(ParseSwitchButtonString(entry));
+            btns.push_back(parseSwitchButtonString(entry));
 
         return btns;
     }

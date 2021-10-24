@@ -35,16 +35,16 @@ bool ConnectTo(std::string ip, uint16_t port, int& connectionSock)
 
 bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
 {
-    static_assert(COMMAND_CODE_SIZE == 2);
-    static_assert(ENCODER_CONFIG_SIZE == 40);
-    static_assert(controller::ControllerConfigSize == 20);
-    static_assert(COMMAND_PAYLOAD_SIZE == 264);
+    static_assert(commandCodeSize == 2);
+    static_assert(encoderConfigSize == 40);
+    static_assert(controller::controllerConfigSize == 20);
+    static_assert(commandPayloadSize == 264);
 
     char* dataPtr = (char*)&payload;
 
     // std::cout << "Sending command payload with configuration of size: " << COMMAND_PAYLOAD_SIZE << " bytes" << std::endl;
 
-    auto result = send(connectionSock, dataPtr, COMMAND_PAYLOAD_SIZE, 0);
+    auto result = send(connectionSock, dataPtr, commandPayloadSize, 0);
     if(result < 0)
     {
         std::cout << "Failed to send data code: " << strerror(errno) << std::endl;

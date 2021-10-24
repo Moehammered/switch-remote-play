@@ -1,37 +1,40 @@
 #include "FlagMapUtils.h"
 #include <algorithm>
 
-std::unordered_map<int32_t, std::string> const ToStrings(int32_t flags, std::unordered_map<int32_t, std::string> const & map)
+namespace bitflagutil
 {
-    auto found = std::unordered_map<int32_t, std::string>{};
-
-    for(auto const & pair : map)
+    std::unordered_map<int32_t, std::string> const toStrings(int32_t flags, std::unordered_map<int32_t, std::string> const & map)
     {
-        if(flags & pair.first)
-            found[pair.first] = pair.second;
+        auto found = std::unordered_map<int32_t, std::string>{};
+
+        for(auto const & pair : map)
+        {
+            if(flags & pair.first)
+                found[pair.first] = pair.second;
+        }
+
+        return found;
     }
 
-    return found;
-}
-
-int32_t const ParseFlagStrings(std::vector<std::string> const & values, std::unordered_map<int32_t, std::string> const & map)
-{
-    int32_t flags = 0;
-
-    auto checkString = [](auto const & str, auto const & pair)
+    int32_t const parseFlagStrings(std::vector<std::string> const & values, std::unordered_map<int32_t, std::string> const & map)
     {
-        return str == pair.second;
-    };
+        int32_t flags = 0;
 
-    for(auto const & value : values)
-    {
-        auto itr = std::find_if(map.begin(), map.end(), [&](auto const & pair){
-            return checkString(value, pair);
-        });
+        auto checkString = [](auto const & str, auto const & pair)
+        {
+            return str == pair.second;
+        };
 
-        if(itr != map.end())
-            flags |= itr->first;
+        for(auto const & value : values)
+        {
+            auto itr = std::find_if(map.begin(), map.end(), [&](auto const & pair){
+                return checkString(value, pair);
+            });
+
+            if(itr != map.end())
+                flags |= itr->first;
+        }
+
+        return flags;
     }
-
-    return flags;
 }

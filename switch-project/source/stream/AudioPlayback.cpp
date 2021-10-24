@@ -6,15 +6,19 @@
 #include <iostream>
 #include <iomanip>
 
-AudioConfig constexpr DefaultAudioSettings{
-    .sampleRate {48000},
-    .framerate {100},
-    .channelCount {2},
-    .bitrate {16}
-};
+namespace
+{
+    AudioConfig constexpr defaultAudioSettings
+    {
+        .sampleRate {48000},
+        .framerate {100},
+        .channelCount {2},
+        .bitrate {16}
+    };
+}
 
 AudioPlayback::AudioPlayback()
-    : settings{DefaultAudioSettings}, 
+    : settings{defaultAudioSettings}, 
       packetsPerFrame {settings.sampleRate/settings.framerate * settings.bitrate/8 * settings.channelCount},
       bufferCount {3}, bufferIndex {0},
       packetBuffers{}, switchAudioBuffers{},
@@ -29,12 +33,12 @@ AudioPlayback::AudioPlayback()
         };
         switchAudioBuffers.push_back(defaultBuffer);
 
-        auto buffer = (char*)memalign(AudioBufferAlignment, packetsPerFrame);
+        auto buffer = (char*)memalign(audioBufferAlignment, packetsPerFrame);
         memset(buffer, 0, packetsPerFrame);
         packetBuffers.push_back(buffer);
     }
 
-    std::cout << "AudioBufferAlignment: 0x" << std::setbase(16) << AudioBufferAlignment << "\n";
+    std::cout << "AudioBufferAlignment: 0x" << std::setbase(16) << audioBufferAlignment << "\n";
     std::cout << std::setbase(10);
     std::cout << "Packets Per Frame: " << packetsPerFrame << "\n";
     std::cout << "Buffer Count: " << bufferCount << "\n";
@@ -56,7 +60,7 @@ AudioPlayback::AudioPlayback(AudioConfig config, uint32_t swapBuffers)
         };
         switchAudioBuffers.push_back(defaultBuffer);
 
-        auto buffer = (char*)memalign(AudioBufferAlignment, packetsPerFrame);
+        auto buffer = (char*)memalign(audioBufferAlignment, packetsPerFrame);
         packetBuffers.push_back(buffer);
     }
 }

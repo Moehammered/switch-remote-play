@@ -13,19 +13,19 @@ class GenericCodec
 public:
     GenericCodec();
 
-    void Set(VideoData const data);
-	VideoData const Data() const;
+    void Set(codec::VideoData const data);
+	codec::VideoData const Data() const;
 
-	VideoParameters Current();
-	VideoParameters Next();
-	VideoParameters Prev();
+	codec::VideoParameters Current();
+	codec::VideoParameters Next();
+	codec::VideoParameters Prev();
 
 	void Increase();
 	void Decrease();
 
 private:
 	//selection cursor
-	ArrayCirculator<VideoParameters, std::vector> cursor;
+	ArrayCirculator<codec::VideoParameters, std::vector> cursor;
 
     //fixed value cursors
     ArrayCirculator<Resolution, std::vector> desktopResCursor;
@@ -33,9 +33,9 @@ private:
 	ArrayCirculator<int16_t, std::vector> bitrateCursor;
 
 	//enum cursors
-	UnorderedMapCirculator<VsyncMode, std::string> vsyncCursor;
-	UnorderedMapCirculator<HWAccelMode, std::string> hwaccelCursor;
-	UnorderedMapCirculator<VideoCodec, std::string> videoCursor;
+	UnorderedMapCirculator<ffmpeg::VsyncMode, std::string> vsyncCursor;
+	UnorderedMapCirculator<ffmpeg::HWAccelMode, std::string> hwaccelCursor;
+	UnorderedMapCirculator<ffmpeg::VideoCodec, std::string> videoCursor;
 
 	int16_t desiredFramerate;
 	int16_t monitorNumber;

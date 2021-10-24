@@ -13,14 +13,14 @@ class GenericCodecMenu : public Menu
         void ProcessInput(PadState const & pad) override;
         void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
-        VideoData const VideoCodecSettings() const;
+        codec::VideoData const VideoCodecSettings() const;
 
     private:
-        std::unordered_map<VideoParameters, Text> textElements;
+        std::unordered_map<codec::VideoParameters, Text> textElements;
         GenericCodec codec;
-        VideoParameters selected;
+        codec::VideoParameters selected;
 
-        void UpdateUI(VideoParameters param);
+        void UpdateUI(codec::VideoParameters param);
 
         void SetupText();
 };

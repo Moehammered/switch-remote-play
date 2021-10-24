@@ -7,7 +7,7 @@
 
 namespace h264
 {
-    enum class Parameters : int
+    enum class H264Parameters : int
     {
         ConstantRateFactor,
         Preset,
@@ -15,29 +15,29 @@ namespace h264
         Profile
     };
 
-    static std::vector<Parameters> const ParamsList
+    static std::vector<H264Parameters> const h264ParamsList
     {
-        Parameters::ConstantRateFactor,
-        Parameters::Preset,
-        Parameters::RateControlMode,
-        Parameters::Profile
+        H264Parameters::ConstantRateFactor,
+        H264Parameters::Preset,
+        H264Parameters::RateControlMode,
+        H264Parameters::Profile
     };
 
-    static std::unordered_map<Parameters, std::string> const ParamsToDesc
+    static std::unordered_map<H264Parameters, std::string> const h264ParamsDesc
     {
-        { Parameters::ConstantRateFactor, "Constant Rate Factor" },
-        { Parameters::Preset, "Preset" },
-        { Parameters::RateControlMode, "Rate Control Mode" },
-        { Parameters::Profile, "Profile" }
+        { H264Parameters::ConstantRateFactor, "Constant Rate Factor" },
+        { H264Parameters::Preset, "Preset" },
+        { H264Parameters::RateControlMode, "Rate Control Mode" },
+        { H264Parameters::Profile, "Profile" }
     };
 
-    int32_t constexpr MaxCRF {30};
-    int32_t constexpr MinCRF {0};
-    int32_t constexpr DefaultCRF {18};
+    int32_t constexpr maxCRF {30};
+    int32_t constexpr minCRF {0};
+    int32_t constexpr defaultCRF {18};
 
-    int32_t ConstantRateFactorStrToInt(std::string s);
-    std::string ConstantRateFactorIntToStr(int32_t crf);
-    std::string ConstantRateFactorToDesc(int32_t crf);
+    int32_t constantRateFactorFromStr(std::string s);
+    std::string constantRateFactorToStr(int32_t crf);
+    std::string constantRateFactorToDesc(int32_t crf);
 
     enum class EncoderPreset
     {
@@ -50,7 +50,7 @@ namespace h264
         Count
     };
 
-    static std::unordered_map<EncoderPreset, std::string> const EncoderPresetDescMap
+    static std::unordered_map<EncoderPreset, std::string> const encoderPresetDescMap
     {
         { EncoderPreset::UltraFast, "Ultra Fast (bad quality)" },
         { EncoderPreset::VeryFast, "Very Fast" },
@@ -60,7 +60,7 @@ namespace h264
         { EncoderPreset::VerySlow, "Very Slow (best quality)" }
     };
 
-    static std::unordered_map<EncoderPreset, std::string> const EncoderPresetStrMap
+    static std::unordered_map<EncoderPreset, std::string> const encoderPresetStrMap
     {
         { EncoderPreset::UltraFast, "ultrafast" },
         { EncoderPreset::VeryFast, "veryfast" },
@@ -70,9 +70,9 @@ namespace h264
         { EncoderPreset::VerySlow, "veryslow" }
     };
 
-    EncoderPreset EncoderPresetStrToEnum(std::string s);
-    std::string EncoderPresetToStr(EncoderPreset preset);
-    std::string EncoderPresetToDesc(EncoderPreset preset);
+    EncoderPreset encoderPresetFromStr(std::string s);
+    std::string encoderPresetToStr(EncoderPreset preset);
+    std::string encoderPresetToDesc(EncoderPreset preset);
 
     enum class EncoderBitrateMode : int16_t
     {
@@ -80,21 +80,21 @@ namespace h264
         ConstantBitrate
     };
 
-    static std::unordered_map<EncoderBitrateMode, std::string> const EncoderBitrateModeDescMap
+    static std::unordered_map<EncoderBitrateMode, std::string> const encoderBitrateModeDescMap
     {
         { EncoderBitrateMode::VariableBitrate, "Variable Bitrate" },
         { EncoderBitrateMode::ConstantBitrate, "Constant Bitrate" }
     };
 
-    static std::unordered_map<EncoderBitrateMode, std::string> const EncoderBitrateModeStrMap
+    static std::unordered_map<EncoderBitrateMode, std::string> const encoderBitrateModeStrMap
     {
         { EncoderBitrateMode::VariableBitrate, "variable bitrate" },
         { EncoderBitrateMode::ConstantBitrate, "constant bitrate" }
     };
 
-    EncoderBitrateMode EncoderBitrateModeStrToEnum(std::string s);
-    std::string EncoderBitrateModeToStr(EncoderBitrateMode mode);
-    std::string EncoderBitrateModeToDesc(EncoderBitrateMode mode);
+    EncoderBitrateMode encoderBitrateModeFromStr(std::string s);
+    std::string encoderBitrateModeToStr(EncoderBitrateMode mode);
+    std::string encoderBitrateModeToDesc(EncoderBitrateMode mode);
 
     enum class EncoderProfile : int16_t
     {
@@ -103,36 +103,36 @@ namespace h264
         High
     };
 
-    static std::unordered_map<EncoderProfile, std::string> const EncoderProfileDescMap
+    static std::unordered_map<EncoderProfile, std::string> const encoderProfileDescMap
     {
         { EncoderProfile::Baseline, "Baseline" },
         { EncoderProfile::Main, "Main" },
         { EncoderProfile::High, "High" }
     };
 
-    static std::unordered_map<EncoderProfile, std::string> const EncoderProfileStrMap
+    static std::unordered_map<EncoderProfile, std::string> const encoderProfileStrMap
     {
         { EncoderProfile::Baseline, "baseline" },
         { EncoderProfile::Main, "main" },
         { EncoderProfile::High, "high" }
     };
 
-    EncoderProfile EncoderProfileStrToEnum(std::string s);
-    std::string EncoderProfileToStr(EncoderProfile profile);
-    std::string EncoderProfileToDesc(EncoderProfile profile);
+    EncoderProfile encoderProfileFromStr(std::string s);
+    std::string encoderProfileToStr(EncoderProfile profile);
+    std::string encoderProfileToDesc(EncoderProfile profile);
 
     struct H264Data
     {
-        EncoderPreset       Preset;
-        int32_t             ConstantRateFactor;
-        EncoderBitrateMode  BitrateMode;
-        EncoderProfile      Profile;
+        EncoderPreset       preset;
+        int32_t             constantRateFactor;
+        EncoderBitrateMode  bitrateMode;
+        EncoderProfile      profile;
     };
 
-    auto constexpr H264DataSize = sizeof(H264Data);
+    auto constexpr h264DataSize = sizeof(H264Data);
 
-    std::unordered_map<Parameters, std::string> CodecParamsToStr(H264Data const data);
-    H264Data CodecParamsFromStr(std::unordered_map<Parameters, std::string> const& map);
+    std::unordered_map<H264Parameters, std::string> codecParamsToStr(H264Data const data);
+    H264Data codecParamsFromStr(std::unordered_map<H264Parameters, std::string> const& map);
 }
 
 #endif

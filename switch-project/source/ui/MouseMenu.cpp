@@ -7,14 +7,14 @@
 #include <algorithm>
 
 MouseMenu::MouseMenu() : Menu(),
-    selectionCursor{mouse::ParamsList},
+    selectionCursor{mouse::mouseParamsList},
     textElements{}, leftMouseBtnCursor{controller::mouseButtonOptions},
     rightMouseBtnCursor{controller::mouseButtonOptions},
     middleMouseBtnCursor{controller::mouseButtonOptions},
     mouseWheelAnalogCursor{controller::analogStickOptions},
-    mouseOnConnect{true}, mouseSensitivity{mouse::DefaultMouseSensitivity},
-    mouseToggleKey{mouse::DefaultMouseModeToggleKey},
-    mouseToggleTime{mouse::DefaultMouseModeToggleTime}
+    mouseOnConnect{true}, mouseSensitivity{mouse::defaultMouseSensitivity},
+    mouseToggleKey{mouse::defaultMouseModeToggleKey},
+    mouseToggleTime{mouse::defaultMouseModeToggleTime}
 {
     title.y += 30;
     title.value = "Mouse Configuration";
@@ -98,47 +98,47 @@ void MouseMenu::cycleMouseBtnCursor(UnorderedMapCirculator<HidNpadButton, std::s
     } while(keyAssigned(cursor.KeyPair().first, others));
 }
 
-void MouseMenu::ChangeParam(mouse::Parameters param, int value)
+void MouseMenu::ChangeParam(mouse::MouseParameters param, int value)
 {
     switch(param)
     {
-        case mouse::Parameters::LeftMouseButton:
+        case mouse::MouseParameters::LeftMouseButton:
         {
             auto otherKeys = {rightMouseBtnCursor.KeyPair().first, middleMouseBtnCursor.KeyPair().first};
             cycleMouseBtnCursor(leftMouseBtnCursor, value, otherKeys);
         }
         break;
 
-        case mouse::Parameters::RightMouseButton:
+        case mouse::MouseParameters::RightMouseButton:
         {
             auto otherKeys = {leftMouseBtnCursor.KeyPair().first, middleMouseBtnCursor.KeyPair().first};
             cycleMouseBtnCursor(rightMouseBtnCursor, value, otherKeys);
         }
         break;
 
-        case mouse::Parameters::MiddleMouseButton:
+        case mouse::MouseParameters::MiddleMouseButton:
         {
             auto otherKeys = {leftMouseBtnCursor.KeyPair().first, rightMouseBtnCursor.KeyPair().first};
             cycleMouseBtnCursor(middleMouseBtnCursor, value, otherKeys);
         }
         break;
 
-        case mouse::Parameters::MouseWheelAnalog:
+        case mouse::MouseParameters::MouseWheelAnalog:
             mouseWheelAnalogCursor += value;
             break;
 
-        case mouse::Parameters::MouseOnConnect:
+        case mouse::MouseParameters::MouseOnConnect:
             mouseOnConnect = !mouseOnConnect;
             break;
 
-        case mouse::Parameters::MouseSensitivity:
-            mouseSensitivity = KeyboardNumber(mouse::MinMouseSensitivity, mouse::MaxMouseSensitivity, mouseSensitivity);
+        case mouse::MouseParameters::MouseSensitivity:
+            mouseSensitivity = keyboardNumber(mouse::minMouseSensitivity, mouse::maxMouseSensitivity, mouseSensitivity);
             break;
 
-        case mouse::Parameters::MouseModeToggleKey:
+        case mouse::MouseParameters::MouseModeToggleKey:
         {
             if(value <= 0)
-                mouseToggleKey = mouse::DefaultMouseModeToggleKey;
+                mouseToggleKey = mouse::defaultMouseModeToggleKey;
             else
             {
                 auto displayText = Text{};
@@ -156,7 +156,7 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
 
                 auto const screenRenderer = MainScreenRenderer();
                 auto const rendererRef = screenRenderer->Renderer();
-                auto const fontRef = MainSystemFont();
+                auto const fontRef = mainSystemFont();
                 
                 auto renderer = [&](std::string str)
                 {
@@ -170,21 +170,21 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
                     screenRenderer->PresentScreen();
                 };
 
-                mouseToggleKey = MonitorKeys(renderer);
+                mouseToggleKey = monitorButtons(renderer);
             }
         }
         break;
 
-        case mouse::Parameters::MouseModeToggleTime:
+        case mouse::MouseParameters::MouseModeToggleTime:
         {
             if(value <= 0)
-                mouseToggleTime = mouse::DefaultMouseModeToggleTime;
+                mouseToggleTime = mouse::defaultMouseModeToggleTime;
             else
             {
                 auto const currentTime = timeutil::nanoToSecond(mouseToggleTime);
-                auto const maxTime = timeutil::nanoToSecond(mouse::MaxMouseModeToggleTime);
-                auto const minTime = timeutil::nanoToSecond(mouse::MinMouseModeToggleTime);
-                auto const toggleTime = KeyboardDecimal(minTime, maxTime, currentTime);
+                auto const maxTime = timeutil::nanoToSecond(mouse::maxMouseModeToggleTime);
+                auto const minTime = timeutil::nanoToSecond(mouse::minMouseModeToggleTime);
+                auto const toggleTime = keyboardDecimal(minTime, maxTime, currentTime);
 
                 mouseToggleTime = timeutil::secondToNano(toggleTime);
             }
@@ -193,9 +193,9 @@ void MouseMenu::ChangeParam(mouse::Parameters param, int value)
     }
 }
 
-void MouseMenu::UpdateUI(mouse::Parameters param)
+void MouseMenu::UpdateUI(mouse::MouseParameters param)
 {
-    auto prefix = mouse::ParamsDesc.at(param);
+    auto prefix = mouse::mouseParamsDesc.at(param);
 
     auto updateElementText = [&](auto const & str) {
         textElements[param].value = prefix + ": " + str;
@@ -203,51 +203,51 @@ void MouseMenu::UpdateUI(mouse::Parameters param)
 
     switch(param)
     {
-        case mouse::Parameters::LeftMouseButton:
+        case mouse::MouseParameters::LeftMouseButton:
         {
             auto str = *leftMouseBtnCursor;
             updateElementText(str);
         }
         break;
 
-        case mouse::Parameters::RightMouseButton:
+        case mouse::MouseParameters::RightMouseButton:
         {
             auto str = *rightMouseBtnCursor;
             updateElementText(str);
         }
         break;
 
-        case mouse::Parameters::MiddleMouseButton:
+        case mouse::MouseParameters::MiddleMouseButton:
         {
             auto str = *middleMouseBtnCursor;
             updateElementText(str);
         }
         break;
 
-        case mouse::Parameters::MouseWheelAnalog:
+        case mouse::MouseParameters::MouseWheelAnalog:
         {
             auto str = *mouseWheelAnalogCursor;
             updateElementText(str);
         }
         break;
 
-        case mouse::Parameters::MouseOnConnect:
+        case mouse::MouseParameters::MouseOnConnect:
         {
             auto str = mouseOnConnect ? "yes" : "no";
             updateElementText(str);
         }
         break;
 
-        case mouse::Parameters::MouseSensitivity:
+        case mouse::MouseParameters::MouseSensitivity:
         {
             auto str = std::to_string(mouseSensitivity);
             updateElementText(str);
         }
         break;
 
-        case mouse::Parameters::MouseModeToggleKey:
+        case mouse::MouseParameters::MouseModeToggleKey:
         {
-            auto btns = controller::SwitchButtonsToString(mouseToggleKey);
+            auto btns = controller::switchButtonsToString(mouseToggleKey);
             if(btns.size() != 0)
             {
                 auto str = btns[0];
@@ -261,7 +261,7 @@ void MouseMenu::UpdateUI(mouse::Parameters param)
         }
         break;
 
-        case mouse::Parameters::MouseModeToggleTime:
+        case mouse::MouseParameters::MouseModeToggleTime:
         {
             auto seconds = timeutil::nanoToSecond(mouseToggleTime);
             auto str = std::to_string(seconds) + "s";
@@ -279,7 +279,7 @@ void MouseMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = mouse::ParamsList;
+    auto params = mouse::mouseParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

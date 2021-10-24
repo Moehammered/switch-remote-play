@@ -3,33 +3,33 @@
 
 namespace decoder
 {
-    std::unordered_map<int32_t, std::string> const Flags1ToStrings(int32_t flags)
+    std::unordered_map<int32_t, std::string> const flags1ToStrings(int32_t flags)
     {
-        return ToStrings(flags, flag1Options);
+        return bitflagutil::toStrings(flags, flag1Options);
     }
 
-    std::unordered_map<int32_t, std::string> const Flags1ToDescriptions(int32_t flags)
+    std::unordered_map<int32_t, std::string> const flags1ToDescriptions(int32_t flags)
     {
-        return ToStrings(flags, flag1Desc);
+        return bitflagutil::toStrings(flags, flag1Desc);
     }
     
-    int32_t const ParseFlags1Strings(std::vector<std::string> const & strings)
+    int32_t const parseFlags1Strings(std::vector<std::string> const & strings)
     {
-        return ParseFlagStrings(strings, flag1Options);
+        return bitflagutil::parseFlagStrings(strings, flag1Options);
     }
 
-    std::unordered_map<int32_t, std::string> const Flags2ToStrings(int32_t flags)
+    std::unordered_map<int32_t, std::string> const flags2ToStrings(int32_t flags)
     {
-        return ToStrings(flags, flag2Options);
+        return bitflagutil::toStrings(flags, flag2Options);
     }
 
-    std::unordered_map<int32_t, std::string> const Flags2ToDescriptions(int32_t flags)
+    std::unordered_map<int32_t, std::string> const flags2ToDescriptions(int32_t flags)
     {
-        return ToStrings(flags, flag2Desc);
+        return bitflagutil::toStrings(flags, flag2Desc);
     }
     
-    int32_t const ParseFlags2Strings(std::vector<std::string> const & strings)
+    int32_t const parseFlags2Strings(std::vector<std::string> const & strings)
     {
-        return ParseFlagStrings(strings, flag2Options);
+        return bitflagutil::parseFlagStrings(strings, flag2Options);
     }
 }

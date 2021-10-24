@@ -13,21 +13,21 @@ namespace touch
         Absolute
     };
 
-    static std::vector<SimulatedMouseBehaviour> const SimulatedMouseBehaviourParamsList
+    static std::vector<SimulatedMouseBehaviour> const simulatedMouseBehaviourParamsList
     {
         SimulatedMouseBehaviour::Trackpad, SimulatedMouseBehaviour::Absolute
     };
 
-    static std::unordered_map<SimulatedMouseBehaviour, std::string> const SimulatedMouseBehaviourParamsDesc
+    static std::unordered_map<SimulatedMouseBehaviour, std::string> const simulatedMouseBehaviourParamsDesc
     {
         { SimulatedMouseBehaviour::Trackpad, "Trackpad" },
         { SimulatedMouseBehaviour::Absolute, "Absolute" }
     };
 
-    SimulatedMouseBehaviour constexpr DefaultMouseBehaviour = SimulatedMouseBehaviour::Trackpad;
+    auto constexpr defaultMouseBehaviour = SimulatedMouseBehaviour::Trackpad;
 
-    std::string const SimulatedMouseBehaviourToStr(SimulatedMouseBehaviour const behaviour);
-    SimulatedMouseBehaviour const SimulatedMouseBehaviourFromStr(std::string const str);
+    std::string const simulatedMouseBehaviourToStr(SimulatedMouseBehaviour const behaviour);
+    SimulatedMouseBehaviour const simulatedMouseBehaviourFromStr(std::string const str);
 }
 
 #endif

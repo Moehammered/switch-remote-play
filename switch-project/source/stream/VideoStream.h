@@ -1,16 +1,16 @@
 #ifndef __VIDEOSTREAM__H_
 #define __VIDEOSTREAM__H_
 
+#include "../ScreenRenderer.h"
+#include "../decoder/DecoderOptions.h"
+#include <string>
+#include <atomic>
 extern "C"
 {
     #include <libavcodec/avcodec.h>
     #include <libavformat/avformat.h>
     #include <libavutil/frame.h>
 }
-#include <string>
-#include <atomic>
-#include "../ScreenRenderer.h"
-#include "../decoder/DecoderOptions.h"
 
 class VideoStream
 {
@@ -27,7 +27,7 @@ class VideoStream
         void Cleanup();
 
     private:
-        const AVMediaType streamMediaType = AVMEDIA_TYPE_VIDEO;
+        AVMediaType const streamMediaType;
         AVFormatContext* streamFormat;
         AVStream* stream;
         int streamIndex;

@@ -1,9 +1,9 @@
 #ifndef __VIRTUALTOUCHCONFIGURATION_H__
 #define __VIRTUALTOUCHCONFIGURATION_H__
 
-#include <string>
 #include "VirtualTouchOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
 
 class VirtualTouchConfiguration
 {

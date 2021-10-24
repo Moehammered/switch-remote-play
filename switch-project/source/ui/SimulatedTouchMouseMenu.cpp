@@ -10,11 +10,11 @@ Behaviour = how the touch screen input maps to the mouse behaviour and position.
 Double Tap Time = effects click and drag behaviour when quick touches occur.";
 
 SimulatedTouchMouseMenu::SimulatedTouchMouseMenu() : Menu(), helpText{},
-    textElements{}, selected{touch::SimulatedTouchParamsList},
-    deadzoneRadius{touch::DefaultSimulatedMouseDeadzoneRadius},
-    behaviourCursor{touch::SimulatedMouseBehaviourParamsDesc},
-    doubleTapTime{touch::DefaultDoubleTapTime},
-    trackpadSensitivity{touch::DefaultTrackpadSensitivityPercentage}
+    textElements{}, selected{touch::simulatedTouchParamsList},
+    deadzoneRadius{touch::defaultSimulatedMouseDeadzoneRadius},
+    behaviourCursor{touch::simulatedMouseBehaviourParamsDesc},
+    doubleTapTime{touch::defaultDoubleTapTime},
+    trackpadSensitivity{touch::defaultTrackpadSensitivityPercentage}
 {
     title.value = "Simulated Mouse Options";
     title.y += 130;
@@ -87,11 +87,11 @@ void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParamet
         case touch::SimulatedTouchMouseParameters::DeadzoneRadius:
         {
             if(value <= 0)
-                deadzoneRadius = touch::DefaultSimulatedMouseDeadzoneRadius;
+                deadzoneRadius = touch::defaultSimulatedMouseDeadzoneRadius;
             else
             {
-                deadzoneRadius = KeyboardNumber(touch::MinSimulatedMouseDeadzoneRadius,
-                                                touch::MaxSimulatedMouseDeadzoneRadius,
+                deadzoneRadius = keyboardNumber(touch::minSimulatedMouseDeadzoneRadius,
+                                                touch::maxSimulatedMouseDeadzoneRadius,
                                                 deadzoneRadius);
             }
         }
@@ -106,13 +106,13 @@ void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParamet
         case touch::SimulatedTouchMouseParameters::DoubleTapTime:
         {
             if(value <= 0)
-                doubleTapTime = touch::DefaultDoubleTapTime;
+                doubleTapTime = touch::defaultDoubleTapTime;
             else
             {
                 auto const currentTime = timeutil::nanoToSecond(doubleTapTime);
-                auto const maxTime = timeutil::nanoToSecond(touch::MaxDoubleTapTime);
-                auto const minTime = timeutil::nanoToSecond(touch::MinDoubleTapTime);
-                auto const toggleTime = KeyboardDecimal(minTime, maxTime, currentTime);
+                auto const maxTime = timeutil::nanoToSecond(touch::maxDoubleTapTime);
+                auto const minTime = timeutil::nanoToSecond(touch::minDoubleTapTime);
+                auto const toggleTime = keyboardDecimal(minTime, maxTime, currentTime);
 
                 doubleTapTime = timeutil::secondToNano(toggleTime);
             }
@@ -122,11 +122,11 @@ void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParamet
         case touch::SimulatedTouchMouseParameters::TrackpadSensitivityPercentage:
         {
             if(value <= 0)
-                trackpadSensitivity = touch::DefaultTrackpadSensitivityPercentage;
+                trackpadSensitivity = touch::defaultTrackpadSensitivityPercentage;
             else
             {
-                trackpadSensitivity = (int16_t)KeyboardNumber(touch::MinTrackpadSensitivityPercentage, 
-                                                                touch::MaxTrackpadSensitivityPercentage,
+                trackpadSensitivity = (int16_t)keyboardNumber(touch::minTrackpadSensitivityPercentage, 
+                                                                touch::maxTrackpadSensitivityPercentage,
                                                                 trackpadSensitivity);
             }
         }
@@ -136,7 +136,7 @@ void SimulatedTouchMouseMenu::PromptValueInput(touch::SimulatedTouchMouseParamet
 
 void SimulatedTouchMouseMenu::UpdateUI(touch::SimulatedTouchMouseParameters param)
 {
-    auto prefix = touch::SimulatedTouchParamsDesc.at(param);
+    auto prefix = touch::simulatedTouchParamsDesc.at(param);
     auto updateElement = [&](auto str)
     {
         textElements[param].value = prefix + ": " + str;
@@ -182,7 +182,7 @@ void SimulatedTouchMouseMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = touch::SimulatedTouchParamsList;
+    auto params = touch::simulatedTouchParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

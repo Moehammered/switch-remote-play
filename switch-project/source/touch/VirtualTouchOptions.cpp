@@ -2,7 +2,7 @@
 
 namespace touch
 {
-    std::unordered_map<VirtualTouchParameters, std::string> const VirtualTouchParamsToStr(VirtualTouchConfig const config)
+    std::unordered_map<VirtualTouchParameters, std::string> const virtualTouchParamsToStr(VirtualTouchConfig const config)
     {
         auto values = std::unordered_map<VirtualTouchParameters, std::string>{};
 
@@ -12,7 +12,7 @@ namespace touch
         return values;
     }
 
-    VirtualTouchConfig const VirtualTouchParamsFromStr(std::unordered_map<VirtualTouchParameters, std::string> const & map)
+    VirtualTouchConfig const virtualTouchParamsFromStr(std::unordered_map<VirtualTouchParameters, std::string> const & map)
     {
         auto config = VirtualTouchConfig{};
 
@@ -20,23 +20,23 @@ namespace touch
         if(deadzoneEntry != map.end())
         {
             auto deadzone = (int16_t)std::stoi(deadzoneEntry->second);
-            deadzone = std::min(deadzone, MaxVirtualTouchDeadzoneRadius);
-            deadzone = std::max(deadzone, MinVirtualTouchDeadzoneRadius);
+            deadzone = std::min(deadzone, maxVirtualTouchDeadzoneRadius);
+            deadzone = std::max(deadzone, minVirtualTouchDeadzoneRadius);
             config.deadzoneRadius = deadzone;
         }
         else
-            config.deadzoneRadius = DefaultVirtualTouchDeadzoneRadius;
+            config.deadzoneRadius = defaultVirtualTouchDeadzoneRadius;
 
         auto fingerCountEntry = map.find(VirtualTouchParameters::MaxFingerCount);
         if(fingerCountEntry != map.end())
         {
             auto fingerCount = (int16_t)std::stoi(fingerCountEntry->second);
-            fingerCount = std::min(fingerCount, MaxFingerCount);
-            fingerCount = std::max(fingerCount, MinFingerCount);
+            fingerCount = std::min(fingerCount, maxFingerCount);
+            fingerCount = std::max(fingerCount, minFingerCount);
             config.maxFingerCount = fingerCount;
         }
         else
-            config.maxFingerCount = DefaultMaxFingerCount;
+            config.maxFingerCount = defaultMaxFingerCount;
         
 
         return config;

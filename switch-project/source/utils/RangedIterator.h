@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __RANGEDITERATOR_H__
+#define __RANGEDITERATOR_H__
 
 #include <assert.h>
 
@@ -234,3 +235,4 @@ inline other operator/(other a, NumberRange<number, min, max> const& b)
 	return a / b.Value();
 }
 
+#endif

@@ -9,7 +9,7 @@ void Text::Render(SDL_Renderer* renderer, FC_Font* font) const
     // SDL_RenderFillRect(renderer, &bg);
     if(centered)
     {
-        auto lines = SplitLines(value);
+        auto lines = stringutil::splitLines(value);
         auto maxLength = std::max_element(lines.begin(), lines.end(), [](std::string const& a, std::string const& b){
             return a.length() > b.length();
         });

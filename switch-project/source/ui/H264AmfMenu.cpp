@@ -47,124 +47,124 @@ void H264AmfMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
     }
 }
 
-h264amf::H264AMFData const H264AmfMenu::Settings() const
+h264amf::H264AmfData const H264AmfMenu::Settings() const
 {
     return codec.Data();
 }
 
-void H264AmfMenu::UpdateUI(h264amf::Parameters param)
+void H264AmfMenu::UpdateUI(h264amf::H264AmfParameters param)
 {
-    auto prefix = h264amf::ParamsDesc.at(param);
+    auto prefix = h264amf::h264AmfParamsDesc.at(param);
     auto data = codec.Data();
 
     switch(param)
     {
-        case h264amf::Parameters::Usage:
+        case h264amf::H264AmfParameters::Usage:
             {
                 auto str = h264amf::amfUsageToDescription(data.usage);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::Profile:
+        case h264amf::H264AmfParameters::Profile:
             {
                 auto str = h264amf::amfProfileToStr(data.profile);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::Level:
+        case h264amf::H264AmfParameters::Level:
             {
                 // auto str = h264amf::amfLevelToStr(data.level);
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::Quality:
+        case h264amf::H264AmfParameters::Quality:
             {
                 auto str = h264amf::amfQualityToStr(data.quality);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::RateControl:
+        case h264amf::H264AmfParameters::RateControl:
             {
                 auto str = h264amf::amfRateControlToStr(data.rateControl);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::FrameQuant_I:
+        case h264amf::H264AmfParameters::FrameQuant_I:
             {
                 auto str = h264amf::amfFrameQPToStr(data.qp_i);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::FrameQuant_P:
+        case h264amf::H264AmfParameters::FrameQuant_P:
             {
                 auto str = h264amf::amfFrameQPToStr(data.qp_p);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::FrameQuant_B:
+        case h264amf::H264AmfParameters::FrameQuant_B:
             {
                 auto str = h264amf::amfFrameQPToStr(data.qp_b);
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::FrameQuant_BDelta:
+        case h264amf::H264AmfParameters::FrameQuant_BDelta:
             {
                 // auto str = h264amf::amfBFrameDeltaQPToStr(data.qp_bfDelta);
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::FrameQuant_BRefDelta:
+        case h264amf::H264AmfParameters::FrameQuant_BRefDelta:
             {
                 // auto str = h264amf::amfBFrameDeltaQPToStr(data.qp_bfRefDelta);
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::EnforceHRD:
+        case h264amf::H264AmfParameters::EnforceHRD:
             {
                 // auto str = data.enforceHRD ? "yes" : "no";
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::FillerData:
+        case h264amf::H264AmfParameters::FillerData:
             {
                 // auto str = data.fillerData ? "yes" : "no";
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::VBAQ:
+        case h264amf::H264AmfParameters::VBAQ:
             {
                 // auto str = data.vbaq ? "yes" : "no";
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::Frameskip:
+        case h264amf::H264AmfParameters::Frameskip:
             {
                 auto str = data.frameskip ? "yes" : "no";
                 textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::BFrameRef:
+        case h264amf::H264AmfParameters::BFrameRef:
             {
                 // auto str = data.bfRef ? "yes" : "no";
                 // textElements[param].value = prefix + ": " + str;
             }
         break;
 
-        case h264amf::Parameters::LogToDbg:
+        case h264amf::H264AmfParameters::LogToDbg:
             {
                 // auto str = data.logToDbg ? "yes" : "no";
                 // textElements[param].value = prefix + ": " + str;
@@ -181,7 +181,7 @@ void H264AmfMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = h264amf::ParamsList;
+    auto params = h264amf::h264AmfParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

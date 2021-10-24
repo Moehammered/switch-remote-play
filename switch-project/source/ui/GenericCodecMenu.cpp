@@ -47,68 +47,68 @@ void GenericCodecMenu::Render(SDL_Renderer * const renderer, FC_Font * const fon
     }
 }
 
-VideoData const GenericCodecMenu::VideoCodecSettings() const
+codec::VideoData const GenericCodecMenu::VideoCodecSettings() const
 {
     return codec.Data();
 }
 
-void GenericCodecMenu::UpdateUI(VideoParameters param)
+void GenericCodecMenu::UpdateUI(codec::VideoParameters param)
 {
-    auto prefix = VideoParamToDesc.at(param);
+    auto prefix = codec::videoParamToDesc.at(param);
     auto data = codec.Data();
 
     switch(param)
     {
-        case VideoParameters::DesktopResolution:
+        case codec::VideoParameters::DesktopResolution:
         {
-            auto str = ResolutionToString(data.desktopResolution);
+            auto str = resolutionToString(data.desktopResolution);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::SwitchResolution:
+        case codec::VideoParameters::SwitchResolution:
         {
-            auto str = ResolutionToString(data.switchResolution);
+            auto str = resolutionToString(data.switchResolution);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::DesiredFramerate:
+        case codec::VideoParameters::DesiredFramerate:
         {
             auto str = std::to_string(data.desiredFrameRate);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::BitrateKB:
+        case codec::VideoParameters::BitrateKB:
         {
             auto str = std::to_string(data.bitrateKB);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::VsyncMode:
+        case codec::VideoParameters::VsyncMode:
         {
-            auto str = VsyncModeToDesc(data.vsyncMode);
+            auto str = ffmpeg::vsyncModeToDesc(data.vsyncMode);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::HWAccelMode:
+        case codec::VideoParameters::HWAccelMode:
         {
-            auto str = HWAccelModeToDesc(data.hwaccelMode);
+            auto str = ffmpeg::hwAccelModeToDesc(data.hwaccelMode);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::VideoCodec:
+        case codec::VideoParameters::VideoCodec:
         {
-            auto str = VideoCodecToDesc(data.videoCodec);
+            auto str = ffmpeg::videoCodecToDesc(data.videoCodec);
             textElements[param].value = prefix + ": " + str;
         }
         break;
 
-        case VideoParameters::MonitorNumber:
+        case codec::VideoParameters::MonitorNumber:
         {
             auto str = std::to_string(data.monitorNumber);
             textElements[param].value = prefix + ": " + str;
@@ -125,7 +125,7 @@ void GenericCodecMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = VideoParametersList;
+    auto params = codec::videoParametersList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

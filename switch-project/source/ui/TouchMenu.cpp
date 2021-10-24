@@ -5,7 +5,7 @@ auto const pageMenuText = "Use D-Pad left or right to choose touch mode.";
 
 TouchMenu::TouchMenu() : Menu(),
 virtualTouchPage{}, simulatedTouchPage{},
-touchMode{touch::TouchScreenModeStr},
+touchMode{touch::touchScreenModeStr},
 touchModeText{}, pageText{}
 {
     title.value = "Touch Configuration";

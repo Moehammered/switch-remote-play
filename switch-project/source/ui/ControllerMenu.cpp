@@ -7,14 +7,14 @@
 #include "../system/SystemSetup.h"
 
 ControllerMenu::ControllerMenu() : Menu(),
-    textElements{}, paramCursor{controller::ParamsList},
+    textElements{}, paramCursor{controller::controllerParamsList},
     modeCursor{controller::controllerModeDesc},
     buttonMapCursor{controller::controlMapDesc},
     leftAnalogMapCursor{controller::analogMapDesc},
     rightAnalogMapCursor{controller::analogMapDesc},
-    controllerCount{controller::DefaultControllerCount},
-    homeButton{controller::DefaultHomeButton},
-    homeButtonTriggerTime{controller::DefaultHomeButtonTriggerTime}
+    controllerCount{controller::defaultControllerCount},
+    homeButton{controller::defaultHomeButton},
+    homeButtonTriggerTime{controller::defaultHomeButtonTriggerTime}
 {
     title.value = "Controller Menu";
     title.y += 30;
@@ -83,30 +83,30 @@ controller::ControllerConfig const ControllerMenu::Settings() const
     };
 }
 
-void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
+void ControllerMenu::UpdateSetting(controller::ControllerParameters param, int direction)
 {
     switch(param)
     {
-        case controller::Parameters::Mode:
+        case controller::ControllerParameters::Mode:
             modeCursor += direction;
         break;
 
-        case controller::Parameters::ButtonMapping:
+        case controller::ControllerParameters::ButtonMapping:
             buttonMapCursor += direction;
         break;
 
-        case controller::Parameters::LeftAnalogMapping:
+        case controller::ControllerParameters::LeftAnalogMapping:
             leftAnalogMapCursor += direction;
         break;
               
-        case controller::Parameters::RightAnalogMapping:
+        case controller::ControllerParameters::RightAnalogMapping:
             rightAnalogMapCursor += direction;
         break;
 
-        case controller::Parameters::HomeButton:
+        case controller::ControllerParameters::HomeButton:
         {
             if(direction <= 0)
-                homeButton = controller::DefaultHomeButton;
+                homeButton = controller::defaultHomeButton;
             else
             {
                 auto displayText = Text{};
@@ -124,7 +124,7 @@ void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
 
                 auto const screenRenderer = MainScreenRenderer();
                 auto const rendererRef = screenRenderer->Renderer();
-                auto const fontRef = MainSystemFont();
+                auto const fontRef = mainSystemFont();
                 
                 auto renderer = [&](std::string str)
                 {
@@ -138,58 +138,58 @@ void ControllerMenu::UpdateSetting(controller::Parameters param, int direction)
                     screenRenderer->PresentScreen();
                 };
 
-                homeButton = MonitorKeys(renderer);
+                homeButton = monitorButtons(renderer);
             }
         }
         break;
 
-        case controller::Parameters::HomeButtonTriggerTime:
+        case controller::ControllerParameters::HomeButtonTriggerTime:
         {
             if(direction <= 0)
-                homeButtonTriggerTime = controller::DefaultHomeButtonTriggerTime;
+                homeButtonTriggerTime = controller::defaultHomeButtonTriggerTime;
             else
             {
                 auto const currentTime = timeutil::nanoToSecond(homeButtonTriggerTime);
-                auto const maxTime = timeutil::nanoToSecond(controller::MaxHomeButtonTriggerTime);
-                auto const minTime = timeutil::nanoToSecond(controller::MinHomeButtonTriggerTime);
-                auto const toggleTime = KeyboardDecimal(minTime, maxTime, currentTime);
+                auto const maxTime = timeutil::nanoToSecond(controller::maxHomeButtonTriggerTime);
+                auto const minTime = timeutil::nanoToSecond(controller::minHomeButtonTriggerTime);
+                auto const toggleTime = keyboardDecimal(minTime, maxTime, currentTime);
 
                 homeButtonTriggerTime = timeutil::secondToNano(toggleTime);
             }
         }
         break;
 
-        case controller::Parameters::ControllerCount:
-            controllerCount = (int16_t)KeyboardNumber(controller::MinControllerCount, controller::MaxControllerCount, controllerCount);
+        case controller::ControllerParameters::ControllerCount:
+            controllerCount = (int16_t)keyboardNumber(controller::minControllerCount, controller::maxControllerCount, controllerCount);
         break;
     }
 }
 
-void ControllerMenu::UpdateUI(controller::Parameters param)
+void ControllerMenu::UpdateUI(controller::ControllerParameters param)
 {
     auto& element = textElements[param];
-    auto desc = enumToStr(controller::ParamsDesc, param);
+    auto desc = enumToStr(controller::controllerParamsDesc, param);
     switch(param)
     {
-        case controller::Parameters::Mode:
+        case controller::ControllerParameters::Mode:
             element.value = desc + ": " + *modeCursor;
         break;
 
-        case controller::Parameters::ButtonMapping:
+        case controller::ControllerParameters::ButtonMapping:
             element.value = desc + ": " + *buttonMapCursor;
         break;
 
-        case controller::Parameters::LeftAnalogMapping:
+        case controller::ControllerParameters::LeftAnalogMapping:
             element.value = desc + ": " + *leftAnalogMapCursor;
         break;
 
-        case controller::Parameters::RightAnalogMapping:
+        case controller::ControllerParameters::RightAnalogMapping:
             element.value = desc + ": " + *rightAnalogMapCursor;
         break;
 
-        case controller::Parameters::HomeButton:
+        case controller::ControllerParameters::HomeButton:
         {
-            auto btns = controller::SwitchButtonsToString(homeButton);
+            auto btns = controller::switchButtonsToString(homeButton);
             if(btns.size() != 0)
             {
                 auto str = btns[0];
@@ -203,7 +203,7 @@ void ControllerMenu::UpdateUI(controller::Parameters param)
         }
         break;
         
-        case controller::Parameters::HomeButtonTriggerTime:
+        case controller::ControllerParameters::HomeButtonTriggerTime:
         {
             auto seconds = timeutil::nanoToSecond(homeButtonTriggerTime);
             auto str = std::to_string(seconds) + "s";
@@ -211,7 +211,7 @@ void ControllerMenu::UpdateUI(controller::Parameters param)
         }
         break;
 
-        case controller::Parameters::ControllerCount:
+        case controller::ControllerParameters::ControllerCount:
             element.value = desc + ": " + std::to_string(controllerCount);
         break;
 
@@ -226,7 +226,7 @@ void ControllerMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = controller::ParamsList;
+    auto params = controller::controllerParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

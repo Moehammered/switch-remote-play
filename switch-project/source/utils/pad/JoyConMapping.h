@@ -57,13 +57,13 @@ namespace joyconutility
         uint32_t buttonFlags;
     };
 
-    auto constexpr DefaultLeftJoyConMapping = JoyConMapping
+    auto constexpr defaultLeftJoyConMapping = JoyConMapping
     {
         .analogFlags = DefaultLeftJoyConAnalogRemap,
         .buttonFlags = DefaultLeftJoyConButtonRemap
     };
 
-    auto constexpr DefaultRightJoyConMapping = JoyConMapping
+    auto constexpr defaultRightJoyConMapping = JoyConMapping
     {
         .analogFlags = DefaultRightJoyConAnalogRemap,
         .buttonFlags = DefaultRightJoyConButtonRemap

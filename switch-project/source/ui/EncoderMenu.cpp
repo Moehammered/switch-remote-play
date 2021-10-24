@@ -3,8 +3,8 @@
 EncoderMenu::EncoderMenu() 
     : Menu(), h264Menu{}, amdMenu{}, generalMenu{},
     menus{
-        {VideoCodec::H264, &h264Menu},
-        {VideoCodec::H264_AMF, &amdMenu}
+        {ffmpeg::VideoCodec::H264, &h264Menu},
+        {ffmpeg::VideoCodec::H264_AMF, &amdMenu}
     },
     advancedOptions{false}, pageText{}
 {
@@ -22,14 +22,14 @@ void EncoderMenu::ProcessInput(PadState const & pad)
     if(kDown & (HidNpadButton_Left | HidNpadButton_Right))
         advancedOptions = !advancedOptions;
 
-    auto updatePageText = [&](VideoCodec codec)
+    auto updatePageText = [&](ffmpeg::VideoCodec codec)
     {
         switch(codec)
         {
-            case VideoCodec::H264:
+            case ffmpeg::VideoCodec::H264:
                 pageText.value = "H264 (pg 2/2) <--/-->";
             break;
-            case VideoCodec::H264_AMF:
+            case ffmpeg::VideoCodec::H264_AMF:
                 pageText.value = "H264 AMD (pg 2/2) <--/-->";
             break;
             default:
@@ -77,11 +77,11 @@ EncoderConfig const EncoderMenu::Settings() const
     switch(data.commonSettings.videoCodec)
     {
         default:
-        case VideoCodec::H264:
+        case ffmpeg::VideoCodec::H264:
             data.cpuSettings = h264Menu.Settings();
         break;
         
-        case VideoCodec::H264_AMF:
+        case ffmpeg::VideoCodec::H264_AMF:
             data.amdSettings = amdMenu.Settings();
         break;
     }

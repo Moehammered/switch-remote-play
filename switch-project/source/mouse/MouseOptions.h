@@ -1,15 +1,15 @@
 #ifndef __MOUSEOPTIONS_H__
 #define __MOUSEOPTIONS_H__
 
+#include "../controller/SwitchButtons.h"
+#include "../utils/TimeUtil.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "../controller/SwitchButtons.h"
-#include "../utils/TimeUtil.h"
 
 namespace mouse
 {
-    enum class Parameters
+    enum class MouseParameters
     {
         LeftMouseButton,
         RightMouseButton,
@@ -21,37 +21,37 @@ namespace mouse
         MouseModeToggleTime
     };
 
-    static std::vector<Parameters> const ParamsList
+    static std::vector<MouseParameters> const mouseParamsList
     {
-        Parameters::LeftMouseButton, Parameters::RightMouseButton,
-        Parameters::MiddleMouseButton, Parameters::MouseSensitivity,
-        Parameters::MouseOnConnect, Parameters::MouseWheelAnalog,
-        Parameters::MouseModeToggleKey, Parameters::MouseModeToggleTime
+        MouseParameters::LeftMouseButton, MouseParameters::RightMouseButton,
+        MouseParameters::MiddleMouseButton, MouseParameters::MouseSensitivity,
+        MouseParameters::MouseOnConnect, MouseParameters::MouseWheelAnalog,
+        MouseParameters::MouseModeToggleKey, MouseParameters::MouseModeToggleTime
     };
 
-    static std::unordered_map<Parameters, std::string> const ParamsDesc
+    static std::unordered_map<MouseParameters, std::string> const mouseParamsDesc
     {
-        { Parameters::LeftMouseButton, "Left-Click Button" },
-        { Parameters::RightMouseButton, "Right-Click Button" },
-        { Parameters::MiddleMouseButton, "Middle-Click Button" },
-        { Parameters::MouseSensitivity, "Mouse Sensitivity" },
-        { Parameters::MouseOnConnect, "Mouse on Connect" },
-        { Parameters::MouseWheelAnalog, "Mouse Wheel Analog" },
-        { Parameters::MouseModeToggleKey, "Mouse Mode Toggle Key" },
-        { Parameters::MouseModeToggleTime, "Mouse Mode Toggle Time" }
+        { MouseParameters::LeftMouseButton, "Left-Click Button" },
+        { MouseParameters::RightMouseButton, "Right-Click Button" },
+        { MouseParameters::MiddleMouseButton, "Middle-Click Button" },
+        { MouseParameters::MouseSensitivity, "Mouse Sensitivity" },
+        { MouseParameters::MouseOnConnect, "Mouse on Connect" },
+        { MouseParameters::MouseWheelAnalog, "Mouse Wheel Analog" },
+        { MouseParameters::MouseModeToggleKey, "Mouse Mode Toggle Key" },
+        { MouseParameters::MouseModeToggleTime, "Mouse Mode Toggle Time" }
     };
 
-    HidNpadButton constexpr DefaultLeftClickButton = HidNpadButton_R;
-    HidNpadButton constexpr DefaultRightClickButton = HidNpadButton_ZR;
-    HidNpadButton constexpr DefaultMiddleClickButton = HidNpadButton_StickR;
-    int16_t constexpr MaxMouseSensitivity = 30;
-    int16_t constexpr MinMouseSensitivity = 3;
-    int16_t constexpr DefaultMouseSensitivity = 5;
-    controller::AnalogStick constexpr DefaultMouseWheelAnalog = controller::AnalogStick::Right;
-    uint32_t constexpr DefaultMouseModeToggleKey = HidNpadButton_Minus;
-    uint32_t constexpr MinMouseModeToggleTime = timeutil::secondToNano(0.1);
-    uint32_t constexpr MaxMouseModeToggleTime = timeutil::secondToNano(4);
-    uint32_t constexpr DefaultMouseModeToggleTime = timeutil::secondToNano(2);
+    HidNpadButton constexpr defaultLeftClickButton = HidNpadButton_R;
+    HidNpadButton constexpr defaultRightClickButton = HidNpadButton_ZR;
+    HidNpadButton constexpr defaultMiddleClickButton = HidNpadButton_StickR;
+    int16_t constexpr maxMouseSensitivity = 30;
+    int16_t constexpr minMouseSensitivity = 3;
+    int16_t constexpr defaultMouseSensitivity = 5;
+    controller::AnalogStick constexpr defaultMouseWheelAnalog = controller::AnalogStick::Right;
+    uint32_t constexpr defaultMouseModeToggleKey = HidNpadButton_Minus;
+    uint32_t constexpr minMouseModeToggleTime = timeutil::secondToNano(0.1);
+    uint32_t constexpr maxMouseModeToggleTime = timeutil::secondToNano(4);
+    uint32_t constexpr defaultMouseModeToggleTime = timeutil::secondToNano(2);
 
     struct alignas(4) MouseConfig
     {
@@ -65,10 +65,10 @@ namespace mouse
         bool                        mouseOnConnect;
     };
     
-    int32_t constexpr MouseConfigSize = sizeof(MouseConfig);
+    int32_t constexpr mouseConfigSize = sizeof(MouseConfig);
 
-    std::unordered_map<Parameters, std::string> const MouseParamsToStr(MouseConfig const config);
-    MouseConfig const MouseParamsFromStr(std::unordered_map<Parameters, std::string> const & map);
+    std::unordered_map<MouseParameters, std::string> const mouseParamsToStr(MouseConfig const config);
+    MouseConfig const mouseParamsFromStr(std::unordered_map<MouseParameters, std::string> const & map);
 }
 
 #endif

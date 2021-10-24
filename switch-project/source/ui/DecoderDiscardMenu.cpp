@@ -2,7 +2,7 @@
 #include "../decoder/DecoderOptions.h"
 
 DecoderDiscardMenu::DecoderDiscardMenu() : Menu(),
-textElements{}, cursor{AvailableDiscardFilters}, selected{AVDiscard::AVDISCARD_DEFAULT}
+textElements{}, cursor{availableDiscardFilters}, selected{AVDiscard::AVDISCARD_DEFAULT}
 {
     title.value = "Frame Discard Behaviour";
     title.y += 45;
@@ -59,7 +59,7 @@ AVDiscard DecoderDiscardMenu::Flag() const
 void DecoderDiscardMenu::UpdateUI(AVDiscard flag)
 {
     auto& all = decoder::discardDesc;
-    auto const selectedDesc = decoder::AVDiscardToDescription(flag);
+    auto const selectedDesc = decoder::avDiscardToDescription(flag);
     for(auto& item : textElements)
     {
         if(item.first == flag)
@@ -83,7 +83,7 @@ void DecoderDiscardMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = AvailableDiscardFilters;
+    auto params = availableDiscardFilters;
     for(auto& p : params)
     {
         textElements[p] = Text{};

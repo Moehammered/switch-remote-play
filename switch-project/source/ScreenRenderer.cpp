@@ -3,7 +3,10 @@
 #include <iostream>
 #include <switch.h>
 
-ScreenRenderer * activeRenderer = nullptr;
+namespace
+{
+    ScreenRenderer * activeRenderer = nullptr;
+}
 
 ScreenRenderer const * MainScreenRenderer()
 {

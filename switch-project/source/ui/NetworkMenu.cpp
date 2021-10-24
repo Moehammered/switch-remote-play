@@ -5,7 +5,7 @@
 
 NetworkMenu::NetworkMenu() : Menu(),
     warningText{}, data{}, 
-    selected{network::ParamsList}, textElements{}
+    selected{network::networkParamsList}, textElements{}
 { 
     title.value = "Network Configuration";
     warningText.x = 20; 
@@ -58,7 +58,7 @@ std::string const NetworkMenu::EnterIP(std::string const defaultIP) const
     settings.defaultValue = defaultIP;
     settings.parseMethod = [](std::string const inputText)
     {
-        return Trim(inputText);
+        return stringutil::trim(inputText);
     };
     settings.predicate = [](std::string const ip)
     {
@@ -92,7 +92,7 @@ std::string const NetworkMenu::EnterIP(std::string const defaultIP) const
     settings.keyboardConfig.optionalRightSymbol = ".";
     settings.keyboardConfig.initialText = defaultIP;
 
-    return OpenKeyboard(settings);
+    return openKeyboard(settings);
 }
 
 uint16_t const NetworkMenu::EnterPort(uint16_t const defaultPort) const
@@ -105,21 +105,21 @@ uint16_t const NetworkMenu::EnterPort(uint16_t const defaultPort) const
     };
     settings.predicate = [=](int32_t const port)
     {
-        return port >= network::MinPortNumber && port <= network::MaxPortNumber;
+        return port >= network::minPortNumber && port <= network::maxPortNumber;
     };
 
-    auto const minStr = std::to_string(network::MinPortNumber);
-    auto const maxStr = std::to_string(network::MaxPortNumber);
+    auto const minStr = std::to_string(network::minPortNumber);
+    auto const maxStr = std::to_string(network::maxPortNumber);
     auto const header = "Enter an unused port number between " + minStr + " and " + maxStr;
     settings.keyboardConfig.displayMessage = header;
     settings.keyboardConfig.inputLength = maxStr.size();
     settings.keyboardConfig.keyboardLayout = SwkbdType::SwkbdType_NumPad;
     settings.keyboardConfig.initialText = std::to_string(defaultPort);
 
-    return (uint16_t)OpenKeyboard(settings);
+    return (uint16_t)openKeyboard(settings);
 }
 
-void NetworkMenu::EditParam(network::Parameters param)
+void NetworkMenu::EditParam(network::NetworkParameters param)
 {
     auto portTaken = [&](auto const portTarget, auto const & portList)
     {
@@ -159,39 +159,39 @@ void NetworkMenu::EditParam(network::Parameters param)
 
     switch(param)
     {
-        case network::Parameters::ManualIPAddress:
+        case network::NetworkParameters::ManualIPAddress:
             data.manualIP = EnterIP(data.manualIP);
             break;
         
-        case network::Parameters::BroadcastAddress:
+        case network::NetworkParameters::BroadcastAddress:
             data.broadcastIP = EnterIP(data.broadcastIP);
             break;
         
-        case network::Parameters::ManualIPEnabled:
+        case network::NetworkParameters::ManualIPEnabled:
             data.manualIPEnabled = !data.manualIPEnabled;
             break;
 
-        case network::Parameters::HandshakePort:
+        case network::NetworkParameters::HandshakePort:
             editPort(data.handshakePort);
             break;
 
-        case network::Parameters::BroadcastPort:
+        case network::NetworkParameters::BroadcastPort:
             editPort(data.broadcastPort);
             break;
 
-        case network::Parameters::CommandPort:
+        case network::NetworkParameters::CommandPort:
             editPort(data.commandPort);
             break;
 
-        case network::Parameters::GamepadPort:
+        case network::NetworkParameters::GamepadPort:
             editPort(data.gamepadPort);
             break;
 
-        case network::Parameters::VideoPort:
+        case network::NetworkParameters::VideoPort:
             editPort(data.videoPort);
             break;
 
-        case network::Parameters::AudioPort:
+        case network::NetworkParameters::AudioPort:
             editPort(data.audioPort);
             break;
     }
@@ -201,9 +201,9 @@ void NetworkMenu::EditParam(network::Parameters param)
     config.Save(data);
 }
 
-void NetworkMenu::UpdateUI(network::Parameters param)
+void NetworkMenu::UpdateUI(network::NetworkParameters param)
 {
-    auto prefix = network::ParamsDesc.at(param);
+    auto prefix = network::networkParamsDesc.at(param);
     auto updateElement = [&](auto const & str){
         textElements[param].value = prefix + ": " + str;
     };
@@ -216,42 +216,42 @@ void NetworkMenu::UpdateUI(network::Parameters param)
 
     switch(param)
     {
-        case network::Parameters::ManualIPAddress:
+        case network::NetworkParameters::ManualIPAddress:
             updateElement(data.manualIP);
             break;
 
-        case network::Parameters::BroadcastAddress:
+        case network::NetworkParameters::BroadcastAddress:
             updateElement(data.broadcastIP);
             break;
 
-        case network::Parameters::ManualIPEnabled:
+        case network::NetworkParameters::ManualIPEnabled:
         {
             auto str = data.manualIPEnabled == false ? "no" : "yes";
             updateElement(str);
         }
         break;
 
-        case network::Parameters::HandshakePort:
+        case network::NetworkParameters::HandshakePort:
             updatePort(data.handshakePort);
             break;
 
-        case network::Parameters::BroadcastPort:
+        case network::NetworkParameters::BroadcastPort:
             updatePort(data.broadcastPort);
             break;
 
-        case network::Parameters::CommandPort:
+        case network::NetworkParameters::CommandPort:
             updatePort(data.commandPort);
             break;
 
-        case network::Parameters::GamepadPort:
+        case network::NetworkParameters::GamepadPort:
             updatePort(data.gamepadPort);
             break;
 
-        case network::Parameters::VideoPort:
+        case network::NetworkParameters::VideoPort:
             updatePort(data.videoPort);
             break;
 
-        case network::Parameters::AudioPort:
+        case network::NetworkParameters::AudioPort:
             updatePort(data.audioPort);
             break;
     }
@@ -265,7 +265,7 @@ void NetworkMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = network::ParamsList;
+    auto params = network::networkParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

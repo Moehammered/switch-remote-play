@@ -1,69 +1,74 @@
 #include "NetworkDiscovery.h"
 #include <chrono>
 #include <iostream>
+#include <thread>
+#include <atomic>
 
-enum SearchState : int32_t
+namespace
 {
-    OFF,
-    READY,
-    SEARCHING,
-    FOUND,
-    TIMEDOUT
-};
-
-
-std::atomic_int32_t searchState;
-
-void BroadcastIdentity(Broadcast& broadcaster, std::atomic_int32_t& searchState, std::string const key)
-{
-    auto const waitTime = std::chrono::duration<int, std::milli>(800);
-    if(broadcaster.ReadyToSend())
+    enum SearchState : int32_t
     {
-        do
-        {
-            broadcaster.Send(key);
-            std::cout << "broadcasted key: " << key << "\n";
-            std::this_thread::sleep_for(waitTime);
-        } while(searchState.load(std::memory_order_acquire) == SEARCHING);
-    }
-}
+        OFF,
+        READY,
+        SEARCHING,
+        FOUND,
+        TIMEDOUT
+    };
 
-void Handshake(Connection& handshakeConnection, std::atomic_int32_t& searchState, std::string const key, std::string& foundIP)
-{
-    auto const waitTime = std::chrono::duration<int, std::milli>(800);
-    if(handshakeConnection.Ready())
+
+    std::atomic_int32_t searchState;
+
+    void broadcastIdentity(Broadcast& broadcaster, std::atomic_int32_t& searchState, std::string const key)
     {
-        do
+        auto const waitTime = std::chrono::duration<int, std::milli>(800);
+        if(broadcaster.ReadyToSend())
         {
-            std::cout << "handshake start... " << "\n";
-            if(handshakeConnection.WaitForConnection())
+            do
             {
-                std::cout << "handshake waiting... " << "\n";
-                //read and compare key here
-                char buffer[255];
-                for(auto& c : buffer)
-                    c = 0;
-                
-                auto result = recv(handshakeConnection.ConnectedSocket(), buffer, 255, 0);
-                if(result >= 0)
+                broadcaster.Send(key);
+                std::cout << "broadcasted key: " << key << "\n";
+                std::this_thread::sleep_for(waitTime);
+            } while(searchState.load(std::memory_order_acquire) == SEARCHING);
+        }
+    }
+
+    void handshake(Connection& handshakeConnection, std::atomic_int32_t& searchState, std::string const key, std::string& foundIP)
+    {
+        auto const waitTime = std::chrono::duration<int, std::milli>(800);
+        if(handshakeConnection.Ready())
+        {
+            do
+            {
+                std::cout << "handshake start... " << "\n";
+                if(handshakeConnection.WaitForConnection())
                 {
-                    for(auto i = key.length(); i < 255; ++i)
-                        buffer[i] = 0;
+                    std::cout << "handshake waiting... " << "\n";
+                    //read and compare key here
+                    char buffer[255];
+                    for(auto& c : buffer)
+                        c = 0;
                     
-                    if(buffer == key)
+                    auto result = recv(handshakeConnection.ConnectedSocket(), buffer, 255, 0);
+                    if(result >= 0)
                     {
-                        foundIP = std::string{handshakeConnection.ConnectedIP()};
-                        searchState.store(FOUND, std::memory_order_release);
-                        std::cout << "handshake succeeded " << foundIP << "\n";
+                        for(auto i = key.length(); i < 255; ++i)
+                            buffer[i] = 0;
+                        
+                        if(buffer == key)
+                        {
+                            foundIP = std::string{handshakeConnection.ConnectedIP()};
+                            searchState.store(FOUND, std::memory_order_release);
+                            std::cout << "handshake succeeded " << foundIP << "\n";
+                        }
                     }
+
+                    std::cout << "handshake completed: " << buffer << "\n";
                 }
 
-                std::cout << "handshake completed: " << buffer << "\n";
-            }
-
-            handshakeConnection.Disconnect();
-            std::this_thread::sleep_for(waitTime);
-        } while (searchState.load(std::memory_order_acquire) == SEARCHING);
+                handshakeConnection.Disconnect();
+                std::this_thread::sleep_for(waitTime);
+            } while (searchState.load(std::memory_order_acquire) == SEARCHING);
+        }
     }
 }
 
@@ -82,11 +87,11 @@ void NetworkDiscovery::Search()
     {
         searchState.store(SEARCHING, std::memory_order_release);
         auto handshakeFunction = [&] {
-            Handshake(handshakeConnection, searchState, handshakeKey, foundIP);
+            handshake(handshakeConnection, searchState, handshakeKey, foundIP);
         };
         handshakeThread = std::thread(handshakeFunction);
         auto broadcastFunction = [&]{
-            BroadcastIdentity(broadcaster, searchState, handshakeKey);
+            broadcastIdentity(broadcaster, searchState, handshakeKey);
         };
         broadcastThread = std::thread(broadcastFunction);
     }

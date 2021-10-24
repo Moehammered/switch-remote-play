@@ -1,8 +1,6 @@
 #ifndef __MAINSCREEN_H__
 #define __MAINSCREEN_H__
 
-#include <string>
-#include <unordered_map>
 #include "ui/Menu.h"
 #include "ui/HelpMenu.h"
 #include "ui/NetworkMenu.h"
@@ -13,26 +11,8 @@
 #include "ui/MouseMenu.h"
 #include "ui/KeyboardMenu.h"
 #include "network/NetworkDiscovery.h"
-
-enum MenuScreen : int32_t
-{
-    HELP,
-    DECODER_CONFIG,
-    ENCODER_CONFIG,
-    CONTROLLER,
-    IP_SET,
-    TOUCH_MENU,
-    MOUSE_MENU,
-    KEYBOARD_MENU,
-    COUNT
-};
-
-SDL_Color constexpr black = {0,0,0, 255};
-SDL_Color constexpr green = { 100, 200, 100, 255 };
-SDL_Color constexpr orange = { 255, 190, 90, 255 };
-SDL_Color constexpr red = { 200, 100, 100, 255 };
-SDL_Color constexpr blue = {100, 100, 200, 255};
-SDL_Color constexpr white = {255, 255, 255, 255};
+#include <string>
+#include <unordered_map>
 
 class MenuSelection : public Menu
 {
@@ -70,9 +50,9 @@ class MenuSelection : public Menu
         HelpMenu helpScreen;
         EncoderMenu encoderScreen;
         NetworkMenu networkScreen;
-        std::unordered_map<MenuScreen, Menu*> menus;
+        std::unordered_map<int32_t, Menu*> menus;
 
-        MenuScreen selectedMenu;
+        int32_t selectedMenu;
         DecoderMenu newDecoderMenu;
         ControllerMenu newControllerMenu;
         TouchMenu touchMenu;

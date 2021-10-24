@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CONFIGURATION_H__
+#define __CONFIGURATION_H__
 
 #include <string>
 #include <vector>
@@ -22,3 +23,4 @@ private:
     std::vector<std::string> LoadFile(std::string const filepath) const;
 };
 
+#endif

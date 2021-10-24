@@ -4,6 +4,6 @@
 #include <functional>
 #include <string>
 
-uint64_t MonitorKeys(std::function<void(std::string)> renderFunction);
+uint64_t monitorButtons(std::function<void(std::string)> renderFunction);
 
 #endif

@@ -1,28 +1,28 @@
 #include "TouchConfiguration.h"
 
 TouchConfiguration::TouchConfiguration()
-    : configMap{ "sdmc:/switch/switch-remote-play/touch_config.ini", touch::TouchConfigParamsDesc },
+    : configMap{ "sdmc:/switch/switch-remote-play/touch_config.ini", touch::touchConfigParamsDesc },
     virtualTouchMap{}, simulatedMouseMap{}
 {
 }
 
 TouchConfiguration::TouchConfiguration(std::string const file)
-    : configMap{ file, touch::TouchConfigParamsDesc },
+    : configMap{ file, touch::touchConfigParamsDesc },
     virtualTouchMap{}, simulatedMouseMap{}
 {
 }
 
 TouchConfiguration::TouchConfiguration(std::string const file,
-        std::string const virtualMouseFile,
-        std::string const simulatedMouseFile)
-    : configMap{ file, touch::TouchConfigParamsDesc },
+                                        std::string const virtualMouseFile,
+                                        std::string const simulatedMouseFile)
+    : configMap{ file, touch::touchConfigParamsDesc },
     virtualTouchMap{ virtualMouseFile }, simulatedMouseMap{ simulatedMouseFile }
 {
 }
 
 bool TouchConfiguration::Save(touch::TouchConfig const data)
 {
-    auto touchFileSaved = configMap.Save(data, touch::TouchConfigParamsToStr);
+    auto touchFileSaved = configMap.Save(data, touch::touchConfigParamsToStr);
     auto unionFileSaved = false;
 
     switch (data.touchMode)
@@ -44,7 +44,7 @@ bool TouchConfiguration::Save(touch::TouchConfig const data)
 
 touch::TouchConfig const TouchConfiguration::Data() const
 {
-    auto data = configMap.Data(touch::TouchConfigParamsFromStr);
+    auto data = configMap.Data(touch::touchConfigParamsFromStr);
     switch(data.touchMode)
     {
     default:

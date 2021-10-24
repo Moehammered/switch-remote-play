@@ -30,13 +30,13 @@ struct KeyboardParserProperties
     std::function<returnType(std::string const)> parseMethod = [](std::string const a){ return returnType{}; };
 };
 
-bool CreateKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfig & kbd);
+bool createKeyboard(SoftwareKeyboardProperties const & configuration, SwkbdConfig & kbd);
 
 template<typename returnType>
-returnType OpenKeyboard(KeyboardParserProperties<returnType> const properties)
+returnType openKeyboard(KeyboardParserProperties<returnType> const properties)
 {
     auto kbd = SwkbdConfig{};
-    if(CreateKeyboard(properties.keyboardConfig, kbd))
+    if(createKeyboard(properties.keyboardConfig, kbd))
     {
         auto parsedInput = properties.defaultValue;
         auto const inputLength = kbd.arg.arg.arg.stringLenMax;
@@ -60,8 +60,8 @@ returnType OpenKeyboard(KeyboardParserProperties<returnType> const properties)
         return properties.defaultValue;
 }
 
-int32_t const KeyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue);
+int32_t const keyboardNumber(int32_t const minValue, int32_t const maxValue, int32_t const defaultValue);
 
-double const KeyboardDecimal(double const minValue, double const maxValue, double const defaultValue);
+double const keyboardDecimal(double const minValue, double const maxValue, double const defaultValue);
 
 #endif

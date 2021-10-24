@@ -17,8 +17,8 @@ public:
     mouse::MouseConfig const Settings() const;
 
 private:
-    ArrayCirculator<mouse::Parameters, std::vector> selectionCursor;
-    std::unordered_map<mouse::Parameters, Text> textElements;
+    ArrayCirculator<mouse::MouseParameters, std::vector> selectionCursor;
+    std::unordered_map<mouse::MouseParameters, Text> textElements;
 
     UnorderedMapCirculator<HidNpadButton, std::string> leftMouseBtnCursor;
     UnorderedMapCirculator<HidNpadButton, std::string> rightMouseBtnCursor;
@@ -31,8 +31,8 @@ private:
 
     bool keyAssigned(HidNpadButton const desired, std::initializer_list<HidNpadButton> const taken);
     void cycleMouseBtnCursor(UnorderedMapCirculator<HidNpadButton, std::string> & cursor, int direction, std::initializer_list<HidNpadButton> const others);
-    void ChangeParam(mouse::Parameters param, int value);
-    void UpdateUI(mouse::Parameters param);
+    void ChangeParam(mouse::MouseParameters param, int value);
+    void UpdateUI(mouse::MouseParameters param);
     void SetupText();
 };
 

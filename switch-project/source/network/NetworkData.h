@@ -1,39 +1,30 @@
 #ifndef __NETWORKDATA_H__
 #define __NETWORKDATA_H__
 
-#include <stdint.h>
 #include "../codec/general/GenericOptions.h"
 #include "../codec/h264/H264Options.h"
 #include "../codec/h264_amf/h264amfOptions.h"
-#include "../dataHelpers/Resolution.h"
-#include "../dataHelpers/HWAccel.h"
-#include "../dataHelpers/VideoCodec.h"
-#include "../dataHelpers/VsyncMode.h"
+#include "../ffmpegHelpers/Resolution.h"
+#include "../ffmpegHelpers/HWAccel.h"
+#include "../ffmpegHelpers/VideoCodec.h"
+#include "../ffmpegHelpers/VsyncMode.h"
 #include "../controller/ControllerOptions.h"
 #include "../mouse/MouseOptions.h"
 #include "../keyboard/KeyboardOptions.h"
 #include "../touch/TouchOptions.h"
+#include <stdint.h>
 
-struct alignas(16) AudioConfig
-{
-    uint32_t    sampleRate;
-    uint32_t    framerate;
-    uint32_t    channelCount;
-    uint32_t    bitrate;
-};
-
-int constexpr AUDIO_CONFIG_SIZE = {sizeof(AudioConfig)};
 struct alignas(8) EncoderConfig
 {
-    VideoData       commonSettings;
+    codec::VideoData       commonSettings;
     union
     {
         h264::H264Data cpuSettings;
-        h264amf::H264AMFData amdSettings;
+        h264amf::H264AmfData amdSettings;
     };
 };
 
-constexpr int ENCODER_CONFIG_SIZE = sizeof(EncoderConfig);
+constexpr int encoderConfigSize = sizeof(EncoderConfig);
 
 enum Command : int16_t
 {
@@ -45,11 +36,13 @@ enum Command : int16_t
     IGNORE_COMMAND
 };
 
-constexpr int COMMAND_CODE_SIZE = sizeof(Command);
+auto constexpr commandCodeSize = sizeof(Command);
 
-auto constexpr PayloadPaddingSize = 264 - ENCODER_CONFIG_SIZE 
-- COMMAND_CODE_SIZE - controller::ControllerConfigSize
-- mouse::MouseConfigSize - touch::TouchConfigSize - keyboard::KeyboardConfigSize;
+auto constexpr PayloadPaddingSize = 264 - encoderConfigSize 
+    - commandCodeSize - controller::controllerConfigSize
+    - mouse::mouseConfigSize - touch::touchConfigSize 
+    - keyboard::keyboardConfigSize;
+
 struct alignas(8) CommandPayload
 {
     //for now only add ffmpeg-config as an extra data member
@@ -63,7 +56,7 @@ struct alignas(8) CommandPayload
     int8_t                          padding[PayloadPaddingSize];
 };
 
-constexpr int COMMAND_PAYLOAD_SIZE = sizeof(CommandPayload);
+auto constexpr commandPayloadSize = sizeof(CommandPayload);
 
 struct TouchState
 {
@@ -72,16 +65,16 @@ struct TouchState
     uint32_t y;
 };
 
-auto constexpr TouchStateSize = sizeof(TouchState);
-auto constexpr MaxTouchCount = 5;
+auto constexpr touchStateSize = sizeof(TouchState);
+auto constexpr maxTouchCount = 5;
 
 struct alignas(8) TouchPayload
 {
     int32_t count;
-    TouchState touches[MaxTouchCount];
+    TouchState touches[maxTouchCount];
 };
 
-auto constexpr TouchPayloadSize = sizeof(TouchPayload);
+auto constexpr touchPayloadSize = sizeof(TouchPayload);
 
 struct alignas(8) GamepadDataPayload
 {
@@ -93,10 +86,10 @@ struct alignas(8) GamepadDataPayload
     char padding[64 - sizeof(uint32_t) - sizeof(int32_t) * 4 - sizeof(HidVector) * 2];
 };
 
-auto constexpr GamepadDataPayloadSize = sizeof(GamepadDataPayload);
+auto constexpr gamepadDataPayloadSize = sizeof(GamepadDataPayload);
 
 auto constexpr maxControllerCount = 4;
-auto constexpr AllGamepadPayloadsSize = GamepadDataPayloadSize * maxControllerCount;
+auto constexpr allGamepadPayloadsSize = gamepadDataPayloadSize * maxControllerCount;
 
 struct InputDataPayload
 {
@@ -104,6 +97,6 @@ struct InputDataPayload
     TouchPayload        touchScreen;
 };
 
-auto constexpr InputDataPayloadSize = sizeof(InputDataPayload);
+auto constexpr inputDataPayloadSize = sizeof(InputDataPayload);
 
 #endif

@@ -13,24 +13,24 @@ namespace touch
         MaxFingerCount
     };
 
-    static std::vector<VirtualTouchParameters> const VirtualTouchParamsList
+    static std::vector<VirtualTouchParameters> const virtualTouchParamsList
     {
         VirtualTouchParameters::DeadzoneRadius, VirtualTouchParameters::MaxFingerCount
     };
 
-    static std::unordered_map<VirtualTouchParameters, std::string> const VirtualTouchParamsDesc
+    static std::unordered_map<VirtualTouchParameters, std::string> const virtualTouchParamsDesc
     {
         { VirtualTouchParameters::DeadzoneRadius, "Deadzone Radius" },
         { VirtualTouchParameters::MaxFingerCount, "Max Finger Count" }
     };
 
-    int16_t constexpr DefaultVirtualTouchDeadzoneRadius = 5;
-    int16_t constexpr MinVirtualTouchDeadzoneRadius = 3;
-    int16_t constexpr MaxVirtualTouchDeadzoneRadius = 30;
+    int16_t constexpr defaultVirtualTouchDeadzoneRadius = 5;
+    int16_t constexpr minVirtualTouchDeadzoneRadius = 3;
+    int16_t constexpr maxVirtualTouchDeadzoneRadius = 30;
     
-    int16_t constexpr DefaultMaxFingerCount = 2;
-    int16_t constexpr MinFingerCount = 1;
-    int16_t constexpr MaxFingerCount = 5;
+    int16_t constexpr defaultMaxFingerCount = 2;
+    int16_t constexpr minFingerCount = 1;
+    int16_t constexpr maxFingerCount = 5;
 
     struct VirtualTouchConfig
     {
@@ -38,10 +38,10 @@ namespace touch
         int16_t maxFingerCount;
     };
 
-    int32_t constexpr VirtualTouchConfigSize = sizeof(VirtualTouchConfig);
+    int32_t constexpr virtualTouchConfigSize = sizeof(VirtualTouchConfig);
 
-    std::unordered_map<VirtualTouchParameters, std::string> const VirtualTouchParamsToStr(VirtualTouchConfig const config);
-    VirtualTouchConfig const VirtualTouchParamsFromStr(std::unordered_map<VirtualTouchParameters, std::string> const & map);
+    std::unordered_map<VirtualTouchParameters, std::string> const virtualTouchParamsToStr(VirtualTouchConfig const config);
+    VirtualTouchConfig const virtualTouchParamsFromStr(std::unordered_map<VirtualTouchParameters, std::string> const & map);
 }
 
 #endif

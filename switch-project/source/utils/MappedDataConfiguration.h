@@ -1,11 +1,11 @@
 #ifndef __MAPPEDDATACONFIGURATION_H__
 #define __MAPPEDDATACONFIGURATION_H__
 
+#include "Configuration.h"
+#include "StringUtils.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "Configuration.h"
-#include "StringUtils.h"
 
 template<typename configType, typename enumType>
 class MappedDataConfiguration
@@ -57,10 +57,10 @@ private:
             if (paramItr != descriptionMap.end())
             {
                 auto paramStr = paramItr->second;
-                Trim(paramStr);
+                stringutil::trim(paramStr);
 
                 auto paramVal = line.second;
-                Trim(paramVal);
+                stringutil::trim(paramVal);
 
                 fileLines.emplace_back(paramStr, paramVal);
             }

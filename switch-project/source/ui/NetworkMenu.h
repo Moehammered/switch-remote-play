@@ -20,13 +20,13 @@ class NetworkMenu : public Menu
         Text warningText;
         network::NetworkConfig data;
 
-        ArrayCirculator<network::Parameters, std::vector> selected;
-        std::unordered_map<network::Parameters, Text> textElements;
+        ArrayCirculator<network::NetworkParameters, std::vector> selected;
+        std::unordered_map<network::NetworkParameters, Text> textElements;
 
         std::string const EnterIP(std::string const defaultIP) const;
         uint16_t const EnterPort(uint16_t const defaultPort) const;
-        void EditParam(network::Parameters param);
-        void UpdateUI(network::Parameters param);
+        void EditParam(network::NetworkParameters param);
+        void UpdateUI(network::NetworkParameters param);
         void SetupText();
 };
 

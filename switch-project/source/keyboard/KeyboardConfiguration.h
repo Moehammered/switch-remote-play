@@ -1,9 +1,9 @@
 #ifndef __KEYBOARDCONFIGURATION_H__
 #define __KEYBOARDCONFIGURATION_H__
 
-#include <string>
 #include "KeyboardOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
 
 class KeyboardConfiguration
 {

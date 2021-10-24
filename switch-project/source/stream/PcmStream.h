@@ -2,6 +2,7 @@
 #define __PCMSTREAM_H__
 
 #include <thread>
+#include <stdint.h>
 
 class PcmStream
 {

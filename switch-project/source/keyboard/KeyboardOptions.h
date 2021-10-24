@@ -1,10 +1,10 @@
 #ifndef __KEYBOARDOPTIONS_H__
 #define __KEYBOARDOPTIONS_H__
 
+#include "../controller/SwitchButtons.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "../controller/SwitchButtons.h"
 
 namespace keyboard
 {
@@ -30,9 +30,9 @@ namespace keyboard
         RightArrow
     };
 
-    auto constexpr TotalSupportedKeys = (size_t)KeyParameter::RightArrow + 1;
+    auto constexpr totalSupportedKeys = (size_t)KeyParameter::RightArrow + 1;
 
-    static std::vector<KeyParameter> const ParamsList
+    static std::vector<KeyParameter> const keyParamsList
     {
         KeyParameter::Control, KeyParameter::OSKey, KeyParameter::Alt,
         KeyParameter::Shift, KeyParameter::Tab, KeyParameter::Escape,
@@ -43,7 +43,7 @@ namespace keyboard
         KeyParameter::LeftArrow, KeyParameter::RightArrow
     };
 
-    static std::unordered_map<KeyParameter, std::string> const ParamsDesc
+    static std::unordered_map<KeyParameter, std::string> const keyParamsDesc
     {
         { KeyParameter::Control, "Control" },
         { KeyParameter::OSKey, "OS Key" },
@@ -71,9 +71,9 @@ namespace keyboard
         uint32_t button;
     };
 
-    auto constexpr BindingSize = sizeof(KeyboardBinding);
+    auto constexpr keyboardBindingSize = sizeof(KeyboardBinding);
 
-    KeyboardBinding const DefaultBindings[] = 
+    KeyboardBinding const defaultBindings[] = 
     {
         { KeyParameter::OSKey, HidNpadButton::HidNpadButton_Y },
         { KeyParameter::Escape, HidNpadButton::HidNpadButton_X },
@@ -87,13 +87,13 @@ namespace keyboard
 
     struct alignas(4) KeyboardConfig
     {
-        KeyboardBinding bindings[TotalSupportedKeys];
+        KeyboardBinding bindings[totalSupportedKeys];
     };
 
-    auto constexpr KeyboardConfigSize = sizeof(KeyboardConfig);
+    auto constexpr keyboardConfigSize = sizeof(KeyboardConfig);
 
-    std::unordered_map<KeyParameter, std::string> const KeybindingsToString(KeyboardConfig const config);
-    KeyboardConfig const KeybindingsFromStr(std::unordered_map<KeyParameter, std::string> const & map);
+    std::unordered_map<KeyParameter, std::string> const keybindingsToString(KeyboardConfig const config);
+    KeyboardConfig const keybindingsFromStr(std::unordered_map<KeyParameter, std::string> const & map);
 }
 
 #endif

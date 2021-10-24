@@ -3,17 +3,17 @@
 
 namespace controller
 {
-    ControllerButtonMap ParseControllerButtonMapString(std::string s)
+    ControllerButtonMap parseControllerButtonMapString(std::string s)
     {
         return strToEnum(controlMapOptions, s);
     }
 
-    std::string ControllerButtonMapToString(ControllerButtonMap map)
+    std::string controllerButtonMapToString(ControllerButtonMap map)
     {
         return enumToStr(controlMapOptions, map);
     }
 
-    std::string ControllerButtonMapDescription(ControllerButtonMap map)
+    std::string controllerButtonMapDescription(ControllerButtonMap map)
     {
         return enumToStr(controlMapDesc, map);
     }

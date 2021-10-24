@@ -4,7 +4,7 @@
 
 namespace keyboard
 {
-    std::unordered_map<KeyParameter, std::string> const KeybindingsToString(KeyboardConfig const config)
+    std::unordered_map<KeyParameter, std::string> const keybindingsToString(KeyboardConfig const config)
     {
         auto values = std::unordered_map<KeyParameter, std::string>{};
 
@@ -12,7 +12,7 @@ namespace keyboard
         {
             if(binding.button != 0)
             {
-                auto btns = controller::SwitchButtonsToString(binding.button);
+                auto btns = controller::switchButtonsToString(binding.button);
                 if(btns.size() != 0)
                 {
                     auto str = btns[0];
@@ -29,7 +29,7 @@ namespace keyboard
         return values;
     }
 
-    KeyboardConfig const KeybindingsFromStr(std::unordered_map<KeyParameter, std::string> const & map)
+    KeyboardConfig const keybindingsFromStr(std::unordered_map<KeyParameter, std::string> const & map)
     {
         auto config = KeyboardConfig{};
 
@@ -50,7 +50,7 @@ namespace keyboard
             if(entry != map.end() && entry->second != "none")
             {
                 auto btnList = csvToList(entry->second);
-                auto btns = controller::ParseSwitchButtonStrings(btnList);
+                auto btns = controller::parseSwitchButtonStrings(btnList);
                 auto btnFlags = 0U;
                 for(auto const & btn : btns)
                     btnFlags |= btn;
@@ -61,7 +61,7 @@ namespace keyboard
                 return 0U;
         };
 
-        for(auto i = 0U; i < TotalSupportedKeys; ++i)
+        for(auto i = 0U; i < totalSupportedKeys; ++i)
         {
             auto key = (KeyParameter)i;
             config.bindings[i].key = key;

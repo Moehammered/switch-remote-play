@@ -1,13 +1,13 @@
 #ifndef __H264AMF_OPTIONS_H__
 #define __H264AMF_OPTIONS_H__
 
-#include "h264amfEnums.h"
+#include "h264AmfEnums.h"
 #include <vector>
 #include <unordered_map>
 
 namespace h264amf
 {
-    enum class Parameters : int
+    enum class H264AmfParameters : int
     {
         Usage,
         Profile,
@@ -27,13 +27,13 @@ namespace h264amf
         LogToDbg
     };
 
-    struct H264AMFData
+    struct H264AmfData
     {
-        H264AMF_USAGE       usage;
-        H264AMF_PROFILE     profile;
+        H264AmfUsage       usage;
+        H264AmfProfile     profile;
         //int16_t             level;
-        H264AMF_QUALITY     quality;
-        H264AMF_RATECONTROL rateControl;
+        H264AmfQuality     quality;
+        H264AmfRateControl rateControl;
         int16_t             qp_i; //iframe quantization
         int16_t             qp_p; //pframe quantization
         int16_t             qp_b; //bframe quantization
@@ -47,12 +47,12 @@ namespace h264amf
         //bool                logToDbg;
     };
 
-    bool operator==(H264AMFData const a, H264AMFData const b);
+    bool operator==(H264AmfData const a, H264AmfData const b);
 
-    auto constexpr H264AMFDataSize = sizeof(H264AMFData);
+    auto constexpr h264AmfDataSize = sizeof(H264AmfData);
 
-    std::unordered_map<Parameters, std::string> CodecParamsToStr(H264AMFData const data);
-    H264AMFData CodecParamsFromStr(std::unordered_map<Parameters, std::string> const& map);
+    std::unordered_map<H264AmfParameters, std::string> codecParamsToStr(H264AmfData const data);
+    H264AmfData codecParamsFromStr(std::unordered_map<H264AmfParameters, std::string> const& map);
 
     std::string amfLevelToStr(int16_t level);
     int16_t amfLevelStrToInt(std::string s);
@@ -63,29 +63,29 @@ namespace h264amf
     std::string amfBFrameDeltaQPToStr(int16_t qp);
     int16_t amfBFrameDeltaQPStrToInt(std::string s);
 
-    static std::vector<Parameters> const ParamsList
+    static std::vector<H264AmfParameters> const h264AmfParamsList
     {
-        Parameters::Usage, Parameters::Profile, Parameters::Quality,
-        Parameters::RateControl, Parameters::FrameQuant_I, Parameters::FrameQuant_P,
-        Parameters::FrameQuant_B, Parameters::Frameskip
+        H264AmfParameters::Usage, H264AmfParameters::Profile, H264AmfParameters::Quality,
+        H264AmfParameters::RateControl, H264AmfParameters::FrameQuant_I, H264AmfParameters::FrameQuant_P,
+        H264AmfParameters::FrameQuant_B, H264AmfParameters::Frameskip
     };
 
-    static std::unordered_map<Parameters, std::string> const ParamsDesc
+    static std::unordered_map<H264AmfParameters, std::string> const h264AmfParamsDesc
     {
-        {Parameters::Usage, "Usage Hint"}, 
-        {Parameters::Profile, "Profile"},
+        {H264AmfParameters::Usage, "Usage Hint"}, 
+        {H264AmfParameters::Profile, "Profile"},
         // {Parameters::Level, "Profile Level"},
-        {Parameters::Quality, "Quality Hint"},
-        {Parameters::RateControl, "Rate Control Method"},
-        {Parameters::FrameQuant_I, "I-Frame Control Factor"},
-        {Parameters::FrameQuant_P, "P-Frame Control Factor"},
-        {Parameters::FrameQuant_B, "B-Frame Control Factor"},
+        {H264AmfParameters::Quality, "Quality Hint"},
+        {H264AmfParameters::RateControl, "Rate Control Method"},
+        {H264AmfParameters::FrameQuant_I, "I-Frame Control Factor"},
+        {H264AmfParameters::FrameQuant_P, "P-Frame Control Factor"},
+        {H264AmfParameters::FrameQuant_B, "B-Frame Control Factor"},
         // {Parameters::FrameQuant_BDelta, "B-Frame Delta Rate"},
         // {Parameters::FrameQuant_BRefDelta, "B-Frame Reference Delta Rate"},
         // {Parameters::EnforceHRD, "Enforce HRD"},
         // {Parameters::FillerData, "Filler Data"},
         // {Parameters::VBAQ, "VBAQ"},
-        {Parameters::Frameskip, "Frameskip"},
+        {H264AmfParameters::Frameskip, "Frameskip"},
         // {Parameters::BFrameRef, "B-Frame Ref Delta"},
         // {Parameters::LogToDbg, "Log to Debug"}
     };

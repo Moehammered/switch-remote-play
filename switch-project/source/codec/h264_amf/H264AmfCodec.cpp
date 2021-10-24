@@ -2,7 +2,7 @@
 #include "../../system/SoftwareKeyboard.h"
 
 H264AmfCodec::H264AmfCodec()
-	: cursor{ h264amf::ParamsList },
+	: cursor{ h264amf::h264AmfParamsList },
     usageCursor{ h264amf::usageMap },
     profileCursor{ h264amf::profileMap },
     qualityCursor{ h264amf::qualityMap },
@@ -14,7 +14,7 @@ H264AmfCodec::H264AmfCodec()
 {
 }
 
-void H264AmfCodec::Set(h264amf::H264AMFData const data)
+void H264AmfCodec::Set(h264amf::H264AmfData const data)
 {
     cycleMap(usageCursor, data.usage);
     cycleMap(profileCursor, data.profile);
@@ -37,26 +37,26 @@ void H264AmfCodec::Set(h264amf::H264AMFData const data)
     // logToDebug = data.logToDbg;
 }
 
-h264amf::Parameters H264AmfCodec::Current()
+h264amf::H264AmfParameters H264AmfCodec::Current()
 {
 	return *cursor;
 }
 
-h264amf::Parameters H264AmfCodec::Next()
+h264amf::H264AmfParameters H264AmfCodec::Next()
 {
 	++cursor;
 	return *cursor;
 }
 
-h264amf::Parameters H264AmfCodec::Prev()
+h264amf::H264AmfParameters H264AmfCodec::Prev()
 {
 	--cursor;
 	return *cursor;
 }
 
-h264amf::H264AMFData H264AmfCodec::Data() const
+h264amf::H264AmfData H264AmfCodec::Data() const
 {
-    auto data = h264amf::H264AMFData();
+    auto data = h264amf::H264AmfData();
 
     data.usage = usageCursor.KeyPair().first;
     data.profile = profileCursor.KeyPair().first;
@@ -93,54 +93,54 @@ void H264AmfCodec::ShiftParam(int direction)
 	switch (*cursor)
 	{
     // enum based params
-    case h264amf::Parameters::Usage:
+    case h264amf::H264AmfParameters::Usage:
         usageCursor += direction;
         break;
-    case h264amf::Parameters::Profile:
+    case h264amf::H264AmfParameters::Profile:
         profileCursor += direction;
         break;
-    case h264amf::Parameters::Quality:
+    case h264amf::H264AmfParameters::Quality:
         qualityCursor += direction;
         break;
-    case h264amf::Parameters::RateControl:
+    case h264amf::H264AmfParameters::RateControl:
         rateControlCursor += direction;
         break;
     // integer based params
-    case h264amf::Parameters::Level:
+    case h264amf::H264AmfParameters::Level:
         // level += direction;
         break;
-    case h264amf::Parameters::FrameQuant_I:
-        quantisationI = KeyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationI);
+    case h264amf::H264AmfParameters::FrameQuant_I:
+        quantisationI = keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationI);
         break;
-    case h264amf::Parameters::FrameQuant_P:
-        quantisationP = KeyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationP);
+    case h264amf::H264AmfParameters::FrameQuant_P:
+        quantisationP = keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationP);
         break;
-    case h264amf::Parameters::FrameQuant_B:
-        quantisationB = KeyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationB);
+    case h264amf::H264AmfParameters::FrameQuant_B:
+        quantisationB = keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationB);
         break;
-    case h264amf::Parameters::FrameQuant_BDelta:
+    case h264amf::H264AmfParameters::FrameQuant_BDelta:
         // delta_qp_b += direction;
         break;
-    case h264amf::Parameters::FrameQuant_BRefDelta:
+    case h264amf::H264AmfParameters::FrameQuant_BRefDelta:
         // delta_qp_b_ref += direction;
         break;
     // boolean based params
-    case h264amf::Parameters::EnforceHRD:
+    case h264amf::H264AmfParameters::EnforceHRD:
         // enforceHRD = !enforceHRD;
         break;
-    case h264amf::Parameters::FillerData:
+    case h264amf::H264AmfParameters::FillerData:
         // fillerData = !fillerData;
         break;
-    case h264amf::Parameters::VBAQ:
+    case h264amf::H264AmfParameters::VBAQ:
         // vbaq = !vbaq;
         break;
-    case h264amf::Parameters::Frameskip:
+    case h264amf::H264AmfParameters::Frameskip:
         frameskip = !frameskip;
         break;
-    case h264amf::Parameters::BFrameRef:
+    case h264amf::H264AmfParameters::BFrameRef:
         // bFrameRef = !bFrameRef;
         break;
-    case h264amf::Parameters::LogToDbg:
+    case h264amf::H264AmfParameters::LogToDbg:
         // logToDebug = !logToDebug;
         break;
     default:

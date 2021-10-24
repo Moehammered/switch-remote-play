@@ -1,9 +1,9 @@
 #ifndef __NETWORKCONFIGURATION_H__
 #define __NETWORKCONFIGURATION_H__
 
-#include <string>
 #include "NetworkOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
 
 class NetworkConfiguration
 {
@@ -15,7 +15,7 @@ public:
     network::NetworkConfig const Data() const;
 
 private:
-    MappedDataConfiguration<network::NetworkConfig, network::Parameters> configMap;
+    MappedDataConfiguration<network::NetworkConfig, network::NetworkParameters> configMap;
 };
 
 #endif

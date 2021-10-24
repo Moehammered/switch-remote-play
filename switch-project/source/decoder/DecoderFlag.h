@@ -11,13 +11,13 @@ extern "C"
 
 namespace decoder
 {
-    std::unordered_map<int32_t, std::string> const Flags1ToStrings(int32_t flags);
-    std::unordered_map<int32_t, std::string> const Flags1ToDescriptions(int32_t flags);
-    int32_t const ParseFlags1Strings(std::vector<std::string> const & strings);
+    std::unordered_map<int32_t, std::string> const flags1ToStrings(int32_t flags);
+    std::unordered_map<int32_t, std::string> const flags1ToDescriptions(int32_t flags);
+    int32_t const parseFlags1Strings(std::vector<std::string> const & strings);
 
-    std::unordered_map<int32_t, std::string> const Flags2ToStrings(int32_t flags);
-    std::unordered_map<int32_t, std::string> const Flags2ToDescriptions(int32_t flags);
-    int32_t const ParseFlags2Strings(std::vector<std::string> const & strings);
+    std::unordered_map<int32_t, std::string> const flags2ToStrings(int32_t flags);
+    std::unordered_map<int32_t, std::string> const flags2ToDescriptions(int32_t flags);
+    int32_t const parseFlags2Strings(std::vector<std::string> const & strings);
 
     static std::unordered_map<int32_t, std::string> const flag1Options
     {
@@ -91,20 +91,6 @@ namespace decoder
         {AV_CODEC_FLAG2_EXPORT_MVS,  "EXPORT MVS (export motion vector sidedata)"},
         {AV_CODEC_FLAG2_SKIP_MANUAL,  "SKIP MANUAL (export skip motion as side data)"},
         {AV_CODEC_FLAG2_RO_FLUSH_NOOP,  "RO FLUSH NOOP (don't reset ASS on flush (SUBTITLES))"}  
-    };
-
-    static std::vector<int32_t> const AvailableFlags1
-    {
-        AV_CODEC_FLAG_LOW_DELAY, AV_CODEC_FLAG_DROPCHANGED, 
-        AV_CODEC_FLAG_PASS1, AV_CODEC_FLAG_PASS2,
-        AV_CODEC_FLAG_LOOP_FILTER
-    };
-
-    static std::vector<int32_t> const AvailableFlags2
-    {
-        AV_CODEC_FLAG2_FAST,
-        AV_CODEC_FLAG2_NO_OUTPUT,
-        AV_CODEC_FLAG2_IGNORE_CROP
     };
 }
 

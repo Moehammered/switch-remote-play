@@ -7,7 +7,7 @@
 
 namespace network
 {
-    enum class Parameters
+    enum class NetworkParameters
     {
         ManualIPAddress,
         ManualIPEnabled,
@@ -20,39 +20,39 @@ namespace network
         AudioPort
     };
 
-    static std::vector<Parameters> const ParamsList
+    static std::vector<NetworkParameters> const networkParamsList
     {
-        Parameters::ManualIPAddress, Parameters::ManualIPEnabled,
-        Parameters::BroadcastAddress, Parameters::HandshakePort,
-        Parameters::BroadcastPort, Parameters::CommandPort,
-        Parameters::GamepadPort, Parameters::VideoPort,
-        Parameters::AudioPort
+        NetworkParameters::ManualIPAddress, NetworkParameters::ManualIPEnabled,
+        NetworkParameters::BroadcastAddress, NetworkParameters::HandshakePort,
+        NetworkParameters::BroadcastPort, NetworkParameters::CommandPort,
+        NetworkParameters::GamepadPort, NetworkParameters::VideoPort,
+        NetworkParameters::AudioPort
     };
 
-    static std::unordered_map<Parameters, std::string> const ParamsDesc
+    static std::unordered_map<NetworkParameters, std::string> const networkParamsDesc
     {
-        { Parameters::ManualIPAddress, "Manual IP Address" },
-        { Parameters::ManualIPEnabled, "Manual IP Enabled" },
-        { Parameters::BroadcastAddress, "Broadcast Address" },
-        { Parameters::HandshakePort, "Handshake Port" },
-        { Parameters::BroadcastPort, "Broadcast Port" },
-        { Parameters::CommandPort, "Command Port" },
-        { Parameters::GamepadPort, "Gamepad Port" },
-        { Parameters::VideoPort, "Video Port" },
-        { Parameters::AudioPort, "Audio Port" }
+        { NetworkParameters::ManualIPAddress, "Manual IP Address" },
+        { NetworkParameters::ManualIPEnabled, "Manual IP Enabled" },
+        { NetworkParameters::BroadcastAddress, "Broadcast Address" },
+        { NetworkParameters::HandshakePort, "Handshake Port" },
+        { NetworkParameters::BroadcastPort, "Broadcast Port" },
+        { NetworkParameters::CommandPort, "Command Port" },
+        { NetworkParameters::GamepadPort, "Gamepad Port" },
+        { NetworkParameters::VideoPort, "Video Port" },
+        { NetworkParameters::AudioPort, "Audio Port" }
     };
 
-    constexpr char DefaultBroadcastAddress[] = "192.168.0.255";
-    constexpr char DefaultManualIPAddress[] = "192.168.0.1";
-    auto constexpr DefaultManualIPEnabled = true;
-    auto constexpr MinPortNumber = 2000;
-    auto constexpr MaxPortNumber = 0xFFFF;
-    auto constexpr DefaultHandshakePort = 19999;
-    auto constexpr DefaultBroadcastPort = 20000;
-    auto constexpr DefaultCommandPort = 20001;
-    auto constexpr DefaultGamepadPort = 20002;
-    auto constexpr DefaultVideoPort = 20003;
-    auto constexpr DefaultAudioPort = 20004;
+    char constexpr defaultBroadcastAddress[] = "192.168.0.255";
+    char constexpr defaultManualIPAddress[] = "192.168.0.1";
+    auto constexpr defaultManualIPEnabled = true;
+    auto constexpr minPortNumber = 2000;
+    auto constexpr maxPortNumber = 0xFFFF;
+    auto constexpr defaultHandshakePort = 19999;
+    auto constexpr defaultBroadcastPort = 20000;
+    auto constexpr defaultCommandPort = 20001;
+    auto constexpr defaultGamepadPort = 20002;
+    auto constexpr defaultVideoPort = 20003;
+    auto constexpr defaultAudioPort = 20004;
 
     struct NetworkConfig
     {
@@ -67,10 +67,10 @@ namespace network
         bool manualIPEnabled;
     };
 
-    auto constexpr NetworkConfigSize = sizeof(NetworkConfig);
+    auto constexpr networkConfigSize = sizeof(NetworkConfig);
 
-    std::unordered_map<Parameters, std::string> const NetworkParamsToStr(NetworkConfig const config);
-    NetworkConfig const NetworkParamsFromStr(std::unordered_map<Parameters, std::string> const & map);
+    std::unordered_map<NetworkParameters, std::string> const networkParamsToStr(NetworkConfig const config);
+    NetworkConfig const networkParamsFromStr(std::unordered_map<NetworkParameters, std::string> const & map);
 }
 
 #endif

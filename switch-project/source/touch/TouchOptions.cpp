@@ -3,42 +3,42 @@
 
 namespace touch
 {
-    TouchScreenMode TouchScreenModeStrToEnum(std::string s)
+    TouchScreenMode touchScreenModeFromStr(std::string s)
     {
-        return strToEnum(TouchScreenModeStr, s);
+        return strToEnum(touchScreenModeStr, s);
     }
 
-    std::string TouchScreenModeEnumToStr(TouchScreenMode mode)
+    std::string touchScreenModeEnumToStr(TouchScreenMode mode)
     {
-        return enumToStr(TouchScreenModeStr, mode);
+        return enumToStr(touchScreenModeStr, mode);
     }
 
-    std::string TouchScreenModeEnumToDesc(TouchScreenMode mode)
+    std::string touchScreenModeEnumToDesc(TouchScreenMode mode)
     {
-        return enumToStr(TouchScreenModeDesc, mode);
+        return enumToStr(touchScreenModeDesc, mode);
     }
 
-    std::unordered_map<TouchConfigParameters, std::string> const TouchConfigParamsToStr(TouchConfig const config)
+    std::unordered_map<TouchConfigParameters, std::string> const touchConfigParamsToStr(TouchConfig const config)
     {
         auto values = std::unordered_map<TouchConfigParameters, std::string>{};
 
-        values[TouchConfigParameters::TouchMode] = TouchScreenModeEnumToStr(config.touchMode);
+        values[TouchConfigParameters::TouchMode] = touchScreenModeEnumToStr(config.touchMode);
 
         return values;
     }
 
-    TouchConfig const TouchConfigParamsFromStr(std::unordered_map<TouchConfigParameters, std::string> const & map)
+    TouchConfig const touchConfigParamsFromStr(std::unordered_map<TouchConfigParameters, std::string> const & map)
     {
         auto config = TouchConfig{};
 
         auto touchModeEntry = map.find(TouchConfigParameters::TouchMode);
         if(touchModeEntry != map.end())
         {
-            auto mode = TouchScreenModeStrToEnum(touchModeEntry->second);
+            auto mode = touchScreenModeFromStr(touchModeEntry->second);
             config.touchMode = mode;
         }
         else
-            config.touchMode = DefaultTouchScreenMode;
+            config.touchMode = defaultTouchScreenMode;
         
         switch(config.touchMode)
         {

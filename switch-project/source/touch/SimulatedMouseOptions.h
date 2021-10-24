@@ -1,11 +1,11 @@
 #ifndef __SIMULATEDMOUSEOPTIONS_H__
 #define __SIMULATEDMOUSEOPTIONS_H__
 
+#include "SimulatedMouseBehaviour.h"
+#include "../utils/TimeUtil.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "SimulatedMouseBehaviour.h"
-#include "../utils/TimeUtil.h"
 
 namespace touch
 {
@@ -17,7 +17,7 @@ namespace touch
         TrackpadSensitivityPercentage
     };
 
-    static std::vector<SimulatedTouchMouseParameters> const SimulatedTouchParamsList
+    static std::vector<SimulatedTouchMouseParameters> const simulatedTouchParamsList
     {
         SimulatedTouchMouseParameters::DeadzoneRadius,
         SimulatedTouchMouseParameters::Behaviour,
@@ -25,7 +25,7 @@ namespace touch
         SimulatedTouchMouseParameters::TrackpadSensitivityPercentage
     };
 
-    static std::unordered_map<SimulatedTouchMouseParameters, std::string> const SimulatedTouchParamsDesc
+    static std::unordered_map<SimulatedTouchMouseParameters, std::string> const simulatedTouchParamsDesc
     {
         { SimulatedTouchMouseParameters::DeadzoneRadius, "Deadzone Radius" },
         { SimulatedTouchMouseParameters::Behaviour, "Behaviour" },
@@ -33,17 +33,17 @@ namespace touch
         { SimulatedTouchMouseParameters::TrackpadSensitivityPercentage, "Trackpad Sensitivity Percentage" }
     };
 
-    int16_t constexpr DefaultSimulatedMouseDeadzoneRadius = 5;
-    int16_t constexpr MinSimulatedMouseDeadzoneRadius = 3;
-    int16_t constexpr MaxSimulatedMouseDeadzoneRadius = 30;
+    int16_t constexpr defaultSimulatedMouseDeadzoneRadius = 5;
+    int16_t constexpr minSimulatedMouseDeadzoneRadius = 3;
+    int16_t constexpr maxSimulatedMouseDeadzoneRadius = 30;
 
-    uint32_t constexpr DefaultDoubleTapTime = (uint32_t)timeutil::secondToNano(0.2);
-    uint32_t constexpr MinDoubleTapTime = (uint32_t)timeutil::secondToNano(0.1);
-    uint32_t constexpr MaxDoubleTapTime = (uint32_t)timeutil::secondToNano(1);
+    uint32_t constexpr defaultDoubleTapTime = (uint32_t)timeutil::secondToNano(0.2);
+    uint32_t constexpr minDoubleTapTime = (uint32_t)timeutil::secondToNano(0.1);
+    uint32_t constexpr maxDoubleTapTime = (uint32_t)timeutil::secondToNano(1);
 
-    int16_t constexpr DefaultTrackpadSensitivityPercentage = 85;
-    int16_t constexpr MinTrackpadSensitivityPercentage = 10;
-    int16_t constexpr MaxTrackpadSensitivityPercentage = 300;
+    int16_t constexpr defaultTrackpadSensitivityPercentage = 85;
+    int16_t constexpr minTrackpadSensitivityPercentage = 10;
+    int16_t constexpr maxTrackpadSensitivityPercentage = 300;
 
     struct SimulatedTouchConfig
     {
@@ -53,10 +53,10 @@ namespace touch
         int16_t trackpadSensitivityPercentage;
     };
 
-    int32_t constexpr SimulatedTouchConfigSize = sizeof(SimulatedTouchConfig);
+    int32_t constexpr simulatedTouchConfigSize = sizeof(SimulatedTouchConfig);
 
-    std::unordered_map<SimulatedTouchMouseParameters, std::string> const SimulatedTouchParamsToStr(SimulatedTouchConfig const config);
-    SimulatedTouchConfig const SimulatedTouchParamsFromStr(std::unordered_map<SimulatedTouchMouseParameters, std::string> const& map);
+    std::unordered_map<SimulatedTouchMouseParameters, std::string> const simulatedTouchParamsToStr(SimulatedTouchConfig const config);
+    SimulatedTouchConfig const simulatedTouchParamsFromStr(std::unordered_map<SimulatedTouchMouseParameters, std::string> const& map);
 }
 
 #endif

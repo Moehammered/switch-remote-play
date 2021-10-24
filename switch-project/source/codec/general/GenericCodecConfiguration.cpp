@@ -1,21 +1,21 @@
 #include "GenericCodecConfiguration.h"
 
 GenericCodecConfiguration::GenericCodecConfiguration()
-	: configMap{ "sdmc:/switch/switch-remote-play/common.ini", VideoParamToDesc }
+	: configMap{ "sdmc:/switch/switch-remote-play/common.ini", codec::videoParamToDesc }
 {
 }
 
 GenericCodecConfiguration::GenericCodecConfiguration(std::string const file)
-	: configMap{ file, VideoParamToDesc }
+	: configMap{ file, codec::videoParamToDesc }
 {
 }
 
-bool GenericCodecConfiguration::Save(VideoData const data)
+bool GenericCodecConfiguration::Save(codec::VideoData const data)
 {
-	return configMap.Save(data, VideoParamsToStr);
+	return configMap.Save(data, codec::videoParamsToStr);
 }
 
-VideoData const GenericCodecConfiguration::Data() const
+codec::VideoData const GenericCodecConfiguration::Data() const
 {
-	return configMap.Data(VideoParamsFromStr);
+	return configMap.Data(codec::videoParamsFromStr);
 }

@@ -14,9 +14,9 @@ namespace controller
         InvertXY
     };
 
-    ControllerAnalogMap ParseControllerAnalogMapString(std::string s);
-    std::string ControllerAnalogMapToString(ControllerAnalogMap map);
-    std::string ControllerAnalogMapDescription(ControllerAnalogMap map);
+    ControllerAnalogMap parseControllerAnalogMapString(std::string s);
+    std::string controllerAnalogMapToString(ControllerAnalogMap map);
+    std::string controllerAnalogMapDescription(ControllerAnalogMap map);
 
     static std::unordered_map<ControllerAnalogMap, std::string> const analogMapOptions
     {

@@ -9,9 +9,9 @@ DeadzoneRadius = how far a finger has to travel to register movement.\n\
 MaxFingerCount = how many fingers are monitored for touch input.";
 
 VirtualTouchMenu::VirtualTouchMenu() : Menu(), helpText{},
-textElements{}, selected{touch::VirtualTouchParamsList},
-deadzoneRadius{touch::DefaultVirtualTouchDeadzoneRadius},
-maxFingerCount{touch::DefaultMaxFingerCount}
+textElements{}, selected{touch::virtualTouchParamsList},
+deadzoneRadius{touch::defaultVirtualTouchDeadzoneRadius},
+maxFingerCount{touch::defaultMaxFingerCount}
 {
     title.value = "Virtual Touch Options";
     title.y += 130;
@@ -76,14 +76,14 @@ void VirtualTouchMenu::PromptValueInput(touch::VirtualTouchParameters param)
     switch(param)
     {
         case touch::VirtualTouchParameters::DeadzoneRadius:
-            deadzoneRadius = KeyboardNumber(touch::MinVirtualTouchDeadzoneRadius, 
-                                            touch::MaxVirtualTouchDeadzoneRadius,
+            deadzoneRadius = keyboardNumber(touch::minVirtualTouchDeadzoneRadius, 
+                                            touch::maxVirtualTouchDeadzoneRadius,
                                             deadzoneRadius);
             break;
 
         case touch::VirtualTouchParameters::MaxFingerCount:
-            maxFingerCount = KeyboardNumber(touch::MinFingerCount,
-                                            touch::MaxFingerCount,
+            maxFingerCount = keyboardNumber(touch::minFingerCount,
+                                            touch::maxFingerCount,
                                             maxFingerCount);
             break;
     }
@@ -91,7 +91,7 @@ void VirtualTouchMenu::PromptValueInput(touch::VirtualTouchParameters param)
 
 void VirtualTouchMenu::UpdateUI(touch::VirtualTouchParameters param)
 {
-    auto prefix = touch::VirtualTouchParamsDesc.at(param);
+    auto prefix = touch::virtualTouchParamsDesc.at(param);
     switch(param)
     {
         case touch::VirtualTouchParameters::DeadzoneRadius:
@@ -118,7 +118,7 @@ void VirtualTouchMenu::SetupText()
     int counter = 1;
     SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
-    auto params = touch::VirtualTouchParamsList;
+    auto params = touch::virtualTouchParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};

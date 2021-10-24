@@ -1,9 +1,9 @@
 #ifndef __CONTROLLERCONFIGURATION_H__
 #define __CONTROLLERCONFIGURATION_H__
 
-#include <string>
 #include "ControllerOptions.h"
 #include "../utils/MappedDataConfiguration.h"
+#include <string>
 
 class ControllerConfiguration
 {
@@ -15,7 +15,7 @@ public:
     controller::ControllerConfig const Data() const;
 
 private:
-    MappedDataConfiguration<controller::ControllerConfig, controller::Parameters> configMap;
+    MappedDataConfiguration<controller::ControllerConfig, controller::ControllerParameters> configMap;
 };
 
 #endif
