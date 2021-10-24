@@ -7,6 +7,7 @@
 #include "GenericOptions.h"
 #include <vector>
 #include <string>
+#include <functional>
 
 class GenericCodec
 {
@@ -20,8 +21,8 @@ public:
 	codec::VideoParameters Next();
 	codec::VideoParameters Prev();
 
-	void Increase();
-	void Decrease();
+	void Increase(std::function<int(codec::VideoParameters,int)> const onModify);
+	void Decrease(std::function<int(codec::VideoParameters,int)> const onModify);
 
 private:
 	//selection cursor
@@ -40,7 +41,7 @@ private:
 	int16_t desiredFramerate;
 	int16_t monitorNumber;
 
-	void ShiftParam(int direction);
+	void ShiftParam(int direction, std::function<int(codec::VideoParameters,int)> const onModify);
 };
 
 #endif

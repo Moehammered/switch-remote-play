@@ -2,14 +2,14 @@
 #define __DECODERMENU_H__
 
 #include "Menu.h"
-#include "../utils/ArrayCirculator.h"
-#include "../decoder/DecoderOptions.h"
-#include <unordered_map>
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/decoder/DecoderOptions.h"
 #include "DecoderFlag1Menu.h"
 #include "DecoderFlag2Menu.h"
 #include "DecoderAccelMenu.h"
 #include "DecoderDiscardMenu.h"
 #include "DecoderThreadMenu.h"
+#include <unordered_map>
 
 class DecoderMenu : public Menu
 {

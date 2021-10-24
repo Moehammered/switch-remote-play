@@ -41,13 +41,14 @@ include $(DEVKITPRO)/libnx/switch_rules
 TARGET		:=	switch-remote-play
 BUILD		:=	build
 SOURCES		:=	source source/network source/ui \
-				source/system source/stream source/ffmpegHelpers \
-				source/codec source/codec/h264 source/codec/h264_amf \
-				source/codec/general source/utils source/utils/pad \
-				source/decoder source/controller source/mouse \
-				source/touch source/keyboard
+				source/system source/stream  \
+				source/utils source/utils/pad \
+				../common/srp/codec/general ../common/srp/utils ../common/srp/ffmpegHelpers \
+				../common/srp/codec ../common/srp/codec/h264 ../common/srp/codec/h264_amf \
+				../common/srp/decoder ../common/srp/controller ../common/srp/mouse \
+				../common/srp/touch ../common/srp/keyboard ../common/srp/network
 DATA		:=	data
-INCLUDES	:=	include
+INCLUDES	:=	include ../common
 ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered

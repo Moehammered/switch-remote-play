@@ -1,6 +1,6 @@
 #include "SimulatedTouchMouseMenu.h"
-#include "../touch/SimulatedMouseConfiguration.h"
 #include "../system/SoftwareKeyboard.h"
+#include "srp/touch/SimulatedMouseConfiguration.h"
 #include <switch.h>
 
 auto const simulatedTouchHelpText = 

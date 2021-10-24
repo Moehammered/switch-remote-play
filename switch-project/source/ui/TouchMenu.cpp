@@ -1,5 +1,5 @@
 #include "TouchMenu.h"
-#include "../touch/TouchConfiguration.h"
+#include "srp/touch/TouchConfiguration.h"
 
 auto const pageMenuText = "Use D-Pad left or right to choose touch mode.";
 

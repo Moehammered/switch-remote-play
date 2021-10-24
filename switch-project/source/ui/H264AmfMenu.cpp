@@ -1,5 +1,40 @@
 #include "H264AmfMenu.h"
-#include "../codec/h264_amf/H264AmfConfiguration.h"
+#include "srp/codec/h264_amf/H264AmfConfiguration.h"
+#include "../system/SoftwareKeyboard.h"
+
+namespace
+{
+    int modifyParameter(h264amf::H264AmfParameters const param, int direction, h264amf::H264AmfData const currentData)
+    {
+        switch (param)
+        {
+        default:
+        case h264amf::H264AmfParameters::Usage:
+        case h264amf::H264AmfParameters::Profile:
+        case h264amf::H264AmfParameters::Quality:
+        case h264amf::H264AmfParameters::RateControl:
+        case h264amf::H264AmfParameters::Level:
+        case h264amf::H264AmfParameters::FrameQuant_BDelta:
+        case h264amf::H264AmfParameters::FrameQuant_BRefDelta:
+        case h264amf::H264AmfParameters::EnforceHRD:
+        case h264amf::H264AmfParameters::FillerData:
+        case h264amf::H264AmfParameters::VBAQ:
+        case h264amf::H264AmfParameters::Frameskip:
+        case h264amf::H264AmfParameters::BFrameRef:
+        case h264amf::H264AmfParameters::LogToDbg:
+            return direction;
+
+        case h264amf::H264AmfParameters::FrameQuant_I:
+            return keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, currentData.qp_i);
+
+        case h264amf::H264AmfParameters::FrameQuant_P:
+            return keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, currentData.qp_p);
+            
+        case h264amf::H264AmfParameters::FrameQuant_B:
+            return keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, currentData.qp_b);
+        }
+    }
+}
 
 H264AmfMenu::H264AmfMenu() : Menu(),
 textElements{}, codec{}, selected{}
@@ -23,10 +58,15 @@ void H264AmfMenu::ProcessInput(PadState const & pad)
     else if (kDown & HidNpadButton::HidNpadButton_Down)
         selected = codec.Next();
 
+    auto const modifyH264AmfParam = [=](auto const param, auto direction)
+    {
+        return modifyParameter(param, direction, codec.Data());
+    };
+
     if(kDown & HidNpadButton::HidNpadButton_A)
-        codec.Increase();
+        codec.Increase(modifyH264AmfParam);
     else if(kDown & HidNpadButton::HidNpadButton_B)
-        codec.Decrease();
+        codec.Decrease(modifyH264AmfParam);
     
     UpdateUI(selected);
 }

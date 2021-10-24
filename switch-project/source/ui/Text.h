@@ -1,9 +1,9 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
+#include "../SDL_FontCache.h"
 #include <SDL2/SDL.h>
 #include <string>
-#include "../SDL_FontCache.h"
 
 class Text
 {

@@ -1,5 +1,4 @@
 #include "GenericCodec.h"
-#include "../../system/SoftwareKeyboard.h"
 
 GenericCodec::GenericCodec()
     : cursor{codec::videoParametersList},
@@ -61,50 +60,51 @@ codec::VideoParameters GenericCodec::Prev()
 	return *cursor;
 }
 
-void GenericCodec::Increase()
+void GenericCodec::Increase(std::function<int(codec::VideoParameters,int)> const onModify)
 {
-	ShiftParam(1);
+	ShiftParam(1, onModify);
 }
 
-void GenericCodec::Decrease()
+void GenericCodec::Decrease(std::function<int(codec::VideoParameters,int)> const onModify)
 {
-	ShiftParam(-1);
+	ShiftParam(-1, onModify);
 }
 
-void GenericCodec::ShiftParam(int direction)
+void GenericCodec::ShiftParam(int direction, std::function<int(codec::VideoParameters,int)> const onModify)
 {
+    auto const result = onModify(*cursor, direction);
 	switch (*cursor)
 	{
 	case codec::VideoParameters::DesktopResolution:
-		desktopResCursor += direction;
+		desktopResCursor += result;
 		break;
 
 	case codec::VideoParameters::SwitchResolution:
-		switchResCursor += direction;
+		switchResCursor += result;
 		break;
 
     case codec::VideoParameters::DesiredFramerate:
-        desiredFramerate = (int16_t)keyboardNumber(codec::minDesiredFramerate, codec::maxDesiredFramerate, desiredFramerate);
+        desiredFramerate = result;
         break;
 
     case codec::VideoParameters::BitrateKB:
-        bitrateCursor += direction;
+        bitrateCursor += result;
         break;
 
     case codec::VideoParameters::VsyncMode:
-        vsyncCursor += direction;
+        vsyncCursor += result;
         break;
     
     case codec::VideoParameters::HWAccelMode:
-        hwaccelCursor += direction;
+        hwaccelCursor += result;
         break;
 
     case codec::VideoParameters::VideoCodec:
-        videoCursor += direction;
+        videoCursor += result;
         break;
 
     case codec::VideoParameters::MonitorNumber:
-        monitorNumber = (int16_t)keyboardNumber(codec::minMonitorNumber, codec::maxMonitorNumber, monitorNumber);
+        monitorNumber = result;
         break;
 	}
 }

@@ -2,9 +2,9 @@
 #define __H264AMFMENU_H__
 
 #include "Menu.h"
-#include "../codec/h264_amf/H264AmfCodec.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/codec/h264_amf/H264AmfCodec.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class H264AmfMenu : public Menu
 {

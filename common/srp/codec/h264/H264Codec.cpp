@@ -1,5 +1,4 @@
 #include "H264Codec.h"
-#include "../../system/SoftwareKeyboard.h"
 
 H264Codec::H264Codec()
 	: cursor{ h264::h264ParamsList },
@@ -48,34 +47,35 @@ h264::H264Parameters H264Codec::Prev()
 	return *cursor;
 }
 
-void H264Codec::Increase()
+void H264Codec::Increase(std::function<int(h264::H264Parameters, int)> const onModify)
 {
-	ShiftParam(1);
+	ShiftParam(1, onModify);
 }
 
-void H264Codec::Decrease()
+void H264Codec::Decrease(std::function<int(h264::H264Parameters, int)> const onModify)
 {
-	ShiftParam(-1);
+	ShiftParam(-1, onModify);
 }
 
-void H264Codec::ShiftParam(int direction)
+void H264Codec::ShiftParam(int direction, std::function<int(h264::H264Parameters, int)> const onModify)
 {
+    auto const result = onModify(*cursor, direction);
 	switch (*cursor)
 	{
 	case h264::H264Parameters::Preset:
-		presetCursor += direction;
+		presetCursor += result;
 		break;
 
 	case h264::H264Parameters::ConstantRateFactor:
-		constantRateFactor = keyboardNumber(h264::minCRF, h264::maxCRF, constantRateFactor);
+		constantRateFactor = result;
 		break;
 
 	case h264::H264Parameters::RateControlMode:
-		rateModeCursor += direction;
+		rateModeCursor += result;
 		break;
 
 	case h264::H264Parameters::Profile:
-		profileCursor += direction;
+		profileCursor += result;
 		break;
 	}
 }

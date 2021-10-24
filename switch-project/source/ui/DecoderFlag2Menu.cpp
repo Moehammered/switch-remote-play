@@ -1,6 +1,6 @@
 #include "DecoderFlag2Menu.h"
-#include "../decoder/DecoderFlag.h"
-#include "../decoder/DecoderOptions.h"
+#include "srp/decoder/DecoderFlag.h"
+#include "srp/decoder/DecoderOptions.h"
 
 DecoderFlag2Menu::DecoderFlag2Menu() : Menu(),
     textElements{}, cursor{availableFlags2}, selected{}, flags{}

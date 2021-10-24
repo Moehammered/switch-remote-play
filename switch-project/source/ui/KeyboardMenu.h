@@ -2,9 +2,9 @@
 #define __KEYBOARDMENU_H__
 
 #include "Menu.h"
-#include "../keyboard/KeyboardOptions.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/keyboard/KeyboardOptions.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class KeyboardMenu : public Menu
 {

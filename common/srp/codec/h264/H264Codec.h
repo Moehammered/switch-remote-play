@@ -7,6 +7,7 @@
 #include "H264Options.h"
 #include <vector>
 #include <string>
+#include <functional>
 
 class H264Codec
 {
@@ -20,8 +21,8 @@ public:
 	h264::H264Parameters Next();
 	h264::H264Parameters Prev();
 
-	void Increase();
-	void Decrease();
+	void Increase(std::function<int(h264::H264Parameters, int)> const onModify);
+	void Decrease(std::function<int(h264::H264Parameters, int)> const onModify);
 
 private:
 	//selection cursor
@@ -34,7 +35,7 @@ private:
 
 	int32_t constantRateFactor;
 
-	void ShiftParam(int direction);
+	void ShiftParam(int direction, std::function<int(h264::H264Parameters, int)> const onModify);
 };
 
 #endif

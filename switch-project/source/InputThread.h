@@ -1,7 +1,7 @@
 #ifndef __INPUTTHREAD_H__
 #define __INPUTTHREAD_H__
 
-#include "network/NetworkData.h"
+#include "srp/network/NetworkData.h"
 #include <string>
 
 enum StreamState : int32_t

@@ -2,7 +2,7 @@
 #define __VIDEOSTREAM__H_
 
 #include "../ScreenRenderer.h"
-#include "../decoder/DecoderOptions.h"
+#include "srp/decoder/DecoderOptions.h"
 #include <string>
 #include <atomic>
 extern "C"

@@ -1,6 +1,6 @@
 #include "VirtualTouchMenu.h"
-#include "../touch/VirtualTouchConfiguration.h"
 #include "../system/SoftwareKeyboard.h"
+#include "srp/touch/VirtualTouchConfiguration.h"
 #include <switch.h>
 
 auto const virtualTouchHelpText =

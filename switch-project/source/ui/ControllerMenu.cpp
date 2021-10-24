@@ -1,6 +1,6 @@
 #include "ControllerMenu.h"
-#include "../utils/EnumMapper.h"
-#include "../controller/ControllerConfiguration.h"
+#include "srp/utils/EnumMapper.h"
+#include "srp/controller/ControllerConfiguration.h"
 #include "../system/SoftwareKeyboard.h"
 #include "../system/ButtonWatch.h"
 #include "../ScreenRenderer.h"

@@ -17,14 +17,14 @@
 #include "stream/PcmStream.h"
 #include "system/SystemSetup.h"
 #include "network/NetworkConfiguration.h"
-#include "codec/general/GenericCodecConfiguration.h"
-#include "codec/h264/H264Configuration.h"
-#include "codec/h264_amf/H264AmfConfiguration.h"
-#include "decoder/DecoderConfiguration.h"
-#include "controller/ControllerConfiguration.h"
-#include "mouse/MouseConfiguration.h"
-#include "keyboard/KeyboardConfiguration.h"
-#include "touch/TouchConfiguration.h"
+#include "srp/codec/general/GenericCodecConfiguration.h"
+#include "srp/codec/h264/H264Configuration.h"
+#include "srp/codec/h264_amf/H264AmfConfiguration.h"
+#include "srp/decoder/DecoderConfiguration.h"
+#include "srp/controller/ControllerConfiguration.h"
+#include "srp/mouse/MouseConfiguration.h"
+#include "srp/keyboard/KeyboardConfiguration.h"
+#include "srp/touch/TouchConfiguration.h"
 
 namespace
 {

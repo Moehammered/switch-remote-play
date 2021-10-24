@@ -1,5 +1,4 @@
 #include "H264AmfCodec.h"
-#include "../../system/SoftwareKeyboard.h"
 
 H264AmfCodec::H264AmfCodec()
 	: cursor{ h264amf::h264AmfParamsList },
@@ -78,51 +77,52 @@ h264amf::H264AmfData H264AmfCodec::Data() const
     return data;
 }
 
-void H264AmfCodec::Increase()
+void H264AmfCodec::Increase(std::function<int(h264amf::H264AmfParameters,int)> const onModify)
 {
-    ShiftParam(1);
+    ShiftParam(1, onModify);
 }
 
-void H264AmfCodec::Decrease()
+void H264AmfCodec::Decrease(std::function<int(h264amf::H264AmfParameters,int)> const onModify)
 {
-    ShiftParam(-1);
+    ShiftParam(-1, onModify);
 }
 
-void H264AmfCodec::ShiftParam(int direction)
+void H264AmfCodec::ShiftParam(int direction, std::function<int(h264amf::H264AmfParameters,int)> const onModify)
 {
+    auto const result = onModify(*cursor, direction);
 	switch (*cursor)
 	{
     // enum based params
     case h264amf::H264AmfParameters::Usage:
-        usageCursor += direction;
+        usageCursor += result;
         break;
     case h264amf::H264AmfParameters::Profile:
-        profileCursor += direction;
+        profileCursor += result;
         break;
     case h264amf::H264AmfParameters::Quality:
-        qualityCursor += direction;
+        qualityCursor += result;
         break;
     case h264amf::H264AmfParameters::RateControl:
-        rateControlCursor += direction;
+        rateControlCursor += result;
         break;
     // integer based params
     case h264amf::H264AmfParameters::Level:
-        // level += direction;
+        // level += result;
         break;
     case h264amf::H264AmfParameters::FrameQuant_I:
-        quantisationI = keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationI);
+        quantisationI = result;
         break;
     case h264amf::H264AmfParameters::FrameQuant_P:
-        quantisationP = keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationP);
+        quantisationP = result;
         break;
     case h264amf::H264AmfParameters::FrameQuant_B:
-        quantisationB = keyboardNumber(h264amf::qpFrameMin, h264amf::qpFrameMax, quantisationB);
+        quantisationB = result;
         break;
     case h264amf::H264AmfParameters::FrameQuant_BDelta:
-        // delta_qp_b += direction;
+        // delta_qp_b += result;
         break;
     case h264amf::H264AmfParameters::FrameQuant_BRefDelta:
-        // delta_qp_b_ref += direction;
+        // delta_qp_b_ref += result;
         break;
     // boolean based params
     case h264amf::H264AmfParameters::EnforceHRD:

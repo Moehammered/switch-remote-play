@@ -2,8 +2,8 @@
 #define __DECODERDISCARDMENU_H__
 
 #include "Menu.h"
-#include "../decoder/DiscardType.h"
-#include "../utils/ArrayCirculator.h"
+#include "srp/decoder/DiscardType.h"
+#include "srp/utils/ArrayCirculator.h"
 #include <unordered_map>
 #include <vector>
 

@@ -1,7 +1,7 @@
 #include "NetworkMenu.h"
 #include "../network/NetworkConfiguration.h"
 #include "../system/SoftwareKeyboard.h"
-#include "../utils/StringUtils.h"
+#include "srp/utils/StringUtils.h"
 
 NetworkMenu::NetworkMenu() : Menu(),
     warningText{}, data{}, 

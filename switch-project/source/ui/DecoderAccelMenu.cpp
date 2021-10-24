@@ -1,5 +1,5 @@
 #include "DecoderAccelMenu.h"
-#include "../decoder/DecoderOptions.h"
+#include "srp/decoder/DecoderOptions.h"
 
 DecoderAccelMenu::DecoderAccelMenu() : Menu(),
 textElements{}, cursor{availableAccelFlags}, selected{}, flags{}

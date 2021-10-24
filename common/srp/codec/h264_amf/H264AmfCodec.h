@@ -6,6 +6,7 @@
 #include "../../utils/ArrayCirculator.h"
 #include "../../utils/UnorderedMapCirculator.h"
 #include "../../utils/RangedIterator.h"
+#include <functional>
 
 class H264AmfCodec
 {
@@ -20,8 +21,8 @@ public:
 
 	h264amf::H264AmfData Data() const;
 
-	void Increase();
-	void Decrease();
+	void Increase(std::function<int(h264amf::H264AmfParameters,int)> const onModify);
+	void Decrease(std::function<int(h264amf::H264AmfParameters,int)> const onModify);
 
 private:
 	// selection cursor
@@ -49,7 +50,7 @@ private:
 	// bool bFrameRef;
 	// bool logToDebug;
 
-	void ShiftParam(int direction);
+	void ShiftParam(int direction, std::function<int(h264amf::H264AmfParameters,int)> const onModify);
 };
 
 #endif

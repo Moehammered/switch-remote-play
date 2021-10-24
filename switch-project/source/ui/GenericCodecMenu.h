@@ -2,9 +2,9 @@
 #define __GENERICCODECMENU_H__
 
 #include "Menu.h"
-#include "../codec/general/GenericCodec.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/codec/general/GenericCodec.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class GenericCodecMenu : public Menu
 {

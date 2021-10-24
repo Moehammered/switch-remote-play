@@ -1,5 +1,5 @@
 #include "DecoderDiscardMenu.h"
-#include "../decoder/DecoderOptions.h"
+#include "srp/decoder/DecoderOptions.h"
 
 DecoderDiscardMenu::DecoderDiscardMenu() : Menu(),
 textElements{}, cursor{availableDiscardFilters}, selected{AVDiscard::AVDISCARD_DEFAULT}

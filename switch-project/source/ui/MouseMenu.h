@@ -2,9 +2,9 @@
 #define __MOUSEMENU_H__
 
 #include "Menu.h"
-#include "../mouse/MouseOptions.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/mouse/MouseOptions.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class MouseMenu : public Menu
 {

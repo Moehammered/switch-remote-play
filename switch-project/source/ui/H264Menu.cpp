@@ -1,5 +1,25 @@
 #include "H264Menu.h"
-#include "../codec/h264/H264Configuration.h"
+#include "srp/codec/h264/H264Configuration.h"
+#include "../system/SoftwareKeyboard.h"
+
+namespace
+{
+    int modifyParameter(h264::H264Parameters const param, int direction, h264::H264Data const currentData)
+    {
+        switch (param)
+        {
+        default:
+        case h264::H264Parameters::Preset:
+        case h264::H264Parameters::RateControlMode:
+        case h264::H264Parameters::Profile:
+            return direction;
+
+        case h264::H264Parameters::ConstantRateFactor:
+            return keyboardNumber(h264::minCRF, h264::maxCRF, currentData.constantRateFactor);
+            break;
+        }
+    }
+}
 
 H264Menu::H264Menu() : Menu(),
 textElements{}, codec{}, selected{}
@@ -23,10 +43,15 @@ void H264Menu::ProcessInput(PadState const & pad)
     else if (kDown & HidNpadButton::HidNpadButton_Down)
         selected = codec.Next();
 
+    auto const modifyH264Param = [=](auto const param, auto direction)
+    {
+        return modifyParameter(param, direction, codec.Data());
+    };
+
     if(kDown & HidNpadButton::HidNpadButton_A)
-        codec.Increase();
+        codec.Increase(modifyH264Param);
     else if(kDown & HidNpadButton::HidNpadButton_B)
-        codec.Decrease();
+        codec.Decrease(modifyH264Param);
     
     UpdateUI(selected);
 }

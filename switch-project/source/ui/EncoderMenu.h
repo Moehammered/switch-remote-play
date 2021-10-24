@@ -2,10 +2,10 @@
 #define __ENCODERMENU_H__
 
 #include "Menu.h"
-#include "../network/NetworkData.h"
 #include "H264Menu.h"
 #include "H264AmfMenu.h"
 #include "GenericCodecMenu.h"
+#include "srp/network/NetworkData.h"
 #include <vector>
 #include <unordered_map>
 

@@ -1,9 +1,9 @@
 #include "MouseMenu.h"
 #include "../system/SoftwareKeyboard.h"
-#include "../mouse/MouseConfiguration.h"
 #include "../system/ButtonWatch.h"
 #include "../ScreenRenderer.h"
 #include "../system/SystemSetup.h"
+#include "srp/mouse/MouseConfiguration.h"
 #include <algorithm>
 
 MouseMenu::MouseMenu() : Menu(),

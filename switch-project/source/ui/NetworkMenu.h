@@ -3,8 +3,8 @@
 
 #include "Menu.h"
 #include "../network/NetworkOptions.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class NetworkMenu : public Menu
 {

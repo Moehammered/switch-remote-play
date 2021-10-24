@@ -2,11 +2,11 @@
 #define __DECODERTHREADMENU_H__
 
 #include "Menu.h"
-#include "../decoder/DecoderOptions.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
-#include "../utils/RangedIterator.h"
-#include "../decoder/ThreadType.h"
+#include "srp/decoder/DecoderOptions.h"
+#include "srp/decoder/ThreadType.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
+#include "srp/utils/RangedIterator.h"
 
 namespace decoderUtils
 {

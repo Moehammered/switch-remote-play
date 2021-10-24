@@ -1,5 +1,5 @@
 #include "DecoderMenu.h"
-#include "../decoder/DecoderConfiguration.h"
+#include "srp/decoder/DecoderConfiguration.h"
 
 DecoderMenu::DecoderMenu() : Menu(),
 cursor{decoderParameterList}, selected{},

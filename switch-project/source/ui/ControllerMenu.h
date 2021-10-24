@@ -2,9 +2,9 @@
 #define __CONTROLLERMENU_H__
 
 #include "Menu.h"
-#include "../controller/ControllerOptions.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/controller/ControllerOptions.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class ControllerMenu : public Menu
 {

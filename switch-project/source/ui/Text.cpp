@@ -1,5 +1,5 @@
 #include "Text.h"
-#include "../utils/StringUtils.h"
+#include "srp/utils/StringUtils.h"
 #include <algorithm>
 
 void Text::Render(SDL_Renderer* renderer, FC_Font* font) const

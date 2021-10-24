@@ -1,5 +1,29 @@
 #include "GenericCodecMenu.h"
-#include "../codec/general/GenericCodecConfiguration.h"
+#include "srp/codec/general/GenericCodecConfiguration.h"
+#include "../system/SoftwareKeyboard.h"
+
+namespace
+{
+    int modifyParameter(codec::VideoParameters const param, int direction, codec::VideoData const currentData)
+    {
+        switch (param)
+        {
+        default:
+        case codec::VideoParameters::DesktopResolution:
+        case codec::VideoParameters::SwitchResolution:
+        case codec::VideoParameters::BitrateKB:
+        case codec::VideoParameters::VsyncMode:
+        case codec::VideoParameters::HWAccelMode:
+        case codec::VideoParameters::VideoCodec:
+            return direction;
+
+        case codec::VideoParameters::DesiredFramerate:
+            return (int16_t)keyboardNumber(codec::minDesiredFramerate, codec::maxDesiredFramerate, currentData.desiredFrameRate);
+        case codec::VideoParameters::MonitorNumber:
+            return (int16_t)keyboardNumber(codec::minMonitorNumber, codec::maxMonitorNumber, currentData.monitorNumber);
+        }
+    }
+}
 
 GenericCodecMenu::GenericCodecMenu() : Menu(),
 textElements{}, codec{}, selected{}
@@ -23,10 +47,15 @@ void GenericCodecMenu::ProcessInput(PadState const & pad)
     else if (kDown & HidNpadButton::HidNpadButton_Down)
         selected = codec.Next();
 
+    auto const modifyVideoParameter = [=](auto const param, auto direction)
+    {
+        return modifyParameter(param, direction, codec.Data());
+    };
+
     if(kDown & HidNpadButton::HidNpadButton_A)
-        codec.Increase();
+        codec.Increase(modifyVideoParameter);
     else if(kDown & HidNpadButton::HidNpadButton_B)
-        codec.Decrease();
+        codec.Decrease(modifyVideoParameter);
     
     UpdateUI(selected);
 }

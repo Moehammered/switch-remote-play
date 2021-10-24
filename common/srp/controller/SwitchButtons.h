@@ -4,10 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-extern "C"
-{
-    #include <switch/services/hid.h>
-}
+#include "SwitchHidDefinition.h"
 
 namespace controller
 {

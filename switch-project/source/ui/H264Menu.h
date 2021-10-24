@@ -2,9 +2,9 @@
 #define __H264MENU_H__
 
 #include "Menu.h"
-#include "../codec/h264/H264Codec.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/codec/h264/H264Codec.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 
 class H264Menu : public Menu
 {

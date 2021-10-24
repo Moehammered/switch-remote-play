@@ -2,7 +2,7 @@
 #include "../system/ButtonWatch.h"
 #include "../ScreenRenderer.h"
 #include "../system/SystemSetup.h"
-#include "../keyboard/KeyboardConfiguration.h"
+#include "srp/keyboard/KeyboardConfiguration.h"
 #include <algorithm>
 
 namespace

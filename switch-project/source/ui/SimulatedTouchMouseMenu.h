@@ -2,9 +2,9 @@
 #define __SIMULATEDTOUCHMOUSEMENU_H__
 
 #include "Menu.h"
-#include "../touch/SimulatedMouseOptions.h"
-#include "../utils/ArrayCirculator.h"
-#include "../utils/UnorderedMapCirculator.h"
+#include "srp/touch/SimulatedMouseOptions.h"
+#include "srp/utils/ArrayCirculator.h"
+#include "srp/utils/UnorderedMapCirculator.h"
 #include <unordered_map>
 
 class SimulatedTouchMouseMenu : public Menu

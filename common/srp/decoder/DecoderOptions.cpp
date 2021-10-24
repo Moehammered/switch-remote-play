@@ -3,8 +3,8 @@
 #include "DecoderAccel.h"
 #include "DiscardType.h"
 #include "ThreadType.h"
-#include <sstream>
 #include "../utils/StringUtils.h"
+#include <sstream>
 
 std::unordered_map<DecoderParameters, std::string> decoderParamsToStr(DecoderData const data)
 {

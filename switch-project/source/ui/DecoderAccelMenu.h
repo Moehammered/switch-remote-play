@@ -2,8 +2,8 @@
 #define __DECODERACCELMENU_H__
 
 #include "Menu.h"
-#include "../decoder/DecoderAccel.h"
-#include "../utils/ArrayCirculator.h"
+#include "srp/decoder/DecoderAccel.h"
+#include "srp/utils/ArrayCirculator.h"
 #include <unordered_map>
 #include <vector>
 

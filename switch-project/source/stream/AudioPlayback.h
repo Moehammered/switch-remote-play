@@ -1,7 +1,7 @@
 #ifndef __AUDIOPLAYBACK_H__
 #define __AUDIOPLAYBACK_H__
 
-#include "../network/NetworkData.h"
+#include "srp/network/NetworkData.h"
 #include <vector>
 extern "C"
 {

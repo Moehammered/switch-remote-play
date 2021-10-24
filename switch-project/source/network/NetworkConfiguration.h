@@ -2,7 +2,7 @@
 #define __NETWORKCONFIGURATION_H__
 
 #include "NetworkOptions.h"
-#include "../utils/MappedDataConfiguration.h"
+#include "srp/utils/MappedDataConfiguration.h"
 #include <string>
 
 class NetworkConfiguration

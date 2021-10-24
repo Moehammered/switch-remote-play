@@ -2,8 +2,8 @@
 #define __VIRTUALTOUCHMENU_H__
 
 #include "Menu.h"
-#include "../touch/TouchOptions.h"
-#include "../utils/ArrayCirculator.h"
+#include "srp/touch/TouchOptions.h"
+#include "srp/utils/ArrayCirculator.h"
 #include <unordered_map>
 
 class VirtualTouchMenu : public Menu
