@@ -1,7 +1,11 @@
-#pragma once
-#include <winsock2.h>
+#ifndef __CONNECTION_H__
+#define __CONNECTION_H__
+
 #include <stdint.h>
 #include <string>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <winsock2.h>
 
 class Connection
 {
@@ -33,3 +37,4 @@ private:
 	uint16_t portNo;
 };
 
+#endif

@@ -208,9 +208,9 @@
     <ClCompile Include="..\..\..\common\srp\utils\Configuration.cpp" />
     <ClCompile Include="..\..\..\common\srp\utils\FlagMapUtils.cpp" />
     <ClCompile Include="AbsoluteTouchMouse.cpp" />
-    <ClCompile Include="AtomicTest.cpp" />
     <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="ControllerStream.cpp" />
     <ClCompile Include="DisplayDeviceService.cpp" />
     <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="FfmpegArgParser.cpp" />
@@ -218,9 +218,12 @@
     <ClCompile Include="FfmpegOutputConfiguration.cpp" />
     <ClCompile Include="FfmpegOutputOptions.cpp" />
     <ClCompile Include="FileOperations.cpp" />
+    <ClCompile Include="InputStream.cpp" />
     <ClCompile Include="KeyboardEnumUtil.cpp" />
+    <ClCompile Include="KeyboardStream.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
+    <ClCompile Include="MouseStream.cpp" />
     <ClCompile Include="NetworkAdapter.cpp" />
     <ClCompile Include="NetworkConfiguration.cpp" />
     <ClCompile Include="NetworkOptions.cpp" />
@@ -228,6 +231,7 @@
     <ClCompile Include="DeadzoneUtility.cpp" />
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
+    <ClCompile Include="TouchStream.cpp" />
     <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VirtualDesktop.cpp" />
     <ClCompile Include="VirtualKeyboard.cpp" />
@@ -286,9 +290,9 @@
     <ClInclude Include="..\..\..\common\srp\utils\StringUtils.h" />
     <ClInclude Include="..\..\..\common\srp\utils\TimeUtil.h" />
     <ClInclude Include="..\..\..\common\srp\utils\UnorderedMapCirculator.h" />
-    <ClInclude Include="AtomicTest.h" />
     <ClInclude Include="Broadcast.h" />
     <ClInclude Include="Connection.h" />
+    <ClInclude Include="ControllerStream.h" />
     <ClInclude Include="DeadzoneUtility.h" />
     <ClInclude Include="DisplayDeviceService.h" />
     <ClInclude Include="DS4Controller.h" />
@@ -297,7 +301,10 @@
     <ClInclude Include="FfmpegOutputConfiguration.h" />
     <ClInclude Include="FfmpegOutputOptions.h" />
     <ClInclude Include="FileOperations.h" />
+    <ClInclude Include="InputStream.h" />
     <ClInclude Include="Interpolation.h" />
+    <ClInclude Include="KeyboardStream.h" />
+    <ClInclude Include="MouseStream.h" />
     <ClInclude Include="TouchInterface.h" />
     <ClInclude Include="KeyboardEnumUtil.h" />
     <ClInclude Include="MasterVolume.h" />
@@ -310,6 +317,7 @@
     <ClInclude Include="SimulatedTrackpad.h" />
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />
+    <ClInclude Include="TouchStream.h" />
     <ClInclude Include="VirtualController.h" />
     <ClInclude Include="VirtualDesktop.h" />
     <ClInclude Include="VirtualFinger.h" />

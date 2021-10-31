@@ -1,13 +1,16 @@
 #pragma once
 
-#include <iostream>
-#include <winsock2.h>
-#include <string>
-#include <thread>
-#include <atomic>
 #include "srp/network/NetworkData.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
+#include "InputStream.h"
+#include <iostream>
+#include <string>
+#include <thread>
+#include <atomic>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <winsock2.h>
 
 CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket);
 

@@ -1,9 +1,11 @@
 #pragma once
-#include <WinUser.h>
-#include <vector>
-#include <string>
 #include "Broadcast.h"
 #include "Connection.h"
+#include <vector>
+#include <string>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <WinUser.h>
 
 extern PROCESS_INFORMATION streamProcessInfo;
 extern PROCESS_INFORMATION audioProcessInfo;

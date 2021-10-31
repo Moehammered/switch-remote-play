@@ -1,8 +1,10 @@
-#include <winsock2.h> // to get the windows definitions made so 'ChangeDisplaySettings' can be defined
 #include "SystemCalls.h"
 #include "VirtualController.h"
+#include <winsock2.h> // to get the windows definitions made so 'ChangeDisplaySettings' can be defined
 #include <iostream>
 #include <sstream>
+#include <chrono>
+#include <thread>
 
 MONITORINFOEX DefaultMonitorInfo()
 {

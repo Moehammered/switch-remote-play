@@ -1,6 +1,9 @@
-#pragma once
-#include "SwitchStream.h"
+#ifndef __VIRTUALCONTROLLER_H__
+#define __VIRTUALCONTROLLER_H__
+
 #include "srp/controller/ControllerButtonMap.h"
+#include "srp/controller/ControllerAnalogMap.h"
+#include "srp/network/NetworkData.h"
 #include "srp/controller/SwitchHidDefinition.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -36,3 +39,5 @@ class IVirtualController
         virtual USHORT ConvertButtons(GamepadDataPayload const data) = 0;
         virtual SHORT ConvertAnalog(int32_t const switchAnalog) = 0;
 };
+
+#endif

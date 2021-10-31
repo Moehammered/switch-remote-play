@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __X360CONTROLLER_H__
+#define __X360CONTROLLER_H__
+
 #include "VirtualController.h"
 
 class X360Controller : public IVirtualController
@@ -27,3 +29,5 @@ class X360Controller : public IVirtualController
 
 		XUSB_REPORT state;
 };
+
+#endif

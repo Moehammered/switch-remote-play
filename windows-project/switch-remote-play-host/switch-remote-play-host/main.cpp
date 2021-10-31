@@ -3,14 +3,8 @@
  * Relies on ffmpeg.exe being located within the same directory as this executable.
 */
 
-#include <iostream>
-#include <string>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 #include "SystemCalls.h"
 #include "SwitchStream.h"
-#include "VirtualController.h"
-#include "AtomicTest.h"
 #include "Connection.h"
 #include "FFMPEGHelper.h"
 #include "Broadcast.h"
@@ -20,6 +14,11 @@
 #include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
+#include <iostream>
+#include <string>
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 auto constexpr applicationVersion = "0.9.9";
 

@@ -1,8 +1,11 @@
-#pragma once
+#ifndef __BROADCAST_H__
+#define __BROADCAST_H__
 
-#include <winsock2.h>
 #include <stdint.h>
 #include <string>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <winsock2.h>
 
 class Broadcast
 {
@@ -54,3 +57,5 @@ inline bool Broadcast::Send(std::string data)
 
 	return result != SOCKET_ERROR;
 }
+
+#endif

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="AtomicTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Broadcast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -205,11 +202,23 @@
     <ClCompile Include="..\..\..\common\srp\utils\FlagMapUtils.cpp">
       <Filter>Common Files\srp\utils</Filter>
     </ClCompile>
+    <ClCompile Include="InputStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MouseStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyboardStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllerStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TouchStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AtomicTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Broadcast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -449,6 +458,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\common\srp\utils\UnorderedMapCirculator.h">
       <Filter>Common Files\srp\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyboardStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllerStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchStream.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

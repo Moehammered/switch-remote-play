@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __DS4CONTROLLER_H__
+#define __DS4CONTROLLER_H__
+
 #include "VirtualController.h"
 
 class DS4Controller : public IVirtualController
@@ -33,3 +35,5 @@ private:
 
     DS4_DPAD_DIRECTIONS ConvertDpad(GamepadDataPayload const data);
 };
+
+#endif
