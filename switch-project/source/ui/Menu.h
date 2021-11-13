@@ -4,8 +4,11 @@
 #include "../SDL_FontCache.h"
 #include "Text.h"
 #include <vector>
-#include <switch/runtime/pad.h>
 #include <SDL2/SDL_render.h>
+extern "C"
+{
+    #include <switch/runtime/pad.h>
+}
 
 class Menu
 {

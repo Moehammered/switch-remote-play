@@ -3,33 +3,27 @@
     Remote PC connection focused on allowing PC games to be played on the switch
 */
 
+#include "ScreenRenderer.h"
+#include "MainScreen.h"
+#include "InputThread.h"
+#include "utils/StreamHelper.h"
+#include "utils/ConfigHelper.h"
+#include "utils/Colours.h"
+#include "network/NetworkDiscovery.h"
+#include "stream/LiveStream.h"
+#include "stream/StreamState.h"
+#include "system/SystemSetup.h"
+#include "network/NetworkConfiguration.h"
 #include <string>
 #include <iostream>
 #include <thread>
 #include <atomic>
 #include <switch.h>
-#include "utils/Colours.h"
-#include "ScreenRenderer.h"
-#include "MainScreen.h"
-#include "InputThread.h"
-#include "network/NetworkDiscovery.h"
-#include "stream/StreamState.h"
-#include "stream/VideoStream.h"
-#include "stream/StreamDecoder.h"
-#include "stream/PcmStream.h"
-#include "system/SystemSetup.h"
-#include "network/NetworkConfiguration.h"
-#include "srp/codec/general/GenericCodecConfiguration.h"
-#include "srp/codec/h264/H264Configuration.h"
-#include "srp/codec/h264_amf/H264AmfConfiguration.h"
-#include "srp/decoder/DecoderConfiguration.h"
-#include "srp/controller/ControllerConfiguration.h"
-#include "srp/mouse/MouseConfiguration.h"
-#include "srp/keyboard/KeyboardConfiguration.h"
-#include "srp/touch/TouchConfiguration.h"
 
 namespace
 {
+    uint16_t constexpr contextWidth = 1280;
+    uint16_t constexpr contextHeight = 720;
     uint32_t constexpr fontSize = 24;
 
     //30fps refresh rate
@@ -37,108 +31,6 @@ namespace
     auto constexpr oneSecond = std::chrono::duration<int, std::milli>(1000);
 
     std::atomic_int32_t streamState;
-
-    void processStream(VideoStream& stream, AVPacket& streamPacket, StreamDecoder*& streamDecoder,
-                        SDL_Texture* rendererScreenTexture, SDL_Rect& renderRegion,
-                        ScreenRenderer& screen, std::thread& gamepadThread)
-    {
-        if(stream.Read(streamPacket))
-        {
-            if(streamDecoder->DecodeFramePacket(streamPacket))
-            {
-                // render frame data - expecting YUV420 format
-                // (stride values represent space between horizontal lines across screen)
-                auto decodedFrame = streamDecoder->DecodedFrame();
-
-                auto yPlane = decodedFrame.data[0];
-                auto yPlaneStride = decodedFrame.width;
-                auto uPlane = decodedFrame.data[1];
-                auto uPlaneStride = decodedFrame.width/2;
-                auto vPlane = decodedFrame.data[2];
-                auto vPlaneStride = decodedFrame.width/2;
-
-                SDL_UpdateYUVTexture(rendererScreenTexture, &renderRegion, 
-                                    yPlane, yPlaneStride,
-                                    uPlane, uPlaneStride, 
-                                    vPlane, vPlaneStride);
-
-                screen.RenderScreenTexture();
-            }
-
-            av_packet_unref(&streamPacket);
-        }
-        else
-        {
-            stream.CloseStream();
-            streamDecoder->Flush();
-            streamDecoder->Cleanup();
-            stream.Cleanup();
-            streamState.store(StreamState::INACTIVE, std::memory_order_release);
-            delete streamDecoder;
-            streamDecoder = nullptr;
-
-            if(gamepadThread.joinable())
-                gamepadThread.join();
-        }
-    };
-
-    void SaveConfigData(EncoderConfig const encoderData, 
-                        DecoderData const decoderData, 
-                        controller::ControllerConfig const controllerData,
-                        mouse::MouseConfig const mouseData,
-                        keyboard::KeyboardConfig const keyboardData,
-                        touch::TouchConfig const touchData)
-    {
-        {
-            auto generalConf = GenericCodecConfiguration{};
-            generalConf.Save(encoderData.commonSettings);
-            switch(encoderData.commonSettings.videoCodec)
-            {
-                case ffmpeg::VideoCodec::H264:
-                {
-                    auto conf = H264Configuration{};
-                    conf.Save(encoderData.cpuSettings);
-                }
-                break;
-
-                case ffmpeg::VideoCodec::H264_AMF:
-                {
-                    auto conf = H264AmfConfiguration{};
-                    conf.Save(encoderData.amdSettings);
-                }
-                break;
-
-                case ffmpeg::VideoCodec::H264_NVENC:
-                case ffmpeg::VideoCodec::H264_QSV:
-                break;
-            }
-        }
-        
-        {
-            auto decoderConf = DecoderConfiguration{};
-            decoderConf.Save(decoderData);
-        }
-
-        {
-            auto conf = ControllerConfiguration{};
-            conf.Save(controllerData);
-        }
-
-        {
-            auto conf = MouseConfiguration{};
-            conf.Save(mouseData);
-        }
-
-        {
-            auto conf = KeyboardConfiguration{};
-            conf.Save(keyboardData);
-        }
-
-        {
-            auto conf = TouchConfiguration{};
-            conf.Save(touchData);
-        }
-    }
 
     void handleInitFailure()
     {
@@ -160,7 +52,6 @@ namespace
         
         cleanupSystem();
     }
-
 }
 
 int main(int argc, char **argv)
@@ -171,7 +62,7 @@ int main(int argc, char **argv)
     
     ScreenRenderer screen;
     std::cout << "Initialising Screen\n";
-    bool initOK = screen.Initialise(1280, 720, false);
+    bool initOK = screen.Initialise(contextWidth, contextHeight, false);
 
     if(!initOK)
     {
@@ -187,24 +78,16 @@ int main(int argc, char **argv)
     NetworkDiscovery network {startupNetworkSettings.handshakePort, broadcastAddress, startupNetworkSettings.broadcastPort};
     
     std::thread gamepadThread{};
-    
-    std::cout << "Initialising PcmStream\n";
-    PcmStream audioStream {startupNetworkSettings.audioPort};
-    std::cout << "Initialising Video Stream\n";
-    VideoStream stream{};
-
-    StreamDecoder* streamDecoder {nullptr};
-    AVPacket streamPacket{};
-    auto rendererScreenTexture = screen.GetScreenTexture();
-    auto renderRegion = screen.Region();
+    auto liveRenderCallback = [&] (YUVFrame frameData) 
+    {
+        renderStreamFrame(screen, frameData);
+    };
+    LiveStream liveStream { startupNetworkSettings.audioPort };
     
     std::cout << "Loading System Fonts\n";
-    auto systemFont = loadSystemFont(screen.Renderer(), fontSize, {255, 255, 255, 255});
+    auto systemFont = loadSystemFont(screen.Renderer(), fontSize, colours::white);
     setMainSystemFont(systemFont);
     
-    auto runApp {true};
-    std::cout << "Starting main loop\n";
-
     //initialise hid
     PadState mainPad {0};
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
@@ -213,112 +96,41 @@ int main(int argc, char **argv)
     std::cout << "Creating menu selection screens\n";
     auto menuScreens = MenuSelection{};
     
+    auto runApp { true };
+    std::cout << "Starting main loop\n";
     while(appletMainLoop() && runApp)
     {
         switch(streamState.load(std::memory_order_acquire))
         {
             case StreamState::INACTIVE:
             {
-                screen.ClearScreen(colours::offblack);
-
-                if(audioStream.Running())
-                    audioStream.Shutdown();
-        
-                padUpdate(&mainPad);
-
-                auto kDown = padGetButtonsDown(&mainPad);
-
-                if(kDown & HidNpadButton_Plus)
-                    streamState.store(StreamState::QUIT, std::memory_order_release);
-                else if(kDown & HidNpadButton_R)
-                    streamState.store(StreamState::REQUESTED, std::memory_order_release);
-
-                menuScreens.ProcessInput(mainPad);
-                
-                if(kDown & HidNpadButton_L)
-                {
-                    if(!network.Searching())
-                        network.Search();
-                }
-
-                menuScreens.RenderTitle(screen.Renderer(), systemFont);
-                menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
-                menuScreens.Render(screen.Renderer(), systemFont);
-                screen.PresentScreen();
-                
-                // no point thrashing the screen to refresh text
-                std::this_thread::sleep_for(thirtyThreeMs);
+                auto nextState = renderMenus(screen, mainPad, menuScreens, network, systemFont);
+                streamState.store(nextState, std::memory_order_release);
             }
             break;
 
             case StreamState::REQUESTED:
             {
-                //display on the screen a connection is pending
-                screen.ClearScreen(colours::grey);
-                menuScreens.RenderTitle(screen.Renderer(), systemFont);
-                menuScreens.RenderPendingConnection(screen.Renderer(), systemFont);
-                menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
-                
-                screen.PresentScreen();
-                SaveConfigData(menuScreens.GetFfmpegSettings(), 
-                            menuScreens.GetDecoderSettings(), 
-                            menuScreens.GetControllerSettings(),
-                            menuScreens.MouseSettings(),
-                            menuScreens.KeyboardSettings(),
-                            menuScreens.TouchSettings());
-
-                auto networkSettings = menuScreens.NetworkSettings();
-                if(network.HostFound() || networkSettings.manualIPEnabled)
-                {
-                    auto ip = std::string{};
-                    if(networkSettings.manualIPEnabled)
-                        ip = networkSettings.manualIP;
-                    else
-                        ip = network.IPAddress();
-                  
-                    auto ffmpegConfig = menuScreens.GetFfmpegSettings();
-                    auto controllerConfig = menuScreens.GetControllerSettings();
-                    auto decoderConfig = menuScreens.GetDecoderSettings();
-                    auto mouseConfig = menuScreens.MouseSettings();
-                    auto keyboardConfig = menuScreens.KeyboardSettings();
-                    auto touchConfig = menuScreens.TouchSettings();
-
-                    runStartConfiguredStreamCommand(ip, 
-                                                    startupNetworkSettings.commandPort, 
-                                                    ffmpegConfig, 
-                                                    controllerConfig,
-                                                    mouseConfig,
-                                                    keyboardConfig,
-                                                    touchConfig);
-                    auto streamOn = stream.WaitForStream(decoderConfig, startupNetworkSettings.videoPort);
-
-                    if(streamOn)
-                    {
-                        auto streamInfo = stream.StreamInfo();
-                        if(streamDecoder != nullptr)
-                            delete streamDecoder;
-
-                        streamDecoder = new StreamDecoder(streamInfo->codecpar);
-                        gamepadThread = std::thread(runGamepadThread, ip, startupNetworkSettings.gamepadPort);
-                        streamState.store(StreamState::ACTIVE, std::memory_order_release);
-
-                        if(audioStream.Ready() && !audioStream.Running())
-                            audioStream.Start();
-                    }
-                }
-                else // no host to connect to
-                {
-                    std::this_thread::sleep_for(oneSecond);
-                    streamState.store(StreamState::INACTIVE, std::memory_order_release);
-                }
+                auto nextState = processStreamRequest(screen, 
+                                                    menuScreens, 
+                                                    liveStream, 
+                                                    network, 
+                                                    startupNetworkSettings, 
+                                                    systemFont, 
+                                                    gamepadThread);
+                streamState.store(nextState, std::memory_order_release);
             }
             break;
 
             case StreamState::ACTIVE:
             {
-                processStream(stream, streamPacket, streamDecoder, 
-                                rendererScreenTexture, renderRegion, 
-                                screen, gamepadThread);
+                if(!liveStream.Run(liveRenderCallback))
+                {
+                    streamState.store(StreamState::INACTIVE, std::memory_order_release);
+            
+                    if(gamepadThread.joinable())
+                        gamepadThread.join();
+                }
                 padUpdate(&mainPad); // stop the '+' button from quitting the app when stream stops
             }
             break;
@@ -338,14 +150,8 @@ int main(int argc, char **argv)
     {
         while(streamState.load() == StreamState::ACTIVE)
             std::this_thread::sleep_for(thirtyThreeMs);
-        stream.Cleanup();
 
-        if(streamDecoder != nullptr)
-        {
-            streamDecoder->Cleanup();
-            delete streamDecoder;
-            streamDecoder = nullptr;
-        }
+        liveStream.Cleanup();
     }
     
     network.Shutdown();
@@ -353,9 +159,6 @@ int main(int argc, char **argv)
     if(gamepadThread.joinable())
         gamepadThread.join();
 
-    if(audioStream.Running())
-        audioStream.Shutdown();
-    
     auto libnxRes = audoutStopAudioOut();
     if(!R_SUCCEEDED(libnxRes))
         std::cout << "Failed to call audoutStopAudioOut with result: " << libnxRes << std::endl;

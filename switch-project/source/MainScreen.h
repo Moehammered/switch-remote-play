@@ -11,6 +11,7 @@
 #include "ui/MouseMenu.h"
 #include "ui/KeyboardMenu.h"
 #include "network/NetworkDiscovery.h"
+#include "utils/ConfigHelper.h"
 #include <string>
 #include <unordered_map>
 
@@ -29,19 +30,21 @@ class MenuSelection : public Menu
 
         void RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font * const font, NetworkDiscovery const & network);
     
-        EncoderConfig const GetFfmpegSettings();
+        EncoderConfig const GetFfmpegSettings() const;
 
-        DecoderData const GetDecoderSettings();
+        DecoderData const GetDecoderSettings() const;
 
-        controller::ControllerConfig const GetControllerSettings();
+        controller::ControllerConfig const GetControllerSettings() const;
 
-        mouse::MouseConfig const MouseSettings();
+        mouse::MouseConfig const MouseSettings() const;
 
         keyboard::KeyboardConfig const KeyboardSettings() const;
 
-        touch::TouchConfig const TouchSettings();
+        touch::TouchConfig const TouchSettings() const;
 
         network::NetworkConfig const NetworkSettings() const;
+
+        ConfigContainer const ConfigurationSettings() const;
 
     private:
         Text controlsText;

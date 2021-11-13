@@ -2,10 +2,13 @@
 #include "network/CommandSender.h"
 #include "utils/pad/PadUtility.h"
 #include "utils/pad/JoyConUtility.h"
-#include <switch.h>
 #include <iostream>
 #include <thread>
-#include <sys/socket.h>
+#include <switch.h>
+extern "C"
+{
+    #include <sys/socket.h>
+}
 
 namespace
 {
@@ -43,23 +46,18 @@ namespace
     }
 }
 
-void runStartConfiguredStreamCommand(std::string ip, uint16_t port, 
-    EncoderConfig const config, 
-    controller::ControllerConfig const controllerConfig,
-    mouse::MouseConfig const mouseConfig,
-    keyboard::KeyboardConfig const keyboardConfig,
-    touch::TouchConfig const touchConfig)
+void sendStartStreamCommand(std::string ip, uint16_t port, ConfigContainer const settings)
 {
     int commandSocket = -1;
     if(ConnectTo(ip, port, commandSocket))
     {
         auto streamCommand = Command::START_STREAM;
         auto const payload = CommandPayload{
-            .encoderData = config,
-            .controllerData = controllerConfig,
-            .mouseData = mouseConfig,
-            .keyboardData = keyboardConfig,
-            .touchData = touchConfig,
+            .encoderData = settings.encoderConfig,
+            .controllerData = settings.controllerConfig,
+            .mouseData = settings.mouseConfig,
+            .keyboardData = settings.keyboardConfig,
+            .touchData = settings.touchConfig,
             .commandCode = streamCommand
         };
         

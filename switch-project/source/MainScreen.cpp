@@ -118,22 +118,22 @@ void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font *
     }
 }
 
-EncoderConfig const MenuSelection::GetFfmpegSettings()
+EncoderConfig const MenuSelection::GetFfmpegSettings() const
 {
     return encoderScreen.Settings();
 }
 
-DecoderData const MenuSelection::GetDecoderSettings()
+DecoderData const MenuSelection::GetDecoderSettings() const
 {
     return newDecoderMenu.Settings();
 }
 
-controller::ControllerConfig const MenuSelection::GetControllerSettings()
+controller::ControllerConfig const MenuSelection::GetControllerSettings() const
 {
     return newControllerMenu.Settings();
 }
 
-mouse::MouseConfig const MenuSelection::MouseSettings()
+mouse::MouseConfig const MenuSelection::MouseSettings() const
 {
     return mouseMenu.Settings();
 }
@@ -143,7 +143,7 @@ keyboard::KeyboardConfig const MenuSelection::KeyboardSettings() const
     return keyboardMenu.Settings();
 }
 
-touch::TouchConfig const MenuSelection::TouchSettings()
+touch::TouchConfig const MenuSelection::TouchSettings() const
 {
     return touchMenu.Settings();
 }
@@ -151,4 +151,18 @@ touch::TouchConfig const MenuSelection::TouchSettings()
 network::NetworkConfig const MenuSelection::NetworkSettings() const
 {
     return networkScreen.Settings();
+}
+
+ConfigContainer const MenuSelection::ConfigurationSettings() const
+{
+    return ConfigContainer
+    {
+        .encoderConfig = GetFfmpegSettings(),
+        .decoderConfig = GetDecoderSettings(),
+        .controllerConfig = GetControllerSettings(),
+        .mouseConfig = MouseSettings(),
+        .keyboardConfig = KeyboardSettings(),
+        .touchConfig = TouchSettings(),
+        .networkConfig = NetworkSettings()
+    };
 }
