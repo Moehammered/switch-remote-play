@@ -15,6 +15,8 @@ public:
 
     void Reset();
 
+    void DisconnectControllers();
+
 private:
     controller::ControllerConfig const settings;
     std::vector<std::unique_ptr<IVirtualController>> controllers;

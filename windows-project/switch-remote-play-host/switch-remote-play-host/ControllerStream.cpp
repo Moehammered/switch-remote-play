@@ -37,6 +37,12 @@ void ControllerStream::Reset()
     }
 }
 
+void ControllerStream::DisconnectControllers()
+{
+    for (auto& controller : controllers)
+        controller->Disconnect();
+}
+
 std::vector<std::unique_ptr<IVirtualController>> ControllerStream::CreateVirtualControllers(controller::ControllerConfig const config)
 {
     using namespace std;

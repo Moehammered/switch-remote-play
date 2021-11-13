@@ -110,6 +110,13 @@ std::thread StartGamepadListener(DisplayDeviceInfo sessionDisplay,
                 gamepadActive.store(true, std::memory_order_release);
                 //blocks here while stream is active
                 inputStream.Run(connection.ConnectedSocket(), gamepadActive, maxRetries);
+
+                controllerStream.Reset();
+                keyboardStream.Reset();
+                mouseStream.Reset();
+                touchStream.Reset();
+
+                controllerStream.DisconnectControllers();
             }
         }
 
