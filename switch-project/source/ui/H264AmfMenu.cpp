@@ -1,4 +1,5 @@
 #include "H264AmfMenu.h"
+#include "../utils/Colours.h"
 #include "srp/codec/h264_amf/H264AmfConfiguration.h"
 #include "../system/SoftwareKeyboard.h"
 
@@ -219,13 +220,12 @@ void H264AmfMenu::SetupText()
     const int yOffset = title.y + 15;
     const int ySpace = 30;
     int counter = 1;
-    SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
     auto params = h264amf::h264AmfParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};
-        textElements[p].colour = textColour;
+        textElements[p].colour = colours::white;
         textElements[p].x = settingTextX;
         textElements[p].y = yOffset + ySpace * counter++;
         textElements[p].value = "unintialised";

@@ -1,4 +1,5 @@
 #include "KeyboardMenu.h"
+#include "../utils/Colours.h"
 #include "../system/ButtonWatch.h"
 #include "../ScreenRenderer.h"
 #include "../system/SystemSetup.h"
@@ -163,7 +164,6 @@ void KeyboardMenu::SetupText()
     const int yOffset = title.y + 40;
     const int ySpace = 30;
     int counter = 0;
-    SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
     auto params = keyboard::keyParamsList;
     for(auto& p : params)
@@ -171,7 +171,7 @@ void KeyboardMenu::SetupText()
         auto col = counter / itemsPerCol;
         auto row = counter % itemsPerCol;
         textElements[p] = Text{};
-        textElements[p].colour = textColour;
+        textElements[p].colour = colours::white;
         textElements[p].x = settingTextX + xOffset * col;
         textElements[p].y = yOffset + ySpace * row;
         UpdateUI(p);

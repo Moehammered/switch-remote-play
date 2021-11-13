@@ -1,4 +1,5 @@
 #include "TouchMenu.h"
+#include "../utils/Colours.h"
 #include "srp/touch/TouchConfiguration.h"
 
 auto const pageMenuText = "Use D-Pad left or right to choose touch mode.";
@@ -18,13 +19,13 @@ touchModeText{}, pageText{}
     touchModeText.centered = true;
     touchModeText.y = title.y + 30;
     touchModeText.x = title.x + 20;
-    touchModeText.colour = {50, 180, 220, 255};
+    touchModeText.colour = colours::skyblue;
     touchModeText.value = *touchMode;
 
     pageText.centered = true;
     pageText.y = touchModeText.y + 30;
     pageText.x = title.x - 100;
-    pageText.colour = {200, 200, 200, 255};
+    pageText.colour = colours::lightgrey;
     pageText.value = pageMenuText;
 }
 

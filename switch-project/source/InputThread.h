@@ -4,14 +4,6 @@
 #include "srp/network/NetworkData.h"
 #include <string>
 
-enum StreamState : int32_t
-{
-    INACTIVE,
-    REQUESTED,
-    ACTIVE,
-    QUIT
-};
-
 void runStartConfiguredStreamCommand(std::string ip, uint16_t port, 
     EncoderConfig const config, 
     controller::ControllerConfig const controllerConfig,

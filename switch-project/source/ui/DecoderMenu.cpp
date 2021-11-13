@@ -1,4 +1,5 @@
 #include "DecoderMenu.h"
+#include "../utils/Colours.h"
 #include "srp/decoder/DecoderConfiguration.h"
 
 DecoderMenu::DecoderMenu() : Menu(),
@@ -28,7 +29,7 @@ discardMenu{}, menus{}, pageText{}
     pageText.value = "(pg 1/5) <--/-->";
     pageText.y = title.y + 65;
     pageText.x = 20;
-    pageText.colour = { 255, 190, 90, 255 };
+    pageText.colour = colours::orange;
 }
 
 void DecoderMenu::ProcessInput(PadState const & pad)

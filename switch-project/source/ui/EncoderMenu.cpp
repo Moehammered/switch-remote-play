@@ -1,4 +1,5 @@
 #include "EncoderMenu.h"
+#include "../utils/Colours.h"
 
 EncoderMenu::EncoderMenu() 
     : Menu(), h264Menu{}, amdMenu{}, generalMenu{},
@@ -12,7 +13,7 @@ EncoderMenu::EncoderMenu()
     pageText.value = "General (pg 1/2) <--/-->";
     pageText.y = title.y + 35;
     pageText.x = 20;
-    pageText.colour = { 255, 190, 90, 255 };
+    pageText.colour = colours::orange;
 }
 
 void EncoderMenu::ProcessInput(PadState const & pad)

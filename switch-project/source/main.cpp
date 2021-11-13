@@ -8,10 +8,12 @@
 #include <thread>
 #include <atomic>
 #include <switch.h>
+#include "utils/Colours.h"
 #include "ScreenRenderer.h"
 #include "MainScreen.h"
 #include "InputThread.h"
 #include "network/NetworkDiscovery.h"
+#include "stream/StreamState.h"
 #include "stream/VideoStream.h"
 #include "stream/StreamDecoder.h"
 #include "stream/PcmStream.h"
@@ -28,9 +30,6 @@
 
 namespace
 {
-    SDL_Color constexpr bgCol = {20, 20, 20, 255};
-    SDL_Color constexpr pendingStreamBgCol = { 60, 60, 60, 255 };
-
     uint32_t constexpr fontSize = 24;
 
     //30fps refresh rate
@@ -84,11 +83,11 @@ namespace
     };
 
     void SaveConfigData(EncoderConfig const encoderData, 
-    DecoderData const decoderData, 
-    controller::ControllerConfig const controllerData,
-    mouse::MouseConfig const mouseData,
-    keyboard::KeyboardConfig const keyboardData,
-    touch::TouchConfig const touchData)
+                        DecoderData const decoderData, 
+                        controller::ControllerConfig const controllerData,
+                        mouse::MouseConfig const mouseData,
+                        keyboard::KeyboardConfig const keyboardData,
+                        touch::TouchConfig const touchData)
     {
         {
             auto generalConf = GenericCodecConfiguration{};
@@ -140,6 +139,28 @@ namespace
             conf.Save(touchData);
         }
     }
+
+    void handleInitFailure()
+    {
+        auto errorMessage = "Failed to initialise screen renderer...";
+        //doesn't display on the switch screen from nxlink redirecting stdio
+        consoleInit(NULL);
+        std::cout << errorMessage << std::endl;
+        
+        consoleUpdate(NULL);
+        auto countdown = 3;
+        while(countdown > 0)
+        {
+            --countdown;
+            std::this_thread::sleep_for(oneSecond);
+            consoleUpdate(NULL);
+        }
+
+        consoleExit(NULL);
+        
+        cleanupSystem();
+    }
+
 }
 
 int main(int argc, char **argv)
@@ -154,25 +175,7 @@ int main(int argc, char **argv)
 
     if(!initOK)
     {
-        //send a copy to the nxlink server
-        auto errorMessage = "Failed to initialise screen renderer...";
-        std::cout << errorMessage << std::endl;
-        
-        //doesn't display for now on the switch screen from nxlink redirecting stdio
-        consoleInit(NULL);
-        std::cout << errorMessage << std::endl;
-        
-        consoleUpdate(NULL);
-        int countdown = 3;
-        while(countdown > 0)
-        {
-            --countdown;
-            std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
-            consoleUpdate(NULL);
-        }
-
-        consoleExit(NULL);
-        
+        handleInitFailure();
         cleanupSystem();
         return -1;
     }
@@ -216,7 +219,7 @@ int main(int argc, char **argv)
         {
             case StreamState::INACTIVE:
             {
-                screen.ClearScreen(bgCol);
+                screen.ClearScreen(colours::offblack);
 
                 if(audioStream.Running())
                     audioStream.Shutdown();
@@ -251,7 +254,7 @@ int main(int argc, char **argv)
             case StreamState::REQUESTED:
             {
                 //display on the screen a connection is pending
-                screen.ClearScreen(pendingStreamBgCol);
+                screen.ClearScreen(colours::grey);
                 menuScreens.RenderTitle(screen.Renderer(), systemFont);
                 menuScreens.RenderPendingConnection(screen.Renderer(), systemFont);
                 menuScreens.RenderNetworkStatus(screen.Renderer(), systemFont, network);
@@ -280,12 +283,13 @@ int main(int argc, char **argv)
                     auto keyboardConfig = menuScreens.KeyboardSettings();
                     auto touchConfig = menuScreens.TouchSettings();
 
-                    runStartConfiguredStreamCommand(ip, startupNetworkSettings.commandPort, 
-                        ffmpegConfig, 
-                        controllerConfig,
-                        mouseConfig,
-                        keyboardConfig,
-                        touchConfig);
+                    runStartConfiguredStreamCommand(ip, 
+                                                    startupNetworkSettings.commandPort, 
+                                                    ffmpegConfig, 
+                                                    controllerConfig,
+                                                    mouseConfig,
+                                                    keyboardConfig,
+                                                    touchConfig);
                     auto streamOn = stream.WaitForStream(decoderConfig, startupNetworkSettings.videoPort);
 
                     if(streamOn)

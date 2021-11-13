@@ -1,6 +1,7 @@
 #include "ControllerMenu.h"
 #include "srp/utils/EnumMapper.h"
 #include "srp/controller/ControllerConfiguration.h"
+#include "../utils/Colours.h"
 #include "../system/SoftwareKeyboard.h"
 #include "../system/ButtonWatch.h"
 #include "../ScreenRenderer.h"
@@ -110,13 +111,13 @@ void ControllerMenu::UpdateSetting(controller::ControllerParameters param, int d
             else
             {
                 auto displayText = Text{};
-                displayText.colour = {200, 140, 120, 255};
+                displayText.colour = colours::pink;
                 displayText.x = 500;
                 displayText.y = 360;
                 displayText.centered = true;
 
                 auto titleText = Text{};
-                titleText.colour = {120, 120, 200, 255};
+                titleText.colour = colours::lavendar;
                 titleText.x = 525;
                 titleText.y = 300;
                 titleText.centered = true;
@@ -128,7 +129,7 @@ void ControllerMenu::UpdateSetting(controller::ControllerParameters param, int d
                 
                 auto renderer = [&](std::string str)
                 {
-                    screenRenderer->ClearScreen({0,0,0,255});
+                    screenRenderer->ClearScreen(colours::black);
 
                     titleText.Render(rendererRef, fontRef);
 
@@ -224,13 +225,12 @@ void ControllerMenu::SetupText()
     const int yOffset = title.y + 15;
     const int ySpace = 45;
     int counter = 1;
-    SDL_Color constexpr textColour {.r = 255, .g = 255, .b = 255, .a = 255};
 
     auto params = controller::controllerParamsList;
     for(auto& p : params)
     {
         textElements[p] = Text{};
-        textElements[p].colour = textColour;
+        textElements[p].colour = colours::white;
         textElements[p].x = settingTextX;
         textElements[p].y = yOffset + ySpace * counter++;
         UpdateUI(p);

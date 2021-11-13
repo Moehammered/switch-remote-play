@@ -1,7 +1,8 @@
 #include "Menu.h"
+#include "../utils/Colours.h"
 
-Menu::Menu() : highlightColour{.r = 200, .g = 200, .b = 50, .a = 255}, 
-    title{.x = 440, .y = 130, .colour = {255,255,255,255}}
+Menu::Menu() : highlightColour{ colours::yellow }, 
+    title{ .x = 440, .y = 130, .colour = colours::white }
 { 
     title.centered = true;
 }

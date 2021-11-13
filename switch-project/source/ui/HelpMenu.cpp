@@ -1,4 +1,5 @@
 #include "HelpMenu.h"
+#include "../utils/Colours.h"
 
 auto constexpr networkPage =
 "- Please make sure the switch-remote-play-host application is running on your Windows PC.\n\
@@ -18,18 +19,17 @@ HelpMenu::HelpMenu() : Menu(), pages{}, currentPageHeader{}, selectedPage{0}
     title.value = "Help";
     title.x += 80;
 
-    SDL_Color constexpr orange = { 255, 190, 90, 255 };
     for(auto& page : pages)
     {
         page.x = 10; page.y = title.y + 100;
-        page.colour = orange;
+        page.colour = colours::orange;
     }
 
     pages[HelpPageItems::NETWORK_PAGE].value = networkPage;
     pages[HelpPageItems::STREAM_PAGE].value = streamPage;
 
     currentPageHeader.y = title.y + 60;
-    currentPageHeader.colour = orange;
+    currentPageHeader.colour = colours::orange;
     currentPageHeader.x = 50;
 
     Update();

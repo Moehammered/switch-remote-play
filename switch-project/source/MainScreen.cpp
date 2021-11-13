@@ -1,4 +1,5 @@
 #include "MainScreen.h"
+#include "utils/Colours.h"
 #include <iostream>
 
 namespace
@@ -18,13 +19,6 @@ namespace
         KEYBOARD_MENU,
         COUNT
     };
-
-    SDL_Color constexpr black = {0,0,0, 255};
-    SDL_Color constexpr green = { 100, 200, 100, 255 };
-    SDL_Color constexpr orange = { 255, 190, 90, 255 };
-    SDL_Color constexpr red = { 200, 100, 100, 255 };
-    SDL_Color constexpr blue = {100, 100, 200, 255};
-    SDL_Color constexpr white = {255, 255, 255, 255};
 }
 
 MenuSelection::MenuSelection() : Menu(), 
@@ -45,19 +39,19 @@ MenuSelection::MenuSelection() : Menu(),
     menus[MenuScreen::KEYBOARD_MENU] = &keyboardMenu;
 
     title.x = 400; title.y = 5;
-    title.colour = green;
+    title.colour = colours::green;
     title.value = "Switch Remote Play \\(^.^)/";
 
     controlsText.x = 100; controlsText.y = 45;
-    controlsText.colour = green;
+    controlsText.colour = colours::green;
     controlsText.value = defaultControlMessage;
 
     hostConnectionText.x = 100; hostConnectionText.y = 85;
-    hostConnectionText.colour = red;
+    hostConnectionText.colour = colours::red;
     hostConnectionText.value = noHostInfoMessage;
 
     streamPendingText.x = 100; streamPendingText.y = 600;
-    streamPendingText.colour = red;
+    streamPendingText.colour = colours::red;
     streamPendingText.value = "Stream Pending Connection...";
 }
 
@@ -105,17 +99,17 @@ void MenuSelection::RenderNetworkStatus(SDL_Renderer * const renderer, FC_Font *
     if(networkSettings.manualIPEnabled)
     {
         hostConnectionText.value = "Host IP: (Manual)" + networkSettings.manualIP;
-        hostConnectionText.Render(renderer, font, orange);
+        hostConnectionText.Render(renderer, font, colours::orange);
     }
     else if(network.HostFound())
     {
         hostConnectionText.value = "Host IP: " + network.IPAddress();
-        hostConnectionText.Render(renderer, font, green);
+        hostConnectionText.Render(renderer, font, colours::green);
     }
     else if(network.Searching())
     {
         hostConnectionText.value = "Host IP: Searching...";
-        hostConnectionText.Render(renderer, font, blue);
+        hostConnectionText.Render(renderer, font, colours::blue);
     }
     else
     {
