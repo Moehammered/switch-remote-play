@@ -5,7 +5,7 @@
 #include <string>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <winsock2.h>
+#include <WinSock2.h>
 
 class Connection
 {

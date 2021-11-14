@@ -94,7 +94,7 @@ std::vector<std::string> Configuration::LoadFile(std::string const filepath) con
 		data << filestream.rdbuf();
 		filestream.close();
 
-		std::cout << data.str() << "\n";
+		//std::cout << data.str() << "\n";
 		auto dataLines = stringutil::splitLines(data.str());
 		auto trimmedLines = std::vector<std::string>{};
 		for(auto const& line : dataLines)

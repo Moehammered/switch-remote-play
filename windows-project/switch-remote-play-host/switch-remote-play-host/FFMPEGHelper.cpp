@@ -23,7 +23,7 @@ std::string CreateVideoCommandLineArg(DisplayDeviceInfo const display, EncoderCo
     auto parsedArgs = parser.CompleteArgs() + " " + connectionIP;
     auto completeCmd = ffmpegPath + " " + parsedArgs;
 
-    cout << "\n" << completeCmd << "\n";
+    //cout << "\n" << completeCmd << "\n";
 
     return completeCmd;
 }
@@ -104,7 +104,7 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
     
     auto const args = CreateAudioCommandLineArg(samplerate, data_size, ip, port);
 
-    std::cout << "audio--\n\n" << args << "\n\n";
+    //std::cout << "audio--\n\n" << args << "\n\n";
 
     auto audioProcessFlag = CREATE_NO_WINDOW;
     if (showAudioEncoderWindow)

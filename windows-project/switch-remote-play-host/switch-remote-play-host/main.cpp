@@ -20,7 +20,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-auto constexpr applicationVersion = "0.9.9";
+auto constexpr applicationVersion = "1.0.0";
 
 PROCESS_INFORMATION streamProcessInfo{ 0 };
 PROCESS_INFORMATION audioProcessInfo{ 0 };
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
         //handshake method
         auto handshake = Connection(startupNetworkSettings.handshakePort);
         switchHandshakeConnection = &handshake;
-        std::cout << "starting handshake...\n";
+        //std::cout << "starting handshake...\n";
 
         if (ipFound && handshake.Ready())
         {
@@ -125,10 +125,10 @@ int main(int argc, char* argv[])
             if (handshake.ConnectTo(switchIP))
             {
                 auto response = send(handshake.ConnectedSocket(), replyKey.c_str(), replyKey.length(), 0);
-                if (response == replyKey.length())
-                    std::cout << "Sent reply to switch: " << replyKey << std::endl;
-                else
+                if (response != replyKey.length())
                     std::cout << "Failed to send to switch: " << WSAGetLastError() << std::endl;
+                /*else
+                    std::cout << "Sent reply to switch: " << replyKey << std::endl;*/
             }
         }
         handshake.Close();
@@ -141,12 +141,12 @@ int main(int argc, char* argv[])
 
         if (broadcaster.ReadyToRecv())
         {
-            std::cout << "waiting to receive a broadcast...\n";
+            //std::cout << "waiting to receive a broadcast...\n";
             auto const replyKey = std::string{ "let-me-play" };
             auto const waitTime = std::chrono::duration<int, std::milli>(400);
             while (broadcaster.ReadyToRecv())
             {
-                std::cout << "inner loop waiting to receive a broadcast...\n";
+                //std::cout << "inner loop waiting to receive a broadcast...\n";
 
                 auto receivedKey = std::string{};
                 if (!broadcaster.Recv(receivedKey))
@@ -175,7 +175,6 @@ int main(int argc, char* argv[])
     std::atomic<bool> gamepadActive = false;
     auto lastCommand = Command::IGNORE_COMMAND;
     auto lastPayload = CommandPayload{};
-
 
     ZeroMemory(&streamProcessInfo, sizeof(streamProcessInfo));
     ZeroMemory(&audioProcessInfo, sizeof(audioProcessInfo));
@@ -232,9 +231,9 @@ int main(int argc, char* argv[])
 
             if (ipFound)
             {
-                std::cout << "Start stream with last received config from switch..." << std::endl;
+                //std::cout << "Start stream with last received config from switch..." << std::endl;
                 auto const encoderConfigData = lastPayload.encoderData;
-                std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(encoderConfigData) << std::endl;
+                //std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(encoderConfigData) << std::endl;
 
                 auto desiredDesktopResolution = encoderConfigData.commonSettings.desktopResolution;
                 auto const monitorIndex = encoderConfigData.commonSettings.monitorNumber;
@@ -312,18 +311,20 @@ int main(int argc, char* argv[])
         }
 
         // wait here for the stream to change state
-        std::cout << "waiting for gamepad thread to shutdown..." << std::endl;
+        std::cout << "Waiting for gamepad thread to shutdown..." << std::endl;
         while (gamepadActive.load(std::memory_order_acquire))
             std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(500));
 
         if (gamepadThread.joinable())
             gamepadThread.join();
 
-        std::cout << "making sure to kill stream..." << std::endl;
+        //std::cout << "Making sure to kill stream..." << std::endl;
         killStream.store(true, std::memory_order_release);
 
-        std::cout << "terminating the FFMPEG process" << std::endl;
+        //std::cout << "Terminating the FFMPEG process" << std::endl;
         StopStreamProcesses();
+
+        std::cout << "Stream stopped\n";
 
         std::cout << "Resetting resolution" << std::endl;
         ChangeResolution(currentDisplay.monitorSystemName, initialWidth, initialHeight);
@@ -333,13 +334,13 @@ int main(int argc, char* argv[])
 
     } while (lastCommand != Command::CLOSE_SERVER && lastCommand != Command::SHUTDOWN);
 
-    std::cout << "making sure to kill stream..." << std::endl;
+    //std::cout << "making sure to kill stream..." << std::endl;
     killStream.store(true, std::memory_order_release);
-    std::cout << "terminating the FFMPEG process" << std::endl;
+    //std::cout << "terminating the FFMPEG process" << std::endl;
     StopStreamProcesses();
 
     // wait here for the gamepad to close
-    std::cout << "waiting for gamepad thread to shutdown..." << std::endl;
+    //std::cout << "waiting for gamepad thread to shutdown..." << std::endl;
     while (gamepadActive.load(std::memory_order_acquire))
         std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(500));
 
