@@ -221,6 +221,7 @@
     <ClCompile Include="InputStream.cpp" />
     <ClCompile Include="KeyboardEnumUtil.cpp" />
     <ClCompile Include="KeyboardStream.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
     <ClCompile Include="MouseStream.cpp" />
@@ -232,6 +233,7 @@
     <ClCompile Include="SwitchStream.cpp" />
     <ClCompile Include="SystemCalls.cpp" />
     <ClCompile Include="TouchStream.cpp" />
+    <ClCompile Include="UnicodeStringUtility.cpp" />
     <ClCompile Include="VirtualController.cpp" />
     <ClCompile Include="VirtualDesktop.cpp" />
     <ClCompile Include="VirtualKeyboard.cpp" />
@@ -304,6 +306,7 @@
     <ClInclude Include="InputStream.h" />
     <ClInclude Include="Interpolation.h" />
     <ClInclude Include="KeyboardStream.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="MouseStream.h" />
     <ClInclude Include="TouchInterface.h" />
     <ClInclude Include="KeyboardEnumUtil.h" />
@@ -318,6 +321,7 @@
     <ClInclude Include="SwitchStream.h" />
     <ClInclude Include="SystemCalls.h" />
     <ClInclude Include="TouchStream.h" />
+    <ClInclude Include="UnicodeStringUtility.h" />
     <ClInclude Include="VirtualController.h" />
     <ClInclude Include="VirtualDesktop.h" />
     <ClInclude Include="VirtualFinger.h" />

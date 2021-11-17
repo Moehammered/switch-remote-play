@@ -14,6 +14,7 @@
 #include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
+#include "Log.h"
 #include <iostream>
 #include <string>
 #define WIN32_LEAN_AND_MEAN
@@ -45,21 +46,27 @@ int main(int argc, char* argv[])
 {
     SetParentDirectory(ExtractParentDirectory(argv[0]));
 
+    auto logger = Log(std::wcout, LogImportance::Low);
     auto const stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     auto const defaultColour = 0 | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN;
 
-    if (!WinsockReady())
+    if (!SocketsReady())
     {
         SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
 
-        std::cout << "Failed to initialise windows network sockets. Please check your firewall rules for ports and try again or try restarting your machine.\n";
+        auto message = "Failed to initialise windows network sockets. Please check your firewall rules for ports and try again or try restarting your machine.\n";
+        logger.Write(message, LogImportance::High, true);
         Sleep(2000);
         return -1;
     }
 
-    std::cout << "Switch Remote Play Host \\(^.^)/ (PC Application version - " << applicationVersion << ")\n" << std::endl;
-
-    StartupTouchContext();
+    {
+        auto appver = transformString(applicationVersion);
+        auto welcomeMessage = "Switch Remote Play Host \\(^.^)/ (PC Application version - " + appver + ")\n\n";
+        logger.Write(welcomeMessage, LogImportance::High);
+    }
+    
+    StartupTouchContext(logger);
 
     auto initialMonitorSettings = DefaultMonitorInfo();
     auto const initialHeight = initialMonitorSettings.rcMonitor.bottom - initialMonitorSettings.rcMonitor.top;
@@ -67,44 +74,50 @@ int main(int argc, char* argv[])
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN);
     {
         auto tempDispServ = DisplayDeviceService{};
-        std::cout << "\n---- Monitor ----\n";
-        std::cout << "Printing active display devices found...\n";
-        tempDispServ.PrintDisplays();
+        logger << LogImportance::Low;
+        logger << "\n---- Monitor ----\n";
+        logger << "Printing active display devices found...\n";
+        tempDispServ.PrintDisplays(logger);
     }
-    //PrintMonitorInfo(initialMonitorSettings);
-
+    
     auto broadcastAddress = std::string{ "192.168.0.255" };
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN | FOREGROUND_RED);
-    if (ScanNetworkConnections(broadcastAddress))
+    logger << LogImportance::High;
+    logger << "\n---- Network ----\n";
+    logger << "Looking for active network interfaces...\n\n";
+    if (ScanNetworkConnections(broadcastAddress, logger))
     {
         SetConsoleTextAttribute(stdHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-        std::cout << "Broadcast address for network discovery is: " << broadcastAddress << "\n\n";
-        std::cout << "Please add the line below to the switch application's config file if you wish to use the network discovery feature:\n";
-        std::cout << "Broadcast Address=" << broadcastAddress << "; <-- Do not forget the semi-colon! (;)\n\n";
-        std::cout << "The switch configuration file is located at 'switch/switch-remote-play/network.ini'. If it doesn't exist, create it.\n";
+        logger << "Broadcast address for network discovery is: " << transformString(broadcastAddress) << "\n\n";
+        logger << "Please add the line below to the switch application's config file if you wish to use the network discovery feature:\n";
+        logger << "Broadcast Address=" << transformString(broadcastAddress) << "; <-- Do not forget the semi-colon! (;)\n\n";
+        logger << "The switch configuration file is located at 'switch/switch-remote-play/network.ini'. If it doesn't exist, create it.\n";
     }
     else
     {
         SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-        std::cout << "Couldn't determine broadcast address. If you cannot connect, please use Manual IP Mode in the Switch app.\n";
+        logger << LogImportance::High;
+        logger << "Couldn't determine broadcast address. If you cannot connect, please use Manual IP Mode in the Switch app.\n";
     }
 
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN);
-    if (VirtualControllerDriverAvailable())
-        std::cout << "\n    Virtual Controller driver seems to be installed correctly.\n\n";
+    logger << LogImportance::Low;
+    if (VirtualControllerDriverAvailable(logger))
+        logger << "\n    Virtual Controller driver seems to be installed correctly.\n\n";
     else
     {
         SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-
-        std::cout << "\n\n!!! Virtual Controller driver seems to be having issues. Please make sure it is installed correctly. !!!\n";
-        std::cout << "If the problem persists, please try uninstalling the driver and installing the latest virtual controller driver\n\n";
-        std::cout << "\n\n==== Press enter to close the program... ====\n\n";
+        logger << LogImportance::High;
+        logger << "\n\n!!! Virtual Controller driver seems to be having issues. Please make sure it is installed correctly. !!!\n";
+        logger << "If the problem persists, please try uninstalling the driver and installing the latest virtual controller driver\n\n";
+        logger << "\n\n==== Press enter to close the program... ====\n\n";
 
         std::cin.get();
         return -1;
     }
     SetConsoleTextAttribute(stdHandle, defaultColour);
+    logger << LogImportance::Low;
 
     std::string switchIP{};
     std::atomic_bool ipFound{ false };
@@ -117,18 +130,21 @@ int main(int argc, char* argv[])
         //handshake method
         auto handshake = Connection(startupNetworkSettings.handshakePort);
         switchHandshakeConnection = &handshake;
-        //std::cout << "starting handshake...\n";
+        logger.Write("starting handshake...\n", LogImportance::Low);
 
         if (ipFound && handshake.Ready())
         {
-            std::cout << "Connecting to: " << switchIP << std::endl;
+            logger << "Connecting to: " << transformString(switchIP) << std::endl;
             if (handshake.ConnectTo(switchIP))
             {
                 auto response = send(handshake.ConnectedSocket(), replyKey.c_str(), replyKey.length(), 0);
                 if (response != replyKey.length())
-                    std::cout << "Failed to send to switch: " << WSAGetLastError() << std::endl;
-                /*else
-                    std::cout << "Sent reply to switch: " << replyKey << std::endl;*/
+                {
+                    auto const errNo = std::to_string(WSAGetLastError());
+                    logger.Write("Failed to send to switch: " + errNo + "\n", LogImportance::High, true);
+                }
+                else
+                    logger.Write("Sent reply to switch: " + transformString(replyKey) + "\n", LogImportance::Low);
             }
         }
         handshake.Close();
@@ -141,16 +157,17 @@ int main(int argc, char* argv[])
 
         if (broadcaster.ReadyToRecv())
         {
-            //std::cout << "waiting to receive a broadcast...\n";
+            logger.Write("waiting to receive a broadcast...\n", LogImportance::Low);
             auto const replyKey = std::string{ "let-me-play" };
             auto const waitTime = std::chrono::duration<int, std::milli>(400);
             while (broadcaster.ReadyToRecv())
             {
-                //std::cout << "inner loop waiting to receive a broadcast...\n";
-
                 auto receivedKey = std::string{};
                 if (!broadcaster.Recv(receivedKey))
-                    std::cout << "Error recv'ing: " << WSAGetLastError() << std::endl;
+                {
+                    auto const errNo = std::to_string(WSAGetLastError());
+                    logger.Write("Error recv'ing: " + errNo + "\n", LogImportance::High, true);
+                }
                 else if (receivedKey == replyKey)
                 {
                     switchIP = broadcaster.ReceivedIP();
@@ -159,7 +176,10 @@ int main(int argc, char* argv[])
                     handshakeProcedure();
                 }
                 else if (receivedKey != replyKey)
-                    std::cout << "key didn't match. received: " << receivedKey << std::endl;
+                {
+                    auto errorMessage = "Handshake failed. Key didn't match. Received: " + transformString(receivedKey) + "\n";
+                    logger.Write(errorMessage, LogImportance::High);
+                }
 
                 std::this_thread::sleep_for(waitTime * 2);
             }
@@ -184,7 +204,8 @@ int main(int argc, char* argv[])
     auto masterVolume = MasterVolume{};
     auto originalMuteState = masterVolume.IsMuted();
 
-    std::cout << "---- Connection ----\n";
+    logger << LogImportance::Low;
+    logger << "---- Connection ----\n";
     do
     {
         killStream.store(false, std::memory_order_release);
@@ -193,10 +214,9 @@ int main(int argc, char* argv[])
         switchCommandListener = &connection;
         if (connection.Ready())
         {
-            std::cout << "Ready to receive a connection from the switch..." << std::endl << std::endl;
             if (connection.WaitForConnection())
             {
-                lastPayload = ReadPayloadFromSwitch(connection.ConnectedSocket());
+                lastPayload = ReadPayloadFromSwitch(connection.ConnectedSocket(), logger);
                 lastCommand = lastPayload.commandCode;
 
                 if (!ipFound)
@@ -221,7 +241,7 @@ int main(int argc, char* argv[])
         switch (lastCommand)
         {
         case Command::SHUTDOWN_PC:
-            std::cout << "Shutdown host PC (Not implemented)" << std::endl;
+            logger.Write("\nShutdown host PC (Not implemented)\n", LogImportance::Low);
             StopStreamProcesses();
 
             break;
@@ -231,9 +251,9 @@ int main(int argc, char* argv[])
 
             if (ipFound)
             {
-                //std::cout << "Start stream with last received config from switch..." << std::endl;
+                logger.Write("Start stream with last received config from switch...\n\n", LogImportance::Low);
                 auto const encoderConfigData = lastPayload.encoderData;
-                //std::cout << "FFMPEG Configuration: " << std::endl << ConfigToString(encoderConfigData) << std::endl;
+                logger.Write("FFMPEG Configuration: \n" + transformString(ConfigToString(encoderConfigData)) + "\n", LogImportance::Low);
 
                 auto desiredDesktopResolution = encoderConfigData.commonSettings.desktopResolution;
                 auto const monitorIndex = encoderConfigData.commonSettings.monitorNumber;
@@ -245,7 +265,7 @@ int main(int argc, char* argv[])
                     if (!ResolutionChangeSuccessful(resolutionResult))
                     {
                         SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-                        PrintResolutionChangeResult(resolutionResult);
+                        logger.Write(ResolutionChangeResultString(resolutionResult), LogImportance::High, true);
                         SetConsoleTextAttribute(stdHandle, defaultColour);
                         currentDesktopResolution.height = display.height;
                         currentDesktopResolution.width = display.width;
@@ -261,7 +281,7 @@ int main(int argc, char* argv[])
                     if (!ResolutionChangeSuccessful(resolutionResult))
                     {
                         SetConsoleTextAttribute(stdHandle, FOREGROUND_RED);
-                        PrintResolutionChangeResult(resolutionResult);
+                        logger.Write(ResolutionChangeResultString(resolutionResult), LogImportance::High, true);
                         SetConsoleTextAttribute(stdHandle, defaultColour);
                         currentDesktopResolution.height = defaultDisplayInfo.height;
                         currentDesktopResolution.width = defaultDisplayInfo.width;
@@ -273,8 +293,19 @@ int main(int argc, char* argv[])
                 // make sure this function takes in the IP of the switch dynamically from the handshake
                 auto const ffmpegOutputConfig = FfmpegOutputConfiguration{};
                 auto const outputSettings = ffmpegOutputConfig.Data();
-                streamProcessInfo = StartStream(currentDisplay, encoderConfigData, switchIP, startupNetworkSettings.videoPort, outputSettings.showEncoderOutput, ffmpegStarted);
-                audioProcessInfo = StartAudio(switchIP, startupNetworkSettings.audioPort, outputSettings.showAudioOutputWindow, audioStarted);
+                streamProcessInfo = StartStream(currentDisplay, 
+                                                encoderConfigData, 
+                                                switchIP, 
+                                                startupNetworkSettings.videoPort, 
+                                                outputSettings.showEncoderOutput,
+                                                logger,
+                                                ffmpegStarted);
+
+                audioProcessInfo = StartAudio(switchIP, 
+                                                startupNetworkSettings.audioPort, 
+                                                outputSettings.showAudioOutputWindow, 
+                                                logger,
+                                                audioStarted);
 
                 if (ffmpegStarted)
                 {
@@ -306,41 +337,45 @@ int main(int argc, char* argv[])
                 }
             }
             else
-                std::cout << "Switch IP has not been found. Please restart the application and switch application and try searching for the host PC on the switch.\n";
+            {
+                auto missingIPMessage = "Switch IP has not been found. Please restart the application and switch application and try searching for the host PC on the switch.\n";
+                logger.Write(missingIPMessage, LogImportance::High, true);
+            }
             break;
         }
 
         // wait here for the stream to change state
-        std::cout << "Waiting for gamepad thread to shutdown..." << std::endl;
+        logger.Write("Waiting for gamepad thread to shutdown...\n", LogImportance::Low, true);
         while (gamepadActive.load(std::memory_order_acquire))
             std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(500));
 
         if (gamepadThread.joinable())
             gamepadThread.join();
 
-        //std::cout << "Making sure to kill stream..." << std::endl;
+        logger.Write("Making sure to kill stream...\n", LogImportance::Low, true);
         killStream.store(true, std::memory_order_release);
 
-        //std::cout << "Terminating the FFMPEG process" << std::endl;
+        logger.Write("Terminating the FFMPEG process\n", LogImportance::Low, true);
         StopStreamProcesses();
 
-        std::cout << "Stream stopped\n";
+        logger.Write("Stream stopped\n", LogImportance::Low);
 
-        std::cout << "Resetting resolution" << std::endl;
+        logger.Write("Resetting resolution\n", LogImportance::Low);
         ChangeResolution(currentDisplay.monitorSystemName, initialWidth, initialHeight);
 
-        std::cout << "Restoring audio mute state" << std::endl;
+        logger.Write("Restoring audio mute state\n", LogImportance::Low);
         masterVolume.Mute(originalMuteState);
 
     } while (lastCommand != Command::CLOSE_SERVER && lastCommand != Command::SHUTDOWN);
 
-    //std::cout << "making sure to kill stream..." << std::endl;
+    logger.Write("Making sure to kill stream...\n", LogImportance::Low, true);
     killStream.store(true, std::memory_order_release);
-    //std::cout << "terminating the FFMPEG process" << std::endl;
+
+    logger.Write("Terminating the FFMPEG process\n", LogImportance::Low, true);
     StopStreamProcesses();
 
     // wait here for the gamepad to close
-    //std::cout << "waiting for gamepad thread to shutdown..." << std::endl;
+    logger.Write("Waiting for gamepad thread to shutdown...\n", LogImportance::Low, true);
     while (gamepadActive.load(std::memory_order_acquire))
         std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(500));
 

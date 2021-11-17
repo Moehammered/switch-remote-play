@@ -16,22 +16,16 @@ void SetParentDirectory(std::string path)
 // Generate the command line argument string to execute ffmpeg
 std::string CreateVideoCommandLineArg(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port)
 {
-    using namespace std;
-
     auto parser = FfmpegArgParser(config, display);
     auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
-    auto parsedArgs = parser.CompleteArgs() + " " + connectionIP;
-    auto completeCmd = ffmpegPath + " " + parsedArgs;
-
-    //cout << "\n" << completeCmd << "\n";
+    auto const parsedArgs = parser.CompleteArgs() + " " + connectionIP;
+    auto const completeCmd = ffmpegPath + " " + parsedArgs;
 
     return completeCmd;
 }
 
 std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::string const ip, uint16_t port)
 {
-    using namespace std;
-
     auto const & filePath = ffmpegPath;
 
     auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
@@ -40,7 +34,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
     auto const sampleRateArg = "-ar ";
     auto const channelArgs = " -ac 2 "; //s8 -- -c:a pcm_s16le 
     auto const packetArg = "pkt_size=";
-    stringstream args;
+    std::stringstream args{};
     args << filePath << inputArgs << qualityArgs << sampleRateArg << sampleRate << channelArgs;
     args << connectionIP;// << "?" << packetArg << packetSize;
 
@@ -48,7 +42,7 @@ std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::strin
 }
 
 // Create a windows process to start the ffmpeg.exe application via CMD in a new window
-PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port, bool showEncoderOutput, bool& started)
+PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port, bool showEncoderOutput, Log& logger, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -67,8 +61,10 @@ PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig c
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, ffmpegProcessFlag, NULL, NULL, &si, &pi))
     {
         //error occured
-        std::cout << "Failed to start process. CreateProcess error code: " << GetLastError() << std::endl;
-        std::cout << "Argument line passed to cmd: " << std::endl << std::endl << args << std::endl;
+        auto const errorValue = std::to_string(GetLastError());
+        auto const errorMessage = "Failed to start process. CreateProcess error code: " + errorValue + "\n";
+        logger.Write(errorMessage, LogImportance::High, true);
+        logger.Write("Argument line passed to cmd:\n\n" + args + "\n", LogImportance::High);
         started = false;
 
         TerminateProcess(pi.hProcess, 1);
@@ -85,7 +81,7 @@ PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig c
     return pi;
 }
 
-PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAudioEncoderWindow, bool& started)
+PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAudioEncoderWindow, Log& logger, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -104,8 +100,6 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
     
     auto const args = CreateAudioCommandLineArg(samplerate, data_size, ip, port);
 
-    //std::cout << "audio--\n\n" << args << "\n\n";
-
     auto audioProcessFlag = CREATE_NO_WINDOW;
     if (showAudioEncoderWindow)
         audioProcessFlag = CREATE_NEW_CONSOLE;
@@ -113,9 +107,12 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
     if (!CreateProcessA(NULL, (LPSTR)args.c_str(), NULL, NULL, FALSE, audioProcessFlag, NULL, NULL, &si, &pi))
     {
         //error occured
-        std::cout << "Failed to start process. CreateProcess error code: " << GetLastError() << std::endl;
-        std::cout << "Argument line passed to cmd: " << std::endl << std::endl << args << std::endl;
+        auto const errorValue = std::to_string(GetLastError());
+        auto const errorMessage = "Failed to start process. CreateProcess error code: " + errorValue + "\n";
+        logger.Write(errorMessage, LogImportance::High, true);
+        logger.Write("Argument line passed to cmd:\n\n" + args + "\n", LogImportance::High);
         started = false;
+
         TerminateProcess(pi.hProcess, 1);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
@@ -132,41 +129,20 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
 
 std::string ConfigToString(EncoderConfig const config)
 {
-    using namespace std;
+    auto const& commonSettings = config.commonSettings;
+    auto const& desktopRes = commonSettings.desktopResolution;
+    auto const& switchRes = commonSettings.switchResolution;
+    auto const vsyncText = ffmpeg::vsyncModeToStr(commonSettings.vsyncMode);
+    auto const codecMode = ffmpeg::videoCodecToStr(commonSettings.videoCodec);
 
-    auto vsyncText = "";
-    switch (config.commonSettings.vsyncMode)
-    {
-    case ffmpeg::VsyncMode::Passthrough:
-        vsyncText = "passthrough"; //each frame is passed to the muxer
-        break;
-    case ffmpeg::VsyncMode::ConstantFps:
-        vsyncText = "constant frame rate"; //constant fps
-        break;
-    case ffmpeg::VsyncMode::VariableFps:
-        vsyncText = "variable frame rate"; //variable fps (prevent duplicate frames)
-        break;
-    case ffmpeg::VsyncMode::DropTime:
-        vsyncText = "drop duplicate frames"; //same as passthrough, but removes timestamps
-        break;
-    case ffmpeg::VsyncMode::Auto:
-        vsyncText = "auto"; //automatically choose between 1 or 2
-        break;
-    default:
-        vsyncText = "UNKNOWN";
-        break;
-    }
-
-    auto const& desktopRes = config.commonSettings.desktopResolution;
-    auto const& switchRes = config.commonSettings.switchResolution;
-    stringstream args;
-    args << "Vsync Mode: " << (int)config.commonSettings.vsyncMode << " (" << vsyncText << ")" << endl;
-    args << "Target Framerate: " << config.commonSettings.desiredFrameRate << " fps" << endl;
-    args << "Video Capture Size(x,y): " << desktopRes.width << ", " << desktopRes.height << endl;
-    args << "Stream Scale Size(x,y): " << switchRes.width << ", " << switchRes.height << endl;
-    args << "Preset: " << h264::encoderPresetToStr(config.cpuSettings.preset) << endl;
-    args << "CRF: " << config.cpuSettings.constantRateFactor << endl;
-    //args << "Target Stream Bitrate: " << config.bitrateKB << " kb/s" << endl;
+    std::stringstream args{};
+    args << "Monitor Number: " << commonSettings.monitorNumber << "\n";
+    args << "Video Capture Size(x,y): " << desktopRes.width << ", " << desktopRes.height << "\n";
+    args << "Stream Scale Size(x,y): " << switchRes.width << ", " << switchRes.height << "\n\n";
+    args << "Chosen Codec: " << codecMode << "\n";
+    args << "Vsync Mode: " << (int)commonSettings.vsyncMode << " (" << vsyncText << ")" << "\n";
+    args << "Target Framerate: " << commonSettings.desiredFrameRate << " fps" << "\n";
+    args << "Target Stream Bitrate: " << commonSettings.bitrateKB << " kb/s" << "\n\n";
 
     return args.str();
 }

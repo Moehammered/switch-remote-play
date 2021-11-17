@@ -43,91 +43,98 @@ std::string CreateBroadcastAddress(std::string const gateway, std::string const 
     return broadcastAddr.substr(0, broadcastAddr.size() - 1);
 }
 
-bool ScanNetworkConnections(std::string& broadcastAddress)
+bool ScanNetworkConnections(std::string& broadcastAddress, Log& logger)
 {
-    std::cout << "\n---- Network ----\n";
-    std::cout << "Looking for active network interfaces...\n\n";
     NetworkAdapter a{};
     auto activeAdapters = a.ActiveAdapters();
-    //activeAdapters.clear();
-    if (activeAdapters.size() > 1)
-    {
-        std::cout << "Found '" << activeAdapters.size() << "' active network connections... Displaying now\n\n";
-        for (auto const& a : activeAdapters)
-            PrintSimpleAdapterInfo(a);
 
-        std::cout << "\n\n Assuming the main active network is the first one.\n";
-        auto const& adapter = activeAdapters[0];
-        PrintSimpleAdapterInfo(adapter);
-        if (adapter.gatewayAddresses.size() > 0 && adapter.subnetMasks.size() > 0)
-        {
-            auto gateway = std::string(adapter.gatewayAddresses[0].begin(), adapter.gatewayAddresses[0].end());
-            auto broadcastAddr = CreateBroadcastAddress(gateway, adapter.subnetMasks[0]);
-            std::cout << "    Broadcast:   " << broadcastAddr << "\n\n";
-            broadcastAddress = broadcastAddr;
-        }
-        return true;
-    }
-    else if (activeAdapters.size() == 1)
+    if (activeAdapters.size() >= 1)
     {
-        std::cout << "Found an active network connection.\n\n";
+        if (activeAdapters.size() > 1)
+        {
+            logger << "Found '" << activeAdapters.size() << "' active network connections... Displaying now\n\n";
+            for (auto const& a : activeAdapters)
+                PrintSimpleAdapterInfo(a, logger);
+
+            logger << "\n\n Assuming the main active network is the first one.\n";
+        }
         auto const& adapter = activeAdapters[0];
-        PrintSimpleAdapterInfo(adapter);
+        PrintSimpleAdapterInfo(adapter, logger);
         if (adapter.gatewayAddresses.size() > 0 && adapter.subnetMasks.size() > 0)
         {
             auto gateway = std::string(adapter.gatewayAddresses[0].begin(), adapter.gatewayAddresses[0].end());
             auto broadcastAddr = CreateBroadcastAddress(gateway, adapter.subnetMasks[0]);
-            std::cout << "    Broadcast:   " << broadcastAddr << "\n\n";
+            logger << "    Broadcast:   " << transformString(broadcastAddr) << "\n\n";
             broadcastAddress = broadcastAddr;
         }
-        std::cout << "Please make sure your Switch is on the same network as this network connection\n\n";
         return true;
     }
     else
     {
-        std::cout << "!!! No active network connections found !!!\n\n";
-        std::cout << "Please make sure your PC is connected to a network.\n";
-        std::cout << "Also make sure your Switch is connected to the same network!\n\n";
+        logger << LogImportance::High;
+        logger << "!!! No active network connections found !!!\n\n";
+        logger << "Please make sure your PC is connected to a network.\n";
+        logger << "Also make sure your Switch is connected to the same network!\n\n";
 
-        std::cout << "Assuming default broadcast address: " << broadcastAddress << "\n\n";
+        logger << "Assuming default broadcast address: " << transformString(broadcastAddress) << "\n\n";
 
-        std::cout << "If you cannot connect, please check your network connection and try restarting the application\n\n";
+        logger << "If you cannot connect, please check your network connection and try restarting the application\n\n";
 
         return false;
     }
 }
 
-void PrintAdapterName(AdapterInfo const& adapter)
+bool ScanNetworkConnections(std::string& broadcastAddress)
 {
-    using namespace std;
-    wcout << adapter.friendlyName << " ";
-    cout << adapter.name << "\n";
-    wcout << "    " << adapter.description << "\n";
+    NetworkAdapter a{};
+    auto activeAdapters = a.ActiveAdapters();
+
+    if (activeAdapters.size() >= 1)
+    {
+        auto const& adapter = activeAdapters[0];
+        if (adapter.gatewayAddresses.size() > 0 && adapter.subnetMasks.size() > 0)
+        {
+            auto gateway = std::string(adapter.gatewayAddresses[0].begin(), adapter.gatewayAddresses[0].end());
+            auto broadcastAddr = CreateBroadcastAddress(gateway, adapter.subnetMasks[0]);
+            broadcastAddress = broadcastAddr;
+        }
+        return true;
+    }
+    else
+        return false;
 }
 
-void PrintInterfaceInfo(AdapterInfo const& adapter)
+void PrintAdapterName(AdapterInfo const& adapter, Log& logger)
 {
-    using namespace std;
-    cout << "    Connection type:                " << GetInterfaceType(adapter.interfaceType) << "\n";
-    cout << "    Status:                         " << GetStatus(adapter.status) << "\n";
+    logger << adapter.friendlyName << " ";
+    logger << adapter.name << "\n";
+    logger << "    " << adapter.description << "\n";
 }
 
-void PrintSimpleAdapterInfo(AdapterInfo const& adapter)
+void PrintInterfaceInfo(AdapterInfo const& adapter, Log& logger)
 {
-    PrintAdapterName(adapter);
-    PrintInterfaceInfo(adapter);
+    auto interfaceType = transformString(GetInterfaceType(adapter.interfaceType));
+    auto status = transformString(GetStatus(adapter.status));
+    logger << "    Connection type:                " << interfaceType << "\n";
+    logger << "    Status:                         " << status << "\n";
+}
+
+void PrintSimpleAdapterInfo(AdapterInfo const& adapter, Log& logger)
+{
+    PrintAdapterName(adapter, logger);
+    PrintInterfaceInfo(adapter, logger);
     auto tspeed_mbits = adapter.transmitSpeed / 1000 / 1000;
     auto tspeed_mbytes = adapter.transmitSpeed / 8.0 / 1024.0 / 1024.0;
-    std::wcout << "    Max Transmission Speed:         " << tspeed_mbits << " megabits/sec | " << tspeed_mbytes << " megabytes/sec\n";
+    logger << "    Max Transmission Speed:         " << tspeed_mbits << " megabits/sec | " << tspeed_mbytes << " megabytes/sec\n";
     auto rspeed_mbits = adapter.transmitSpeed / 1000 / 1000;
     auto rspeed_mbytes = adapter.transmitSpeed / 8.0 / 1024.0 / 1024.0;
-    std::wcout << "    Max Receive Speed:              " << rspeed_mbits << " megabits/sec | " << rspeed_mbytes << " megabytes/sec\n";
+    logger << "    Max Receive Speed:              " << rspeed_mbits << " megabits/sec | " << rspeed_mbytes << " megabytes/sec\n";
     if (adapter.unicastAddresses.size() > 0)
-        std::wcout << "\n    IP Address:  " << adapter.unicastAddresses[0] << "\n";
+        logger << "\n    IP Address:  " << transformString(adapter.unicastAddresses[0]) << "\n";
     if (adapter.gatewayAddresses.size() > 0)
-        std::wcout << "    Gateway:     " << adapter.gatewayAddresses[0] << "\n";
+        logger << "    Gateway:     " << transformString(adapter.gatewayAddresses[0]) << "\n";
     if (adapter.subnetMasks.size() > 0)
-        std::cout << "    Subnet Mask: " << adapter.subnetMasks[0] << "\n";
+        logger << "    Subnet Mask: " << transformString(adapter.subnetMasks[0]) << "\n";
 }
 
 std::vector<std::string> GetAdapterFlagsInfo(uint64_t flags)
@@ -231,8 +238,16 @@ std::string GetStatus(uint64_t status)
 
 NetworkAdapter::NetworkAdapter()
 {
-    adapters = FindAdapterInfo();
-    FindAdapterSubnetMasks(adapters);
+    auto dummyLogStream = encodedOutputStream{ nullptr };
+    auto dummyLog = Log(dummyLogStream, LogImportance::High);
+    adapters = FindAdapterInfo(dummyLog);
+    FindAdapterSubnetMasks(adapters, dummyLog);
+}
+
+NetworkAdapter::NetworkAdapter(Log& logger)
+{
+    adapters = FindAdapterInfo(logger);
+    FindAdapterSubnetMasks(adapters, logger);
 }
 
 std::vector<AdapterInfo> const NetworkAdapter::ActiveAdapters()
@@ -248,47 +263,46 @@ std::vector<AdapterInfo> const NetworkAdapter::ActiveAdapters()
     return active;
 }
 
-void NetworkAdapter::PrintActiveAdaptersInfo()
+void NetworkAdapter::PrintActiveAdaptersInfo(Log& logger)
 {
-    using namespace std;
     for (auto const& a : adapters)
     {
         if (!IsActive(a.status) || a.interfaceType == IF_TYPE_SOFTWARE_LOOPBACK || a.gatewayAddresses.empty())
             continue;
 
-        cout << "\n\n";
-        PrintAdapterName(a);
-        PrintInterfaceInfo(a);
-        
-        cout << "    Unicast Addresses\n";
-        for (auto const& u : a.unicastAddresses)
-            wcout << "        " << u << "\n";
-        cout << "\n";
+        logger << "\n\n";
+        PrintAdapterName(a, logger);
+        PrintInterfaceInfo(a, logger);
 
-        cout << "    Gateway Addresses\n";
+        logger << "    Unicast Addresses\n";
+        for (auto const& u : a.unicastAddresses)
+            logger << "        " << u << "\n";
+        logger << "\n";
+
+        logger << "    Gateway Addresses\n";
         for (auto const& u : a.gatewayAddresses)
-            wcout << "        " << u << "\n";
-        cout << "\n";
+            logger << "        " << u << "\n";
+        logger << "\n";
 
         auto mtuKB = a.maxTransmissionUnit / 1024.0;
-        wcout << "    Max Transmission Unit :         " << a.maxTransmissionUnit << " bytes | " << mtuKB << " kilobytes\n";
+        logger << "    Max Transmission Unit :         " << a.maxTransmissionUnit << " bytes | " << mtuKB << " kilobytes\n";
         auto tspeed_mbits = a.transmitSpeed / 1000 / 1000;
         auto tspeed_mbytes = a.transmitSpeed / 8.0 / 1024.0 / 1024.0;
-        wcout << "    Transmission Speed:             " << tspeed_mbits << " megabits/sec | " << tspeed_mbytes << " megabytes/sec\n";
+        logger << "    Transmission Speed:             " << tspeed_mbits << " megabits/sec | " << tspeed_mbytes << " megabytes/sec\n";
         auto rspeed_mbits = a.transmitSpeed / 1000 / 1000;
         auto rspeed_mbytes = a.transmitSpeed / 8.0 / 1024.0 / 1024.0;
-        wcout << "    Receive Speed:                  " << rspeed_mbits << " megabits/sec | " << rspeed_mbytes << " megabytes/sec\n";
+        logger << "    Receive Speed:                  " << rspeed_mbits << " megabits/sec | " << rspeed_mbytes << " megabytes/sec\n";
 
-        cout << "\n";
-        cout << "    Adapter Flags\n";
+        logger << "\n";
+        logger << "    Adapter Flags\n";
         auto flags = GetAdapterFlagsInfo(a.flags);
         for (auto const& f : flags)
-            cout << "        " << f << "\n";
-        cout << "\n\n";
+            logger << "        " << transformString(f) << "\n";
+        logger << "\n\n";
     }
 }
 
-std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
+std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo(Log& logger)
 {
     std::vector<AdapterInfo> adapters{};
 
@@ -308,18 +322,18 @@ std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
 
     // Allocate a 15 KB buffer to start with.
     outBufLen = WORKING_BUFFER_SIZE;
-    do 
+    do
     {
         pAddresses = new IP_ADAPTER_ADDRESSES[outBufLen];
-        if (pAddresses == NULL) 
+        if (pAddresses == NULL)
         {
-            printf("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n");
+            logger.Write("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n", LogImportance::High, true);
             return adapters;
         }
 
         dwRetVal = GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
 
-        if (dwRetVal == ERROR_BUFFER_OVERFLOW) 
+        if (dwRetVal == ERROR_BUFFER_OVERFLOW)
         {
             delete[] pAddresses;
             pAddresses = NULL;
@@ -330,12 +344,12 @@ std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
         iterations++;
     } while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (iterations < MAX_TRIES));
 
-    if (dwRetVal == NO_ERROR) 
+    if (dwRetVal == NO_ERROR)
     {
         // If successful, output some information from the data we received
         auto pCurrAddresses = pAddresses;
 
-        while (pCurrAddresses) 
+        while (pCurrAddresses)
         {
             AdapterInfo adapter{};
             adapter.name = std::string{ pCurrAddresses->AdapterName };
@@ -358,7 +372,7 @@ std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
                         WCHAR buff[512]{ 0 };
                         DWORD size = 512;
                         WSAAddressToString(pUnicast->Address.lpSockaddr, pUnicast->Address.iSockaddrLength, nullptr, buff, &size);
-                        
+
                         unicastAddresses.emplace_back(buff);
                         pUnicast = pUnicast->Next;
                     }
@@ -416,7 +430,7 @@ std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
             {
                 auto pDnServer = pCurrAddresses->FirstDnsServerAddress;
                 std::vector<std::wstring> dnsAddresses{};
-                if (pDnServer != nullptr) 
+                if (pDnServer != nullptr)
                 {
                     for (auto i = 0; pDnServer != nullptr; i++)
                     {
@@ -433,28 +447,30 @@ std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
             adapter.dnsSuffix = std::wstring{ pCurrAddresses->DnsSuffix };
 
             std::vector<uint16_t> physicalAddress{};
-            for (auto i = 0; i < (int)pCurrAddresses->PhysicalAddressLength; i++) 
+            for (auto i = 0; i < (int)pCurrAddresses->PhysicalAddressLength; i++)
                 physicalAddress.push_back(pCurrAddresses->PhysicalAddress[i]);
             adapter.physicalAddress = physicalAddress;
-            
+
             pCurrAddresses = pCurrAddresses->Next;
             adapters.push_back(adapter);
         }
     }
-    else 
+    else
     {
-        printf("Call to GetAdaptersAddresses failed with error: %d\n", dwRetVal);
+        logger << LogImportance::High;
+        logger << "Call to GetAdaptersAddresses failed with error: " << dwRetVal << "\n";
         if (dwRetVal == ERROR_NO_DATA)
-            printf("\tNo addresses were found for the requested parameters\n");
-        else 
+            logger.Write("\tNo addresses were found for the requested parameters\n", LogImportance::High, true);
+        else
         {
             LPVOID lpMsgBuf = NULL;
             if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                 FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, dwRetVal, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 // Default language
-                (LPTSTR)&lpMsgBuf, 0, NULL)) {
-                printf("\tError: %s", (LPSTR)lpMsgBuf);
+                (LPTSTR)&lpMsgBuf, 0, NULL)) 
+            {
+                logger << "\tError: " << (LPSTR)lpMsgBuf << "\n";
                 LocalFree(lpMsgBuf);
                 if (pAddresses)
                 {
@@ -471,24 +487,24 @@ std::vector<AdapterInfo> NetworkAdapter::FindAdapterInfo()
     return adapters;
 }
 
-void NetworkAdapter::FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters)
+void NetworkAdapter::FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters, Log& logger)
 {
     ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
     auto pAdapterInfo = new IP_ADAPTER_INFO[ulOutBufLen];
-    if (pAdapterInfo == NULL) 
+    if (pAdapterInfo == NULL)
     {
-        printf("Error allocating memory needed to call GetAdaptersinfo\n");
+        logger.Write("Error allocating memory needed to call GetAdaptersinfo\n", LogImportance::High, true);
         return;
     }
 
-    if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) 
+    if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW)
     {
         delete[] pAdapterInfo;
         pAdapterInfo = nullptr;
         pAdapterInfo = new IP_ADAPTER_INFO[ulOutBufLen];
-        if (pAdapterInfo == nullptr) 
+        if (pAdapterInfo == nullptr)
         {
-            printf("Error allocating memory needed to call GetAdaptersinfo\n");
+            logger.Write("Error allocating memory needed to call GetAdaptersinfo\n", LogImportance::High, true);
             return;
         }
     }
@@ -497,7 +513,7 @@ void NetworkAdapter::FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters)
     if (dwRetVal == NO_ERROR)
     {
         auto pAdapter = pAdapterInfo;
-        while (pAdapter) 
+        while (pAdapter)
         {
             for (auto& adapter : adapters)
             {
@@ -527,8 +543,11 @@ void NetworkAdapter::FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters)
             pAdapter = pAdapter->Next;
         }
     }
-    else 
-        printf("GetAdaptersInfo failed with error: %d\n", dwRetVal);
+    else
+    {
+        logger << LogImportance::High;
+        logger << "GetAdaptersInfo failed with error: " << dwRetVal << "\n";
+    }
 
     if (pAdapterInfo)
     {

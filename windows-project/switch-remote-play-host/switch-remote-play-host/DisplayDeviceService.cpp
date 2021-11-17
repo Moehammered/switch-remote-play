@@ -38,25 +38,25 @@ std::wstring DeviceStateFlagsToStr(DWORD flags)
     return ss.str();
 }
 
-void PrintDisplayDeviceInfo(DisplayDeviceInfo const display)
+void PrintDisplayDeviceInfo(DisplayDeviceInfo const display, Log& logger)
 {
     auto isPrimary = [&] {
         auto mask = display.deviceStateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE;
         return mask == DISPLAY_DEVICE_PRIMARY_DEVICE;
     };
-    std::wcout << display.monitorName << " (" << display.deviceName << ")\n";
-    std::wcout << "    Number: " << display.index;
-    std::wcout << "    Primary: " << (isPrimary() ? "Yes" : "No") << "\n";
-    std::wcout << "    -- Location --\n";
-    std::wcout << "        (x,y): " << display.x << ", " << display.y << "\n";
-    std::wcout << "    -- Resolution --\n";
-    std::wcout << "        (width x height): " << display.width << " x " << display.height << "\n";
-    std::wcout << "    Monitor ID: " << display.monitorID << "\n";
-    std::wcout << "    Monitor Key: " << display.monitorKey << "\n";
-    std::wcout << "    Monitor System Name: " << display.monitorSystemName << "\n\n";
-    std::wcout << "    Display Adapter Info\n";
-    std::wcout << "        Adapter: " << display.interfaceAdapter << "\n";
-    std::wcout << "        Adapter Key: " << display.interfaceAdapterKey << "\n";
+    logger << display.monitorName << " (" << display.deviceName << ")\n";
+    logger << "    Number: " << display.index;
+    logger << "    Primary: " << (isPrimary() ? "Yes" : "No") << "\n";
+    logger << "    -- Location --\n";
+    logger << "        (x,y): " << display.x << ", " << display.y << "\n";
+    logger << "    -- Resolution --\n";
+    logger << "        (width x height): " << display.width << " x " << display.height << "\n";
+    logger << "    Monitor ID: " << display.monitorID << "\n";
+    logger << "    Monitor Key: " << display.monitorKey << "\n";
+    logger << "    Monitor System Name: " << display.monitorSystemName << "\n\n";
+    logger << "    Display Adapter Info\n";
+    logger << "        Adapter: " << display.interfaceAdapter << "\n";
+    logger << "        Adapter Key: " << display.interfaceAdapterKey << "\n";
 }
 
 DisplayDeviceService::DisplayDeviceService()
@@ -69,19 +69,19 @@ DisplayDeviceService::DisplayDeviceService(bool activeOnly)
 {
 }
 
-void DisplayDeviceService::PrintDisplays() const
+void DisplayDeviceService::PrintDisplays(Log& logger) const
 {
     if (devices.size() != 0)
     {
         for (auto const& device : devices)
         {
-            std::wcout << "\n";
-            PrintDisplayDeviceInfo(device);
-            std::wcout << "\n";
+            logger << "\n";
+            PrintDisplayDeviceInfo(device, logger);
+            logger << "\n";
         }
     }
     else
-        std::wcout << "No devices found\n";
+        logger.Write("No devices found\n", LogImportance::High);
 }
 
 std::vector<DisplayDeviceInfo> const DisplayDeviceService::ActiveDisplays() const

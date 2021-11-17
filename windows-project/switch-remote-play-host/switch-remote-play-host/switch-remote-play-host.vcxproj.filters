@@ -217,6 +217,12 @@
     <ClCompile Include="TouchStream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UnicodeStringUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Broadcast.h">
@@ -472,6 +478,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TouchStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UnicodeStringUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

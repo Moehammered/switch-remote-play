@@ -1,6 +1,8 @@
 #pragma once
+#include "Log.h"
 #include <string>
 #include <vector>
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <iphlpapi.h>
 
@@ -27,11 +29,12 @@ struct AdapterInfo
 
 std::vector<std::string> split(std::string const token, std::string const& s);
 std::string CreateBroadcastAddress(std::string const gateway, std::string const subnetMask);
-bool ScanNetworkConnections(std::string& subnet);
+bool ScanNetworkConnections(std::string& broadcastAddress, Log& logger);
+bool ScanNetworkConnections(std::string& broadcastAddress);
 
-void PrintAdapterName(AdapterInfo const & adapter);
-void PrintInterfaceInfo(AdapterInfo const& adapter);
-void PrintSimpleAdapterInfo(AdapterInfo const& adapter);
+void PrintAdapterName(AdapterInfo const & adapter, Log& logger);
+void PrintInterfaceInfo(AdapterInfo const& adapter, Log& logger);
+void PrintSimpleAdapterInfo(AdapterInfo const& adapter, Log& logger);
 std::vector<std::string> GetAdapterFlagsInfo(uint64_t flags);
 std::string GetInterfaceType(uint64_t type);
 std::string GetStatus(uint64_t status);
@@ -40,14 +43,15 @@ class NetworkAdapter
 {
 public:
 	NetworkAdapter();
+	NetworkAdapter(Log& logger);
 
 	std::vector<AdapterInfo> const ActiveAdapters();
-	void PrintActiveAdaptersInfo();
+	void PrintActiveAdaptersInfo(Log& logger);
 	
 private:
 	std::vector<AdapterInfo> adapters;
-	std::vector<AdapterInfo> FindAdapterInfo();
-	void FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters);
+	std::vector<AdapterInfo> FindAdapterInfo(Log& logger);
+	void FindAdapterSubnetMasks(std::vector<AdapterInfo>& adapters, Log& logger);
 
 	bool IsActive(uint64_t status);
 };

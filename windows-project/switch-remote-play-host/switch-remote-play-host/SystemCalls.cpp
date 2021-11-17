@@ -20,21 +20,21 @@ MONITORINFOEX DefaultMonitorInfo()
 	return monitorInfo;
 }
 
-void PrintMonitorInfo(MONITORINFOEX const& monitor)
+void PrintMonitorInfo(MONITORINFOEX const& monitor, Log& logger)
 {
-	std::cout << "\n---- Monitor ----\n";
-	std::cout << "Printing found monitor info...\n";
-	std::wcout << "    " << monitor.szDevice << "\n";
+	logger << "\n---- Monitor ----\n";
+	logger << "Printing found monitor info...\n";
+	logger << "    " << monitor.szDevice << "\n";
 	if (monitor.dwFlags == MONITORINFOF_PRIMARY)
-		std::cout << "        Primary monitor\n";
+		logger << "        Primary monitor\n";
 	else
-		std::cout << "        Secondary monitor\n";
+		logger << "        Secondary monitor\n";
 
-	std::cout << "        Display Area: " << monitor.rcMonitor.left << "," << monitor.rcMonitor.top << " - " << monitor.rcMonitor.right << "," << monitor.rcMonitor.bottom << "\n";
+	logger << "        Display Area: " << monitor.rcMonitor.left << "," << monitor.rcMonitor.top << " - " << monitor.rcMonitor.right << "," << monitor.rcMonitor.bottom << "\n";
 
 	auto const x = monitor.rcMonitor.right - monitor.rcMonitor.left;
 	auto const y = monitor.rcMonitor.bottom - monitor.rcMonitor.top;
-	std::cout << "        Resolution:   " << x << " x " << y << "\n\n";
+	logger << "        Resolution:   " << x << " x " << y << "\n\n";
 }
 
 int ChangeResolution(int width, int height)
@@ -70,40 +70,43 @@ bool ResolutionChangeSuccessful(int const result)
 	return result == DISP_CHANGE_SUCCESSFUL;
 }
 
-void PrintResolutionChangeResult(int const result)
+tstring ResolutionChangeResultString(int const result)
 {
 	switch (result)
 	{
+	default:
+		return transformString("Unknown resolution change result found" + std::to_string(result));
+
 	case DISP_CHANGE_SUCCESSFUL:
-		std::cout << "Resolution changed successfully\n";
+		return transformString("Resolution changed successfully\n");
 		break;
 
 	case DISP_CHANGE_RESTART:
-		std::cout << "Resolution change failed(DISP_CHANGE_RESTART): The computer must be restarted for the graphics mode to work.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_RESTART): The computer must be restarted for the graphics mode to work.\n");
 		break;
 
 	case DISP_CHANGE_FAILED:
-		std::cout << "Resolution change failed(DISP_CHANGE_FAILED): The display driver failed the specified graphics mode.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_FAILED): The display driver failed the specified graphics mode.\n");
 		break;
 
 	case DISP_CHANGE_BADMODE:
-		std::cout << "Resolution change failed(DISP_CHANGE_BADMODE): The graphics mode is not supported.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_BADMODE): The graphics mode is not supported.\n");
 		break;
 
 	case DISP_CHANGE_NOTUPDATED:
-		std::cout << "Resolution change failed(DISP_CHANGE_NOTUPDATED): Unable to write settings to the registry.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_NOTUPDATED): Unable to write settings to the registry.\n");
 		break;
 
 	case DISP_CHANGE_BADFLAGS:
-		std::cout << "Resolution change failed(DISP_CHANGE_BADFLAGS): An invalid set of flags was passed in.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_BADFLAGS): An invalid set of flags was passed in.\n");
 		break;
 
 	case DISP_CHANGE_BADPARAM:
-		std::cout << "Resolution change failed(DISP_CHANGE_BADPARAM): An invalid parameter was passed in. This can include an invalid flag or combination of flags.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_BADPARAM): An invalid parameter was passed in. This can include an invalid flag or combination of flags.\n");
 		break;
 
 	case DISP_CHANGE_BADDUALVIEW:
-		std::cout << "Resolution change failed(DISP_CHANGE_BADDUALVIEW): The settings change was unsuccessful because the system is DualView capable.\n";
+		return transformString("Resolution change failed(DISP_CHANGE_BADDUALVIEW): The settings change was unsuccessful because the system is DualView capable.\n");
 		break;
 	}
 }
@@ -162,7 +165,7 @@ BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType)
 	}
 }
 
-bool WinsockReady()
+bool SocketsReady()
 {
 	WSADATA wsaStateData;
 	auto socketStartup = WSAStartup(MAKEWORD(2, 2), &wsaStateData);
@@ -170,23 +173,49 @@ bool WinsockReady()
 	switch (socketStartup)
 	{
 	case WSASYSNOTREADY:
-		std::cout << "Winsock Error - WSASYSNOTREADY: The underlying network subsystem is not ready for network communication\n";
 		return false;
 
 	case WSAVERNOTSUPPORTED:
-		std::cout << "Winsock Error - WSAVERNOTSUPPORTED: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation\n";
 		return false;
 
 	case WSAEINPROGRESS:
-		std::cout << "Winsock Error - WSAEINPROGRESS: A blocking Windows Sockets 1.1 operation is in progress\n";
 		return false;
 
 	case WSAEPROCLIM:
-		std::cout << "Winsock Error - WSAEPROCLIM: A limit on the number of tasks supported by the Windows Sockets implementation has been reached\n";
 		return false;
 
 	case WSAEFAULT:
-		std::cout << "Winsock Error - WSAEFAULT: The lpWSAData parameter is not a valid pointer\n";
+		return false;
+	}
+
+	return true;
+}
+
+bool SocketsReady(Log& logger)
+{
+	WSADATA wsaStateData;
+	auto socketStartup = WSAStartup(MAKEWORD(2, 2), &wsaStateData);
+
+	switch (socketStartup)
+	{
+	case WSASYSNOTREADY:
+		logger.Write("Winsock Error - WSASYSNOTREADY: The underlying network subsystem is not ready for network communication\n", LogImportance::High, true);
+		return false;
+
+	case WSAVERNOTSUPPORTED:
+		logger.Write("Winsock Error - WSAVERNOTSUPPORTED: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation\n", LogImportance::High, true);
+		return false;
+
+	case WSAEINPROGRESS:
+		logger.Write("Winsock Error - WSAEINPROGRESS: A blocking Windows Sockets 1.1 operation is in progress\n", LogImportance::High, true);
+		return false;
+
+	case WSAEPROCLIM:
+		logger.Write("Winsock Error - WSAEPROCLIM: A limit on the number of tasks supported by the Windows Sockets implementation has been reached\n", LogImportance::High, true);
+		return false;
+
+	case WSAEFAULT:
+		logger.Write("Winsock Error - WSAEFAULT: The lpWSAData parameter is not a valid pointer\n", LogImportance::High, true);
 		return false;
 	}
 
@@ -195,22 +224,15 @@ bool WinsockReady()
 
 bool VirtualControllerDriverAvailable()
 {
-	using namespace std;
-	cout << "\n---- Virtual Controller ----\n";
-	cout << "Testing for correct Virtual Controller driver installation...\n\n";
 	auto client = vigem_alloc();
 
 	if (client == nullptr)
-	{
-		cout << "    Failed to connect to driver" << endl;
 		return false;
-	}
-	cout << "    Client allocation successful.\n";
+
 	const auto result = vigem_connect(client);
 	if (!VIGEM_SUCCESS(result))
 	{
 		vigem_free(client);
-		cout << "    Virtual Controller connection failed with error code: 0x" << std::hex << result << endl;
 		return false;
 	}
 
@@ -220,7 +242,6 @@ bool VirtualControllerDriverAvailable()
 
 	if (!VIGEM_SUCCESS(pluginEvent))
 	{
-		cout << "    Virtual Controller plugin failed with error code: 0x" << std::hex << pluginEvent << endl;
 		vigem_disconnect(client);
 		vigem_free(client);
 		vigem_target_free(pad);
@@ -228,17 +249,74 @@ bool VirtualControllerDriverAvailable()
 		return false;
 	}
 
-	cout << "    Successfully created, connected, and plugged in a virtual PS4 controller. Cleaning up now...\n";
 	DS4_REPORT state{};
 	ZeroMemory(&state, sizeof(DS4_REPORT));
 	DS4_REPORT_INIT(&state);
 
-	this_thread::sleep_for(chrono::duration<int, milli>(1000));
+	std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
 	auto unplugEvent = vigem_target_remove(client, pad);
 	if (!VIGEM_SUCCESS(unplugEvent))
 	{
 		vigem_target_free(pad);
-		cout << "    Virtual Controller unplug failed with error code: 0x" << std::hex << unplugEvent << endl;
+		vigem_disconnect(client);
+		vigem_free(client);
+
+		return false;
+	}
+
+	vigem_disconnect(client);
+	vigem_free(client);
+	return true;
+}
+
+bool VirtualControllerDriverAvailable(Log& logger)
+{
+	logger << "\n---- Virtual Controller ----\n";
+	logger << "Testing for correct Virtual Controller driver installation...\n\n";
+	auto client = vigem_alloc();
+
+	if (client == nullptr)
+	{
+		logger.Write("    Failed to connect to driver.\n", LogImportance::High);
+		return false;
+	}
+	logger << "    Client allocation successful.\n";
+	const auto result = vigem_connect(client);
+	if (!VIGEM_SUCCESS(result))
+	{
+		vigem_free(client);
+		logger << LogImportance::High;
+		logger << "    Virtual Controller connection failed with error code: 0x" << std::hex << result << "\n";
+		return false;
+	}
+
+	auto pad = vigem_target_ds4_alloc();
+
+	const auto pluginEvent = vigem_target_add(client, pad);
+
+	if (!VIGEM_SUCCESS(pluginEvent))
+	{
+		logger << LogImportance::High;
+		logger << "    Virtual Controller plugin failed with error code: 0x" << std::hex << pluginEvent << "\n";
+		vigem_disconnect(client);
+		vigem_free(client);
+		vigem_target_free(pad);
+
+		return false;
+	}
+
+	logger << "    Successfully created, connected, and plugged in a virtual PS4 controller. Cleaning up now...\n";
+	DS4_REPORT state{};
+	ZeroMemory(&state, sizeof(DS4_REPORT));
+	DS4_REPORT_INIT(&state);
+
+	std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(1000));
+	auto unplugEvent = vigem_target_remove(client, pad);
+	if (!VIGEM_SUCCESS(unplugEvent))
+	{
+		vigem_target_free(pad);
+		logger << LogImportance::High;
+		logger << "    Virtual Controller unplug failed with error code: 0x" << std::hex << unplugEvent << "\n";
 		vigem_disconnect(client);
 		vigem_free(client);
 
@@ -252,11 +330,17 @@ bool VirtualControllerDriverAvailable()
 
 bool StartupTouchContext()
 {
+	return InitializeTouchInjection(5, TOUCH_FEEDBACK_INDIRECT) == TRUE;
+}
+
+bool StartupTouchContext(Log& logger)
+{
 	auto result = InitializeTouchInjection(5, TOUCH_FEEDBACK_INDIRECT);
 	if (result == FALSE)
 	{
 		auto err = GetLastError();
-		std::cout << "Failed to initialise touch injection context with error code: " << err << "\n\n";
+		logger << LogImportance::High;
+		logger << "Failed to initialise touch injection context with error code: " << err << "\n\n";
 	}
 
 	return result == TRUE;

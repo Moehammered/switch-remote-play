@@ -1,9 +1,10 @@
 #pragma once
 
-#include "srp/network/NetworkData.h"
+#include "Log.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
 #include "InputStream.h"
+#include "srp/network/NetworkData.h"
 #include <iostream>
 #include <string>
 #include <thread>
@@ -12,7 +13,7 @@
 #include <Windows.h>
 #include <winsock2.h>
 
-CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket);
+CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket, Log& logger);
 
 std::thread StartGamepadListener(DisplayDeviceInfo const sessionDisplay, 
     VirtualDesktop const desktop,

@@ -1,4 +1,5 @@
 #pragma once
+#include "Log.h"
 #include <vector>
 #include <string>
 
@@ -20,7 +21,7 @@ struct DisplayDeviceInfo
     std::wstring interfaceAdapterKey;
 };
 
-void PrintDisplayDeviceInfo(DisplayDeviceInfo const display);
+void PrintDisplayDeviceInfo(DisplayDeviceInfo const display, Log& logger);
 
 class DisplayDeviceService
 {
@@ -28,7 +29,7 @@ public:
     DisplayDeviceService();
     DisplayDeviceService(bool activeOnly);
 
-    void PrintDisplays() const;
+    void PrintDisplays(Log& logger) const;
     std::vector<DisplayDeviceInfo> const ActiveDisplays() const;
     DisplayDeviceInfo const PrimaryDisplay() const;
 

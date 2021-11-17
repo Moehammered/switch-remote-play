@@ -37,28 +37,29 @@ namespace
 
 }
 
-CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket)
+CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket, Log& logger)
 {
-    std::cout << "Expected size of command payload: " << commandPayloadSize << " bytes" << std::endl;
+    auto const commandSizeStr = std::to_string(commandPayloadSize);
+    logger.Write("Expected size of command payload: " + commandSizeStr + " bytes\n", LogImportance::Low);
 
     CommandPayload data{};
     char* readBuffer = (char*)(&data);
     int retryCount = 3;
 
-    std::cout << "Reading command..." << std::endl;
+    logger.Write("Reading command...\n", LogImportance::Low);
 
     do
     {
         auto result = recv(switchSocket, readBuffer, commandPayloadSize, 0);
         if (result == SOCKET_ERROR)
         {
-            std::cout << "Failed to receive data" << std::endl;
+            logger.Write("Failed to receive data\n", LogImportance::High);
             --retryCount;
             data.commandCode = retryCount <= 0 ? Command::SHUTDOWN : Command::IGNORE_COMMAND;
         }
         else if (result == 0) //once the switch closes the command socket, this will hit
         {
-            std::cout << "breaking as switch closed connection" << std::endl;
+            logger.Write("breaking as switch closed connection\n", LogImportance::Low);
             return data;
         }
         else

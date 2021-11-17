@@ -1,4 +1,5 @@
 #pragma once
+#include "Log.h"
 #include "Broadcast.h"
 #include "Connection.h"
 #include <vector>
@@ -15,22 +16,25 @@ extern Connection* switchCommandListener;
 
 MONITORINFOEX DefaultMonitorInfo();
 
-void PrintMonitorInfo(MONITORINFOEX const& monitor);
+void PrintMonitorInfo(MONITORINFOEX const& monitor, Log& logger);
 
 int ChangeResolution(int width, int height);
 int ChangeResolution(std::wstring device, int width, int height);
 bool ResolutionChangeSuccessful(int const result);
-void PrintResolutionChangeResult(int const result);
+tstring ResolutionChangeResultString(int const result);
 
 void StopStreamProcesses();
 
 BOOL WINAPI ConsoleWindowEventHandler(DWORD eventType);
 
-bool WinsockReady();
+bool SocketsReady();
+bool SocketsReady(Log& logger);
 
 bool VirtualControllerDriverAvailable();
+bool VirtualControllerDriverAvailable(Log& logger);
 
 bool StartupTouchContext();
+bool StartupTouchContext(Log& logger);
 
 std::string GetLastErrorAsString();
 
