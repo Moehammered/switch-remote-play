@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UnicodeStringUtility.h"
+#include <stdint.h>
 #include <string>
 #include <ostream>
 
@@ -22,9 +23,10 @@ public:
     void Write(std::wstring const str, LogImportance level);
     void Write(std::wstring const str, LogImportance level, bool timestamp);
 
-    encodedOutputStream& operator<<(std::string const& str);
-    encodedOutputStream& operator<<(std::wstring const & str);
-    encodedOutputStream& operator<<(LogImportance const level);
+    Log& operator<<(uint64_t const num);
+    Log& operator<<(std::string const& str);
+    Log& operator<<(std::wstring const & str);
+    Log& operator<<(LogImportance const level);
 
 private:
     encodedOutputStream& outputStream;

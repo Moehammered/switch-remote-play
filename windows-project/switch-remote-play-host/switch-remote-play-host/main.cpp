@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 
         if (ipFound && handshake.Ready())
         {
-            logger << "Connecting to: " << transformString(switchIP) << std::endl;
+            logger << "Connecting to: " << transformString(switchIP) << "\n";
             if (handshake.ConnectTo(switchIP))
             {
                 auto response = send(handshake.ConnectedSocket(), replyKey.c_str(), replyKey.length(), 0);

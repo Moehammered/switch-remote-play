@@ -1,5 +1,6 @@
 #include "Log.h"
 #include "DateTimeUtility.h"
+#include <filesystem>
 
 Log::Log(encodedOutputStream& stream, LogImportance logFilter, bool logToFile)
     : outputStream{ stream }, dummyStream{ nullptr }, fileStream{},
@@ -7,9 +8,14 @@ Log::Log(encodedOutputStream& stream, LogImportance logFilter, bool logToFile)
 {
     if (logToFile)
     {
+        auto const directory = std::string{ "logs" };
+        if (!std::filesystem::exists(directory))
+            std::filesystem::create_directory(directory);
+
         auto const timestamp = DateToFileName(LocalDateTime());
         auto filename = "log_" + timestamp + ".txt";
-        fileStream = encodedOutputFile{ filename, std::ios::app | std::ios::out };
+        auto const path = directory + "/" + filename;
+        fileStream = encodedOutputFile{ path, std::ios::app | std::ios::out };
     }
 }
 
@@ -67,7 +73,12 @@ void Log::Write(std::wstring const str, LogImportance level, bool timestamp)
     }
 }
 
-encodedOutputStream& Log::operator<<(std::string const& str)
+Log& Log::operator<<(uint64_t const num)
+{
+    return (*this) << std::to_string(num);
+}
+
+Log& Log::operator<<(std::string const& str)
 {
     if (streamLevel >= minimumLevel)
     {
@@ -75,15 +86,13 @@ encodedOutputStream& Log::operator<<(std::string const& str)
 
         outputStream << transformed;
         if (fileStream.is_open())
-            fileStream << transformed << "\n";
-
-        return outputStream;
+            fileStream << transformed;
     }
-    else
-        return dummyStream;
+
+    return *this;
 }
 
-encodedOutputStream& Log::operator<<(std::wstring const& str)
+Log& Log::operator<<(std::wstring const& str)
 {
     if (streamLevel >= minimumLevel)
     {
@@ -91,19 +100,14 @@ encodedOutputStream& Log::operator<<(std::wstring const& str)
 
         outputStream << transformed;
         if (fileStream.is_open())
-            fileStream << transformed << "\n";
-
-        return outputStream;
+            fileStream << transformed;
     }
-    else
-        return dummyStream;
+
+    return *this;
 }
 
-encodedOutputStream& Log::operator<<(LogImportance const level)
+Log& Log::operator<<(LogImportance const level)
 {
     streamLevel = level;
-    if (streamLevel >= minimumLevel)
-        return outputStream;
-    else
-        return dummyStream;
+    return *this;
 }

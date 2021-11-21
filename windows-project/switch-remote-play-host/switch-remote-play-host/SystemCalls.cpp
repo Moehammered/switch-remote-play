@@ -271,6 +271,18 @@ bool VirtualControllerDriverAvailable()
 
 bool VirtualControllerDriverAvailable(Log& logger)
 {
+	auto toHex = [](auto num)
+	{
+		auto const bufferSize = 9;
+		char buffer[bufferSize]{ 0 };
+
+		auto length = sprintf_s(buffer, bufferSize, "%x", num);
+		for(auto i = length; i < bufferSize; ++i)
+			buffer[i] = '\0';
+
+		return std::string{ buffer, buffer+length };
+	};
+
 	logger << "\n---- Virtual Controller ----\n";
 	logger << "Testing for correct Virtual Controller driver installation...\n\n";
 	auto client = vigem_alloc();
@@ -284,9 +296,10 @@ bool VirtualControllerDriverAvailable(Log& logger)
 	const auto result = vigem_connect(client);
 	if (!VIGEM_SUCCESS(result))
 	{
+		auto hexCode = toHex(result);
 		vigem_free(client);
 		logger << LogImportance::High;
-		logger << "    Virtual Controller connection failed with error code: 0x" << std::hex << result << "\n";
+		logger << "    Virtual Controller connection failed with error code: 0x" << hexCode << "\n";
 		return false;
 	}
 
@@ -296,8 +309,9 @@ bool VirtualControllerDriverAvailable(Log& logger)
 
 	if (!VIGEM_SUCCESS(pluginEvent))
 	{
+		auto hexCode = toHex(pluginEvent);
 		logger << LogImportance::High;
-		logger << "    Virtual Controller plugin failed with error code: 0x" << std::hex << pluginEvent << "\n";
+		logger << "    Virtual Controller plugin failed with error code: 0x" << hexCode << "\n";
 		vigem_disconnect(client);
 		vigem_free(client);
 		vigem_target_free(pad);
@@ -314,9 +328,10 @@ bool VirtualControllerDriverAvailable(Log& logger)
 	auto unplugEvent = vigem_target_remove(client, pad);
 	if (!VIGEM_SUCCESS(unplugEvent))
 	{
+		auto hexCode = toHex(unplugEvent);
 		vigem_target_free(pad);
 		logger << LogImportance::High;
-		logger << "    Virtual Controller unplug failed with error code: 0x" << std::hex << unplugEvent << "\n";
+		logger << "    Virtual Controller unplug failed with error code: 0x" << hexCode << "\n";
 		vigem_disconnect(client);
 		vigem_free(client);
 
