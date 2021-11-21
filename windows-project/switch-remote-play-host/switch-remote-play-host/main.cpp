@@ -11,6 +11,7 @@
 #include "MasterVolume.h"
 #include "NetworkAdapter.h"
 #include "FfmpegOutputConfiguration.h"
+#include "GeneralProgramConfiguration.h"
 #include "NetworkConfiguration.h"
 #include "DisplayDeviceService.h"
 #include "VirtualDesktop.h"
@@ -45,6 +46,7 @@ std::string ExtractParentDirectory(const char* executablePath)
 int main(int argc, char* argv[])
 {
     SetParentDirectory(ExtractParentDirectory(argv[0]));
+    auto const programConfiguration = GeneralProgramConfiguration().Data();
 
     auto logger = Log(std::wcout, LogImportance::Low);
     auto const stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -63,7 +65,7 @@ int main(int argc, char* argv[])
     {
         auto appver = transformString(applicationVersion);
         auto welcomeMessage = "Switch Remote Play Host \\(^.^)/ (PC Application version - " + appver + ")\n\n";
-        logger.Write(welcomeMessage, LogImportance::High, true);
+        logger.Write(welcomeMessage, LogImportance::High);
     }
     
     StartupTouchContext(logger);
@@ -230,7 +232,6 @@ int main(int argc, char* argv[])
             connection.Close();
         }
 
-        auto muteOnConnect = false;
         auto ffmpegStarted = false;
         auto audioStarted = false;
         auto displayService = DisplayDeviceService(true);
@@ -325,11 +326,11 @@ int main(int argc, char* argv[])
                         killStream,
                         gamepadActive,
                         startupNetworkSettings.gamepadPort);
-#ifdef RELEASE
-                    if (IsWindowVisible(GetConsoleWindow()))
+
+                    if (programConfiguration.minimiseOnConnect && IsWindowVisible(GetConsoleWindow()))
                         ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
-#endif
-                    if (muteOnConnect)
+
+                    if (programConfiguration.muteOnConnect)
                     {
                         originalMuteState = masterVolume.IsMuted();
                         masterVolume.Mute(true);
@@ -345,37 +346,46 @@ int main(int argc, char* argv[])
         }
 
         // wait here for the stream to change state
-        logger.Write("Waiting for gamepad thread to shutdown...\n", LogImportance::Low, true);
+        logger.Write("Waiting for gamepad thread to shutdown...\n\n", LogImportance::Low, true);
         while (gamepadActive.load(std::memory_order_acquire))
             std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(500));
 
         if (gamepadThread.joinable())
             gamepadThread.join();
 
-        logger.Write("Making sure to kill stream...\n", LogImportance::Low, true);
+        logger.Write("Making sure to kill stream...\n\n", LogImportance::Low, true);
         killStream.store(true, std::memory_order_release);
 
-        logger.Write("Terminating the FFMPEG process\n", LogImportance::Low, true);
+        logger.Write("Terminating the FFMPEG process\n\n", LogImportance::Low, true);
         StopStreamProcesses();
 
-        logger.Write("Stream stopped\n", LogImportance::Low);
+        logger.Write("Stream stopped\n\n", LogImportance::Low);
 
-        logger.Write("Resetting resolution\n", LogImportance::Low);
+        logger.Write("Resetting resolution\n\n", LogImportance::Low);
         ChangeResolution(currentDisplay.monitorSystemName, initialWidth, initialHeight);
 
-        logger.Write("Restoring audio mute state\n", LogImportance::Low);
-        masterVolume.Mute(originalMuteState);
+        if (programConfiguration.restoreMuteOnDisconnect)
+        {
+            logger.Write("Restoring audio mute state\n\n", LogImportance::Low);
+            masterVolume.Mute(originalMuteState);
+        }
+
+        if (programConfiguration.restoreOnDisconnect)
+        {
+            logger.Write("Restoring console window\n\n", LogImportance::Low);
+            ShowWindow(GetConsoleWindow(), SW_RESTORE);
+        }
 
     } while (lastCommand != Command::CLOSE_SERVER && lastCommand != Command::SHUTDOWN);
 
-    logger.Write("Making sure to kill stream...\n", LogImportance::Low, true);
+    logger.Write("Making sure to kill stream...\n\n", LogImportance::Low, true);
     killStream.store(true, std::memory_order_release);
 
-    logger.Write("Terminating the FFMPEG process\n", LogImportance::Low, true);
+    logger.Write("Terminating the FFMPEG process\n\n", LogImportance::Low, true);
     StopStreamProcesses();
 
     // wait here for the gamepad to close
-    logger.Write("Waiting for gamepad thread to shutdown...\n", LogImportance::Low, true);
+    logger.Write("Waiting for gamepad thread to shutdown...\n\n", LogImportance::Low, true);
     while (gamepadActive.load(std::memory_order_acquire))
         std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(500));
 

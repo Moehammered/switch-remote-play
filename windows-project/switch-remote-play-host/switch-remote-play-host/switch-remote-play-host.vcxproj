@@ -219,6 +219,8 @@
     <ClCompile Include="FfmpegOutputConfiguration.cpp" />
     <ClCompile Include="FfmpegOutputOptions.cpp" />
     <ClCompile Include="FileOperations.cpp" />
+    <ClCompile Include="GeneralProgramConfiguration.cpp" />
+    <ClCompile Include="GeneralProgramOptions.cpp" />
     <ClCompile Include="InputStream.cpp" />
     <ClCompile Include="KeyboardEnumUtil.cpp" />
     <ClCompile Include="KeyboardStream.cpp" />
@@ -305,6 +307,8 @@
     <ClInclude Include="FfmpegOutputConfiguration.h" />
     <ClInclude Include="FfmpegOutputOptions.h" />
     <ClInclude Include="FileOperations.h" />
+    <ClInclude Include="GeneralProgramConfiguration.h" />
+    <ClInclude Include="GeneralProgramOptions.h" />
     <ClInclude Include="InputStream.h" />
     <ClInclude Include="Interpolation.h" />
     <ClInclude Include="KeyboardStream.h" />

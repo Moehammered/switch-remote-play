@@ -226,6 +226,12 @@
     <ClCompile Include="DateTimeUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneralProgramOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneralProgramConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Broadcast.h">
@@ -490,6 +496,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DateTimeUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneralProgramOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneralProgramConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
