@@ -2,17 +2,34 @@
 #define __UNICODESTRINGUTILITY_H__
 
 #include <string>
+#include <fstream>
 #include <ostream>
+#include <iostream>
 
 std::string const utf16ToUtf8(std::wstring const wstr);
 std::wstring const utf8ToUtf16(std::string const str);
 
 #ifdef UNICODE
 typedef std::wostream encodedOutputStream;
+typedef std::wofstream encodedOutputFile;
 typedef std::wstring tstring;
+
+inline
+encodedOutputStream& encodedConsoleRef()
+{
+    return std::wcout;
+}
+
 #else
 typedef std::ostream encodedOutputStream;
+typedef std::ofstream encodedOutputFile;
 typedef std::string tstring;
+
+inline
+encodedOutputStream& encodedConsoleRef()
+{
+    return std::cout;
+}
 #endif
 
 template<typename sourceType>

@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     SetParentDirectory(ExtractParentDirectory(argv[0]));
     auto const programConfiguration = GeneralProgramConfiguration().Data();
 
-    auto logger = Log(std::wcout, LogImportance::Low);
+    auto logger = Log(encodedConsoleRef(), LogImportance::Low, programConfiguration.logToFile);
     auto const stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     auto const defaultColour = 0 | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN;
 

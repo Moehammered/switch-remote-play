@@ -15,7 +15,7 @@ enum LogImportance
 class Log
 {
 public:
-    Log(encodedOutputStream& stream, LogImportance logFilter);
+    Log(encodedOutputStream& stream, LogImportance logFilter, bool logToFile);
 
     void Write(std::string const str, LogImportance level);
     void Write(std::string const str, LogImportance level, bool timestamp);
@@ -29,6 +29,7 @@ public:
 private:
     encodedOutputStream& outputStream;
     encodedOutputStream dummyStream;
+    encodedOutputFile fileStream;
     LogImportance minimumLevel;
     LogImportance streamLevel;
 };

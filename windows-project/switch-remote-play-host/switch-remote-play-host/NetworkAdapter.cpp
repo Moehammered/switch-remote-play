@@ -239,7 +239,7 @@ std::string GetStatus(uint64_t status)
 NetworkAdapter::NetworkAdapter()
 {
     auto dummyLogStream = encodedOutputStream{ nullptr };
-    auto dummyLog = Log(dummyLogStream, LogImportance::High);
+    auto dummyLog = Log(dummyLogStream, LogImportance::High, false);
     adapters = FindAdapterInfo(dummyLog);
     FindAdapterSubnetMasks(adapters, dummyLog);
 }

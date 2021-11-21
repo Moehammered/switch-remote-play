@@ -23,6 +23,7 @@ namespace general
         values[ProgramParameters::MuteOnConnect] = boolToYes(config.muteOnConnect);
         values[ProgramParameters::RestoreOnDisconnect] = boolToYes(config.restoreOnDisconnect);
         values[ProgramParameters::RestoreMuteOnDisconnect] = boolToYes(config.restoreMuteOnDisconnect);
+        values[ProgramParameters::LogToFile] = boolToYes(config.logToFile);
 
         return values;
     }
@@ -44,6 +45,7 @@ namespace general
         parseBool(ProgramParameters::MuteOnConnect, config.muteOnConnect, DefaultMuteOnConnect);
         parseBool(ProgramParameters::RestoreOnDisconnect, config.restoreOnDisconnect, DefaultRestoreOnDisconnect);
         parseBool(ProgramParameters::RestoreMuteOnDisconnect, config.restoreMuteOnDisconnect, DefaultRestoreMuteOnDisconnect);
+        parseBool(ProgramParameters::LogToFile, config.logToFile, DefaultLogToFile);
 
         return config;
     }

@@ -11,7 +11,8 @@ namespace general
         MinimiseOnConnect,
         MuteOnConnect,
         RestoreOnDisconnect,
-        RestoreMuteOnDisconnect
+        RestoreMuteOnDisconnect,
+        LogToFile
     };
 
     static std::unordered_map<ProgramParameters, std::string> const ProgramParametersDesc
@@ -19,13 +20,15 @@ namespace general
         { ProgramParameters::MinimiseOnConnect, "Minimise on Connect" },
         { ProgramParameters::MuteOnConnect, "Mute PC on Connect" },
         { ProgramParameters::RestoreOnDisconnect, "Restore Window on Disconnect" },
-        { ProgramParameters::RestoreMuteOnDisconnect, "Restore PC Mute State on Disconnect" }
+        { ProgramParameters::RestoreMuteOnDisconnect, "Restore PC Mute State on Disconnect" },
+        { ProgramParameters::LogToFile, "Log to File" }
     };
 
     auto constexpr DefaultMinimiseOnConnect = true;
     auto constexpr DefaultMuteOnConnect = true;
     auto constexpr DefaultRestoreOnDisconnect = false;
     auto constexpr DefaultRestoreMuteOnDisconnect = false;
+    auto constexpr DefaultLogToFile = false;
 
     struct GeneralProgramConfig
     {
@@ -33,6 +36,7 @@ namespace general
         bool muteOnConnect;
         bool restoreOnDisconnect;
         bool restoreMuteOnDisconnect;
+        bool logToFile;
     };
 
     auto constexpr GeneralProgramConfigSize = sizeof(GeneralProgramConfig);
