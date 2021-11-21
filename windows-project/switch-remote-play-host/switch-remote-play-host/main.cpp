@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     {
         auto appver = transformString(applicationVersion);
         auto welcomeMessage = "Switch Remote Play Host \\(^.^)/ (PC Application version - " + appver + ")\n\n";
-        logger.Write(welcomeMessage, LogImportance::High);
+        logger.Write(welcomeMessage, LogImportance::High, true);
     }
     
     StartupTouchContext(logger);

@@ -211,6 +211,7 @@
     <ClCompile Include="Broadcast.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="ControllerStream.cpp" />
+    <ClCompile Include="DateTimeUtility.cpp" />
     <ClCompile Include="DisplayDeviceService.cpp" />
     <ClCompile Include="DS4Controller.cpp" />
     <ClCompile Include="FfmpegArgParser.cpp" />
@@ -295,6 +296,7 @@
     <ClInclude Include="Broadcast.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ControllerStream.h" />
+    <ClInclude Include="DateTimeUtility.h" />
     <ClInclude Include="DeadzoneUtility.h" />
     <ClInclude Include="DisplayDeviceService.h" />
     <ClInclude Include="DS4Controller.h" />
@@ -369,6 +371,9 @@
     <CopyFileToFolders Include="network.ini">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="custom-analysis-rules.ruleset" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

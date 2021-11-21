@@ -223,6 +223,9 @@
     <ClCompile Include="UnicodeStringUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DateTimeUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Broadcast.h">
@@ -486,6 +489,9 @@
     <ClInclude Include="UnicodeStringUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DateTimeUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="ffmpeg.exe" />
@@ -566,5 +572,8 @@
     <ResourceCompile Include="switch-remote-play-host.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="custom-analysis-rules.ruleset" />
   </ItemGroup>
 </Project>

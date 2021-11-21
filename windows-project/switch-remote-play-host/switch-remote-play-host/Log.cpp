@@ -1,4 +1,5 @@
 #include "Log.h"
+#include "DateTimeUtility.h"
 
 Log::Log(encodedOutputStream& stream, LogImportance logFilter)
     : outputStream{ stream }, dummyStream{ nullptr },
@@ -16,7 +17,11 @@ void Log::Write(std::string const str, LogImportance level, bool timestamp)
     if (level >= minimumLevel)
     {
         if (timestamp)
-            outputStream << "timestamp here\n";
+        {
+            auto const dateTime = LocalDateTime();
+            auto timestamp = DateToFileName(dateTime);
+            outputStream << transformString(timestamp) << "\n";
+        }
 
         outputStream << transformString(str);
     }
@@ -32,7 +37,11 @@ void Log::Write(std::wstring const str, LogImportance level, bool timestamp)
     if (level >= minimumLevel)
     {
         if (timestamp)
-            outputStream << "timestamp here\n";
+        {
+            auto const dateTime = LocalDateTime();
+            auto timestamp = DateToFileName(dateTime);
+            outputStream << transformString(timestamp) << "\n";
+        }
 
         outputStream << transformString(str);
     }
