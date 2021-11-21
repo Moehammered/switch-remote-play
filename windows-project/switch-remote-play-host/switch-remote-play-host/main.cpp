@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     SetParentDirectory(ExtractParentDirectory(argv[0]));
     auto const programConfiguration = GeneralProgramConfiguration().Data();
 
-    auto logger = Log(encodedConsoleRef(), LogImportance::Low, programConfiguration.logToFile);
+    auto logger = Log(encodedConsoleRef(), programConfiguration.logImportanceThreshold, programConfiguration.logToFile);
     auto const stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     auto const defaultColour = 0 | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN;
 
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     }
 
     SetConsoleTextAttribute(stdHandle, FOREGROUND_GREEN);
-    logger << LogImportance::Low;
+    logger << LogImportance::Medium;
     if (VirtualControllerDriverAvailable(logger))
         logger << "\n    Virtual Controller driver seems to be installed correctly.\n\n";
     else
@@ -206,8 +206,8 @@ int main(int argc, char* argv[])
     auto masterVolume = MasterVolume{};
     auto originalMuteState = masterVolume.IsMuted();
 
+    logger.Write("---- Connection ----\n", LogImportance::Medium);
     logger << LogImportance::Low;
-    logger << "---- Connection ----\n";
     do
     {
         killStream.store(false, std::memory_order_release);

@@ -35,7 +35,7 @@ void Log::Write(std::string const str, LogImportance level, bool timestamp)
             auto transformedTimestamp = transformString(timestamp);
 
             outputStream << transformedTimestamp << "\n";
-            if(fileStream.is_open())
+            if (fileStream.is_open())
                 fileStream << transformedTimestamp << "\n";
         }
 

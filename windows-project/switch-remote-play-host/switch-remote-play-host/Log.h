@@ -1,17 +1,10 @@
 #pragma once
 
 #include "UnicodeStringUtility.h"
+#include "LogImportanceOptions.h"
 #include <stdint.h>
 #include <string>
 #include <ostream>
-
-enum LogImportance
-{
-    Verbose,
-    Low,
-    Medium,
-    High
-};
 
 class Log
 {
@@ -25,7 +18,7 @@ public:
 
     Log& operator<<(uint64_t const num);
     Log& operator<<(std::string const& str);
-    Log& operator<<(std::wstring const & str);
+    Log& operator<<(std::wstring const& str);
     Log& operator<<(LogImportance const level);
 
 private:

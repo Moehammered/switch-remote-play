@@ -229,6 +229,7 @@
     <ClCompile Include="KeyboardEnumUtil.cpp" />
     <ClCompile Include="KeyboardStream.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="LogImportanceOptions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MasterVolume.cpp" />
     <ClCompile Include="MouseStream.cpp" />
@@ -317,6 +318,7 @@
     <ClInclude Include="Interpolation.h" />
     <ClInclude Include="KeyboardStream.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="LogImportanceOptions.h" />
     <ClInclude Include="MouseStream.h" />
     <ClInclude Include="TouchInterface.h" />
     <ClInclude Include="KeyboardEnumUtil.h" />

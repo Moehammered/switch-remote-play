@@ -232,6 +232,9 @@
     <ClCompile Include="GeneralProgramConfiguration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LogImportanceOptions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Broadcast.h">
@@ -502,6 +505,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneralProgramConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogImportanceOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

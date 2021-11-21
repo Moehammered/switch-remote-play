@@ -24,6 +24,7 @@ namespace general
         values[ProgramParameters::RestoreOnDisconnect] = boolToYes(config.restoreOnDisconnect);
         values[ProgramParameters::RestoreMuteOnDisconnect] = boolToYes(config.restoreMuteOnDisconnect);
         values[ProgramParameters::LogToFile] = boolToYes(config.logToFile);
+        values[ProgramParameters::LogImportanceThreshold] = LogImportanceToStr(config.logImportanceThreshold);
 
         return values;
     }
@@ -46,6 +47,16 @@ namespace general
         parseBool(ProgramParameters::RestoreOnDisconnect, config.restoreOnDisconnect, DefaultRestoreOnDisconnect);
         parseBool(ProgramParameters::RestoreMuteOnDisconnect, config.restoreMuteOnDisconnect, DefaultRestoreMuteOnDisconnect);
         parseBool(ProgramParameters::LogToFile, config.logToFile, DefaultLogToFile);
+
+        auto parseLogImportance = [&](auto const param, auto& member, auto const defaultValue)
+        {
+            auto entry = map.find(param);
+            if (entry != map.end())
+                member = LogImportanceFromStr(entry->second);
+            else
+                member = defaultValue;
+        };
+        parseLogImportance(ProgramParameters::LogImportanceThreshold, config.logImportanceThreshold, DefaultLogImportanceThreshold);
 
         return config;
     }
