@@ -2,7 +2,7 @@
 #define __STREAMHELPER_H__
 
 #include "../ScreenRenderer.h"
-#include "../MainScreen.h"
+#include "../MenuSelection.h"
 #include "../stream/StreamState.h"
 #include "../stream/LiveStream.h"
 #include "../network/NetworkDiscovery.h"

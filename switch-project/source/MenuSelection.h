@@ -1,5 +1,5 @@
-#ifndef __MAINSCREEN_H__
-#define __MAINSCREEN_H__
+#ifndef __MENUSELECTION_H__
+#define __MENUSELECTION_H__
 
 #include "ui/Menu.h"
 #include "ui/HelpMenu.h"

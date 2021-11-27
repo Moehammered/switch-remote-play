@@ -1,4 +1,4 @@
-#include "MainScreen.h"
+#include "MenuSelection.h"
 #include "utils/Colours.h"
 #include <iostream>
 
@@ -9,14 +9,14 @@ namespace
 
     enum MenuScreen : int32_t
     {
-        HELP,
-        DECODER_CONFIG,
-        ENCODER_CONFIG,
-        CONTROLLER,
-        IP_SET,
-        TOUCH_MENU,
-        MOUSE_MENU,
-        KEYBOARD_MENU,
+        ENCODER_SCREEN,
+        CONTROLLER_SCREEN,
+        MOUSE_SCREEN,
+        TOUCH_SCREEN,
+        KEYBOARD_SCREEN,
+        NETWORK_SCREEN,
+        DECODER_SCREEN,
+        HELP_SCREEN,
         COUNT
     };
 }
@@ -25,18 +25,18 @@ MenuSelection::MenuSelection() : Menu(),
     controlsText{},hostConnectionText{}, 
     streamPendingText{}, helpScreen{},
     encoderScreen{}, networkScreen{},
-    menus{}, selectedMenu{KEYBOARD_MENU}, 
+    menus{}, selectedMenu{ENCODER_SCREEN}, 
     newDecoderMenu{}, newControllerMenu{},
     touchMenu{}, mouseMenu{}, keyboardMenu{}
 {
-    menus[MenuScreen::HELP] = &helpScreen;
-    menus[MenuScreen::DECODER_CONFIG] = &newDecoderMenu;
-    menus[MenuScreen::CONTROLLER] = &newControllerMenu;
-    menus[MenuScreen::ENCODER_CONFIG] = &encoderScreen;
-    menus[MenuScreen::IP_SET] = &networkScreen;
-    menus[MenuScreen::TOUCH_MENU] = &touchMenu;
-    menus[MenuScreen::MOUSE_MENU] = &mouseMenu;
-    menus[MenuScreen::KEYBOARD_MENU] = &keyboardMenu;
+    menus[MenuScreen::HELP_SCREEN] = &helpScreen;
+    menus[MenuScreen::DECODER_SCREEN] = &newDecoderMenu;
+    menus[MenuScreen::CONTROLLER_SCREEN] = &newControllerMenu;
+    menus[MenuScreen::ENCODER_SCREEN] = &encoderScreen;
+    menus[MenuScreen::NETWORK_SCREEN] = &networkScreen;
+    menus[MenuScreen::TOUCH_SCREEN] = &touchMenu;
+    menus[MenuScreen::MOUSE_SCREEN] = &mouseMenu;
+    menus[MenuScreen::KEYBOARD_SCREEN] = &keyboardMenu;
 
     title.x = 400; title.y = 5;
     title.colour = colours::green;

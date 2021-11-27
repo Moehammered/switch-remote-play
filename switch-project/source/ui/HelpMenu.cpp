@@ -9,9 +9,7 @@ auto constexpr networkPage =
 
 auto constexpr streamPage = 
 "- Hold '+' for more than 3 seconds to close the stream.\n\
-- Hold 'ZL+ZR+B' or touch the screen for 3 seconds to toggle mouse/ps4 controller.\n\
-- Favor lower desktop resolution to reduce latency.\n\
-- You can mute your PC and audio will still stream to the switch.\
+- Favor lower desktop resolution to reduce latency.\
 ";
 
 HelpMenu::HelpMenu() : Menu(), pages{}, currentPageHeader{}, selectedPage{0}
