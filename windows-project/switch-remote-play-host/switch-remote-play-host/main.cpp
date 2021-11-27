@@ -207,6 +207,7 @@ int main(int argc, char* argv[])
     auto originalMuteState = masterVolume.IsMuted();
 
     logger.Write("---- Connection ----\n", LogImportance::Medium);
+    logger.Write("Ready for the Switch to connect...\n\n", LogImportance::High);
     logger << LogImportance::Low;
     do
     {

@@ -420,6 +420,7 @@ std::string CreateDiagnosticOutput(std::vector<POINTER_TOUCH_INFO> const& contac
 	return ss.str();
 }
 
+#ifndef RELEASE
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include <CommCtrl.h>
 #include <shellapi.h>
@@ -483,3 +484,4 @@ void minimiseToTray(HWND hWnd)
 			std::cout << "Destroyed Icon\n";
 	}
 }
+#endif

@@ -2,6 +2,11 @@
 #include <iostream>
 #include <WS2tcpip.h>
 
+namespace
+{
+    auto constexpr PortInUseErrorNo = 10048;
+}
+
 Connection::Connection(uint16_t port)
     :   listeningSocket{INVALID_SOCKET},
         connectedSocket{INVALID_SOCKET},
@@ -23,7 +28,16 @@ Connection::Connection(uint16_t port)
     result = bind(serverSocket, (const sockaddr*)&serverAddr, sizeof(serverAddr));
     if (result == SOCKET_ERROR)
     {
-        std::cout << "Failed to bind socket: " << WSAGetLastError() << std::endl;
+        auto errNo = WSAGetLastError();
+        if (errNo == PortInUseErrorNo)
+        {
+            std::cout << "Connection setup issue:\n";
+            std::cout << "    Port " << port << " is already in use by another program. Please change it to something else and try again.\n";
+            std::cout << "      Note: Make sure to update the port settings on the Switch application too.\n\n";
+
+        }
+        else
+            std::cout << "Failed to bind socket: " << errNo << std::endl;
         closesocket(serverSocket);
     }
 

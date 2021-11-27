@@ -2,6 +2,11 @@
 #include <iostream>
 #include <ws2tcpip.h>
 
+namespace
+{
+    auto constexpr PortInUseErrorNo = 10048;
+}
+
 Broadcast::Broadcast(std::string subnet, uint16_t port)
     : broadcastSocket{ INVALID_SOCKET }, receiverSocket{ INVALID_SOCKET },
       broadcastAddr{0}, receiveAddr{0}
@@ -43,7 +48,16 @@ Broadcast::Broadcast(std::string subnet, uint16_t port)
         auto bindRes = bind(receiveSock, (const sockaddr*)&recvAddr, sizeof(recvAddr));
         if (bindRes == SOCKET_ERROR)
         {
-            std::cout << "Failed to bind receiving socket: " << WSAGetLastError() << std::endl;
+            auto errNo = WSAGetLastError();
+            if (errNo == PortInUseErrorNo)
+            {
+                std::cout << "Broadcast setup issue:\n";
+                std::cout << "    Port " << port << " is already in use by another program. Please change it to something else and try again.\n";
+                std::cout << "      Note: Make sure to update the port settings on the Switch application too.\n\n";
+
+            }
+            else
+                std::cout << "Failed to bind receiving socket: " << errNo << std::endl;
             closesocket(receiveSock);
         }
         else
