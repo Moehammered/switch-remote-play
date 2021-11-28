@@ -32,7 +32,7 @@ You can also visit the [gbatemp release thread](https://gbatemp.net/threads/swit
 - [x] Multiple controller support
 - [x] Touch screen emulate mouse support
 - [ ] Controller gyro support
-- ~~[ ] Controller rumble support~~
+- [ ] ~~Controller rumble support~~
 
 ## Switch-Project
 
