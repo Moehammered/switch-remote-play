@@ -29,10 +29,10 @@ You can also visit the [gbatemp release thread](https://gbatemp.net/threads/swit
 - [x] Toggle Input Mode to Xbox controller
 - [x] Rich configuration options for h264 CPU encoder
 - [x] Rich configuration options for h264 AMF encoder (AMD hardware encoder)
-- [ ] Multiple controller support
-- [ ] Touch screen emulate mouse support
+- [x] Multiple controller support
+- [x] Touch screen emulate mouse support
 - [ ] Controller gyro support
-- [ ] Controller rumble support
+- ~~[ ] Controller rumble support~~
 
 ## Switch-Project
 
