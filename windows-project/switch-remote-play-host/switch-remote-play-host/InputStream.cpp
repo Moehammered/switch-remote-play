@@ -12,8 +12,8 @@ InputStream::InputStream(TouchStream& touchStream,
                         KeyboardStream& keyboardStream,
                         ControllerStream& controllerStream,
                         mouse::MouseConfig const mouseConfig,
-                        int64_t mouseFrameNanoTime,
-                        int64_t keyboardFrameNanoTime)
+                        uint64_t mouseFrameNanoTime,
+                        uint64_t keyboardFrameNanoTime)
     : touchStream{ touchStream },
     mouseStream{ mouseStream },
     keyboardStream{ keyboardStream },

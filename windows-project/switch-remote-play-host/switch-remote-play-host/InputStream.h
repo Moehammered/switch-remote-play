@@ -16,8 +16,8 @@ public:
             KeyboardStream& keyboardStream,
             ControllerStream& controllerStream,
             mouse::MouseConfig const mouseConfig,
-            int64_t mouseFrameNanoTime,
-            int64_t keyboardFrameNanoTime);
+            uint64_t mouseFrameNanoTime,
+            uint64_t keyboardFrameNanoTime);
 
     void Run(uint64_t const socket, std::atomic_bool & gamepadActive, int32_t const maxRetries);
 
@@ -27,10 +27,10 @@ private:
     KeyboardStream& keyboardStream;
     ControllerStream& controllerStream;
     bool mouseMode;
-    int64_t const mouseFrameNanoTime;
-    int64_t const keyboardFrameNanoTime;
-    int64_t const mouseToggleNanoTime;
-    uint32_t const mouseToggleBtnCombo;
+    uint64_t const mouseFrameNanoTime;
+    uint64_t const keyboardFrameNanoTime;
+    uint64_t const mouseToggleNanoTime;
+    uint64_t const mouseToggleBtnCombo;
 
     int32_t ReadStream(uint64_t const socket, char* const buffer, size_t const size);
 };

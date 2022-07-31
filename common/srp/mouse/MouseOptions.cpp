@@ -124,7 +124,7 @@ namespace mouse
             {
                 auto secondsStr = entry->second;
                 auto const seconds = std::atof(secondsStr.c_str());
-                auto const nanoseconds = (uint32_t)timeutil::secondToNano(seconds);
+                auto const nanoseconds = timeutil::secondToNano(seconds);
                 config.mouseModeToggleTime = std::clamp(nanoseconds, minMouseModeToggleTime, maxMouseModeToggleTime);
             }
             else

@@ -94,7 +94,7 @@ namespace controller
             {
                 auto secondsStr = entry->second;
                 auto const seconds = std::atof(secondsStr.c_str());
-                auto const nanoseconds = (uint32_t)timeutil::secondToNano(seconds);
+                auto const nanoseconds = timeutil::secondToNano(seconds);
                 data.homeButtonTriggerTime = std::clamp(nanoseconds, minHomeButtonTriggerTime, maxHomeButtonTriggerTime);
             }
             else

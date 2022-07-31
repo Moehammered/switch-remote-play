@@ -41,15 +41,16 @@ namespace controller
         { ControllerParameters::ControllerCount, "Controller Count" }
     };
 
-    struct alignas(4) ControllerConfig
+    struct alignas(8) ControllerConfig
     {
         ControllerMode      controllerMode;
         ControllerButtonMap controllerMap;
         ControllerAnalogMap leftAnalogMap;
         ControllerAnalogMap rightAnalogMap;
-        uint32_t            homeButton;
-        uint32_t            homeButtonTriggerTime;
+        uint64_t            homeButton;
+        uint64_t            homeButtonTriggerTime;
         int16_t             controllerCount;
+        int8_t              padding[6];
     };
 
     auto constexpr controllerConfigSize = sizeof(controller::ControllerConfig);
@@ -57,10 +58,10 @@ namespace controller
     auto constexpr defaultMode = ControllerMode::X360;
     auto constexpr defaultButtonMap = ControllerButtonMap::None;
     auto constexpr defaultAnalogMap = ControllerAnalogMap::None;
-    uint32_t constexpr defaultHomeButton = HidNpadButton_StickL;
-    uint32_t constexpr minHomeButtonTriggerTime = timeutil::secondToNano(0.1);
-    uint32_t constexpr maxHomeButtonTriggerTime = timeutil::secondToNano(4.0);
-    uint32_t constexpr defaultHomeButtonTriggerTime = timeutil::secondToNano(1.0);
+    uint64_t constexpr defaultHomeButton = HidNpadButton_StickL;
+    uint64_t constexpr minHomeButtonTriggerTime = timeutil::secondToNano(0.1);
+    uint64_t constexpr maxHomeButtonTriggerTime = timeutil::secondToNano(4.0);
+    uint64_t constexpr defaultHomeButtonTriggerTime = timeutil::secondToNano(1.0);
 
     int16_t constexpr defaultControllerCount = 1;
     int16_t constexpr maxControllerCount = 4;

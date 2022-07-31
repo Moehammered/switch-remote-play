@@ -37,8 +37,8 @@ bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
 {
     static_assert(commandCodeSize == 2);
     static_assert(encoderConfigSize == 40);
-    static_assert(controller::controllerConfigSize == 20);
-    static_assert(commandPayloadSize == 264);
+    static_assert(controller::controllerConfigSize == 32);
+    static_assert(commandPayloadSize == 440);
 
     char* dataPtr = (char*)&payload;
 

@@ -39,10 +39,23 @@ enum Command : int16_t
 
 auto constexpr commandCodeSize = sizeof(Command);
 
-auto constexpr PayloadPaddingSize = 264 - encoderConfigSize 
-    - commandCodeSize - controller::controllerConfigSize
-    - mouse::mouseConfigSize - touch::touchConfigSize 
-    - keyboard::keyboardConfigSize;
+auto constexpr PayloadPropertySizeSum = encoderConfigSize 
+    + commandCodeSize + controller::controllerConfigSize
+    + mouse::mouseConfigSize + touch::touchConfigSize 
+    + keyboard::keyboardConfigSize;
+
+size_t constexpr determinePaddingSize(int const alignment, int const size)
+{
+    auto nextSize = 0;
+    do
+    {
+        nextSize += alignment;
+    } while (nextSize < size);
+    
+    return nextSize - size;
+}
+
+auto constexpr PayloadPaddingSize = determinePaddingSize(8, PayloadPropertySizeSum);
 
 struct alignas(8) CommandPayload
 {
@@ -53,11 +66,13 @@ struct alignas(8) CommandPayload
     keyboard::KeyboardConfig        keyboardData;
     touch::TouchConfig              touchData;
     Command                         commandCode;
-    //fill the struct to pad it out to 264 bytes
+    //fill the struct to pad it out to next alignment of bytes
     int8_t                          padding[PayloadPaddingSize];
 };
 
 auto constexpr commandPayloadSize = sizeof(CommandPayload);
+
+void printCommandPayload(CommandPayload const& payload);
 
 struct TouchState
 {
@@ -79,7 +94,7 @@ auto constexpr touchPayloadSize = sizeof(TouchPayload);
 
 struct alignas(8) GamepadDataPayload
 {
-    uint32_t keys;
+    uint64_t keys;
     int32_t ljx, ljy;
     int32_t rjx, rjy;
     HidVector gryo;

@@ -29,7 +29,7 @@
 				"-s",
 				"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro",
 				"-a",
-				"192.168.0.17"
+				"192.168.20.14"
 			],
 			"options": {
 				"cwd": "C:/mingw-w64/switch"

@@ -8,7 +8,7 @@
 
 namespace keyboard
 {
-    enum class KeyParameter : int32_t
+    enum class KeyParameter : int64_t
     {
         Control,
         OSKey,
@@ -65,10 +65,10 @@ namespace keyboard
         { KeyParameter::RightArrow, "RightArrow" }
     };
 
-    struct alignas(4) KeyboardBinding
+    struct alignas(8) KeyboardBinding
     {
         KeyParameter  key;
-        uint32_t button;
+        uint64_t button;
     };
 
     auto constexpr keyboardBindingSize = sizeof(KeyboardBinding);
@@ -85,7 +85,7 @@ namespace keyboard
         { KeyParameter::RightArrow, HidNpadButton::HidNpadButton_Right }
     };
 
-    struct alignas(4) KeyboardConfig
+    struct alignas(8) KeyboardConfig
     {
         KeyboardBinding bindings[totalSupportedKeys];
     };

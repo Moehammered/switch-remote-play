@@ -63,17 +63,23 @@ namespace padutility
     std::unordered_map<HidDeviceTypeBits, std::string> const DeviceTypeMap
     {
         { HidDeviceTypeBits::HidDeviceTypeBits_FullKey, "Pro/GC Controller" },
-        { HidDeviceTypeBits::HidDeviceTypeBits_Unknown1, "Unknown Controller" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_DebugPad, "Debug Controller" },
         { HidDeviceTypeBits::HidDeviceTypeBits_HandheldLeft, "Handheld Left" },
         { HidDeviceTypeBits::HidDeviceTypeBits_HandheldRight, "Handheld Right" },
         { HidDeviceTypeBits::HidDeviceTypeBits_JoyLeft, "JoyCon Left" },
         { HidDeviceTypeBits::HidDeviceTypeBits_JoyRight, "JoyCon Right" },
         { HidDeviceTypeBits::HidDeviceTypeBits_Palma, "Pokeball Plus Controller" },
-        { HidDeviceTypeBits::HidDeviceTypeBits_LarkLeftHVC, "Famicom Left" },
-        { HidDeviceTypeBits::HidDeviceTypeBits_LarkRightHVC, "Famicom Right" },
-        { HidDeviceTypeBits::HidDeviceTypeBits_LarkLeftNES, "NES Left" },
-        { HidDeviceTypeBits::HidDeviceTypeBits_LarkRightNES, "NES Right" },
-        { HidDeviceTypeBits::HidDeviceTypeBits_SystemExt, "Generic External Controller" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_LarkHvcLeft, "Famicom Left" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_LarkHvcRight, "Famicom Right" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_LarkNesLeft, "NES Left" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_LarkNesRight, "NES Right" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_HandheldLarkHvcLeft, "Famicom Left Handheld" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_HandheldLarkHvcRight, "Famicom Right Handheld" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_HandheldLarkNesLeft, "NES Left Handheld" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_HandheldLarkNesRight, "NES Right Handheld" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_Lucia, "SNES Controller" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_Lagon, "N64 Controller" },
+        { HidDeviceTypeBits::HidDeviceTypeBits_Lager, "Sega Genesis Controller" },
         { HidDeviceTypeBits::HidDeviceTypeBits_System, "Generic Controller" }
     };
 

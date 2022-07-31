@@ -8,7 +8,7 @@
 
 namespace controller
 {
-    enum class AnalogStick
+    enum class AnalogStick : int32_t
     {
         Left,
         Right

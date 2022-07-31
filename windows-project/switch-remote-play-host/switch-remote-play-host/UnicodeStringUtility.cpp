@@ -2,55 +2,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-#ifdef UNICODE
-template<> tstring transformString(std::string const str)
-{
-    return utf8ToUtf16(str);
-}
-
-template<>
-tstring transformString(std::wstring const wstr)
-{
-    return wstr;
-}
-
-template<>
-tstring transformString(const char* cstr)
-{
-    return transformString(std::string{ cstr });
-}
-
-template<>
-tstring transformString(const wchar_t* wcstr)
-{
-    return std::wstring{ wcstr };
-}
-#else
-template<>
-tstring transformString(std::string const str)
-{
-    return str;
-}
-
-template<>
-tstring transformString(std::wstring const wstr)
-{
-    return utf16ToUtf8(wstr);
-}
-
-template<>
-tstring transformString(const char* cstr)
-{
-    return std::string{ cstr };
-}
-
-template<>
-tstring transformString(const wchar_t* wcstr)
-{
-    return transformString(std::wstring{ wcstr });
-}
-#endif
-
 std::string const utf16ToUtf8(std::wstring const wstr)
 {
     auto sizeNeeded = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wstr.c_str(), wstr.size(), 0, 0, NULL, NULL);
@@ -82,3 +33,47 @@ std::wstring const utf8ToUtf16(std::string const str)
     else
         return std::wstring{};
 }
+
+#ifdef UNICODE
+tstring transformString(std::string const str)
+{
+    return utf8ToUtf16(str);
+}
+
+tstring transformString(std::wstring const wstr)
+{
+    return wstr;
+}
+
+tstring transformString(const char* cstr)
+{
+    return transformString(std::string{ cstr });
+}
+
+tstring transformString(const wchar_t* wcstr)
+{
+    return std::wstring{ wcstr };
+}
+
+#else
+tstring transformString(std::string const str)
+{
+    return str;
+}
+
+tstring transformString(std::wstring const wstr)
+{
+    return utf16ToUtf8(wstr);
+}
+
+tstring transformString(const char* cstr)
+{
+    return std::string{ cstr };
+}
+
+tstring transformString(const wchar_t* wcstr)
+{
+    return transformString(std::wstring{ wcstr });
+}
+
+#endif

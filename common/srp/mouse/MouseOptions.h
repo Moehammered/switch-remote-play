@@ -48,24 +48,25 @@ namespace mouse
     int16_t constexpr minMouseSensitivity = 3;
     int16_t constexpr defaultMouseSensitivity = 5;
     controller::AnalogStick constexpr defaultMouseWheelAnalog = controller::AnalogStick::Right;
-    uint32_t constexpr defaultMouseModeToggleKey = HidNpadButton_Minus;
-    uint32_t constexpr minMouseModeToggleTime = timeutil::secondToNano(0.1);
-    uint32_t constexpr maxMouseModeToggleTime = timeutil::secondToNano(4);
-    uint32_t constexpr defaultMouseModeToggleTime = timeutil::secondToNano(2);
+    uint64_t constexpr defaultMouseModeToggleKey = HidNpadButton_Minus;
+    uint64_t constexpr minMouseModeToggleTime = timeutil::secondToNano(0.1);
+    uint64_t constexpr maxMouseModeToggleTime = timeutil::secondToNano(4);
+    uint64_t constexpr defaultMouseModeToggleTime = timeutil::secondToNano(2);
 
-    struct alignas(4) MouseConfig
+    struct alignas(8) MouseConfig
     {
         HidNpadButton               leftClickButton;
         HidNpadButton               rightClickButton;
         HidNpadButton               middleClickButton;
-        int16_t                     mouseSensitivity;
+        int32_t                     mouseSensitivity;
         controller::AnalogStick     mouseWheelAnalog;
-        uint32_t                    mouseModeToggleKey;
-        uint32_t                    mouseModeToggleTime;
+        uint64_t                    mouseModeToggleKey;
+        uint64_t                    mouseModeToggleTime;
         bool                        mouseOnConnect;
+        int8_t                      padding[7];
     };
-    
-    int32_t constexpr mouseConfigSize = sizeof(MouseConfig);
+
+    auto constexpr mouseConfigSize = sizeof(MouseConfig);
 
     std::unordered_map<MouseParameters, std::string> const mouseParamsToStr(MouseConfig const config);
     MouseConfig const mouseParamsFromStr(std::unordered_map<MouseParameters, std::string> const & map);

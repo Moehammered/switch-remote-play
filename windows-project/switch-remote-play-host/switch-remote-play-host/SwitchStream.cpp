@@ -48,9 +48,10 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket, Log& logger)
 
     logger.Write("Reading command...\n", LogImportance::Low);
 
+    auto lastRead = 0;
     do
     {
-        auto result = recv(switchSocket, readBuffer, commandPayloadSize, 0);
+        auto result = recv(switchSocket, readBuffer+lastRead, commandPayloadSize-lastRead, 0);
         if (result == SOCKET_ERROR)
         {
             logger.Write("Failed to receive data\n", LogImportance::High);
@@ -63,9 +64,12 @@ CommandPayload ReadPayloadFromSwitch(SOCKET const& switchSocket, Log& logger)
             return data;
         }
         else
-            return data;
-    } while (retryCount > 0);
+        {
+            lastRead += result;
+        }
+    } while (retryCount > 0 && lastRead < commandPayloadSize);
 
+    logger.Write("read " + std::to_string(lastRead) + " bytes...\n", LogImportance::Low);
     return data;
 }
 

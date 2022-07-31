@@ -32,25 +32,12 @@ encodedOutputStream& encodedConsoleRef()
 }
 #endif
 
-template<typename sourceType>
-tstring transformString(sourceType const str)
-{
-    static_assert(false, "Invalid creation of transform function detected. Use only wstring or string.");
-    return tstring{};
-}
+tstring transformString(std::string const str);
+tstring transformString(std::wstring const wstr);
+tstring transformString(const char* cstr);
+tstring transformString(const wchar_t* wcstr);
 
 #ifdef UNICODE
-template<>
-tstring transformString(std::string const str);
-
-template<>
-tstring transformString(std::wstring const wstr);
-
-template<>
-tstring transformString(const char * cstr);
-
-template<>
-tstring transformString(const wchar_t* wcstr);
 
 inline
 tstring operator+(const char* cstr, std::wstring const wstr)
@@ -65,16 +52,9 @@ tstring operator+(std::wstring const wstr, const char* cstr)
 }
 
 #else
-template<>
 tstring transformString(std::string const str);
-
-template<>
 tstring transformString(std::wstring const wstr);
-
-template<>
 tstring transformString(const char* cstr);
-
-template<>
 tstring transformString(const wchar_t* wcstr);
 
 inline

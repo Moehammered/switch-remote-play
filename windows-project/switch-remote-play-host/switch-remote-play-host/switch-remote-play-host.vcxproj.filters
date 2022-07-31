@@ -235,6 +235,9 @@
     <ClCompile Include="LogImportanceOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\common\srp\network\NetworkData.cpp">
+      <Filter>Common Files\srp\network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Broadcast.h">

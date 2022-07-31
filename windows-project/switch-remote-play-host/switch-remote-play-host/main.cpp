@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     }
 
     {
-        auto appver = transformString(applicationVersion);
+        auto appver = transformString(std::string{ applicationVersion });
         auto welcomeMessage = "Switch Remote Play Host \\(^.^)/ (PC Application version - " + appver + ")\n\n";
         logger.Write(welcomeMessage, LogImportance::High);
     }
@@ -209,6 +209,7 @@ int main(int argc, char* argv[])
     logger.Write("---- Connection ----\n", LogImportance::Medium);
     logger.Write("Ready for the Switch to connect...\n\n", LogImportance::High);
     logger << LogImportance::Low;
+
     do
     {
         killStream.store(false, std::memory_order_release);
@@ -254,6 +255,7 @@ int main(int argc, char* argv[])
             if (ipFound)
             {
                 logger.Write("Start stream with last received config from switch...\n\n", LogImportance::Low);
+                printCommandPayload(lastPayload);
                 auto const encoderConfigData = lastPayload.encoderData;
                 logger.Write("FFMPEG Configuration: \n" + transformString(ConfigToString(encoderConfigData)) + "\n", LogImportance::Low);
 
