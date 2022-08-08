@@ -3,7 +3,7 @@
 
 #include "StreamState.h"
 #include "VideoStream.h"
-#include "PcmStream.h"
+#include "AudioStream.h"
 #include "StreamDecoder.h"
 #include "srp/decoder/DecoderOptions.h"
 #include <functional>
@@ -32,8 +32,9 @@ public:
     void Cleanup();
 
 private:
+    uint16_t const audioPort;
     VideoStream videoStream;
-    PcmStream audioStream;
+    AudioStream audioStream;
     StreamDecoder* streamDecoder;
     AVPacket streamPacket;
 };

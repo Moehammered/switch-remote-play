@@ -1,7 +1,11 @@
 #include "LiveStream.h"
 
 LiveStream::LiveStream(uint16_t const audioPort)
-    : videoStream{}, audioStream{audioPort}, streamDecoder{nullptr}, streamPacket{0}
+    : audioPort{audioPort}, 
+    videoStream{}, 
+    audioStream{}, 
+    streamDecoder{nullptr}, 
+    streamPacket{0}
 {
 }
 
@@ -11,11 +15,14 @@ bool LiveStream::Startup(DecoderData const decoderConfig, uint16_t const videoPo
     {
         auto streamInfo = videoStream.StreamInfo();
         if(streamDecoder != nullptr)
+        {
+            streamDecoder->Cleanup();
             delete streamDecoder;
+        }
 
         streamDecoder = new StreamDecoder(streamInfo->codecpar);
-        if(audioStream.Ready() && !audioStream.Running())
-            audioStream.Start();
+        if(!audioStream.Running())
+            audioStream.Start(audioPort);
 
         streamPacket = AVPacket{0};
         return true;

@@ -44,7 +44,7 @@ ScreenRenderer::~ScreenRenderer()
 
 bool ScreenRenderer::Initialise(unsigned short width, unsigned short height, bool vSync)
 {
-    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     {
         std::cout << "Failed to initialise SDL. SDL ERROR: " << SDL_GetError() << std::endl;
         return false;

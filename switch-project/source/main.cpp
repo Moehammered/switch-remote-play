@@ -143,8 +143,7 @@ int main(int argc, char **argv)
         }
     }
 
-    SDL_Quit();
-
+    std::cout << "shutting down stream state and cleaning up livestream\n";
     //wait here if the stream is still on so we can clean it up properly
     if(streamState.load() == StreamState::ACTIVE)
     {
@@ -154,11 +153,14 @@ int main(int argc, char **argv)
         liveStream.Cleanup();
     }
     
+    std::cout << "shutting down network broadcaster\n";
     network.Shutdown();
 
     if(gamepadThread.joinable())
         gamepadThread.join();
 
+    std::cout << "quitting SDL\n";
+    SDL_Quit();
     auto libnxRes = audoutStopAudioOut();
     if(!R_SUCCEEDED(libnxRes))
         std::cout << "Failed to call audoutStopAudioOut with result: " << libnxRes << std::endl;

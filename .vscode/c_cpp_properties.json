@@ -43,11 +43,10 @@
                 "_UNICODE",
                 "__SWITCH__"
             ],
-            "windowsSdkVersion": "",
             "compilerPath": "C:/mingw-w64/x86_64-8.1.0-posix-sjlj-rt_v6-rev0/mingw64/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "linux-gcc-arm64",
+            "intelliSenseMode": "gcc-x64",
             "compilerArgs": [],
             "browse": {
                 "path": [
