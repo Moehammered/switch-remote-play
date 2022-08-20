@@ -61,6 +61,7 @@ bool LiveStream::Run(frameRenderDelegate const frameDataCallback)
         streamDecoder->Flush();
         streamDecoder->Cleanup();
         videoStream.Cleanup();
+        audioStream.Shutdown();
         delete streamDecoder;
         streamDecoder = nullptr;
 

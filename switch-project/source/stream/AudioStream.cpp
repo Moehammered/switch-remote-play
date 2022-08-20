@@ -31,7 +31,7 @@ namespace
         return id;
     }
 
-    void readAudioStream(uint32_t const handle, uint8_t * buffer, int const length)
+    void readAudioStream(uint32_t const& handle, uint8_t * buffer, int const length)
     {
         //do stream read here
         if(handle <= 0 || buffer == nullptr || length <= 0)
@@ -90,7 +90,7 @@ bool AudioStream::Start(uint16_t const port)
         desiredAudio.freq = 44100;
         desiredAudio.channels = 2;
         desiredAudio.format = AUDIO_S16LSB;
-        desiredAudio.samples = 1024;
+        desiredAudio.samples = 8192;
         desiredAudio.callback = fillAudioBuffer;
         desiredAudio.userdata = &audioSocket;
         audioDeviceID = initialiseAudioDevice(desiredAudio);
@@ -116,11 +116,16 @@ void AudioStream::Shutdown()
     if(audioSocket <= 0)
         return;
 
+    std::cout << "Closed audio device. Shutting down audio socket " << audioSocket << "...\n\n";
     shutdown(audioSocket, SHUT_RDWR);
     close(audioSocket);
+    audioSocket = 0;
+    std::cout << "Pausing audioDeviceID " << audioDeviceID << "...\n\n";
+    SDL_PauseAudioDevice(audioDeviceID, 1);
     SDL_CloseAudioDevice(audioDeviceID);
     audioDeviceID = 0;
-    audioSocket = 0;
+
+    std::cout << "AudioStream shutdown...\n\n";
 }
 
 int32_t AudioStream::createSocket(uint16_t const port)
