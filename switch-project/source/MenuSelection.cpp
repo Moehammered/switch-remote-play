@@ -14,6 +14,7 @@ namespace
         MOUSE_SCREEN,
         TOUCH_SCREEN,
         KEYBOARD_SCREEN,
+        AUDIO_SCREEN,
         NETWORK_SCREEN,
         DECODER_SCREEN,
         HELP_SCREEN,
@@ -27,7 +28,8 @@ MenuSelection::MenuSelection() : Menu(),
     encoderScreen{}, networkScreen{},
     menus{}, selectedMenu{ENCODER_SCREEN}, 
     newDecoderMenu{}, newControllerMenu{},
-    touchMenu{}, mouseMenu{}, keyboardMenu{}
+    touchMenu{}, mouseMenu{}, keyboardMenu{},
+    audioMenu{}
 {
     menus[MenuScreen::HELP_SCREEN] = &helpScreen;
     menus[MenuScreen::DECODER_SCREEN] = &newDecoderMenu;
@@ -37,6 +39,7 @@ MenuSelection::MenuSelection() : Menu(),
     menus[MenuScreen::TOUCH_SCREEN] = &touchMenu;
     menus[MenuScreen::MOUSE_SCREEN] = &mouseMenu;
     menus[MenuScreen::KEYBOARD_SCREEN] = &keyboardMenu;
+    menus[MenuScreen::AUDIO_SCREEN] = &audioMenu;
 
     title.x = 400; title.y = 5;
     title.colour = colours::green;

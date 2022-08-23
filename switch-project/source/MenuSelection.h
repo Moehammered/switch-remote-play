@@ -10,6 +10,7 @@
 #include "ui/TouchMenu.h"
 #include "ui/MouseMenu.h"
 #include "ui/KeyboardMenu.h"
+#include "ui/AudioMenu.h"
 #include "network/NetworkDiscovery.h"
 #include "utils/ConfigHelper.h"
 #include <string>
@@ -61,6 +62,7 @@ class MenuSelection : public Menu
         TouchMenu touchMenu;
         MouseMenu mouseMenu;
         KeyboardMenu keyboardMenu;
+        AudioMenu audioMenu;
 };
 
 #endif

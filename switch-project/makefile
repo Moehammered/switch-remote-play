@@ -46,14 +46,15 @@ SOURCES		:=	source source/network source/ui \
 				../common/srp/codec/general ../common/srp/utils ../common/srp/ffmpegHelpers \
 				../common/srp/codec ../common/srp/codec/h264 ../common/srp/codec/h264_amf \
 				../common/srp/decoder ../common/srp/controller ../common/srp/mouse \
-				../common/srp/touch ../common/srp/keyboard ../common/srp/network
+				../common/srp/touch ../common/srp/keyboard ../common/srp/network \
+				../common/srp/audio
 DATA		:=	data
 INCLUDES	:=	include ../common
 ROMFS		:=	romfs
 APP_TITLE	:=	switch-remote-play
 APP_AUTHOR	:=	Moehammered
 ICON		:=	switch-remote-play-icon.jpg
-APP_VERSION	:=	1.1.1
+APP_VERSION	:=	1.1.2
 
 #---------------------------------------------------------------------------------
 # options for code generation

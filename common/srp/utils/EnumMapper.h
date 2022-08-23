@@ -37,7 +37,7 @@ std::string enumToStr(std::unordered_map<e, std::string> const& map, e val)
 }
 
 template<typename e>
-e strToEnum(std::unordered_map<std::string, e> const& map, std::string str)
+e strToEnum(std::unordered_map<std::string, e> const& map, std::string const str)
 {
     if (map.size() == 0)
         return (e)0;
@@ -52,7 +52,7 @@ e strToEnum(std::unordered_map<std::string, e> const& map, std::string str)
 }
 
 template<typename e>
-e strToEnum(std::unordered_map<e, std::string> const& map, std::string str)
+e strToEnum(std::unordered_map<e, std::string> const& map, std::string const str)
 {
     if (map.size() == 0)
         return (e)0;
