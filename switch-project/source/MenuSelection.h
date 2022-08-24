@@ -45,6 +45,8 @@ class MenuSelection : public Menu
 
         network::NetworkConfig const NetworkSettings() const;
 
+        audio::AudioConfig const AudioSettings() const;
+
         ConfigContainer const ConfigurationSettings() const;
 
     private:

@@ -7,6 +7,7 @@
 #include "srp/mouse/MouseConfiguration.h"
 #include "srp/keyboard/KeyboardConfiguration.h"
 #include "srp/touch/TouchConfiguration.h"
+#include "srp/audio/AudioConfiguration.h"
 
 void saveEncoderData(EncoderConfig const encoderData)
 {
@@ -64,6 +65,12 @@ void saveTouchData(touch::TouchConfig const touchData)
     conf.Save(touchData);
 }
 
+void saveAudioData(audio::AudioConfig const audioData)
+{
+    auto conf = AudioConfiguration{};
+    conf.Save(audioData);
+}
+
 void SaveConfigData(ConfigContainer const configurations)
 {
     saveEncoderData(configurations.encoderConfig);
@@ -72,4 +79,5 @@ void SaveConfigData(ConfigContainer const configurations)
     saveMouseData(configurations.mouseConfig);
     saveKeyboardData(configurations.keyboardConfig);
     saveTouchData(configurations.touchConfig);
+    saveAudioData(configurations.audioConfig);
 }

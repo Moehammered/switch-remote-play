@@ -156,6 +156,11 @@ network::NetworkConfig const MenuSelection::NetworkSettings() const
     return networkScreen.Settings();
 }
 
+audio::AudioConfig const MenuSelection::AudioSettings() const
+{
+    return audioMenu.Settings();
+}
+
 ConfigContainer const MenuSelection::ConfigurationSettings() const
 {
     return ConfigContainer
@@ -166,6 +171,7 @@ ConfigContainer const MenuSelection::ConfigurationSettings() const
         .mouseConfig = MouseSettings(),
         .keyboardConfig = KeyboardSettings(),
         .touchConfig = TouchSettings(),
-        .networkConfig = NetworkSettings()
+        .networkConfig = NetworkSettings(),
+        .audioConfig = AudioSettings()
     };
 }

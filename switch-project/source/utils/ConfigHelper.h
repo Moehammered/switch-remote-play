@@ -14,6 +14,7 @@ struct ConfigContainer
     keyboard::KeyboardConfig keyboardConfig;
     touch::TouchConfig touchConfig;
     network::NetworkConfig networkConfig;
+    audio::AudioConfig audioConfig;
 };
 
 void SaveConfigData(ConfigContainer const configurations);

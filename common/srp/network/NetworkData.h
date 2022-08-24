@@ -12,6 +12,7 @@
 #include "../mouse/MouseOptions.h"
 #include "../keyboard/KeyboardOptions.h"
 #include "../touch/TouchOptions.h"
+#include "../audio/AudioOptions.h"
 #include "../controller/SwitchHidDefinition.h"
 #include <stdint.h>
 

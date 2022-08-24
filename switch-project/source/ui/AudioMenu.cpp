@@ -1,6 +1,7 @@
 #include "AudioMenu.h"
 #include "../utils/Colours.h"
 #include "../system/SoftwareKeyboard.h"
+#include "srp/audio/AudioConfiguration.h"
 
 AudioMenu::AudioMenu() : Menu(),
     selectionCursor{audio::audioParamsList},
@@ -13,13 +14,13 @@ AudioMenu::AudioMenu() : Menu(),
     title.y += 30;
     title.value = "Audio Configuration";
 
-    // auto config = AudioConfiguration{};
-    // auto storedData = config.Data();
+    auto config = AudioConfiguration{};
+    auto storedData = config.Data();
 
-    //cycle cursors and maps to match stored data here
-    //cycleMap(....);
-
-    //set default values based on cursors...
+    sampleRateFrequencyCursor.SeekTo(storedData.sampleRateFrequency);
+    channelCount = storedData.channelCount;
+    formatCursor.SeekTo(storedData.format);
+    sampleCountCursor.SeekTo(storedData.sampleCount);
 
     SetupText();
 }
@@ -55,6 +56,18 @@ void AudioMenu::Render(SDL_Renderer * const renderer, FC_Font * const font)
         else
             item.second.Render(renderer, font);
     }
+}
+
+audio::AudioConfig const AudioMenu::Settings() const
+{
+    auto data = audio::AudioConfig{};
+
+    data.sampleRateFrequency = *sampleRateFrequencyCursor;
+    data.channelCount = channelCount;
+    data.format = *formatCursor;
+    data.sampleCount = *sampleCountCursor;
+
+    return data;
 }
 
 void AudioMenu::ChangeParam(audio::AudioParameters param, int value)

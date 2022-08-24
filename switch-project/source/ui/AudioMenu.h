@@ -14,6 +14,8 @@ public:
     void ProcessInput(PadState const & pad) override;
     void Render(SDL_Renderer * const renderer, FC_Font * const font) override;
 
+    audio::AudioConfig const Settings() const;
+
 private:
     ArrayCirculator<audio::AudioParameters, std::vector> selectionCursor;
     std::unordered_map<audio::AudioParameters, Text> textElements;
