@@ -24,18 +24,23 @@ std::string CreateVideoCommandLineArg(DisplayDeviceInfo const display, EncoderCo
     return completeCmd;
 }
 
-std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::string const ip, uint16_t port)
+std::string CreateAudioCommandLineArg(audio::AudioConfig const audioSettings, std::string const ip, uint16_t const port)
 {
     auto const & filePath = ffmpegPath;
 
     auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
-    auto const inputArgs = " -re -y -f dshow -channels 2 -i audio=\"virtual-audio-capturer\" "; //-audio_buffer_size 30
-    auto const qualityArgs = "-f s16le "; //s16le
+    auto const inputArgs = "-re -y -f dshow -channels 2 -i audio=\"virtual-audio-capturer\""; //-audio_buffer_size 30
+    auto const qualityArgs = "-f s16le"; //s16le
     auto const sampleRateArg = "-ar ";
-    auto const channelArgs = " -ac 2 -c:a pcm_s16le "; //s8 -- -c:a pcm_s16le 
-    auto const packetArg = "pkt_size=";
+    auto const channelArg = "-ac "; //s8 -- -c:a pcm_s16le 
+    auto const audioFormatArgs = "-c:a pcm_s16le";
+    //auto const packetArg = "pkt_size=";
+
     std::stringstream args{};
-    args << filePath << inputArgs << qualityArgs << sampleRateArg << sampleRate << channelArgs;
+    args << filePath << " " << inputArgs << " " << qualityArgs << " ";
+    args << sampleRateArg << audioSettings.sampleRateFrequency << " ";
+    args << channelArg << audioSettings.channelCount << " ";
+    args << audioFormatArgs << " ";
     args << connectionIP;// << "?" << packetArg << packetSize;
 
     return args.str();
@@ -81,7 +86,7 @@ PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig c
     return pi;
 }
 
-PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAudioEncoderWindow, Log& logger, bool& started)
+PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool const showAudioEncoderWindow, audio::AudioConfig const audioSettings, Log& logger, bool& started)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -90,15 +95,9 @@ PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAud
 
     si.cb = sizeof(si);
 
-    auto constexpr samplerate = 44100;
-    auto constexpr framerate = 100;
-    auto constexpr inputSampleCount = samplerate / framerate;
-    auto constexpr channels = 2; // stereo audio
-    auto constexpr bitrate = 16;
-
-    auto constexpr data_size = inputSampleCount * channels * bitrate/8;
-    
-    auto const args = CreateAudioCommandLineArg(samplerate, data_size, ip, port);
+    auto const args = CreateAudioCommandLineArg(audioSettings, ip, port);
+    logger.Write(args.c_str(), LogImportance::Medium);
+    logger << "\n";
 
     auto audioProcessFlag = CREATE_NO_WINDOW;
     if (showAudioEncoderWindow)

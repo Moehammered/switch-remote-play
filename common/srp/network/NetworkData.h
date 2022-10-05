@@ -43,7 +43,7 @@ auto constexpr commandCodeSize = sizeof(Command);
 auto constexpr PayloadPropertySizeSum = encoderConfigSize 
     + commandCodeSize + controller::controllerConfigSize
     + mouse::mouseConfigSize + touch::touchConfigSize 
-    + keyboard::keyboardConfigSize;
+    + keyboard::keyboardConfigSize + audio::audioConfigSize;
 
 size_t constexpr determinePaddingSize(int const alignment, int const size)
 {
@@ -66,6 +66,7 @@ struct alignas(8) CommandPayload
     mouse::MouseConfig              mouseData;
     keyboard::KeyboardConfig        keyboardData;
     touch::TouchConfig              touchData;
+    audio::AudioConfig              audioData;
     Command                         commandCode;
     //fill the struct to pad it out to next alignment of bytes
     int8_t                          padding[PayloadPaddingSize];

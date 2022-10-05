@@ -2,6 +2,7 @@
 #define __AUDIOSTREAM_H__
 
 #include <stdint.h>
+#include "srp/audio/AudioOptions.h"
 
 class AudioStream
 {
@@ -10,7 +11,7 @@ public:
 
     bool Running() const;
 
-    bool Start(uint16_t const port);
+    bool Start(audio::AudioConfig const audioSettings, uint16_t const port);
 
     void Shutdown();
 

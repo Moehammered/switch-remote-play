@@ -305,9 +305,11 @@ int main(int argc, char* argv[])
                                                 logger,
                                                 ffmpegStarted);
 
+                auto const audioOutputSettings = lastPayload.audioData;
                 audioProcessInfo = StartAudio(switchIP, 
                                                 startupNetworkSettings.audioPort, 
                                                 outputSettings.showAudioOutputWindow, 
+                                                audioOutputSettings,
                                                 logger,
                                                 audioStarted);
 

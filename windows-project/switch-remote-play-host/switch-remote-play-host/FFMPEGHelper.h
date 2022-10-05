@@ -13,9 +13,9 @@ void SetParentDirectory(std::string path);
 
 std::string CreateVideoCommandLineArg(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port);
 
-std::string CreateAudioCommandLineArg(int sampleRate, int packetSize, std::string const ip, uint16_t port);
+std::string CreateAudioCommandLineArg(audio::AudioConfig const audioSettings, std::string const ip, uint16_t const port);
 
 PROCESS_INFORMATION StartStream(DisplayDeviceInfo const display, EncoderConfig const config, std::string const ip, uint16_t port, bool showEncoderOutput, Log& logger, bool& started);
-PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t port, bool showAudioEncoderWindow, Log& logger, bool& started);
+PROCESS_INFORMATION StartAudio(std::string const ip, uint16_t const port, bool const showAudioEncoderWindow, audio::AudioConfig const audioSettings, Log& logger, bool& started);
 
 std::string ConfigToString(EncoderConfig const config);

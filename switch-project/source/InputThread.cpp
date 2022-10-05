@@ -58,6 +58,7 @@ void sendStartStreamCommand(std::string ip, uint16_t port, ConfigContainer const
             .mouseData = settings.mouseConfig,
             .keyboardData = settings.keyboardConfig,
             .touchData = settings.touchConfig,
+            .audioData = settings.audioConfig,
             .commandCode = streamCommand
         };
         

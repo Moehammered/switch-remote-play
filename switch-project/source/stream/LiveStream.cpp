@@ -9,7 +9,7 @@ LiveStream::LiveStream(uint16_t const audioPort)
 {
 }
 
-bool LiveStream::Startup(DecoderData const decoderConfig, uint16_t const videoPort)
+bool LiveStream::Startup(DecoderData const decoderConfig, audio::AudioConfig const audioSettings, uint16_t const videoPort)
 {
     if(videoStream.WaitForStream(decoderConfig, videoPort))
     {
@@ -22,7 +22,7 @@ bool LiveStream::Startup(DecoderData const decoderConfig, uint16_t const videoPo
 
         streamDecoder = new StreamDecoder(streamInfo->codecpar);
         if(!audioStream.Running())
-            audioStream.Start(audioPort);
+            audioStream.Start(audioSettings, audioPort);
 
         streamPacket = AVPacket{0};
         return true;

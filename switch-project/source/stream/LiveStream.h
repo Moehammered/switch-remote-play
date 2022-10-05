@@ -27,7 +27,7 @@ class LiveStream
 public:
     LiveStream(uint16_t const audioPort);
 
-    bool Startup(DecoderData const decoderConfig, uint16_t const videoPort);
+    bool Startup(DecoderData const decoderConfig, audio::AudioConfig const audioSettings, uint16_t const videoPort);
     bool Run(frameRenderDelegate const frameDataCallback);
     void Cleanup();
 

@@ -39,20 +39,31 @@ namespace audio
     {
         44100, 48000
     };
-
     uint32_t constexpr defaultSampleRateFrequency = 44100;
     
     uint32_t constexpr defaultChannelCount = 2;
-    uint32_t constexpr minChannelCount = 1;
+    uint32_t constexpr minChannelCount = 2;
     uint32_t constexpr maxChannelCount = 2;
 
     AudioFormat constexpr defaultAudioFormat = AudioFormat::DefaultSigned16Bit;
 
-    static std::vector<uint32_t> supportedSampleCounts
+    uint32_t constexpr calculateSampleCountRequirement(uint32_t sampleBufferCount, uint32_t const channels = 2, uint32_t const bitlength = 16, uint32_t const bufferAlignmentSize = 8192)
     {
-        4096, 8192, 16384
+        auto const singleSampleByteSize = (channels * bitlength) / 4;
+        auto const minSampleSize = bufferAlignmentSize / singleSampleByteSize;
+
+        return minSampleSize << sampleBufferCount;
+    }
+
+    static std::vector<uint32_t> const supportedSampleCounts
+    {
+        calculateSampleCountRequirement(2),
+        calculateSampleCountRequirement(3),
+        calculateSampleCountRequirement(4),
+        calculateSampleCountRequirement(5),
+        calculateSampleCountRequirement(6)
     };
-    uint32_t constexpr defaultSampleCount = 8192; //make a function that assumes buffer size from 2 by 16bit and buffer alignment of 8192
+    uint32_t constexpr defaultSampleCount = calculateSampleCountRequirement(4);
 
     struct AudioConfig
     {

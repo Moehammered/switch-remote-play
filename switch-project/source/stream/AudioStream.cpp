@@ -37,7 +37,7 @@ namespace
         if(handle <= 0 || buffer == nullptr || length <= 0)
             return;
 
-        auto totalRead = 0U;
+        auto totalRead = 0;
         do
         {
             auto destination = buffer + totalRead;
@@ -76,7 +76,7 @@ bool AudioStream::Running() const
     return audioSocket > 0 && audioDeviceID > 0;
 }
 
-bool AudioStream::Start(uint16_t const port)
+bool AudioStream::Start(audio::AudioConfig const audioSettings, uint16_t const port)
 {
     if(Running())
         Shutdown();
@@ -87,10 +87,10 @@ bool AudioStream::Start(uint16_t const port)
         auto desiredAudio = SDL_AudioSpec{};
         //https://www.vocitec.com/docs-tools/blog/sampling-rates-sample-depths-and-bit-rates-basic-audio-concepts
         //should read up on relationship with sample rate and freq.
-        desiredAudio.freq = 44100;
-        desiredAudio.channels = 2;
+        desiredAudio.freq = audioSettings.sampleRateFrequency;
+        desiredAudio.channels = audioSettings.channelCount;
         desiredAudio.format = AUDIO_S16LSB;
-        desiredAudio.samples = 8192;
+        desiredAudio.samples = audioSettings.sampleCount;
         desiredAudio.callback = fillAudioBuffer;
         desiredAudio.userdata = &audioSocket;
         audioDeviceID = initialiseAudioDevice(desiredAudio);

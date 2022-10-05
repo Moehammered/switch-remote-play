@@ -211,8 +211,7 @@ void VideoStream::Cleanup()
         avcodec_free_context(&decoderContext);
         decoderContext = nullptr;
     }
-    if(videoData != nullptr)
-        av_freep(&videoData[0]);
+    av_freep(&videoData[0]);
     if(frame != nullptr)
     {
         av_frame_free(&frame);

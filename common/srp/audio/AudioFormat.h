@@ -18,7 +18,7 @@
 
 namespace audio
 {
-    enum class AudioFormat
+    enum class AudioFormat : int32_t
     {
         Unsigned8Bit,
         Signed8Bit,

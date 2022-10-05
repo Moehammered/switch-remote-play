@@ -79,7 +79,7 @@ void AudioMenu::ChangeParam(audio::AudioParameters param, int value)
             break;
         
         case audio::AudioParameters::ChannelCount:
-            channelCount = keyboardNumber(audio::minChannelCount, audio::maxChannelCount, channelCount);
+            //channelCount = keyboardNumber(audio::minChannelCount, audio::maxChannelCount, channelCount);
             break;
 
         case audio::AudioParameters::Format:

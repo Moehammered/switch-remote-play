@@ -76,7 +76,7 @@ StreamState const processStreamRequest(ScreenRenderer& screen,
 
         sendStartStreamCommand(ip, startupNetworkSettings.commandPort, settings);
 
-        if(liveStream.Startup(settings.decoderConfig, startupNetworkSettings.videoPort))
+        if(liveStream.Startup(settings.decoderConfig, settings.audioConfig, startupNetworkSettings.videoPort))
         {
             gamepadThread = std::thread(runGamepadThread, ip, startupNetworkSettings.gamepadPort);
             return StreamState::ACTIVE;
