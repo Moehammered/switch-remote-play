@@ -11,6 +11,7 @@ namespace audio
         values[AudioParameters::ChannelCount] = std::to_string(config.channelCount);
         values[AudioParameters::Format] = audioFormatToStr(config.format);
         values[AudioParameters::SampleCount] = std::to_string(config.sampleCount);
+        values[AudioParameters::UseAudioQueue] = config.useAudioQueue != 0 ? "yes" : "no"; //std::to_string(config.sampleCount);
 
         return values;
     }
@@ -60,6 +61,13 @@ namespace audio
         };
         
         parse(AudioParameters::SampleCount, data.sampleCount, defaultSampleCount, strToSampleCount);
+
+        auto strToUseAudioQueue = [](std::string const& s)
+        {
+            auto const isSet = s == "yes";
+            return isSet ? (uint8_t)1 : (uint8_t)0;
+        };
+        parse(AudioParameters::UseAudioQueue, data.useAudioQueue, defaultUseAudioQueue, strToUseAudioQueue);
 
         return data;
     }

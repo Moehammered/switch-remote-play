@@ -13,13 +13,15 @@ namespace audio
         SampleRateFrequency,
         ChannelCount,
         Format,
-        SampleCount
+        SampleCount,
+        UseAudioQueue
     };
 
     static std::vector<AudioParameters> const audioParamsList
     {
         AudioParameters::SampleRateFrequency, AudioParameters::ChannelCount,
-        AudioParameters::Format, AudioParameters::SampleCount
+        AudioParameters::Format, AudioParameters::SampleCount,
+        AudioParameters::UseAudioQueue
     };
 
     static std::unordered_map<AudioParameters, std::string> const audioParamsDesc
@@ -27,7 +29,8 @@ namespace audio
         { AudioParameters::SampleRateFrequency, "Sample Rate Frequency" },
         { AudioParameters::ChannelCount, "Channel Count" },
         { AudioParameters::Format, "Format" },
-        { AudioParameters::SampleCount, "Sample Count" } 
+        { AudioParameters::SampleCount, "Sample Count" },
+        { AudioParameters::UseAudioQueue, "Use Audio Queue" }
     };
 
     static std::vector<AudioFormat> const supportedAudioFormats
@@ -65,12 +68,15 @@ namespace audio
     };
     uint32_t constexpr defaultSampleCount = calculateSampleCountRequirement(4);
 
+    uint8_t constexpr defaultUseAudioQueue = 0;
+
     struct AudioConfig
     {
         uint32_t sampleRateFrequency;
         uint32_t channelCount;
         AudioFormat format;
         uint32_t sampleCount;
+        uint8_t useAudioQueue;
     };
 
     auto constexpr audioConfigSize = sizeof(AudioConfig);

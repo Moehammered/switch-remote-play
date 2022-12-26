@@ -24,6 +24,7 @@ private:
     uint32_t channelCount;
     ArrayCirculator<audio::AudioFormat, std::vector> formatCursor;
     ArrayCirculator<uint32_t, std::vector> sampleCountCursor;
+    bool useAudioQueue;
 
     void ChangeParam(audio::AudioParameters param, int value);
     void UpdateUI(audio::AudioParameters param);

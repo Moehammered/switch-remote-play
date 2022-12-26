@@ -66,6 +66,7 @@ audio::AudioConfig const AudioMenu::Settings() const
     data.channelCount = channelCount;
     data.format = *formatCursor;
     data.sampleCount = *sampleCountCursor;
+    data.useAudioQueue = useAudioQueue ? 1 : 0;
 
     return data;
 }
@@ -88,6 +89,10 @@ void AudioMenu::ChangeParam(audio::AudioParameters param, int value)
 
         case audio::AudioParameters::SampleCount:
             sampleCountCursor += value;
+            break;
+
+        case audio::AudioParameters::UseAudioQueue:
+            useAudioQueue = value < 0 ? false : true;
             break;
     }
 }
@@ -128,6 +133,12 @@ void AudioMenu::UpdateUI(audio::AudioParameters param)
             updateElementText(str);
         }
         break;
+
+        case audio::AudioParameters::UseAudioQueue:
+        {
+            auto str = useAudioQueue ? "Yes" : "No";
+            updateElementText(str);
+        }
     }
 }
 

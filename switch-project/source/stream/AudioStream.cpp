@@ -5,10 +5,17 @@
 #include <string.h>
 #include <iostream>
 #include <SDL2/SDL_audio.h>
+#include <thread>
+#include <atomic>
 
 namespace
 {
     auto audioDeviceID = SDL_AudioDeviceID{0};
+    auto useQueueThread = true;
+    int32_t queueThreadSocketHandle = 0;
+    std::atomic_flag queueThreadRunning{};
+
+    std::thread audioQueueThread{};
 
     SDL_AudioDeviceID initialiseAudioDevice(SDL_AudioSpec const desiredAudioSettings)
     {
@@ -65,6 +72,38 @@ namespace
         //call socket read function here
         readAudioStream(socketHandle, stream, len);
     }
+
+    std::thread startAudioQueueThread(int32_t const audioSocketHandle, SDL_AudioSpec const settings) 
+    {
+        queueThreadSocketHandle = audioSocketHandle;
+        queueThreadRunning.test_and_set();
+
+        return std::thread([&]{
+            const int bufferSize = settings.channels * 2 * settings.samples;
+            const uint32_t maxQueueSize = bufferSize * 100;
+            auto buffer = std::vector<uint8_t>(bufferSize,0);
+
+            auto trimAudioQueue = [&] {
+                if(SDL_GetQueuedAudioSize(audioDeviceID) > maxQueueSize)
+                {
+                    std::cout << "trimming audio queue\n";
+                    SDL_ClearQueuedAudio(audioDeviceID);
+                }
+            };
+
+            while(queueThreadRunning.test_and_set())
+            {
+                //check if queue is huge
+                trimAudioQueue();
+                //read audio data
+                readAudioStream(queueThreadSocketHandle, buffer.data(), bufferSize);
+                //queue it up
+                SDL_QueueAudio(audioDeviceID, buffer.data(), bufferSize);
+            }
+
+            SDL_ClearQueuedAudio(audioDeviceID);
+        });
+    }
 }
 
 AudioStream::AudioStream()
@@ -80,6 +119,8 @@ bool AudioStream::Start(audio::AudioConfig const audioSettings, uint16_t const p
 {
     if(Running())
         Shutdown();
+
+    useQueueThread = audioSettings.useAudioQueue != 0;
         
     audioSocket = createSocket(port);
     if(audioSocket > 0)
@@ -91,17 +132,22 @@ bool AudioStream::Start(audio::AudioConfig const audioSettings, uint16_t const p
         desiredAudio.channels = audioSettings.channelCount;
         desiredAudio.format = AUDIO_S16LSB;
         desiredAudio.samples = audioSettings.sampleCount;
-        desiredAudio.callback = fillAudioBuffer;
+        desiredAudio.callback = useQueueThread ? nullptr : fillAudioBuffer;
         desiredAudio.userdata = &audioSocket;
         audioDeviceID = initialiseAudioDevice(desiredAudio);
         if(audioDeviceID > 0)
         {
+            if(useQueueThread)
+                audioQueueThread = startAudioQueueThread(audioSocket, desiredAudio);
             //started up now, ready for audio stream
             SDL_PauseAudioDevice(audioDeviceID, 0);
             return true;
         }
         else
         {
+            if(useQueueThread)
+                queueThreadRunning.clear();
+                
             close(audioSocket);
             audioSocket = 0;
             return false;
@@ -120,6 +166,13 @@ void AudioStream::Shutdown()
     shutdown(audioSocket, SHUT_RDWR);
     close(audioSocket);
     audioSocket = 0;
+
+    if(useQueueThread)
+    {
+        queueThreadRunning.clear();
+        audioQueueThread.join();
+    }
+        
     std::cout << "Pausing audioDeviceID " << audioDeviceID << "...\n\n";
     SDL_PauseAudioDevice(audioDeviceID, 1);
     SDL_CloseAudioDevice(audioDeviceID);
