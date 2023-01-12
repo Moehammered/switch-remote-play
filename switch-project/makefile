@@ -41,7 +41,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 TARGET		:=	switch-remote-play
 BUILD		:=	build
 SOURCES		:=	source source/network source/ui \
-				source/system source/stream  \
+				source/system source/stream source/stream/audio \
 				source/utils source/utils/pad \
 				../common/srp/codec/general ../common/srp/utils ../common/srp/ffmpegHelpers \
 				../common/srp/codec ../common/srp/codec/h264 ../common/srp/codec/h264_amf \

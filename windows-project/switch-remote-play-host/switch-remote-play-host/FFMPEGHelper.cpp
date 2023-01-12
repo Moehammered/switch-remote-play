@@ -34,6 +34,7 @@ std::string CreateAudioCommandLineArg(audio::AudioConfig const audioSettings, st
     auto const sampleRateArg = "-ar ";
     auto const channelArg = "-ac "; //s8 -- -c:a pcm_s16le 
     auto const audioFormatArgs = "-c:a pcm_s16le";
+    auto const opusAudioFormatArgs = "-c:a libopus -vbr off -b:a 96k";
     //auto const packetArg = "pkt_size=";
 
     std::stringstream args{};
@@ -41,6 +42,7 @@ std::string CreateAudioCommandLineArg(audio::AudioConfig const audioSettings, st
     args << sampleRateArg << audioSettings.sampleRateFrequency << " ";
     args << channelArg << audioSettings.channelCount << " ";
     args << audioFormatArgs << " ";
+    //args << opusAudioFormatArgs << " ";
     args << connectionIP;// << "?" << packetArg << packetSize;
 
     return args.str();

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "srp/audio/AudioOptions.h"
+#include "audio/FfmpegAudioStream.h"
 
 class AudioStream
 {
@@ -16,8 +17,9 @@ public:
     void Shutdown();
 
 private:
-    int32_t audioSocket;
-    int32_t createSocket(uint16_t const port);
+    ffmpeg::AudioStream ffmpegStream;
+    // int32_t audioSocket;
+    // int32_t createUdpSocket(uint16_t const port);
 };
 
 #endif

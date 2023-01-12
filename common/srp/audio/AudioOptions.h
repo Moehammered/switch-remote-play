@@ -60,11 +60,12 @@ namespace audio
 
     static std::vector<uint32_t> const supportedSampleCounts
     {
+        calculateSampleCountRequirement(0),
+        calculateSampleCountRequirement(1),
         calculateSampleCountRequirement(2),
         calculateSampleCountRequirement(3),
         calculateSampleCountRequirement(4),
-        calculateSampleCountRequirement(5),
-        calculateSampleCountRequirement(6)
+        calculateSampleCountRequirement(5)
     };
     uint32_t constexpr defaultSampleCount = calculateSampleCountRequirement(4);
 

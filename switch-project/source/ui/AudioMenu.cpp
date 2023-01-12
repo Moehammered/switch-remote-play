@@ -21,6 +21,7 @@ AudioMenu::AudioMenu() : Menu(),
     channelCount = storedData.channelCount;
     formatCursor.SeekTo(storedData.format);
     sampleCountCursor.SeekTo(storedData.sampleCount);
+    useAudioQueue = storedData.useAudioQueue;
 
     SetupText();
 }
@@ -92,7 +93,7 @@ void AudioMenu::ChangeParam(audio::AudioParameters param, int value)
             break;
 
         case audio::AudioParameters::UseAudioQueue:
-            useAudioQueue = value < 0 ? false : true;
+            useAudioQueue = value > 0 ? true : false;
             break;
     }
 }

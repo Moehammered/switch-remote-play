@@ -3,24 +3,6 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"label": "C/C++: g++.exe build active file",
-			"command": "C:/mingw-w64/x86_64-8.1.0-posix-sjlj-rt_v6-rev0/mingw64/bin/g++.exe",
-			"args": [
-				"-g",
-				"${file}",
-				"-o",
-				"${fileDirname}\\${fileBasenameNoExtension}.exe"
-			],
-			"options": {
-				"cwd": "C:/mingw-w64/x86_64-8.1.0-posix-sjlj-rt_v6-rev0/mingw64/bin"
-			},
-			"problemMatcher": [
-				"$gcc"
-			],
-			"group": "build"
-		},
-		{
-			"type": "shell",
 			"label": "nxlink: send application to netloader",
 			"windows": {
 				"command": "C:/mingw-w64/switch/devkitPro/tools/bin/nxlink.exe"
