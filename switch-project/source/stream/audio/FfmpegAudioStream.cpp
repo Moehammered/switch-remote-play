@@ -1,6 +1,9 @@
 #include "FfmpegAudioStream.h"
 #include <iostream>
 
+
+// extern AVInputFormat *first_iformat = NULL;
+
 namespace ffmpeg
 {
     std::string const avErrorToString(int errCode)
@@ -18,15 +21,29 @@ namespace ffmpeg
 
     bool AudioStream::openStream(std::string const& uri)
     {
+        // av_register_all();
+        // avcodec_register_all();
         formatContext = avformat_alloc_context();
 
         AVDictionary* options = nullptr;
         av_dict_set(&options, "listen", "1", 0);
+        av_dict_set(&options, "probesize", "32", 0);
+        // av_dict_set(&options, "buffer_size", "16384", 0);
         // av_dict_set(&options, "protocol_whitelist", "file,udp,rtp", 0);
         // av_dict_set(&options, "sdp_flags", "custom_io", 0);
         // auto const infmt = av_find_input_format("sdp");
 
-        auto const openState = avformat_open_input(&formatContext, uri.c_str(), nullptr, &options);
+        std::cout << "opening [" << uri << "] stream...\n\n";
+
+        auto const formatName = "opus";
+        
+        auto inputFormat = av_find_input_format(formatName);
+        if(inputFormat)
+            std::cout << "Input Format found: " << inputFormat->long_name << "\n";
+        else
+            std::cout << "Failed to find input format for '" << formatName << "'...\n";
+
+        auto const openState = avformat_open_input(&formatContext, uri.c_str(), inputFormat, &options);
 
         if(openState < 0)
         {
@@ -35,6 +52,8 @@ namespace ffmpeg
             avformat_close_input(&formatContext);
             return false;
         }
+
+        std::cout << "audio:: finding stream info...\n";
 
         auto const streamInfoState = avformat_find_stream_info(formatContext, nullptr);
         if(streamInfoState < 0)
@@ -46,6 +65,7 @@ namespace ffmpeg
         }
 
         auto streamIdx = 0U;
+        std::cout << "audio:: finding stream index...\n";
         while(streamIdx < formatContext->nb_streams)
         {
             auto const currStream = formatContext->streams[streamIdx];
@@ -61,6 +81,7 @@ namespace ffmpeg
             return false;
         }
 
+        std::cout << "audio:: finding stream decoder...\n";
         auto const stream = formatContext->streams[streamIdx];
         auto const codecParams = stream->codecpar;
         streamCodec = avcodec_find_decoder(codecParams->codec_id);
@@ -88,6 +109,7 @@ namespace ffmpeg
             avformat_close_input(&formatContext);
             return false;
         }
+        std::cout << "audio:: opening stream codec...\n";
         auto const openCodecResult = avcodec_open2(codecContext, streamCodec, nullptr);
         if(openCodecResult < 0)
         {
@@ -97,6 +119,7 @@ namespace ffmpeg
             return false;
         }
 
+        std::cout << "audio:: allocating data packet...\n";
         dataPacket = av_packet_alloc();
         if(dataPacket == nullptr)
         {
@@ -105,6 +128,7 @@ namespace ffmpeg
             return false;
         }
 
+        std::cout << "audio:: allocating data frame...\n";
         dataFrame = av_frame_alloc();
         if(dataFrame == nullptr)
         {

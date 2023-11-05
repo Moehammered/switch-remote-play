@@ -78,8 +78,14 @@ int main(int argc, char **argv)
     NetworkDiscovery network {startupNetworkSettings.handshakePort, broadcastAddress, startupNetworkSettings.broadcastPort};
     
     std::thread gamepadThread{};
+    auto framesTillCout = 1000;
     auto liveRenderCallback = [&] (YUVFrame frameData) 
     {
+        if(--framesTillCout == 0)
+        {
+            std::cout << "render frame called\n\n";
+            framesTillCout = 1000;
+        }
         renderStreamFrame(screen, frameData);
     };
     LiveStream liveStream { startupNetworkSettings.audioPort };

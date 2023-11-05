@@ -73,6 +73,7 @@ bool VideoStream::WaitForStream(DecoderData decoderSettings, uint16_t port)
     AVDictionary* opts = 0;
     av_dict_set(&opts, "listen", "1", 0); // 1 means listen for any connection on the URL port, 0 means listen for connections to the URL
     av_dict_set(&opts, "probesize", "5000", 0);
+    // av_dict_set(&opts, "buffer_size", "16384", 0);
 
     //open input file, and allocate format context
     auto entry = av_dict_get(opts, "timeout", nullptr, 0);
@@ -103,6 +104,8 @@ bool VideoStream::WaitForStream(DecoderData decoderSettings, uint16_t port)
         std::cout << "Error getting stream info: " << errbuf << std::endl;
         return false;
     }
+
+    std::cout << "Video input opened with " << streamFormat->nb_streams << " stream...\n\n";
 
     ret = av_find_best_stream(streamFormat, streamMediaType, -1, -1, NULL, 0);
     if (ret < 0)
@@ -169,6 +172,8 @@ bool VideoStream::WaitForStream(DecoderData decoderSettings, uint16_t port)
         std::cout << "Failed to allocate image data: " << errbuf << std::endl;
         return false;
     }
+
+    std::cout << "Video input format: " << streamFormat->iformat->name << "\n\n";
     
     av_dict_free(&opts);
 

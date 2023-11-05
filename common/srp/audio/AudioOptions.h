@@ -13,15 +13,13 @@ namespace audio
         SampleRateFrequency,
         ChannelCount,
         Format,
-        SampleCount,
-        UseAudioQueue
+        SampleCount
     };
 
     static std::vector<AudioParameters> const audioParamsList
     {
         AudioParameters::SampleRateFrequency, AudioParameters::ChannelCount,
-        AudioParameters::Format, AudioParameters::SampleCount,
-        AudioParameters::UseAudioQueue
+        AudioParameters::Format, AudioParameters::SampleCount
     };
 
     static std::unordered_map<AudioParameters, std::string> const audioParamsDesc
@@ -29,8 +27,7 @@ namespace audio
         { AudioParameters::SampleRateFrequency, "Sample Rate Frequency" },
         { AudioParameters::ChannelCount, "Channel Count" },
         { AudioParameters::Format, "Format" },
-        { AudioParameters::SampleCount, "Sample Count" },
-        { AudioParameters::UseAudioQueue, "Use Audio Queue" }
+        { AudioParameters::SampleCount, "Sample Count" }
     };
 
     static std::vector<AudioFormat> const supportedAudioFormats
@@ -40,9 +37,9 @@ namespace audio
 
     static std::vector<uint32_t> const supportedSampleRateFrequencies
     {
-        44100, 48000
+        48000
     };
-    uint32_t constexpr defaultSampleRateFrequency = 44100;
+    uint32_t constexpr defaultSampleRateFrequency = 48000;
     
     uint32_t constexpr defaultChannelCount = 2;
     uint32_t constexpr minChannelCount = 2;
@@ -60,6 +57,7 @@ namespace audio
 
     static std::vector<uint32_t> const supportedSampleCounts
     {
+        512,
         calculateSampleCountRequirement(0),
         calculateSampleCountRequirement(1),
         calculateSampleCountRequirement(2),
@@ -67,9 +65,7 @@ namespace audio
         calculateSampleCountRequirement(4),
         calculateSampleCountRequirement(5)
     };
-    uint32_t constexpr defaultSampleCount = calculateSampleCountRequirement(4);
-
-    uint8_t constexpr defaultUseAudioQueue = 0;
+    uint32_t constexpr defaultSampleCount = calculateSampleCountRequirement(0);
 
     struct AudioConfig
     {
@@ -77,7 +73,6 @@ namespace audio
         uint32_t channelCount;
         AudioFormat format;
         uint32_t sampleCount;
-        uint8_t useAudioQueue;
     };
 
     auto constexpr audioConfigSize = sizeof(AudioConfig);

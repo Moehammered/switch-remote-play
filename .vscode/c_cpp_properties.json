@@ -32,10 +32,10 @@
             "includePath": [
                 "${workspaceFolder}/common/**",
                 "${workspaceFolder}/switch-project/**",
-                "C:\\mingw-w64\\switch\\devkitPro\\libnx\\include",
-                "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\12.2.0\\include",
-                "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
-                "C:\\mingw-w64\\switch\\devkitPro\\portlibs\\switch\\include"
+                "${DEVKITPRO}/libnx/include",
+                "${DEVKITPRO}/devkitA64/lib/gcc/aarch64-none-elf/12.2.0/include",
+                "${DEVKITPRO}/devkitA64/aarch64-none-elf/include/**",
+                "${DEVKITPRO}/portlibs/switch/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -43,22 +43,28 @@
                 "_UNICODE",
                 "__SWITCH__"
             ],
-            "compilerPath": "C:/mingw-w64/x86_64-8.1.0-posix-sjlj-rt_v6-rev0/mingw64/bin/g++.exe",
+            "compilerPath": "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-g++",
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-arm64",
-            "compilerArgs": [],
             "browse": {
                 "path": [
                     "${workspaceFolder}/common/**",
                     "${workspaceFolder}/switch-project/**",
-                    "C:\\mingw-w64\\switch\\devkitPro\\libnx\\include",
-                    "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\lib\\gcc\\aarch64-none-elf\\12.2.0\\include",
-                    "C:\\mingw-w64\\switch\\devkitPro\\devkitA64\\aarch64-none-elf\\include",
-                    "C:\\mingw-w64\\switch\\devkitPro\\portlibs\\switch\\include"
+                    "${DEVKITPRO}/libnx/include",
+                    "${DEVKITPRO}/devkitA64/lib/gcc/aarch64-none-elf/12.2.0/include",
+                    "${DEVKITPRO}/devkitA64/aarch64-none-elf/include/**",
+                    "${DEVKITPRO}/portlibs/switch/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true
-            }
+            },
+            "compilerArgs": [
+                "-march=armv8-a+crc+crypto",
+                "-mtune=cortex-a57",
+                "-mtp=soft",
+                "-fPIE",
+                "-D__SWITCH__"
+            ]
         }
     ],
     "version": 4

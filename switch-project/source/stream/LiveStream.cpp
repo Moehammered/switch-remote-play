@@ -19,8 +19,8 @@ bool LiveStream::Startup(DecoderData const decoderConfig, audio::AudioConfig con
             streamDecoder->Cleanup();
             delete streamDecoder;
         }
-
         streamDecoder = new StreamDecoder(streamInfo->codecpar);
+
         if(!audioStream.Running())
             audioStream.Start(audioSettings, audioPort);
 

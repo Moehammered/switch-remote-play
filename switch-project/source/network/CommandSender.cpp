@@ -38,13 +38,13 @@ bool SendCommandPayload(int const connectionSock, CommandPayload const payload)
     static_assert(commandCodeSize == 2);
     static_assert(encoderConfigSize == 40);
     static_assert(controller::controllerConfigSize == 32);
-    static_assert(commandPayloadSize == 464);
-    static_assert(PayloadPropertySizeSum == 458);
+    static_assert(commandPayloadSize == 456);
+    static_assert(PayloadPropertySizeSum == 454);
     static_assert(commandCodeSize == 2);
     static_assert(mouse::mouseConfigSize == 56);
     static_assert(touch::touchConfigSize == 20);
     static_assert(keyboard::keyboardConfigSize == 288);
-    static_assert(audio::audioConfigSize == 20);
+    static_assert(audio::audioConfigSize == 16);
 
     char* dataPtr = (char*)&payload;
 

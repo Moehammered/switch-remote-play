@@ -3,33 +3,55 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"label": "nxlink: send application to netloader",
-			"windows": {
-				"command": "C:/mingw-w64/switch/devkitPro/tools/bin/nxlink.exe"
-			},
-			"args": [
-				"-s",
-				"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro",
-				"-a",
-				"192.168.20.14"
-			],
-			"options": {
-				"cwd": "C:/mingw-w64/switch"
+			"label": "make program",
+			"linux": {
+				"command": "make -j4",
+				"options": {
+					"cwd": "${workspaceFolder}/switch-project"
+				}
 			},
 			"group": "none",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
+			"label": "nxlink: send application to netloader",
+			"windows": {
+				"command": "C:/mingw-w64/switch/devkitPro/tools/bin/nxlink.exe",
+				"args": [
+					"-s",
+					"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro",
+					"-a",
+					"192.168.20.14"
+				],
+				"options": {
+					"cwd": "C:/mingw-w64/switch"
+				}
+			},
+			"linux": {
+				"command": "${DEVKITPRO}/tools/bin/nxlink",
+				"args": [
+					"-s",
+					"${workspaceFolder}/switch-project/${workspaceFolderBasename}.nro",
+					"-a",
+					"192.168.20.14"
+				],
+			},
+			"group": "build",
+			"dependsOn": ["make program"],
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
 			"label": "yuzu: run application in emulator",
 			"windows": {
-				"command": "C:\\Users\\Moehammered\\AppData\\Local\\yuzu\\yuzu-windows-msvc\\yuzu.exe"
-			},
-			"args": [
-				"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro"
-			],
-			"options": {
-				"cwd": "C:\\Users\\Moehammered\\AppData\\Local\\yuzu\\yuzu-windows-msvc"
+				"command": "C:\\Users\\Moehammered\\AppData\\Local\\yuzu\\yuzu-windows-msvc\\yuzu.exe",
+				"args": [
+					"${workspaceFolder}\\switch-project\\${workspaceFolderBasename}.nro"
+				],
+				"options": {
+					"cwd": "C:\\Users\\Moehammered\\AppData\\Local\\yuzu\\yuzu-windows-msvc"
+				}
 			},
 			"group": "none",
 			"problemMatcher": []
@@ -38,11 +60,11 @@
 			"type": "shell",
 			"label": "explorer: open yuzu sd card directory",
 			"windows": {
-				"command": "explorer.exe"
+				"command": "explorer.exe",
+				"args": [
+					"C:\\Users\\Moehammered\\AppData\\Roaming\\yuzu\\sdmc\\"
+				],
 			},
-			"args": [
-				"C:\\Users\\Moehammered\\AppData\\Roaming\\yuzu\\sdmc\\"
-			],
 			"group": "none",
 			"problemMatcher": []
 		}

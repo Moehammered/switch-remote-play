@@ -133,47 +133,88 @@ AudioStream::AudioStream()
     : ffmpegStream{}
 {}
 
+std::thread listenerThread{};
 bool AudioStream::Running() const
 { 
-    return  audioDeviceID > 0 && ffmpegStream.isOpen();
+    return (audioDeviceID > 0 && ffmpegStream.isOpen()) || listenerThread.joinable();
 }
+
 
 bool AudioStream::Start(audio::AudioConfig const audioSettings, uint16_t const port)
 {
     if(Running())
         Shutdown();
 
+    // if(listenerThread.joinable())
+    //     listenerThread.join();
+
+    listenerThread = std::thread([&, audioData = audioSettings, p = port] {
+        // audioSocket = createUdpSocket(port);
+        auto const uri = "tcp://0.0.0.0:" + std::to_string(port);
+
+        if(ffmpegStream.openStream(uri))
+        {
+            auto desiredAudio = SDL_AudioSpec{};
+            //https://www.vocitec.com/docs-tools/blog/sampling-rates-sample-depths-and-bit-rates-basic-audio-concepts
+            //should read up on relationship with sample rate and freq.
+            desiredAudio.freq = audioSettings.sampleRateFrequency;
+            desiredAudio.channels = audioSettings.channelCount;
+            desiredAudio.format = AUDIO_S16LSB;
+            desiredAudio.samples = audioSettings.sampleCount;
+            desiredAudio.callback = nullptr;
+            desiredAudio.userdata = nullptr;
+            audioDeviceID = initialiseAudioDevice(desiredAudio);
+            if(audioDeviceID > 0)
+            {
+                audioQueueThread = startAudioThread(desiredAudio, ffmpegStream);
+                //started up now, ready for audio stream
+                SDL_PauseAudioDevice(audioDeviceID, 0);
+                return true;
+            }
+            else
+            {
+                queueThreadRunning.clear();
+                ffmpegStream.closeStream();
+                return false;
+            }
+        }
+        else
+            return false;
+    });
+
     // audioSocket = createUdpSocket(port);
     auto const uri = "tcp://0.0.0.0:" + std::to_string(port);
 
-    if(ffmpegStream.openStream(uri))
-    {
-        auto desiredAudio = SDL_AudioSpec{};
-        //https://www.vocitec.com/docs-tools/blog/sampling-rates-sample-depths-and-bit-rates-basic-audio-concepts
-        //should read up on relationship with sample rate and freq.
-        desiredAudio.freq = audioSettings.sampleRateFrequency;
-        desiredAudio.channels = audioSettings.channelCount;
-        desiredAudio.format = AUDIO_S16LSB;
-        desiredAudio.samples = audioSettings.sampleCount;
-        desiredAudio.callback = nullptr;
-        desiredAudio.userdata = nullptr;
-        audioDeviceID = initialiseAudioDevice(desiredAudio);
-        if(audioDeviceID > 0)
-        {
-            audioQueueThread = startAudioThread(desiredAudio, ffmpegStream);
-            //started up now, ready for audio stream
-            SDL_PauseAudioDevice(audioDeviceID, 0);
-            return true;
-        }
-        else
-        {
-            queueThreadRunning.clear();
-            ffmpegStream.closeStream();
-            return false;
-        }
-    }
-    else
-        return false;
+    // if(ffmpegStream.openStream(uri))
+    // {
+    //     auto desiredAudio = SDL_AudioSpec{};
+    //     //https://www.vocitec.com/docs-tools/blog/sampling-rates-sample-depths-and-bit-rates-basic-audio-concepts
+    //     //should read up on relationship with sample rate and freq.
+    //     desiredAudio.freq = audioSettings.sampleRateFrequency;
+    //     desiredAudio.channels = audioSettings.channelCount;
+    //     desiredAudio.format = AUDIO_S16LSB;
+    //     desiredAudio.samples = audioSettings.sampleCount;
+    //     desiredAudio.callback = nullptr;
+    //     desiredAudio.userdata = nullptr;
+    //     audioDeviceID = initialiseAudioDevice(desiredAudio);
+    //     if(audioDeviceID > 0)
+    //     {
+    //         audioQueueThread = startAudioThread(desiredAudio, ffmpegStream);
+    //         //started up now, ready for audio stream
+    //         SDL_PauseAudioDevice(audioDeviceID, 0);
+    //         return true;
+    //     }
+    //     else
+    //     {
+    //         queueThreadRunning.clear();
+    //         ffmpegStream.closeStream();
+    //         return false;
+    //     }
+    // }
+    // else
+    //     return false;
+
+    return true;
 }
 
 void AudioStream::Shutdown()
@@ -185,6 +226,8 @@ void AudioStream::Shutdown()
 
     queueThreadRunning.clear();
     audioQueueThread.join();
+    if(listenerThread.joinable())
+        listenerThread.join();
         
     std::cout << "Pausing audioDeviceID " << audioDeviceID << "...\n\n";
     SDL_PauseAudioDevice(audioDeviceID, 1);

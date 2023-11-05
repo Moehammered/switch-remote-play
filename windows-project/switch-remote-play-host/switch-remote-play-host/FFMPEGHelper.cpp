@@ -28,21 +28,21 @@ std::string CreateAudioCommandLineArg(audio::AudioConfig const audioSettings, st
 {
     auto const & filePath = ffmpegPath;
 
-    auto const connectionIP = "udp://" + ip + ":" + std::to_string(port);
-    auto const inputArgs = "-re -y -f dshow -channels 2 -i audio=\"virtual-audio-capturer\""; //-audio_buffer_size 30
+    auto const connectionIP = "tcp://" + ip + ":" + std::to_string(port);
+    auto const inputArgs = "-re -y -f dshow -channels 2 -i audio=\"virtual-audio-capturer\"";// -audio_buffer_size 30";
     auto const qualityArgs = "-f s16le"; //s16le
     auto const sampleRateArg = "-ar ";
     auto const channelArg = "-ac "; //s8 -- -c:a pcm_s16le 
-    auto const audioFormatArgs = "-c:a pcm_s16le";
-    auto const opusAudioFormatArgs = "-c:a libopus -vbr off -b:a 96k";
+    //auto const audioFormatArgs = "-c:a pcm_s16le";
+    auto const opusAudioFormatArgs = "-c:a libopus -application lowdelay -frame_duration 5 -b:a 96k";
     //auto const packetArg = "pkt_size=";
 
     std::stringstream args{};
     args << filePath << " " << inputArgs << " " << qualityArgs << " ";
     args << sampleRateArg << audioSettings.sampleRateFrequency << " ";
     args << channelArg << audioSettings.channelCount << " ";
-    args << audioFormatArgs << " ";
-    //args << opusAudioFormatArgs << " ";
+    //args << audioFormatArgs << " ";
+    args << opusAudioFormatArgs << " ";
     args << connectionIP;// << "?" << packetArg << packetSize;
 
     return args.str();
